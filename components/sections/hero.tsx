@@ -127,84 +127,119 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* Mobile Layout - Simples e Profissional */}
-      <div className="md:hidden w-full min-h-screen flex items-center justify-between px-4 py-20 z-10">
-        {/* Left: Text Content (55%) */}
+      {/* Mobile Layout - Professional Design */}
+      <div className="md:hidden w-full min-h-screen flex items-center justify-center px-6 py-20 z-10 relative">
+        {/* Main Content Container */}
         <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="w-[55%] flex flex-col space-y-4 pr-2"
+          className="w-full max-w-md flex flex-col space-y-6"
         >
+          {/* Title */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-xl font-comfortaa font-bold leading-tight text-gray-900 dark:text-white"
+            className="text-2xl font-comfortaa font-bold leading-tight text-gray-900 dark:text-white"
           >
             {t('title')}
             <br />
-            <span className="bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent text-2xl">
+            <span className="bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent text-3xl block mt-1">
               {t('brandName')}
             </span>
           </motion.h1>
 
+          {/* Subtitle */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-[11px] text-gray-700 dark:text-gray-300 leading-relaxed"
+            className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed font-medium"
           >
             {t('subtitle')}
           </motion.p>
 
-          {/* GitHub Stats - Mobile (2 items only) */}
+          {/* Typing Animation - Mobile */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="flex flex-col gap-2 max-w-[120px]"
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="text-lg font-bold"
           >
-            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg p-2 border border-gray-200 dark:border-gray-700 shadow-md">
-              <p className="text-sm font-bold text-catbytes-purple dark:text-catbytes-pink">250+</p>
-              <p className="text-[9px] text-gray-600 dark:text-gray-400">Commits</p>
+            <TypeAnimation
+              sequence={[
+                t('typing.creativity'),
+                2000,
+                t('typing.code'),
+                2000,
+                t('typing.ai'),
+                2000,
+                t('typing.passion'),
+                2000,
+              ]}
+              wrapper="span"
+              speed={50}
+              repeat={Infinity}
+              className="bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent"
+            />
+          </motion.div>
+
+          {/* GitHub Stats - Mobile Grid */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+            className="grid grid-cols-2 gap-3"
+          >
+            <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-lg">
+              <p className="text-lg font-bold text-catbytes-purple dark:text-catbytes-pink">250+</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Commits</p>
             </div>
-            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-lg p-2 border border-gray-200 dark:border-gray-700 shadow-md">
-              <p className="text-sm font-bold text-catbytes-blue">18</p>
-              <p className="text-[9px] text-gray-600 dark:text-gray-400">Repos</p>
+            <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-lg">
+              <p className="text-lg font-bold text-catbytes-blue">18</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Repositories</p>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Right: Cat Image (45%) */}
+        {/* Decorative Cat - Positioned Absolutely with Full Control */}
         <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="w-[45%] flex items-end justify-end"
+          initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{
+            duration: 0.8,
+            delay: 0.5,
+            type: "spring",
+            stiffness: 200,
+            damping: 15
+          }}
+          className="absolute top-24 right-4 z-20 pointer-events-auto"
           onTouchStart={() => setShowCatMessage(true)}
           onTouchEnd={() => setShowCatMessage(false)}
         >
-          <div className="relative w-full max-w-[200px]">
+          <div className="relative w-20 h-20 opacity-90 hover:opacity-100 transition-opacity">
             <Image
               src="/images/gato-sentado.webp"
               alt="Axel - Mascote CatBytes"
-              width={200}
-              height={300}
-              className="w-full h-auto drop-shadow-2xl"
+              width={80}
+              height={80}
+              className="w-full h-full object-contain drop-shadow-xl"
               priority
             />
+            {/* Decorative glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-catbytes-purple/20 via-catbytes-pink/20 to-catbytes-blue/20 rounded-full blur-xl -z-10 animate-pulse"></div>
           </div>
 
           {/* Cat Speech Bubble - Mobile */}
           <AnimatePresence>
             {showCatMessage && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
+                initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-3 rounded-b-2xl shadow-2xl text-xs border-b-2 border-gray-200 dark:border-gray-700 z-[1050] text-center mx-auto"
+                className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-3 rounded-b-2xl shadow-2xl text-xs border-b-2 border-catbytes-purple dark:border-catbytes-pink z-[1050] text-center mx-auto"
               >
                 <p className="font-medium">{t('catMessage')}</p>
               </motion.div>
