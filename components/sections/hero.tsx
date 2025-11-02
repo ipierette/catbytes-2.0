@@ -203,7 +203,7 @@ export function Hero() {
           </motion.div>
         </motion.div>
 
-        {/* Decorative Cat - Positioned Absolutely with Full Control */}
+        {/* Decorative Cat - Positioned at Bottom Right (Sitting on Floor) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
@@ -214,16 +214,16 @@ export function Hero() {
             stiffness: 200,
             damping: 15
           }}
-          className="absolute top-24 right-4 z-20 pointer-events-auto"
+          className="absolute bottom-0 right-4 z-20 pointer-events-auto"
           onTouchStart={() => setShowCatMessage(true)}
           onTouchEnd={() => setShowCatMessage(false)}
         >
-          <div className="relative w-20 h-20 opacity-90 hover:opacity-100 transition-opacity">
+          <div className="relative w-[88px] h-[88px] opacity-90 hover:opacity-100 transition-opacity">
             <Image
               src="/images/gato-sentado.webp"
               alt="Axel - Mascote CatBytes"
-              width={80}
-              height={80}
+              width={88}
+              height={88}
               className="w-full h-full object-contain drop-shadow-xl"
               priority
             />
