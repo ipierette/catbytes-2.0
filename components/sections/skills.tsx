@@ -64,20 +64,15 @@ export function Skills() {
         </motion.p>
 
         {/* Skills Grid with Progress Bars */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 max-w-6xl mx-auto"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16 max-w-6xl mx-auto">
           {skillsData.map((skill, index) => {
             const Icon = skill.icon
             return (
               <motion.div
                 key={skill.name}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: index * 0.03, duration: 0.3 }}
+                transition={{ delay: index * 0.05, duration: 0.5, ease: "easeOut" }}
                 className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300"
               >
                 {/* Header */}
@@ -104,18 +99,18 @@ export function Skills() {
               </motion.div>
             )
           })}
-        </motion.div>
+        </div>
 
         {/* Floating Button to Open Off-Canvas - Only visible in Skills section */}
         <button
           onClick={() => setShowOffCanvas(true)}
           className="absolute right-0 top-1/3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-2 py-8 md:px-3 md:py-12 rounded-l-2xl shadow-2xl z-40 flex flex-col items-center gap-2 transition-all duration-300 hover:scale-105"
-          aria-label="Ver Níveis de Miado"
+          aria-label={t('sideButtonAria')}
           style={{ writingMode: 'vertical-rl' }}
         >
           <FaInfoCircle className="w-6 h-6 md:w-7 md:h-7" style={{ writingMode: 'horizontal-tb' }} />
           <span className="text-xs md:text-sm font-bold">
-            Níveis de Miado
+            {t('sideButton')}
           </span>
         </button>
 
@@ -151,7 +146,7 @@ export function Skills() {
                   <button
                     onClick={() => setShowOffCanvas(false)}
                     className="p-2 hover:bg-white/20 rounded-full transition-colors"
-                    aria-label="Fechar"
+                    aria-label={t('closeAria')}
                   >
                     <X className="w-6 h-6" />
                   </button>
@@ -169,7 +164,7 @@ export function Skills() {
                         <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">B</span>
                       </div>
                       <div>
-                        <strong className="text-gray-900 dark:text-white text-base">Ronronado Iniciante (Básico):</strong>
+                        <strong className="text-gray-900 dark:text-white text-base">{t('levels.beginnerTitle')}:</strong>
                         <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{t('levels.beginner')}</p>
                       </div>
                     </li>
@@ -178,7 +173,7 @@ export function Skills() {
                         <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">I</span>
                       </div>
                       <div>
-                        <strong className="text-gray-900 dark:text-white text-base">Miado Intermediário (Mediano):</strong>
+                        <strong className="text-gray-900 dark:text-white text-base">{t('levels.intermediateTitle')}:</strong>
                         <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{t('levels.intermediate')}</p>
                       </div>
                     </li>
@@ -187,7 +182,7 @@ export function Skills() {
                         <span className="text-2xl font-bold text-green-600 dark:text-green-400">A</span>
                       </div>
                       <div>
-                        <strong className="text-gray-900 dark:text-white text-base">Gato Mestre (Avançado):</strong>
+                        <strong className="text-gray-900 dark:text-white text-base">{t('levels.advancedTitle')}:</strong>
                         <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{t('levels.advanced')}</p>
                       </div>
                     </li>
@@ -196,7 +191,7 @@ export function Skills() {
                         <span className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">E</span>
                       </div>
                       <div>
-                        <strong className="text-gray-900 dark:text-white text-base">Miaucódigo Mestre (Especialista):</strong>
+                        <strong className="text-gray-900 dark:text-white text-base">{t('levels.expertTitle')}:</strong>
                         <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{t('levels.expert')}</p>
                       </div>
                     </li>

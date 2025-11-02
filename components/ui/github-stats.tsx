@@ -18,48 +18,18 @@ export function GitHubStats() {
   useEffect(() => {
     const fetchGitHubStats = async () => {
       try {
-        console.log('[GitHubStats] Fetching data...')
+        console.log('[GitHubStats] Fetching data from API...')
 
-        // Fetch user data
-        const userResponse = await fetch('https://api.github.com/users/ipierette')
-        if (!userResponse.ok) {
-          throw new Error(`User API failed: ${userResponse.status}`)
-        }
-        const userData = await userResponse.json()
-        console.log('[GitHubStats] User data:', userData)
+        // Fetch stats from our secure API route
+        const response = await fetch('/api/github-stats')
 
-        // Fetch repos for commit count and stars
-        const reposResponse = await fetch('https://api.github.com/users/ipierette/repos?per_page=100')
-        if (!reposResponse.ok) {
-          throw new Error(`Repos API failed: ${reposResponse.status}`)
-        }
-        const repos = await reposResponse.json()
-        console.log('[GitHubStats] Repos count:', repos.length)
-
-        // Calculate total stars
-        const totalStars = repos.reduce((acc: number, repo: any) => acc + (repo.stargazers_count || 0), 0)
-
-        // Get top language from repos
-        const languages: Record<string, number> = {}
-        repos.forEach((repo: any) => {
-          if (repo.language) {
-            languages[repo.language] = (languages[repo.language] || 0) + 1
-          }
-        })
-        const topLanguage = Object.entries(languages).sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || 'JavaScript'
-
-        // Estimate commits (GitHub API requires auth for exact count)
-        // We'll use a realistic estimate based on repos
-        const estimatedCommits = repos.length * 15 // Average 15 commits per repo
-
-        const statsData = {
-          totalCommits: estimatedCommits,
-          publicRepos: userData.public_repos || repos.length,
-          totalStars,
-          topLanguage,
+        if (!response.ok) {
+          throw new Error(`API failed: ${response.status}`)
         }
 
-        console.log('[GitHubStats] Final stats:', statsData)
+        const statsData = await response.json()
+        console.log('[GitHubStats] Stats received:', statsData)
+
         setStats(statsData)
       } catch (error) {
         console.error('[GitHubStats] Error fetching:', error)
