@@ -1,0 +1,140 @@
+/* public/css/components/skills.css */
+
+.skills-section {
+    background-color: var(--bg-header);
+    color: var(--text-on-dark);
+}
+
+.section-desc {
+    text-align: center;
+    max-width: 50rem; /* 600px */
+    margin: 0 auto 3rem auto;
+}
+
+/* Container do Carrossel */
+.skills-carousel-container {
+    position: relative;
+    max-width: 75rem; /* 1200px */
+    margin: 0 auto;
+    padding: 0 3.125rem; /* 50px para dar espaço aos novos botões */
+}
+
+.skills-carousel-wrapper {
+    overflow: hidden;
+}
+
+.skills-carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+/* Card de Habilidade */
+.skill-card {
+    flex: 0 0 100%;
+    padding: 1.5rem;
+    background-color: var(--bg-footer); 
+    color: var(--text-on-dark); 
+    border-radius: 0.75rem;
+    margin: 0 1rem;
+    box-shadow: 0 0.625rem 1.25rem rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Responsividade dos Cards */
+@media (min-width: 48rem) { /* 768px */
+    .skill-card {
+        flex: 0 0 calc(50% - 2rem);
+    }
+}
+
+@media (min-width: 64rem) { /* 1024px */
+    .skill-card {
+        flex: 0 0 calc(33.333% - 2rem);
+    }
+}
+
+/* --- Conteúdo do Card (Estilos Originais Mantidos) --- */
+.skill-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.skill-card-header i {
+    font-size: 2.5rem;
+    color: var(--color-green-eyes);
+}
+
+.skill-card-title, .skill-card-description {
+    color: inherit;
+}
+
+.skill-card .skill-card-title,
+.skill-card .skill-card-description,
+.skill-card .meow-level {
+    color: var(--text-on-dark);
+}
+
+.skill-card .skill-card-title {
+    opacity: 1;
+}
+
+.skill-card .skill-card-description,
+.skill-card .meow-level {
+    opacity: 0.8;
+}
+
+.meow-level {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    font-style: italic;
+    width: 100%;
+}
+
+.progress-bar-container {
+    width: 100%;
+    background-color: var(--border-color);
+    border-radius: 9999px;
+    height: 0.75rem;
+    overflow: hidden;
+    margin-top: auto;
+}
+
+.progress-bar-inner {
+    height: 100%;
+    width: 0;
+    background-color: var(--color-green-eyes);
+    border-radius: 9999px;
+    transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* --- Seção de Informações (Estilos Originais Mantidos) --- */
+.miado-levels-info {
+    margin-top: 4rem;
+    text-align: center;
+    max-width: 50rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem;
+    background-color: var(--bg-footer);
+    border-radius: 0.5rem;
+    box-shadow: 0 0.25rem 0.375rem rgba(0, 0, 0, 0.1);
+    color: var(--text-on-dark);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.miado-levels-info p, .miado-levels-info li {
+    color: inherit;
+}
+
+body.dark-mode .miado-levels-info {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+body.dark-mode .section-desc {
+    color: #FFFFFF;
+}

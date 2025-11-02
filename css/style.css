@@ -1,0 +1,855 @@
+/* style.css */
+
+/* =================================
+   1. IMPORTAÇÕES
+   ================================= */
+@import url('reset.css');
+@import url('variables.css');
+@import url('components/animations.css');
+/* NOVO: Importa os controles reutilizáveis */
+@import url('components/carousel-controls.css'); 
+@import url('components/skills.css');
+
+/* ... resto do seu arquivo style.css ... */
+
+/* =================================
+   2. ESTILOS GLOBAIS
+   ================================= */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
+/* WhatsApp Floating Button - scoped to #whatsapp-container to avoid global leakage */
+#whatsapp-container {
+    position: fixed;
+    /* anchor to the absolute bottom-left corner, respecting device safe area (iPhone notch/home indicator) */
+    left: max(0.75rem, env(safe-area-inset-left));
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    z-index: 1102; /* above most UI elements but below modal layers */
+    display: flex;
+    align-items: center;
+}
+
+#whatsapp-container .whatsapp-fab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background-color: #25D366;
+    color: #fff;
+    border-radius: 9999px;
+    box-shadow: 0 6px 18px rgba(37,211,102,0.24);
+    text-decoration: none;
+    font-size: 1.4rem;
+    transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+#whatsapp-container .whatsapp-fab:focus,
+#whatsapp-container .whatsapp-fab:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 10px 24px rgba(37,211,102,0.28);
+    outline: none;
+}
+
+/* Tooltip is hidden by default; pointer-events disabled while hidden to avoid interfering */
+#whatsapp-container .whatsapp-tooltip {
+    pointer-events: none;
+    max-width: 360px;
+    background: linear-gradient(180deg, #0f172a, #111827);
+    color: #f8fafc;
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-left: 0.75rem;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    font-size: 0.95rem;
+    line-height: 1.35;
+    transform-origin: left bottom;
+    transform: translateY(6px) scale(0.96);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 180ms ease, transform 180ms ease, visibility 180ms;
+}
+
+/* When visible, enable pointer-events only for the tooltip (so it can be interacted with) */
+#whatsapp-container .whatsapp-tooltip[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+#whatsapp-container .whatsapp-tooltip-text {
+    margin: 0;
+    color: #e6eef8;
+}
+
+/* Small screens: narrower tooltip and larger FAB touch target */
+@media (max-width: 640px) {
+    /* On small screens, slightly smaller FAB (approx -10%) but still anchored to corner via left/bottom above */
+    #whatsapp-container .whatsapp-fab { width: 58px; height: 58px; font-size: 1.5rem; }
+    #whatsapp-container .whatsapp-tooltip { max-width: calc(100vw - 96px); font-size: 0.95rem; }
+}
+
+/* Ensure tooltip doesn't cover interactive elements on very small screens: hide by default, reveal on tap */
+@media (max-width: 420px) {
+    #whatsapp-container .whatsapp-tooltip { display: block; }
+
+}
+
+/* Non-blocking popup for blocked WhatsApp fallback */
+#link-popup {
+    position: fixed;
+    left: 50%;
+    bottom: 1.5rem;
+    transform: translateX(-50%) translateY(120%);
+    z-index: 1200;
+    transition: transform 220ms ease, opacity 220ms ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#link-popup[aria-hidden="false"] {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.link-popup-card {
+    background: linear-gradient(180deg,#ffffff,#f7fafc);
+    color: #0f172a;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+    min-width: 260px;
+    max-width: 92vw;
+}
+
+.link-popup-message { margin: 0 0 0.5rem 0; font-size: 0.95rem; }
+.link-popup-actions { display: flex; gap: 0.5rem; align-items: center; }
+.btn-primary {
+    background:#22c55e;
+    color:#fff;
+    padding: .45rem .75rem;
+    border-radius: 8px;
+    text-decoration:none;
+}
+.link-popup-copy,
+.link-popup-close { background:transparent; border:1px solid #e5e7eb; padding:.4rem .65rem; border-radius:8px; }
+
+@media (min-width: 768px) {
+    #link-popup { bottom: 1.5rem; }
+}
+
+/* Customização da barra de rolagem */
+::-webkit-scrollbar {
+    width: 0.75rem;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-green-eyes);
+    border-radius: 0.625rem;
+    border: 0.1875rem solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #256b46;
+}
+
+
+/* =================================
+   3. ESTILOS DE FUNDO E TEMA PARA SEÇÕES
+   ================================= */
+
+/* Textura sutil 1 */
+.bg-texture-1 {
+    background-color: var(--bg-secondary);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M0 38.59l2.83-2.83 1.41 1.41L1.41 40H0v-1.41zM0 1.4l2.83 2.83 1.41-1.41L1.41 0H0v1.41zM38.59 40l-2.83-2.83 1.41-1.41L40 38.59V40h-1.41zM40 1.41l-2.83 2.83-1.41-1.41L38.59 0H40v1.41z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Seção com fundo de gradiente */
+.bg-gradient-section {
+    background: radial-gradient(ellipse at 60% 40%,
+            #ffffff 0%,
+            #f8fbff 40%,
+            /* branco gelo */
+            #eaf6ff 70%,
+            /* azul muito claro */
+            #e0e7ef 100%
+            /* azul acinzentado claro */
+        );
+    box-shadow:
+        0 4px 32px 0 rgba(200, 220, 255, 0.18),
+        0 0 80px 0 rgba(255, 255, 255, 0.25) inset;
+    transition: background 0.3s ease-in-out, box-shadow 0.3s;
+}
+
+body.dark-mode .bg-gradient-section {
+    background: radial-gradient(ellipse at 60% 40%,
+            #232946 0%,
+            #23263a 60%,
+            #1a1c28 100%);
+    box-shadow:
+        0 2px 24px 0 rgba(30, 40, 80, 0.18),
+        0 0 60px 0 rgba(0, 0, 0, 0.22) inset;
+    transition: background 0.6s cubic-bezier(.4, 0, .2, 1), box-shadow 0.6s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* Regras de cor de texto para as seções temáticas */
+section.bg-texture-1,
+section.bg-gradient-section {
+    color: var(--text-primary);
+}
+
+body.dark-mode section.bg-texture-1,
+body.dark-mode section.bg-gradient-section {
+    color: #FFFFFF;
+}
+
+
+/* =================================
+   4. COMPONENTES GERAIS
+   ================================= */
+
+/* Header */
+header {
+    background-color: var(--bg-header);
+    color: var(--text-on-dark);
+    transition: background-color 0.3s ease;
+}
+
+header nav ul li a {
+    position: relative;
+    text-decoration: none;
+}
+
+header nav ul li a::after {
+    content: '';
+    position: absolute;
+    width: 0%;
+    height: 0.125rem;
+    bottom: -0.1875rem;
+    left: 0;
+    background-color: var(--color-purple-accent);
+    transition: width 0.3s ease-out;
+}
+
+header nav ul li a:hover::after {
+    width: 100%;
+}
+
+/* style.css */
+
+/* Menu Mobile - Posição Absoluta */
+#mobile-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    /* Adicionado para centralizar */
+    transform: translateX(-50%);
+    /* Adicionado para centralizar */
+    width: 40%;
+    /* ALTERADO: De 100% para 40% (60% menor) */
+    z-index: 49;
+}
+
+/* Seções */
+section {
+    padding: 4rem 1rem;
+    overflow: hidden;
+}
+
+/* Formulários */
+input,
+textarea,
+select {
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    transition: all 0.3s ease;
+    background-color: var(--input-bg);
+    color: var(--input-text);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--input-placeholder);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--color-green-eyes);
+    box-shadow: 0 0 0 0.1875rem rgba(46, 139, 87, 0.2);
+    outline: none;
+}
+
+/* Barra de Progresso de Rolagem */
+#scroll-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 0.25rem;
+    background-color: var(--progress-bar-color);
+    width: 0%;
+    z-index: 1001;
+    transition: width 0.1s ease-out;
+}
+
+/* Botão Voltar ao Topo */
+#back-to-top {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0);
+    transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+}
+
+#back-to-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+}
+
+/* Feedback do Formulário */
+#form-feedback .success {
+    color: var(--color-green-light);
+    background-color: rgba(124, 252, 0, 0.1);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border-left: 0.25rem solid var(--color-green-light);
+}
+
+#form-feedback .error {
+    color: #ff6b6b;
+    background-color: rgba(255, 107, 107, 0.1);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid #ff6b6b;
+}
+
+
+/* =================================
+   5. ESTILOS ESPECÍFICOS
+   ================================= */
+
+/* =================================
+   5. ESTILOS ESPECÍFICOS - SEÇÃO HERO (COM CSS GRID)
+   ================================= */
+
+#hero {
+    position: relative;
+    min-height: calc(100vh - 5.625rem);
+    display: grid;
+    /* MUDANÇA PRINCIPAL: Usando Grid */
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+    /* Alinha os itens (texto e gato) na base da seção */
+    padding: 2rem 5% 0;
+    /* Adiciona 2rem em cima, 5% nas laterais e 0 EMBAIXO */
+    gap: 1.5rem;
+    /* Espaçamento entre o texto e o gato */
+}
+
+#particles-js {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-text-container {
+    text-align: left;
+    z-index: 3;
+    justify-self: end;
+    /* Alinha o bloco de texto à direita da sua coluna */
+    padding-bottom: 2rem;
+    align-self: center;
+    max-width: 35rem;
+}
+
+.hero-image-container {
+    position: relative;
+    z-index: 2;
+    justify-self: center;
+}
+
+#hero h1,
+#hero p {
+    color: var(--text-primary);
+}
+
+#hero h1 .catbytes-gradient {
+    background-image: linear-gradient(90deg,
+            #a21caf 0%,
+            /* Roxo vibrante */
+            #38bdf8 20%,
+            /* Azul piscina */
+            #22d3ee 40%,
+            /* Azul claro */
+            #4ade80 60%,
+            /* Verde neon */
+            #f472b6 80%,
+            /* Rosa chiclete */
+            #a21caf 100%
+            /* Roxo vibrante */
+        );
+    background-size: 300% auto;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    filter: drop-shadow(0 2px 8px rgba(164, 28, 175, 0.15));
+    transition: filter 0.3s;
+}
+
+.catbytes-gradient.animate-gradient {
+    animation: gradient-animation 4s ease-in-out infinite;
+}
+
+#hero img {
+    max-width: 16.875rem;
+    height: auto;
+    display: block;
+}
+
+#hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse at 60% 40%,
+            #ffffff 0%,
+            #f8fbff 40%,
+            /* branco gelo */
+            #eaf6ff 70%,
+            /* azul muito claro */
+            #e0e7ef 100%
+            /* azul acinzentado claro */
+        );
+    box-shadow:
+        0 4px 32px 0 rgba(200, 220, 255, 0.18),
+        0 0 80px 0 rgba(255, 255, 255, 0.25) inset;
+    transition: background 0.3s ease-in-out, box-shadow 0.3s;
+}
+
+body.dark-mode #hero::before {
+    background: radial-gradient(ellipse at 60% 40%,
+            #232946 0%,
+            #23263a 60%,
+            #1a1c28 100%);
+    box-shadow:
+        0 2px 24px 0 rgba(30, 40, 80, 0.18),
+        0 0 60px 0 rgba(0, 0, 0, 0.22) inset;
+    transition: background 0.6s cubic-bezier(.4, 0, .2, 1), box-shadow 0.6s cubic-bezier(.4, 0, .2, 1);
+}
+
+#hero::after {
+    content: url('../images/seta_preta.webp');
+    position: absolute;
+    height: 2.1875rem;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: downarrow 1.5s infinite ease-in-out;
+    opacity: 0.7;
+    z-index: 3;
+}
+
+body.dark-mode #hero::after {
+    filter: invert(1) brightness(1.5) drop-shadow(0 0 0.3125rem rgba(255, 255, 255, 0.7));
+}
+
+a[aria-label="Conheça meus projetos"]:hover {
+    box-shadow: 0 0 0.9375rem 0.1875rem rgb(11, 157, 118);
+}
+
+#cat-hover-area {
+    position: absolute;
+    top: 45%;
+    left: 25%;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 5;
+}
+
+#cat-hover-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(138, 43, 226, 0.5) 0%, rgba(138, 43, 226, 0) 70%);
+    animation: pulse 1s infinite;
+}
+
+/* Pop-up de fala com estilos para MODO CLARO (conforme solicitado) */
+.cat-popup {
+    position: absolute;
+    bottom: 60%;
+    left: 90%;
+    width: 16.25rem;
+    padding: 1rem;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(1.25rem);
+    transition: all 0.3s ease-in-out;
+    border-radius: 1.125rem;
+    line-height: 1.5;
+    background-color: #f0f0f0;
+    color: #333;
+    border: 0.125rem solid var(--color-purple-accent);
+    box-shadow: 0 0.375rem 1.25rem rgba(0, 0, 0, 0.25);
+}
+
+/* Estilos do Pop-up para MODO ESCURO */
+body.dark-mode .cat-popup {
+    background-color: #2D3748;
+    color: #FFFFFF;
+    border: 0.125rem solid var(--color-green-light);
+}
+
+.cat-popup.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Cauda do balão - a borda */
+.cat-popup::after {
+    content: '';
+    position: absolute;
+    top: 60%;
+    left: -0.75rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    background: var(--color-purple-accent);
+    /* Roxo no modo claro */
+    clip-path: polygon(100% 0, 0 50%, 100% 100%);
+    transition: background-color 0.3s ease;
+}
+
+/* Cauda do balão - o fundo */
+.cat-popup::before {
+    content: '';
+    position: absolute;
+    top: 60%;
+    left: -0.5rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    background: #f0f0f0;
+    /* Fundo claro no modo claro */
+    clip-path: polygon(100% 0, 0 50%, 100% 100%);
+    z-index: 1;
+    transition: background-color 0.3s ease;
+}
+
+/* Troca de cor da cauda no modo escuro */
+body.dark-mode .cat-popup::after {
+    background: var(--color-green-light);
+}
+
+body.dark-mode .cat-popup::before {
+    background: #2D3748;
+}
+
+/* --- Seção Contato --- */
+#contact .max-w-2xl p {
+    color: var(--text-on-dark);
+}
+
+/* ==== Dark Mode – Correções de contraste na seção IA ==== */
+body.dark-mode #ai-features .text-gray-700 {
+    color: #e5e7eb !important;
+}
+
+/* labels/descrições */
+body.dark-mode #ai-features label {
+    color: #e5e7eb !important;
+}
+
+body.dark-mode #ai-features input,
+body.dark-mode #ai-features textarea,
+body.dark-mode #ai-features select {
+    background: #0b1220;
+    /* slate quase preto */
+    color: #e5e7eb;
+    /* texto claro */
+    border-color: #334155;
+    /* slate-700 */
+}
+
+body.dark-mode #ai-features input::placeholder,
+body.dark-mode #ai-features textarea::placeholder {
+    color: #94a3b8;
+    /* slate-400 */
+}
+
+/* caixas de resultado/saída gerada */
+body.dark-mode #ai-features .bg-gray-50 {
+    background: #0b1220 !important;
+}
+
+body.dark-mode #ai-features .border-gray-200 {
+    border-color: #334155 !important;
+}
+
+body.dark-mode #ai-features #generated-ad-container,
+body.dark-mode #ai-features #identification-results {
+    color: #e5e7eb;
+    /* garante que o texto apareça */
+}
+
+/* botão/estado de loading podem continuar herdando as cores atuais */
+/* Adopt Cat – Melhor contraste nas descrições */
+#adopt-cat p.text-sm {
+    font-size: 1rem;
+    /* text-base */
+    line-height: 1.5;
+    color: #374151;
+    /* gray-700 */
+}
+
+body.dark-mode #adopt-cat p.text-sm {
+    color: #f3f4f6;
+    /* gray-100 - muito mais claro */
+}
+
+/* Opcional: dar um leve destaque visual */
+#adopt-cat p.text-sm {
+    font-weight: 500;
+    /* semi-bold */
+}
+
+/* ===== IA Felina – Dark mode (usa body.dark-mode) ===== */
+
+/* Título/descrição acima do formulário (ficavam apagados) */
+body.dark-mode #adopt-cat .text-lg,
+body.dark-mode #adopt-cat .text-gray-700,
+body.dark-mode #adopt-cat .text-gray-600 {
+    color: #e5e7eb !important;
+    /* cinza bem claro */
+}
+
+/* Labels do formulário */
+body.dark-mode #adopt-cat label {
+    color: #e5e7eb !important;
+}
+
+/* Campos do formulário */
+body.dark-mode #adopt-cat input,
+body.dark-mode #adopt-cat select,
+body.dark-mode #adopt-cat textarea {
+    background: #0b1220 !important;
+    color: #e5e7eb !important;
+    border-color: #334155 !important;
+}
+
+body.dark-mode #adopt-cat input::placeholder,
+body.dark-mode #adopt-cat textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* Cartão/resultado em fundo claro que sumia no dark */
+body.dark-mode #adopt-cat .bg-white\/70,
+body.dark-mode #adopt-cat .bg-gray-50 {
+    background: #0b1220 !important;
+}
+
+body.dark-mode #adopt-cat .border-gray-200 {
+    border-color: #334155 !important;
+}
+
+/* Descrição do anúncio – mais legível e com foco */
+#adopt-cat p.text-sm {
+    /* aplica no claro também */
+    font-size: 1rem;
+    /* text-base */
+    line-height: 1.6;
+    font-weight: 500;
+    color: #374151;
+    /* gray-700 */
+}
+
+body.dark-mode #adopt-cat p.text-sm {
+    color: #f3f4f6 !important;
+    /* gray-100 */
+}
+
+/* Score da IA (rótulo e número) */
+body.dark-mode #adopt-cat .score-label {
+    color: #fde68a !important;
+    /* yellow-200 */
+}
+
+body.dark-mode #adopt-cat .score-badge {
+    color: #facc15 !important;
+    /* yellow-400 */
+    border-color: #facc15 !important;
+}
+
+/* ===== Adopt Cat – textos que ainda ficavam apagados no dark ===== */
+
+/* Parágrafos e labels dentro do painel */
+body.dark-mode #adopt-cat p,
+body.dark-mode #adopt-cat label {
+    color: #e5e7eb !important;
+    /* cinza claro legível */
+    opacity: 1 !important;
+    /* anula qualquer opacidade herdada */
+}
+
+/* O parágrafo de instrução (tem .text-lg) */
+body.dark-mode #adopt-cat p.text-lg {
+    color: #e5e7eb !important;
+    font-weight: 500;
+    /* dá um pouco mais de presença */
+}
+
+/* Placeholders dos inputs */
+body.dark-mode #adopt-cat input::placeholder,
+body.dark-mode #adopt-cat textarea::placeholder {
+    color: #94a3b8 !important;
+    /* slate-400 */
+}
+
+/* Campos: garante contraste mesmo se outra regra interferir */
+body.dark-mode #adopt-cat input,
+body.dark-mode #adopt-cat select,
+body.dark-mode #adopt-cat textarea {
+    background: #0b1220 !important;
+    color: #e5e7eb !important;
+    border-color: #334155 !important;
+}
+
+/* ===== IA Felina (todas as abas) — Dark Mode ===== */
+
+/* 1) Card das abas */
+body.dark-mode #ai-features .ai-tabs {
+    background: #0f172a !important;
+    /* slate-900 */
+    color: #e5e7eb !important;
+    /* texto claro padrão */
+    border-color: #334155 !important;
+    /* bordas internas */
+}
+
+/* Separadores e linhas internas do card */
+body.dark-mode #ai-features .border-gray-200 {
+    border-color: #334155 !important;
+}
+
+/* Tabs (botões) */
+body.dark-mode #ai-features .tab-button {
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode #ai-features .tab-button.active-tab {
+    color: #22c55e !important;
+    /* mesma cor do claro, mas visível */
+    border-bottom-color: #22c55e !important;
+}
+
+/* 2) Texto de instrução e labels do formulário (ficavam apagados) */
+body.dark-mode #adopt-cat p,
+body.dark-mode #adopt-cat label {
+    color: #e5e7eb !important;
+    opacity: 1 !important;
+}
+
+body.dark-mode #adopt-cat p.text-lg {
+    font-weight: 500;
+}
+
+/* Campos do formulário */
+body.dark-mode #adopt-cat input,
+body.dark-mode #adopt-cat select,
+body.dark-mode #adopt-cat textarea {
+    background: #0b1220 !important;
+    color: #e5e7eb !important;
+    border-color: #334155 !important;
+}
+
+body.dark-mode #adopt-cat input::placeholder,
+body.dark-mode #adopt-cat textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+/* 3) Aviso azul (Observação) — manter legível no dark */
+body.dark-mode #adopt-cat [role="alert"] {
+    background: rgba(59, 130, 246, .12) !important;
+    /* azul translúcido */
+    border-color: #60a5fa !important;
+    /* azul-400 */
+    color: #dbeafe !important;
+    /* azul-100 */
+}
+
+body.dark-mode #adopt-cat [role="alert"] .font-bold {
+    color: #bfdbfe !important;
+    /* título mais forte */
+}
+
+/* 4) Cartões da lista + descrição do anúncio */
+body.dark-mode #adopt-cat .bg-white\/70,
+body.dark-mode #adopt-cat .bg-gray-50 {
+    background: #0b1220 !important;
+}
+
+body.dark-mode #adopt-cat .border-gray-200 {
+    border-color: #334155 !important;
+}
+
+#adopt-cat p.text-sm {
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 500;
+    color: #374151;
+}
+
+body.dark-mode #adopt-cat p.text-sm {
+    color: #f3f4f6 !important;
+}
+
+/* 5) Score (já está ok, mantendo) */
+body.dark-mode #adopt-cat .score-label {
+    color: #fde68a !important;
+}
+
+body.dark-mode #adopt-cat .score-badge {
+    color: #facc15 !important;
+    border-color: #facc15 !important;
+}
+
+/* ===== IA Felina – Títulos das abas no dark mode ===== */
+body.dark-mode #ai-features h3 {
+    color: #e5e7eb !important;
+    /* gray-200 */
+}
+
+/* Lazy loading */
+img.lazy { filter: blur(8px); transition: filter .3s ease; }
+img.lazy-loaded { filter: none; }

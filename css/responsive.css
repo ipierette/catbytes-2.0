@@ -1,0 +1,158 @@
+
+@media (max-width: 65rem) {
+    header nav ul.md\:flex {
+        display: none !important;
+    }
+
+    header .md\:hidden {
+        display: flex !important;
+    }
+
+    #menu-toggle {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #fff;
+        font-size: 1.7rem;
+        margin-left: 1.2rem;
+        z-index: 1000;
+    }
+}
+
+#mobile-menu.active {
+    display: flex;
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+#mobile-menu.hidden {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+@media (max-width: 61rem) {
+    .cat-popup {
+        top: -30%;
+        left: 55%;
+        bottom: auto;
+        right: auto;
+        transform: translateX(-50%) translateY(1.25rem);
+        width: 16rem;
+    }
+
+    .cat-popup.visible {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .cat-popup::after,
+    .cat-popup::before {
+        top: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        clip-path: polygon(0 0, 100% 0, 50% 100%);
+    }
+
+    .cat-popup::after {
+        bottom: -0.75rem;
+    }
+
+    .cat-popup::before {
+        bottom: -0.6rem;
+    }
+
+    .hero-image-container {
+        margin-right: 0;
+    }
+
+    .ai-tabs .tab-button {
+        font-size: 0.7rem;
+    }
+}
+
+
+@media (max-width: 41.875rem) { /* 670px e menor */
+
+    .skills-carousel-wrapper {
+        overflow: hidden;
+    }
+
+    .carousel-btn {
+        z-index: 10;
+    }
+
+    .carousel-btn.prev {
+        left: 0.5rem;
+    }
+    .carousel-btn.next {
+        right: 0.5rem;
+    }
+
+   .skill-card {
+        margin: 0 2rem;
+        flex-basis: calc(90% - 2rem);
+        max-width: calc(90% - 2rem);
+
+        padding: 1.25rem;
+    }
+
+    .skill-card-title {
+        font-size: 1.15rem;
+    }
+    .skill-card-description {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+}
+
+@media (max-width: 32rem) {
+    .cat-popup {
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 100%;
+        text-align: center;
+        font-size: 0.9rem;
+        border-radius: 0 0 1rem 1rem;
+        padding: 0.8rem 1rem;
+        z-index: 1050;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        bottom: auto;
+        right: auto;
+        min-width: 0;
+        margin: 0;
+    }
+}
+
+
+@media (max-width: 25rem) {
+    .project-links {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .project-links a {
+        margin: 0 !important;
+        width: 60%;
+        justify-content: center;
+    }
+
+     .skill-card-title {
+        font-size: 0.7rem;
+    }
+
+     .skill-card-description {
+        font-size: 0.6rem;
+        line-height: 1.4;
+    }
+
+    .meow-level{
+    font-size: 0.6rem;
+    }
+}

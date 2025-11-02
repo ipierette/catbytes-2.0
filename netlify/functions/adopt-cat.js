@@ -1,0 +1,263 @@
+const SOURCE_SITES = [
+  'olx.com.br',
+  'adoteumgatinho.org.br',
+  'catland.org.br',
+  'adotepetz.com.br',
+  'adotebicho.com.br',
+  'paraisodosfocinhos.com.br',
+  'adoteumpet.com.br'
+];
+
+const BAD_WORDS = [
+  'venda', 'apenas venda', 'só venda', 'so venda', 'r$', 'preço',
+  'doação com valor', 'doação com preço', 'doacao com valor',
+  'doacao com preco', 'custo', 'taxa de entrega'
+];
+
+const isValidUrl = (u) => {
+  try {
+    new URL(u);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+async function getAIScore(anuncio, apiKey, searchParams) {
+  if (!apiKey) return { score: 5, reason: "Chave da IA não configurada." };
+
+  const { titulo, descricao, fonte } = anuncio;
+  const { color, localizacao } = searchParams;
+
+  const prompt = `Analise este anúncio de adoção de gatos no Brasil e dê uma nota de 1 a 10.
+Critérios: confiabilidade da fonte, detalhes do anúncio, adequação ao que foi buscado.
+
+ANÚNCIO:
+- Título: "${titulo}"
+- Descrição: "${descricao}"
+- Fonte: "${fonte}"
+
+BUSCA DO USUÁRIO:
+- Cor: "${color || 'qualquer'}"
+- Localização: "${localizacao || 'qualquer'}"
+
+Retorne APENAS um JSON: {"score": <1-10>, "reason": "explicação breve", "is_adopted": <true/false>}
+
+REGRAS:
+- ONGs confiáveis (adoteumgatinho.org.br, catland.org.br): nota alta
+- Se mencionar "adotado" ou "não disponível": is_adopted = true
+- Anúncios detalhados (castração, vacinas, temperamento): nota alta
+- Combine com cor/localização buscada: bônus
+- Suspeita de venda ou vago: nota baixa`;
+
+  try {
+    const body = {
+      contents: [{
+        role: "user",
+        parts: [{ text: prompt }]
+      }]
+    };
+
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      }
+    );
+
+    const data = await resp.json();
+    
+    if (!resp.ok) {
+      console.error("Erro na API Gemini:", data);
+      return { score: 4, reason: "Falha ao contatar a IA.", is_adopted: false };
+    }
+
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    
+    try {
+      // Tenta extrair JSON da resposta
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          score: Math.max(1, Math.min(10, parsed.score || 4)),
+          reason: parsed.reason || "Análise da IA",
+          is_adopted: !!parsed.is_adopted
+        };
+      }
+    } catch (e) {
+      console.error("Erro parsing JSON:", e);
+    }
+    
+    return { score: 4, reason: "Resposta da IA não compreendida.", is_adopted: false };
+  } catch (error) {
+    console.error("Erro chamada Gemini:", error);
+    return { score: 4, reason: "Falha ao contatar a IA.", is_adopted: false };
+  }
+}
+
+export const handler = async (event) => {
+  try {
+    if (event.httpMethod !== 'POST') {
+      return { statusCode: 405, body: 'Method Not Allowed' };
+    }
+
+    const SERPAPI_KEY = process.env.SERPAPI_KEY;
+    const GEMINI_KEY = process.env.GEMINI_API_KEY;
+    
+    if (!SERPAPI_KEY) {
+      return { statusCode: 500, body: 'Faltando SERPAPI_KEY no ambiente.' };
+    }
+
+    const { age = '', color = '', localizacao = '' } = JSON.parse(event.body || '{}');
+
+    // Monta queries com prioridade para localização
+    const baseTerms = ['adoção de gatos'];
+    if (color) baseTerms.push(`gato ${color}`);
+    if (age) baseTerms.push(String(age));
+    
+    const siteFilter = SOURCE_SITES.map(s => `site:${s}`).join(' OR ');
+    
+    // Query principal com localização prioritária
+    let query;
+    if (localizacao) {
+      // Prioriza localização específica na busca
+      query = `${baseTerms.join(' ')} "${localizacao}" (${siteFilter})`;
+    } else {
+      query = `${baseTerms.join(' ')} (${siteFilter})`;
+    }
+
+    console.log('Query de busca:', query);
+
+    // Chamada SerpAPI (Google) - reduzido para 8 resultados para ser mais rápido
+    const serpUrl = new URL('https://serpapi.com/search');
+    serpUrl.searchParams.set('engine', 'google');
+    serpUrl.searchParams.set('hl', 'pt-BR');
+    serpUrl.searchParams.set('gl', 'br');
+    serpUrl.searchParams.set('num', '8'); // Reduzido de 12 para 8
+    serpUrl.searchParams.set('q', query);
+    serpUrl.searchParams.set('api_key', SERPAPI_KEY);
+
+    const res = await fetch(serpUrl.toString());
+    if (!res.ok) {
+      const text = await res.text();
+      return { statusCode: 502, body: `Erro SerpAPI: ${text}` };
+    }
+    const data = await res.json();
+
+    // Normaliza resultados
+    const raw = Array.isArray(data.organic_results) ? data.organic_results : [];
+    let anuncios = raw.map(r => ({
+      titulo: r.title || 'Anúncio de Adoção',
+      descricao: r.snippet || '',
+      url: r.link || '',
+      fonte: r.displayed_link || r.source || 'desconhecida',
+      score: 0
+    }))
+    .filter(a =>
+      a.descricao &&
+      a.descricao.length >= 20 && // Reduzido de 30 para 20
+      !BAD_WORDS.some(w => a.descricao.toLowerCase().includes(w)) &&
+      a.url && isValidUrl(a.url)
+    );
+    
+    // Pré-filtro por localização se especificada
+    if (localizacao && anuncios.length > 0) {
+      const locMatch = anuncios.filter(a => 
+        a.descricao.toLowerCase().includes(localizacao.toLowerCase()) ||
+        a.titulo.toLowerCase().includes(localizacao.toLowerCase())
+      );
+      if (locMatch.length > 0) {
+        anuncios = locMatch; // Usa só os que batem com localização
+        console.log(`Filtrados ${locMatch.length} anúncios para ${localizacao}`);
+      }
+    }
+
+    // Usar IA para scoring inteligente - limitado a 6 anúncios para performance
+    if (GEMINI_KEY && anuncios.length > 0) {
+      // Limita a 6 anúncios para análise IA (mais rápido)
+      const adsForAI = anuncios.slice(0, 6);
+      console.log(`Usando IA para análise de ${adsForAI.length} anúncios (de ${anuncios.length} encontrados)`);
+      
+      const searchParams = { color, localizacao };
+      const scoringPromises = adsForAI.map(anuncio =>
+        getAIScore(anuncio, GEMINI_KEY, searchParams).catch(err => {
+          console.error("Erro no scoring do anúncio:", err);
+          return { score: 4, reason: "Erro na análise", is_adopted: false };
+        })
+      );
+      
+      const scores = await Promise.all(scoringPromises);
+      
+      adsForAI.forEach((anuncio, index) => {
+        const aiResult = scores[index];
+        anuncio.score = aiResult.score / 10; // Normaliza para 0-1
+        anuncio.is_adopted = aiResult.is_adopted;
+        anuncio.ai_reason = aiResult.reason;
+      });
+      
+      // Para anúncios restantes, usa scoring simples
+      if (anuncios.length > 6) {
+        const remainingAds = anuncios.slice(6);
+        remainingAds.forEach(a => {
+          a.score = getSimpleScore(a);
+          a.is_adopted = false;
+        });
+      }
+    } else {
+      // Fallback: scoring simples
+      console.log("Usando scoring simples (sem IA)");
+      anuncios.forEach(a => {
+        a.score = getSimpleScore(a);
+        a.is_adopted = false;
+      });
+    }
+    
+    function getSimpleScore(a) {
+      let s = 0;
+      // Bônus grande para localização correta
+      if (localizacao && (a.descricao.toLowerCase().includes(localizacao.toLowerCase()) || 
+                         a.titulo.toLowerCase().includes(localizacao.toLowerCase()))) {
+        s += 0.5; // Aumentado de 0.35 para 0.5
+      }
+      if (color && a.descricao.toLowerCase().includes(color.toLowerCase())) s += 0.25;
+      s += Math.min(a.descricao.length / 200, 0.25);
+      return s;
+    }
+    
+    anuncios.sort((a, b) => (b.score || 0) - (a.score || 0));
+    anuncios = anuncios.slice(0, 6);
+
+    // Fallback se nada passou no filtro
+    if (!anuncios.length) {
+      const qBase = encodeURIComponent(baseTerms.join(' ')); // FIX: era 'terms', agora 'baseTerms'
+      anuncios = [
+        {
+          titulo: 'Resultados de adoção no Google',
+          descricao: 'Busca direta com os melhores resultados próximos.',
+          url: `https://www.google.com/search?q=${qBase}`,
+          fonte: 'google.com',
+          score: 0
+        }
+      ];
+    }
+
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sucesso: true,
+        quantidade: anuncios.length,
+        anuncios,
+        mensagem: anuncios.length > 1
+          ? 'Veja os anúncios de adoção encontrados.'
+          : 'Não achamos anúncios específicos; sugerimos uma busca direta.',
+        meta: { engine: 'serpapi-google', terms: baseTerms, sites: SOURCE_SITES } // FIX: era 'terms', agora 'baseTerms'
+      })
+    };
+  } catch (err) {
+    return { statusCode: 500, body: `Erro: ${err.message}` };
+  }
+};
