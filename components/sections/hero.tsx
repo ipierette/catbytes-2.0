@@ -128,7 +128,7 @@ export function Hero() {
       </div>
 
       {/* Mobile Layout - Professional Design */}
-      <div className="md:hidden w-full min-h-screen flex items-center justify-center px-6 py-20 z-10 relative">
+      <div className="md:hidden w-full h-dvh flex items-center justify-center px-6 py-20 z-10 relative">
         {/* Main Content Container */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -218,12 +218,12 @@ export function Hero() {
           onTouchStart={() => setShowCatMessage(true)}
           onTouchEnd={() => setShowCatMessage(false)}
         >
-          <div className="relative w-[88px] h-[88px] opacity-90 hover:opacity-100 transition-opacity">
+          <div className="relative w-[106px] h-[106px] opacity-90 hover:opacity-100 transition-opacity">
             <Image
               src="/images/gato-sentado.webp"
               alt="Axel - Mascote CatBytes"
-              width={88}
-              height={88}
+              width={106}
+              height={106}
               className="w-full h-full object-contain drop-shadow-xl"
               priority
             />
