@@ -7,6 +7,7 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { BackToTop } from '@/components/ui/back-to-top'
+import { WhatsAppButton } from '@/components/ui/whatsapp-button'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -109,6 +110,7 @@ export default async function LocaleLayout({
             <main>{children}</main>
             <Footer />
             <BackToTop />
+            <WhatsAppButton />
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
