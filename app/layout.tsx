@@ -41,9 +41,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/images/favicon-32x32.png',
-    shortcut: '/images/favicon-32x32.png',
-    apple: '/images/favicon-32x32.png',
+    icon: '/images/logo-desenvolvedora.png',
+    shortcut: '/images/logo-desenvolvedora.png',
+    apple: '/images/logo-desenvolvedora.png',
   },
   manifest: '/site.webmanifest',
   openGraph: {
