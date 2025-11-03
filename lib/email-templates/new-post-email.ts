@@ -56,7 +56,7 @@ export function getNewPostEmailHTML(
                 <!-- Header -->
                 <tr>
                   <td align="center" style="padding: 40px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="height: 80px; width: auto; margin-bottom: 20px;">
+                    <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="height: 100px; width: auto; margin-bottom: 20px;">
                     <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">${t.newPost}</h1>
                   </td>
                 </tr>
@@ -113,19 +113,19 @@ export function getNewPostEmailHTML(
 
                 <!-- Footer -->
                 <tr>
-                  <td style="padding: 30px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
+                  <td style="padding: 30px 40px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-top: 1px solid #667eea;">
                     <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
                         <td align="center" style="padding-bottom: 15px;">
-                          <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Developer Logo" style="height: 60px; width: auto;">
+                          <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Developer Logo" style="height: 80px; width: auto;">
                         </td>
                       </tr>
                       <tr>
                         <td align="center">
-                          <p style="color: #6b7280; font-size: 13px; margin: 0 0 10px; line-height: 1.5;">${t.footer}</p>
-                          <p style="margin: 0; font-size: 12px; color: #9CA3AF;">${t.copyright}</p>
+                          <p style="color: #a0a0a0; font-size: 13px; margin: 0 0 10px; line-height: 1.5;">${t.footer}</p>
+                          <p style="margin: 0; font-size: 12px; color: #808080;">${t.copyright}</p>
                           <p style="margin: 5px 0 0; font-size: 12px;">
-                            <a href="${baseUrl}/${locale}/newsletter/unsubscribe" style="color: #9ca3af; text-decoration: underline;">${t.unsubscribe}</a>
+                            <a href="${baseUrl}/${locale}/newsletter/unsubscribe" style="color: #667eea; text-decoration: underline;">${t.unsubscribe}</a>
                           </p>
                         </td>
                       </tr>
