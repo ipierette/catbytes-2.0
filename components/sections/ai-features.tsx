@@ -28,13 +28,13 @@ function AdoptCatForm() {
       })
 
       if (!response.ok) {
-        throw new Error('Erro ao buscar anúncios')
+        throw new Error(t('adoptCat.form.errorFetch'))
       }
 
       const data = await response.json()
       setResults(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
+      setError(err instanceof Error ? err.message : t('adoptCat.form.errorUnknown'))
     } finally {
       setLoading(false)
     }
@@ -58,10 +58,10 @@ function AdoptCatForm() {
       <div className="bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-800 rounded-xl p-5 space-y-3">
         <h4 className="font-bold text-purple-900 dark:text-purple-300 flex items-center gap-2">
           <Heart className="w-5 h-5" />
-          📚 Antes de Adotar: Guias Essenciais
+          📚 {t('guideTitle')}
         </h4>
         <p className="text-sm text-purple-800 dark:text-purple-300">
-          Confira estes recursos para garantir uma adoção responsável e feliz:
+          {t('guideDescription')}
         </p>
         <div className="space-y-2">
           <a
@@ -73,10 +73,10 @@ function AdoptCatForm() {
             <ExternalLink className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform" />
             <div className="flex-1">
               <p className="font-medium text-gray-900 dark:text-white text-sm">
-                Cuidados Básicos Antes de Acolher um Gato
+                {t('guideLink1Title')}
               </p>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                Elanco - Guia completo para novos tutores
+                {t('guideLink1Source')}
               </p>
             </div>
           </a>
@@ -90,10 +90,10 @@ function AdoptCatForm() {
             <ExternalLink className="w-4 h-4 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform" />
             <div className="flex-1">
               <p className="font-medium text-gray-900 dark:text-white text-sm">
-                10 Coisas que Deve Saber Antes de Adotar
+                {t('guideLink2Title')}
               </p>
               <p className="text-xs text-gray-600 dark:text-gray-400">
-                Zooplus - Checklist essencial de adoção
+                {t('guideLink2Source')}
               </p>
             </div>
           </a>
@@ -150,7 +150,7 @@ function AdoptCatForm() {
           {loading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              {t('form.submit')}...
+              {t('form.searching')}...
             </>
           ) : (
             <>
@@ -180,8 +180,8 @@ function AdoptCatForm() {
           <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
             <CheckCircle2 className="w-5 h-5" />
             <p className="font-semibold">
-              {results.quantidade} anúncio(s) encontrado(s)
-              {results.meta?.cached && ' (do cache ⚡)'}
+              {results.quantidade} {t('adoptCat.form.resultsFound')}
+              {results.meta?.cached && ` ${t('adoptCat.form.cached')}`}
             </p>
           </div>
 
@@ -231,7 +231,7 @@ function AdoptCatForm() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-sm text-catbytes-blue hover:text-catbytes-purple transition-colors"
                     >
-                      Ver anúncio
+                      {t('adoptCat.form.viewAd')}
                       <ExternalLink className="w-4 h-4" />
                     </a>
                   )}
@@ -270,7 +270,7 @@ function IdentifyCatForm() {
     const file = fileInput?.files?.[0]
 
     if (!file) {
-      setError('Por favor, selecione uma imagem')
+      setError(t('identifyCat.form.selectImage'))
       return
     }
 
@@ -288,13 +288,13 @@ function IdentifyCatForm() {
       })
 
       if (!response.ok) {
-        throw new Error('Erro ao identificar gato')
+        throw new Error(t('identifyCat.form.errorIdentify'))
       }
 
       const data = await response.json()
       setResult(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
+      setError(err instanceof Error ? err.message : t('identifyCat.form.errorUnknown'))
     } finally {
       setLoading(false)
     }
@@ -341,10 +341,10 @@ function IdentifyCatForm() {
           {loading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              {t('form.submit')}...
+              {t('identifyCat.form.processing')}...
             </>
           ) : (
-            <>{t('form.submit')}</>
+            <>{t('identifyCat.form.submit')}</>
           )}
         </button>
       </form>
@@ -369,20 +369,20 @@ function IdentifyCatForm() {
           <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
             <CheckCircle2 className="w-5 h-5" />
             <p className="font-semibold">
-              Análise concluída{result.cached && ' (do cache ⚡)'}
+              {t('identifyCat.form.analysisComplete')}{result.cached && ` ${t('identifyCat.form.cached')}`}
             </p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-gray-200 dark:border-gray-700">
             <div className="space-y-4">
               <div>
-                <h4 className="font-bold text-gray-800 dark:text-white mb-2">Idade Estimada:</h4>
+                <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('identifyCat.form.estimatedAge')}</h4>
                 <p className="text-gray-600 dark:text-gray-300">{result.idade}</p>
               </div>
 
               {result.racas && result.racas.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">Raças Possíveis:</h4>
+                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('identifyCat.form.possibleBreeds')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {result.racas.map((raca: string, index: number) => (
                       <span
@@ -398,7 +398,7 @@ function IdentifyCatForm() {
 
               {result.personalidade && result.personalidade.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">Personalidade:</h4>
+                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('identifyCat.form.personality')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {result.personalidade.map((trait: string, index: number) => (
                       <span
@@ -414,7 +414,7 @@ function IdentifyCatForm() {
 
               {result.observacoes && (
                 <div>
-                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">Observações:</h4>
+                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('identifyCat.form.observations')}</h4>
                   <p className="text-gray-600 dark:text-gray-300">{result.observacoes}</p>
                 </div>
               )}
@@ -438,7 +438,7 @@ function DonateCatForm() {
     e.preventDefault()
 
     if (!description.trim()) {
-      setError('Por favor, descreva o gato para doação')
+      setError(t('donateCat.form.errorDescription'))
       return
     }
 
@@ -461,13 +461,13 @@ function DonateCatForm() {
       }
 
       if (!data.data) {
-        throw new Error('Resposta inválida da API')
+        throw new Error(t('donateCat.form.errorInvalid'))
       }
 
       setResult(data.data)
     } catch (err) {
       console.error('Generate ad error:', err)
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
+      setError(err instanceof Error ? err.message : t('donateCat.form.errorUnknown'))
     } finally {
       setLoading(false)
     }
@@ -676,6 +676,19 @@ export function AIFeatures() {
           <span className="text-blue-600 dark:text-green-400">{t('title')}</span>
           <FaRobot className="text-violet-600 dark:text-violet-300" />
         </motion.h2>
+
+        {/* Region Notice for English users */}
+        {t('regionNotice') && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            className="max-w-4xl mx-auto mb-8 bg-amber-100 dark:bg-amber-900/30 border-2 border-amber-300 dark:border-amber-700 rounded-xl p-4"
+          >
+            <p className="text-sm text-amber-900 dark:text-amber-300 text-center">
+              {t('regionNotice')}
+            </p>
+          </motion.div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}

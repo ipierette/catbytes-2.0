@@ -36,10 +36,10 @@ export function Skills() {
   const [showOffCanvas, setShowOffCanvas] = useState(false)
 
   const getLevelLabel = (level: number) => {
-    if (level <= 40) return 'Ronronado Iniciante'
-    if (level <= 70) return 'Miado Intermediário'
-    if (level <= 99) return 'Gato Mestre'
-    return 'Miaucódigo Mestre'
+    if (level <= 40) return t('levelLabels.beginner')
+    if (level <= 70) return t('levelLabels.intermediate')
+    if (level <= 99) return t('levelLabels.advanced')
+    return t('levelLabels.expert')
   }
 
   return (
