@@ -9,8 +9,8 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/images/logo-desenvolvedora.png",
-      "sizes": "512x512",
+      "src": "/images/favicon-32x32.png",
+      "sizes": "any",
       "type": "image/png",
       "purpose": "any"
     }
