@@ -1,10 +1,14 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { FaHeart, FaCat, FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa'
 
 export function Footer() {
   const t = useTranslations('footer')
+  const params = useParams()
+  const locale = params.locale as string
 
   return (
     <footer className="bg-gray-900 text-white py-12 border-t border-gray-800">
@@ -46,6 +50,11 @@ export function Footer() {
                 <a href="#ai-features" className="text-gray-400 hover:text-purple-400 transition-colors">
                   {t('links.aiFeatures')}
                 </a>
+              </li>
+              <li>
+                <Link href={`/${locale}/blog`} className="text-gray-400 hover:text-purple-400 transition-colors">
+                  📝 Blog
+                </Link>
               </li>
               <li>
                 <a href="#contact" className="text-gray-400 hover:text-purple-400 transition-colors">
