@@ -9,10 +9,10 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/images/favicon-32x32.png",
+      "src": "/images/logo-desenvolvedora.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "categories": ["portfolio", "development", "technology"],
