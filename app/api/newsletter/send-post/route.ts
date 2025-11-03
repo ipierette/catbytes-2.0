@@ -2,14 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
-// Initialize clients
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-const resend = new Resend(process.env.RESEND_API_KEY!)
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
+
+// Initialize clients lazily to avoid build-time errors
+function getSupabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
+
+function getResendClient() {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is not configured')
+  }
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 /**
  * POST /api/newsletter/send-post
@@ -37,6 +45,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Initialize clients
+    const supabase = getSupabaseClient()
+    const resend = getResendClient()
 
     // Fetch the blog post
     const { data: post, error: postError } = await supabase
