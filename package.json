@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "generate:favicons": "node scripts/generate-favicons.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
@@ -19,10 +20,10 @@
     "dotenv": "^16.4.5",
     "embla-carousel-autoplay": "^8.3.0",
     "embla-carousel-react": "^8.3.0",
-    "framer-motion": "^11.11.7",
+    "framer-motion": "^11.18.2",
     "lucide-react": "^0.462.0",
-    "next": "^15.0.3",
-    "next-intl": "^3.23.5",
+    "next": "^15.5.6",
+    "next-intl": "^3.26.5",
     "next-themes": "^0.4.3",
     "openai": "^6.7.0",
     "react": "^18.3.1",
@@ -42,6 +43,7 @@
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.0.3",
     "postcss": "^8.4.49",
+    "sharp": "^0.34.4",
     "tailwindcss": "^3.4.14",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.6.3"
