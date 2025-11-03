@@ -21,6 +21,8 @@ export interface BlogPost {
   tags: string[]
   ai_model: string
   generation_prompt: string | null
+  locale?: string // 'pt-BR' or 'en-US'
+  translated_from?: string | null // ID of the original post if this is a translation
 }
 
 export interface BlogPostInsert {
@@ -38,6 +40,8 @@ export interface BlogPostInsert {
   tags?: string[]
   ai_model?: string
   generation_prompt?: string
+  locale?: string // 'pt-BR' or 'en-US'
+  translated_from?: string | null // ID of the original post if this is a translation
 }
 
 export interface BlogPostUpdate {

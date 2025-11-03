@@ -100,10 +100,17 @@ export default async function LocaleLayout({
         <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
         <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="manifest" href="/manifest.json" />
         <link rel="alternate" hrefLang="pt-BR" href="https://catbytes.com/pt-BR" />
         <link rel="alternate" hrefLang="en-US" href="https://catbytes.com/en-US" />
         <link rel="alternate" hrefLang="x-default" href="https://catbytes.com/pt-BR" />
+        <link rel="stylesheet" href="/css/mobile-optimizations.css" />
+        <link rel="stylesheet" href="/css/blog-mobile.css" />
+        <link rel="stylesheet" href="/css/newsletter-verify-mobile.css" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="CatBytes" />
       </head>
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
