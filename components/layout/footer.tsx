@@ -80,7 +80,7 @@ export function Footer() {
                 <FaGithub size={24} />
               </a>
               <a
-                href="mailto:izadoracurypierette@gmail.com"
+                href="mailto:ipierette2@gmail.com"
                 className="text-gray-400 hover:text-purple-400 transition-colors"
                 aria-label="Email"
               >
@@ -88,7 +88,7 @@ export function Footer() {
               </a>
             </div>
             <p className="text-sm text-gray-400 mt-4">
-              izadoracurypierette@gmail.com
+              ipierette2@gmail.com
             </p>
           </div>
         </div>
