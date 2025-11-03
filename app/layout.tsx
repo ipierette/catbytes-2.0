@@ -41,8 +41,41 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/images/favicon-32x32.png',
-    apple: '/images/favicon-32x32.png',
+    icon: [
+      { url: '/images/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/images/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    other: [
+      {
+        rel: 'mask-icon',
+        url: '/images/favicon-32x32.png',
+      },
+    ],
+  },
+  manifest: '/site.webmanifest',
+  openGraph: {
+    type: 'website',
+    locale: 'pt_BR',
+    url: 'https://catbytes.site',
+    title: 'Izadora Cury Pierette | CatBytes — Portfólio Criativo',
+    description: 'Conheça projetos que unem design moderno, código limpo e soluções com inteligência artificial e automação.',
+    siteName: 'CatBytes',
+    images: [
+      {
+        url: '/images/og-1200x630-safe.webp',
+        width: 1200,
+        height: 630,
+        alt: 'CatBytes Portfolio',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Izadora Cury Pierette | CatBytes — Portfólio Criativo',
+    description: 'Conheça projetos que unem design moderno, código limpo e soluções com inteligência artificial e automação.',
+    images: ['/images/og-1200x630-safe.webp'],
   },
 }
 

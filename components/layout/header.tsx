@@ -21,6 +21,7 @@ export function Header() {
     { href: '#projects', label: t('projects') },
     { href: '#curiosities', label: t('curiosities') },
     { href: '#ai-features', label: t('aiFeatures') },
+    { href: '#blog', label: 'Blog' },
     { href: '#contact', label: t('contact') },
   ]
 

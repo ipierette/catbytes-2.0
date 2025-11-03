@@ -4,6 +4,7 @@ import { Skills } from '@/components/sections/skills'
 import { Projects } from '@/components/sections/projects'
 import { Curiosities } from '@/components/sections/curiosities'
 import { AIFeatures } from '@/components/sections/ai-features'
+import { RecentPosts } from '@/components/sections/recent-posts'
 import { Contact } from '@/components/sections/contact'
 import { getTranslations } from 'next-intl/server'
 
@@ -18,6 +19,7 @@ export default async function Home() {
       <Projects />
       <Curiosities />
       <AIFeatures />
+      <RecentPosts />
       <Contact />
     </>
   )
