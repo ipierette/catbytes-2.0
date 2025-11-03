@@ -6,7 +6,7 @@ import { Mail, CheckCircle2, AlertCircle, Loader2, Info } from 'lucide-react'
 import Image from 'next/image'
 
 interface NewsletterSignupProps {
-  variant?: 'blog' | 'footer'
+  variant?: 'blog' | 'footer' | 'offcanvas'
 }
 
 export function NewsletterSignup({ variant = 'blog' }: NewsletterSignupProps) {
@@ -164,6 +164,102 @@ export function NewsletterSignup({ variant = 'blog' }: NewsletterSignupProps) {
           </div>
         </div>
       </motion.section>
+    )
+  }
+
+  // Off-canvas variant - vertical layout
+  if (variant === 'offcanvas') {
+    return (
+      <div className="space-y-4">
+        {/* Important Notice */}
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-xl p-4">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-yellow-900 dark:text-yellow-300 mb-1">
+                📧 Para não cair no spam:
+              </p>
+              <p className="text-sm text-yellow-800 dark:text-yellow-400">
+                Adicione <strong>contato@catbytes.site</strong> aos seus contatos!
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {success ? (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-green-50 dark:bg-green-900/20 border-2 border-green-300 dark:border-green-700 rounded-xl p-6 text-center"
+          >
+            <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-3" />
+            <h4 className="text-xl font-bold text-green-900 dark:text-green-300 mb-2">
+              Inscrição Confirmada! 🎉
+            </h4>
+            <p className="text-green-800 dark:text-green-400 text-sm">
+              Verifique seu email para confirmar a inscrição.
+            </p>
+          </motion.div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Nome (opcional)
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Seu nome"
+                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:border-catbytes-purple focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email *
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="seu@email.com"
+                required
+                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:border-catbytes-purple focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
+                <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+                <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-catbytes-purple to-catbytes-blue hover:from-catbytes-blue hover:to-catbytes-purple text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Inscrevendo...
+                </>
+              ) : (
+                <>
+                  <Mail className="w-5 h-5" />
+                  Inscrever-se Gratuitamente
+                </>
+              )}
+            </button>
+
+            <p className="text-xs text-center text-gray-600 dark:text-gray-400">
+              Enviamos artigos 3x por semana. Cancele quando quiser.
+            </p>
+          </form>
+        )}
+      </div>
     )
   }
 
