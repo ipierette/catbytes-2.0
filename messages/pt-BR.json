@@ -214,6 +214,8 @@
     "newsletter": "Newsletter",
     "newsletterButton": "Inscrever-se na Newsletter",
     "newsletterTitle": "Newsletter CatBytes",
+    "newsletterDescription": "Receba artigos exclusivos sobre tecnologia, IA e automação",
+    "newsletterDescriptionHighlight": "diretamente no seu email",
     "close": "Fechar"
   },
   "newsletter": {
