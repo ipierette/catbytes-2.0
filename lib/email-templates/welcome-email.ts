@@ -73,10 +73,10 @@ export function getWelcomeEmailHTML(name: string, token: string, locale: string 
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto 20px; border-collapse: collapse;">
                 <tr>
                   <td style="padding: 0 12px; text-align: center;">
-                    <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Logo Desenvolvedora" style="height: 80px; width: auto; display: block;">
+                    <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Logo Desenvolvedora" style="height: 70px; width: 200px; display: block;">
                   </td>
                   <td style="padding: 0 12px; text-align: center;">
-                    <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="height: 80px; width: auto; display: block;">
+                    <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="height: 140px; width: 250px; display: block;">
                   </td>
                 </tr>
               </table>
