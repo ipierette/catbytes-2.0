@@ -105,7 +105,7 @@ export default async function LocaleLayout({
         <link rel="alternate" hrefLang="en-US" href="https://catbytes.com/en-US" />
         <link rel="alternate" hrefLang="x-default" href="https://catbytes.com/pt-BR" />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider
             attribute="class"
