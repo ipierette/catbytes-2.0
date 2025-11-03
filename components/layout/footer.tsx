@@ -21,11 +21,11 @@ export function Footer() {
           <div>
             <div className="mb-4">
               <Image
-                src="/images/logo300x100-fundo-escuro.svg"
+                src="/images/logo-desenvolvedora.png"
                 alt="CatBytes"
-                width={150}
-                height={50}
-                className="h-12 w-auto"
+                width={120}
+                height={120}
+                className="w-24 h-24"
               />
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
