@@ -215,5 +215,19 @@
     "newsletterButton": "Subscribe to Newsletter",
     "newsletterTitle": "CatBytes Newsletter",
     "close": "Close"
+  },
+  "newsletter": {
+    "spamWarning": "📧 To avoid spam:",
+    "addContact": "Add",
+    "toContacts": "to your contacts!",
+    "successTitle": "Subscription Confirmed! 🎉",
+    "successMessage": "Check your email to confirm subscription.",
+    "nameLabel": "Name (optional)",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "your@email.com",
+    "subscribing": "Subscribing...",
+    "subscribeButton": "Subscribe for Free",
+    "frequency": "We send articles 3x per week. Cancel anytime."
   }
 }

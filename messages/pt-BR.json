@@ -215,5 +215,19 @@
     "newsletterButton": "Inscrever-se na Newsletter",
     "newsletterTitle": "Newsletter CatBytes",
     "close": "Fechar"
+  },
+  "newsletter": {
+    "spamWarning": "📧 Para não cair no spam:",
+    "addContact": "Adicione",
+    "toContacts": "aos seus contatos!",
+    "successTitle": "Inscrição Confirmada! 🎉",
+    "successMessage": "Verifique seu email para confirmar a inscrição.",
+    "nameLabel": "Nome (opcional)",
+    "namePlaceholder": "Seu nome",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "seu@email.com",
+    "subscribing": "Inscrevendo...",
+    "subscribeButton": "Inscrever-se Gratuitamente",
+    "frequency": "Enviamos artigos 3x por semana. Cancele quando quiser."
   }
 }
