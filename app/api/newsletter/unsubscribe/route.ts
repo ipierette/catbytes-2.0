@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+// Initialize client lazily to avoid build-time errors
+function getSupabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 /**
  * GET /api/newsletter/unsubscribe?email=user@example.com
@@ -72,6 +75,9 @@ export async function GET(request: NextRequest) {
         }
       )
     }
+
+    // Initialize client
+    const supabase = getSupabaseClient()
 
     // Update subscriber status
     const { error } = await supabase
