@@ -211,6 +211,12 @@
     "backToTop": "Back to Top"
   },
   "blog": {
+    "title": "CatBytes Blog",
+    "subtitle": "Stay up to date with the latest news in technology, AI and automation",
+    "noPosts": "New articles coming soon!",
+    "noPostsMessage": "We're preparing amazing content about technology, AI and automation. Subscribe to the newsletter to be notified when we publish!",
+    "readMore": "Read more",
+    "viewAllPosts": "View all articles",
     "newsletter": "Newsletter",
     "newsletterButton": "Subscribe to Newsletter",
     "newsletterTitle": "CatBytes Newsletter",

@@ -25,7 +25,7 @@ export function Footer() {
                 alt="CatBytes"
                 width={250}
                 height={100}
-                className="w-auto h-16"
+                className="w-[250px] h-auto"
               />
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
