@@ -124,11 +124,11 @@ export function AppShell({ children }: AppShellProps) {
           </div>
 
           <div className="app-header-actions">
-            {navigator.share && (
+            {typeof navigator !== 'undefined' && navigator.share && (
               <button 
                 onClick={handleShare}
                 className="app-header-button"
-                aria-label="Compartilhar"
+                aria-label={t('share')}
               >
                 <Share2 className="w-5 h-5" />
               </button>
