@@ -62,22 +62,22 @@ export function AppShell({ children }: AppShellProps) {
       active: pathname === `/${locale}` || pathname === '/'
     },
     {
-      name: 'Blog',
+      name: 'Projetos',
       icon: BookOpen,
+      href: `/${locale}/projetos`,
+      active: pathname.includes('/projetos')
+    },
+    {
+      name: 'Blog',
+      icon: Sparkles,
       href: `/${locale}/blog`,
       active: pathname.includes('/blog')
     },
     {
-      name: 'IA Felina',
-      icon: Sparkles,
-      href: `/${locale}#ai-features`,
-      active: false
-    },
-    {
-      name: 'Sobre',
+      name: 'IA',
       icon: User,
-      href: `/${locale}#about`,
-      active: false
+      href: `/${locale}/ia-felina`,
+      active: pathname.includes('/ia-felina')
     }
   ]
 
@@ -234,28 +234,44 @@ export function AppShell({ children }: AppShellProps) {
 
               <div className="app-drawer-content">
                 <Link 
-                  href={`/${locale}#about`}
+                  href={`/${locale}`}
                   className="app-drawer-item"
                   onClick={() => setShowMenu(false)}
                 >
-                  <User className="w-5 h-5" />
-                  <span>Sobre</span>
+                  <Home className="w-5 h-5" />
+                  <span>Home</span>
                 </Link>
                 <Link 
-                  href={`/${locale}#skills`}
-                  className="app-drawer-item"
-                  onClick={() => setShowMenu(false)}
-                >
-                  <Sparkles className="w-5 h-5" />
-                  <span>Skills</span>
-                </Link>
-                <Link 
-                  href={`/${locale}#projects`}
+                  href={`/${locale}/projetos`}
                   className="app-drawer-item"
                   onClick={() => setShowMenu(false)}
                 >
                   <BookOpen className="w-5 h-5" />
                   <span>Projetos</span>
+                </Link>
+                <Link 
+                  href={`/${locale}/blog`}
+                  className="app-drawer-item"
+                  onClick={() => setShowMenu(false)}
+                >
+                  <Sparkles className="w-5 h-5" />
+                  <span>Blog</span>
+                </Link>
+                <Link 
+                  href={`/${locale}/ia-felina`}
+                  className="app-drawer-item"
+                  onClick={() => setShowMenu(false)}
+                >
+                  <Sparkles className="w-5 h-5" />
+                  <span>IA Felina</span>
+                </Link>
+                <Link 
+                  href={`/${locale}/sobre`}
+                  className="app-drawer-item"
+                  onClick={() => setShowMenu(false)}
+                >
+                  <User className="w-5 h-5" />
+                  <span>Sobre</span>
                 </Link>
               </div>
             </motion.div>
