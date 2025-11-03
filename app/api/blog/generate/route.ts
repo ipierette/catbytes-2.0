@@ -126,7 +126,7 @@ No text in image. Aspect ratio: 16:9. High quality.`
       style: 'vivid',
     })
 
-    const coverImageUrl = imageResponse.data[0]?.url
+    const coverImageUrl = imageResponse.data?.[0]?.url
     if (!coverImageUrl) {
       throw new Error('No image generated from DALL-E')
     }
