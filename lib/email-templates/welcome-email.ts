@@ -70,10 +70,16 @@ export function getWelcomeEmailHTML(name: string, token: string, locale: string 
           <!-- Header -->
           <tr>
             <td style="background: linear-gradient(135deg, #8A2BE2 0%, #FF69B4 50%, #00BFFF 100%); padding: 40px 30px; text-align: center;">
-              <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 20px; flex-wrap: wrap;">
-                <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Logo Desenvolvedora" style="height: 100px; width: auto; max-width: 45%;">
-                <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="height: 100px; width: auto; max-width: 45%;">
-              </div>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto 20px; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 0 12px; text-align: center;">
+                    <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Logo Desenvolvedora" style="height: 80px; width: auto; display: block;">
+                  </td>
+                  <td style="padding: 0 12px; text-align: center;">
+                    <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="height: 80px; width: auto; display: block;">
+                  </td>
+                </tr>
+              </table>
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">${t.title}</h1>
             </td>
           </tr>
