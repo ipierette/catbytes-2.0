@@ -4,8 +4,6 @@ import { useTranslations } from 'next-intl'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { FaHeart, FaCat, FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa'
-import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
-import Image from 'next/image'
 
 export function Footer() {
   const t = useTranslations('footer')
@@ -16,21 +14,12 @@ export function Footer() {
     <footer className="bg-gray-900 text-white py-12 border-t border-gray-800">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* About Section */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <Image
-                src="/images/logo-desenvolvedora.png"
-                alt="CatBytes Logo"
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-lg"
-              />
-              <h3 className="text-xl font-comfortaa font-bold text-purple-400">
-                CatBytes
-              </h3>
-            </div>
+            <h3 className="text-xl font-comfortaa font-bold mb-4 text-purple-400">
+              CatBytes
+            </h3>
             <p className="text-sm text-gray-400 leading-relaxed">
               {t('tagline')}
             </p>
@@ -111,8 +100,6 @@ export function Footer() {
               ipierette2@gmail.com
             </p>
           </div>
-          {/* Newsletter */}
-          <NewsletterSignup variant="footer" />
         </div>
 
         {/* Bottom Bar */}
