@@ -43,15 +43,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/images/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/images/logo-desenvolvedora.png', sizes: '192x192', type: 'image/png' },
     ],
     apple: [
-      { url: '/images/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/images/logo-desenvolvedora.png', sizes: '180x180', type: 'image/png' },
     ],
-    other: [
-      {
-        rel: 'mask-icon',
-        url: '/images/favicon-32x32.png',
-      },
+    shortcut: [
+      { url: '/images/favicon-32x32.png' },
     ],
   },
   manifest: '/site.webmanifest',
