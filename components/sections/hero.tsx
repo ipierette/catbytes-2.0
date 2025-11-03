@@ -214,16 +214,16 @@ export function Hero() {
             stiffness: 200,
             damping: 15
           }}
-          className="absolute bottom-0 right-4 z-20 pointer-events-auto"
+          className="absolute bottom-0 right-2 z-20 pointer-events-auto"
           onTouchStart={() => setShowCatMessage(true)}
           onTouchEnd={() => setShowCatMessage(false)}
         >
-          <div className="relative w-[106px] h-[106px] opacity-90 hover:opacity-100 transition-opacity">
+          <div className="relative w-[128px] h-[128px] opacity-90 hover:opacity-100 transition-opacity">
             <Image
               src="/images/gato-sentado.webp"
               alt="Axel - Mascote CatBytes"
-              width={106}
-              height={106}
+              width={128}
+              height={128}
               className="w-full h-full object-contain drop-shadow-xl"
               priority
             />
