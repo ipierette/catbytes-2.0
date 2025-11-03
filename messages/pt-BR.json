@@ -88,6 +88,10 @@
       "medical": {
         "title": "Site Institucional Médico - Plataforma Completa de Gestão",
         "description": "Sistema web para clínicas e consultórios com backend em n8n e IA integrada. Inclui chat inteligente com OpenAI baseado em fontes científicas, agendamento com bloqueio automático de finais de semana e feriados, gestão de convênios e validação em tempo real."
+      },
+      "catbytes1": {
+        "title": "CatBytes 1.0 - Portfolio Original",
+        "description": "Primeira versão do portfolio pessoal CatBytes, desenvolvido com tecnologias web fundamentais. Um projeto que marcou o início da jornada de desenvolvimento, apresentando design responsivo, animações suaves e uma interface temática felina que captura a essência da marca CatBytes."
       }
     }
   },
