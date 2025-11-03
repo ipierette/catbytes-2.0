@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { Resend } from 'resend'
 import { db, generateSlug, supabaseAdmin } from '@/lib/supabase'
 import { SEO_KEYWORDS, BLOG_TOPICS, BLOG_CATEGORIES } from '@/types/blog'
 import type { AIGeneratedPost, BlogPostInsert } from '@/types/blog'
@@ -15,6 +16,133 @@ export const maxDuration = 60 // 60 seconds for image generation
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 })
+
+const resend = process.env.RESEND_API_KEY 
+  ? new Resend(process.env.RESEND_API_KEY) 
+  : null
+
+// Email template for new blog post notification
+function getNewPostEmailHTML(
+  name: string,
+  title: string,
+  excerpt: string,
+  coverImageUrl: string,
+  postUrl: string,
+  locale: string,
+  baseUrl: string
+): string {
+  const isPortuguese = locale === 'pt-BR'
+  
+  const texts = {
+    greeting: isPortuguese ? `Olá, ${name}!` : `Hello, ${name}!`,
+    newPost: isPortuguese ? '🚀 Novo Artigo Publicado!' : '🚀 New Article Published!',
+    readMore: isPortuguese ? 'Ler Artigo Completo' : 'Read Full Article',
+    viewBlog: isPortuguese ? 'Ver Todos os Artigos' : 'View All Articles',
+    unsubscribe: isPortuguese ? 'Cancelar inscrição' : 'Unsubscribe',
+    footer: isPortuguese 
+      ? 'Você está recebendo este email porque se inscreveu na newsletter da CatBytes.'
+      : 'You are receiving this email because you subscribed to the CatBytes newsletter.'
+  }
+
+  return `
+    <!DOCTYPE html>
+    <html lang="${locale}">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${title}</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f5f5f5; padding: 20px 0;">
+          <tr>
+            <td align="center">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                
+                <!-- Header -->
+                <tr>
+                  <td align="center" style="padding: 40px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="height: 80px; width: auto; margin-bottom: 20px;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">${texts.newPost}</h1>
+                  </td>
+                </tr>
+
+                <!-- Greeting -->
+                <tr>
+                  <td style="padding: 30px 40px 20px;">
+                    <p style="color: #333333; font-size: 18px; margin: 0; font-weight: 500;">${texts.greeting}</p>
+                  </td>
+                </tr>
+
+                <!-- Cover Image -->
+                ${coverImageUrl ? `
+                <tr>
+                  <td style="padding: 0 40px 20px;">
+                    <img src="${coverImageUrl}" alt="${title}" style="width: 100%; height: auto; border-radius: 8px; display: block;">
+                  </td>
+                </tr>
+                ` : ''}
+
+                <!-- Post Title -->
+                <tr>
+                  <td style="padding: 0 40px 15px;">
+                    <h2 style="color: #1a1a1a; margin: 0; font-size: 26px; font-weight: 700; line-height: 1.3;">${title}</h2>
+                  </td>
+                </tr>
+
+                <!-- Post Excerpt -->
+                <tr>
+                  <td style="padding: 0 40px 30px;">
+                    <p style="color: #666666; margin: 0; font-size: 16px; line-height: 1.6;">${excerpt}</p>
+                  </td>
+                </tr>
+
+                <!-- CTA Button -->
+                <tr>
+                  <td style="padding: 0 40px 40px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td align="center">
+                          <a href="${postUrl}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">${texts.readMore}</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- View All Posts -->
+                <tr>
+                  <td align="center" style="padding: 0 40px 40px;">
+                    <a href="${postUrl}" style="color: #667eea; text-decoration: none; font-size: 14px; font-weight: 500;">${texts.viewBlog} →</a>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 30px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td align="center" style="padding-bottom: 15px;">
+                          <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Developer Logo" style="height: 60px; width: auto;">
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center">
+                          <p style="color: #6b7280; font-size: 13px; margin: 0 0 10px; line-height: 1.5;">${texts.footer}</p>
+                          <a href="${baseUrl}/${locale}/newsletter/unsubscribe" style="color: #9ca3af; text-decoration: underline; font-size: 12px;">${texts.unsubscribe}</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `
+}
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
@@ -156,7 +284,66 @@ No text in image. Aspect ratio: 16:9. High quality.`
     const createdPost = await db.createPost(postData)
     console.log('[Generate] Post created:', createdPost.id)
 
-    // ====== STEP 4: Log generation ======
+    // ====== STEP 4: Send to newsletter subscribers ======
+    if (resend) {
+      try {
+        console.log('[Generate] Fetching verified newsletter subscribers...')
+        
+        const { data: subscribers, error: subError } = await supabaseAdmin
+          .from('newsletter_subscribers')
+          .select('email, name, locale')
+          .eq('verified', true)
+          .eq('subscribed', true)
+
+        if (subError) {
+          console.error('[Generate] Error fetching subscribers:', subError)
+        } else if (subscribers && subscribers.length > 0) {
+          console.log(`[Generate] Sending new post notification to ${subscribers.length} subscribers...`)
+          
+          const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
+          
+          // Send emails in batches to avoid rate limits
+          const batchSize = 50
+          for (let i = 0; i < subscribers.length; i += batchSize) {
+            const batch = subscribers.slice(i, i + batchSize)
+            
+            const emailPromises = batch.map(subscriber => {
+              const locale = subscriber.locale || 'pt-BR'
+              const postUrl = `${baseUrl}/${locale}/blog`
+              
+              return resend.emails.send({
+                from: 'CatBytes <contato@catbytes.site>',
+                to: subscriber.email,
+                subject: locale === 'pt-BR' 
+                  ? `🚀 Novo Artigo: ${createdPost.title}`
+                  : `🚀 New Article: ${createdPost.title}`,
+                html: getNewPostEmailHTML(
+                  subscriber.name || 'Amigo',
+                  createdPost.title,
+                  createdPost.excerpt,
+                  createdPost.cover_image_url,
+                  postUrl,
+                  locale,
+                  baseUrl
+                ),
+              })
+            })
+            
+            await Promise.allSettled(emailPromises)
+            console.log(`[Generate] Sent batch ${Math.floor(i / batchSize) + 1}`)
+          }
+          
+          console.log('[Generate] Newsletter emails sent successfully!')
+        } else {
+          console.log('[Generate] No verified subscribers to notify')
+        }
+      } catch (emailError) {
+        console.error('[Generate] Error sending newsletter emails:', emailError)
+        // Don't fail post creation if email fails
+      }
+    }
+
+    // ====== STEP 5: Log generation ======
     const generationTime = Date.now() - startTime
 
     await supabaseAdmin.from('blog_generation_log').insert({
