@@ -21,11 +21,11 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <Image
-                src="/images/catbytes-logo.webp"
+                src="/images/logo-desenvolvedora.png"
                 alt="CatBytes Logo"
                 width={40}
                 height={40}
-                className="w-10 h-10"
+                className="w-10 h-10 rounded-lg"
               />
               <h3 className="text-xl font-comfortaa font-bold text-purple-400">
                 CatBytes
