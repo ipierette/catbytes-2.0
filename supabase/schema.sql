@@ -127,3 +127,71 @@ COMMENT ON TABLE blog_posts IS 'AI-generated blog posts with automatic lifecycle
 COMMENT ON COLUMN blog_posts.slug IS 'URL-friendly unique identifier';
 COMMENT ON COLUMN blog_posts.keywords IS 'SEO keywords for organic traffic';
 COMMENT ON FUNCTION manage_blog_posts_limit() IS 'Automatically maintains max 30 posts by removing oldest';
+
+-- =====================================================
+-- Newsletter Subscribers Table
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  subscribed BOOLEAN DEFAULT true,
+  subscribed_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  unsubscribed_at TIMESTAMP WITH TIME ZONE,
+  verification_token TEXT UNIQUE,
+  verified BOOLEAN DEFAULT false,
+  verified_at TIMESTAMP WITH TIME ZONE,
+
+  -- Metadata
+  source TEXT DEFAULT 'website',
+  ip_address TEXT,
+  user_agent TEXT,
+
+  -- Engagement tracking
+  last_email_sent_at TIMESTAMP WITH TIME ZONE,
+  emails_sent_count INTEGER DEFAULT 0,
+  emails_opened_count INTEGER DEFAULT 0,
+  emails_clicked_count INTEGER DEFAULT 0,
+
+  -- Constraints
+  CONSTRAINT email_format CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+);
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_newsletter_email ON newsletter_subscribers(email);
+CREATE INDEX IF NOT EXISTS idx_newsletter_subscribed ON newsletter_subscribers(subscribed) WHERE subscribed = true;
+CREATE INDEX IF NOT EXISTS idx_newsletter_verified ON newsletter_subscribers(verified) WHERE verified = true;
+
+-- RLS
+ALTER TABLE newsletter_subscribers ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Service role only
+CREATE POLICY "Service role full access newsletter"
+  ON newsletter_subscribers
+  USING (auth.jwt() ->> 'role' = 'service_role');
+
+-- Newsletter Campaigns (for tracking sent emails)
+CREATE TABLE IF NOT EXISTS newsletter_campaigns (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  blog_post_id UUID REFERENCES blog_posts(id) ON DELETE CASCADE,
+  subject TEXT NOT NULL,
+  sent_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()),
+  recipients_count INTEGER DEFAULT 0,
+  opened_count INTEGER DEFAULT 0,
+  clicked_count INTEGER DEFAULT 0,
+  bounced_count INTEGER DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_campaigns_post ON newsletter_campaigns(blog_post_id);
+CREATE INDEX IF NOT EXISTS idx_campaigns_sent ON newsletter_campaigns(sent_at DESC);
+
+ALTER TABLE newsletter_campaigns ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role full access campaigns"
+  ON newsletter_campaigns
+  USING (auth.jwt() ->> 'role' = 'service_role');
+
+-- Comments
+COMMENT ON TABLE newsletter_subscribers IS 'Newsletter subscribers with double opt-in';
+COMMENT ON TABLE newsletter_campaigns IS 'Newsletter campaign tracking for sent blog posts';
