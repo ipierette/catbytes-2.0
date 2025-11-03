@@ -6,12 +6,13 @@ import { motion } from 'framer-motion'
 import { CheckCircle2, XCircle, Loader2, Mail, ArrowRight, Home } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'invalid'
 
 export function VerifyEmailContent() {
   const t = useTranslations('newsletterVerify')
+  const locale = useLocale()
   const searchParams = useSearchParams()
   const router = useRouter()
   const [status, setStatus] = useState<VerificationStatus>('loading')
@@ -173,14 +174,14 @@ export function VerifyEmailContent() {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
-                    href="/"
+                    href={`/${locale}`}
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg"
                   >
                     <Home className="w-5 h-5" />
                     {t('backToSite')}
                   </Link>
                   <Link
-                    href="/blog"
+                    href={`/${locale}/blog`}
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-bold rounded-xl transition-all border-2 border-purple-300 dark:border-purple-700"
                   >
                     {t('viewBlog')}
@@ -217,7 +218,7 @@ export function VerifyEmailContent() {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
-                    href="/"
+                    href={`/${locale}`}
                     className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg"
                   >
                     <Home className="w-5 h-5" />
@@ -254,7 +255,7 @@ export function VerifyEmailContent() {
                 </div>
 
                 <Link
-                  href="/"
+                  href={`/${locale}`}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg"
                 >
                   <Home className="w-5 h-5" />

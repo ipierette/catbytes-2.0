@@ -4,25 +4,31 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { LanguageToggle } from './language-toggle'
 import { Link } from '@/i18n/routing'
 import Image from 'next/image'
+import { usePathname } from 'next/navigation'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const t = useTranslations('nav')
+  const locale = useLocale()
+  const pathname = usePathname()
+
+  // Check if we're on the home page
+  const isHomePage = pathname === `/${locale}` || pathname === '/'
 
   const navItems = [
-    { href: '#hero', label: t('home') },
-    { href: '#about', label: t('about') },
-    { href: '#skills', label: t('skills') },
-    { href: '#projects', label: t('projects') },
-    { href: '#curiosities', label: t('curiosities') },
-    { href: '#ai-features', label: t('aiFeatures') },
-    { href: '#blog', label: 'Blog' },
-    { href: '#contact', label: t('contact') },
+    { href: isHomePage ? '#hero' : `/${locale}#hero`, label: t('home') },
+    { href: isHomePage ? '#about' : `/${locale}#about`, label: t('about') },
+    { href: isHomePage ? '#skills' : `/${locale}#skills`, label: t('skills') },
+    { href: isHomePage ? '#projects' : `/${locale}#projects`, label: t('projects') },
+    { href: isHomePage ? '#curiosities' : `/${locale}#curiosities`, label: t('curiosities') },
+    { href: isHomePage ? '#ai-features' : `/${locale}#ai-features`, label: t('aiFeatures') },
+    { href: isHomePage ? '#blog' : `/${locale}#blog`, label: 'Blog' },
+    { href: isHomePage ? '#contact' : `/${locale}#contact`, label: t('contact') },
   ]
 
   return (

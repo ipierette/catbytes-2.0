@@ -125,8 +125,8 @@ function getWelcomeEmailHTML(name: string, token: string, locale: string = 'pt-B
           <tr>
             <td style="background: linear-gradient(135deg, #8A2BE2 0%, #FF69B4 50%, #00BFFF 100%); padding: 40px 30px; text-align: center;">
               <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 20px; flex-wrap: wrap;">
-                <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Logo Desenvolvedora" style="width: 250px; height: auto; max-width: 45%;">
-                <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="width: 250px; height: auto; max-width: 45%;">
+                <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Logo Desenvolvedora" style="height: 100px; width: auto; max-width: 45%;">
+                <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="height: 100px; width: auto; max-width: 45%;">
               </div>
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Bem-vindo à Newsletter CatBytes!</h1>
             </td>
