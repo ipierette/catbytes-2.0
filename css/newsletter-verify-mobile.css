@@ -1,0 +1,465 @@
+/* ============================================
+   NEWSLETTER VERIFICATION PAGE MOBILE
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* Verification Page Container */
+  .newsletter-verify-page {
+    min-height: 100vh;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Verification Card */
+  .newsletter-verify-card {
+    width: 100%;
+    max-width: 100%;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .newsletter-verify-card {
+    background: #1f2937;
+  }
+
+  /* Card Header with Logos */
+  .newsletter-verify-header {
+    background: linear-gradient(135deg, #6c4fd9, #ec4899, #3b82f6);
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  .newsletter-verify-logos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .newsletter-verify-logo {
+    max-width: 180px;
+    height: auto;
+  }
+
+  .newsletter-verify-title {
+    font-size: 1.75rem !important;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  /* Card Content */
+  .newsletter-verify-content {
+    padding: 2rem 1.5rem;
+  }
+
+  /* Loading State */
+  .newsletter-verify-loading {
+    text-align: center;
+  }
+
+  .newsletter-verify-spinner {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.5rem;
+    color: #6c4fd9;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .newsletter-verify-loading-title {
+    font-size: 1.5rem !important;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.75rem;
+  }
+
+  .dark .newsletter-verify-loading-title {
+    color: #f5f5f5;
+  }
+
+  .newsletter-verify-loading-text {
+    font-size: 1rem;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+
+  .dark .newsletter-verify-loading-text {
+    color: #9ca3af;
+  }
+
+  /* Success State */
+  .newsletter-verify-success {
+    text-align: center;
+  }
+
+  .newsletter-verify-success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    color: #10b981;
+  }
+
+  .newsletter-verify-success-title {
+    font-size: 1.75rem !important;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+  }
+
+  .dark .newsletter-verify-success-title {
+    color: #f5f5f5;
+  }
+
+  .newsletter-verify-email {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: #f3f4f6;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  .dark .newsletter-verify-email {
+    background: #374151;
+    color: #d1d5db;
+  }
+
+  .newsletter-verify-email-icon {
+    width: 20px;
+    height: 20px;
+    color: #6c4fd9;
+  }
+
+  /* What's Next Section */
+  .newsletter-verify-next {
+    background: linear-gradient(135deg, #f3e8ff, #fce7f3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .dark .newsletter-verify-next {
+    background: linear-gradient(135deg, #4c1d95, #831843);
+  }
+
+  .newsletter-verify-next-title {
+    font-size: 1.25rem !important;
+    font-weight: 700;
+    color: #6c4fd9;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .dark .newsletter-verify-next-title {
+    color: #ec4899;
+  }
+
+  .newsletter-verify-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .newsletter-verify-benefit {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.9375rem;
+    color: #374151;
+  }
+
+  .dark .newsletter-verify-benefit {
+    color: #d1d5db;
+  }
+
+  .newsletter-verify-benefit-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: #10b981;
+    margin-top: 2px;
+  }
+
+  /* Spam Warning */
+  .newsletter-verify-spam-warning {
+    background: #fef3c7;
+    border: 2px solid #fbbf24;
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+
+  .dark .newsletter-verify-spam-warning {
+    background: #78350f;
+    border-color: #f59e0b;
+  }
+
+  .newsletter-verify-spam-title {
+    font-size: 1rem !important;
+    font-weight: 600;
+    color: #92400e;
+    margin-bottom: 0.5rem;
+  }
+
+  .dark .newsletter-verify-spam-title {
+    color: #fef3c7;
+  }
+
+  .newsletter-verify-spam-text {
+    font-size: 0.875rem;
+    color: #78350f;
+  }
+
+  .dark .newsletter-verify-spam-text {
+    color: #fde68a;
+  }
+
+  .newsletter-verify-spam-email {
+    font-weight: 600;
+    color: #92400e;
+  }
+
+  .dark .newsletter-verify-spam-email {
+    color: #fef3c7;
+  }
+
+  /* Action Buttons */
+  .newsletter-verify-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .newsletter-verify-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  .newsletter-verify-button:active {
+    transform: scale(0.98);
+  }
+
+  .newsletter-verify-button-primary {
+    background: linear-gradient(135deg, #6c4fd9, #ec4899);
+    color: white;
+    box-shadow: 0 4px 12px rgba(108, 79, 217, 0.3);
+  }
+
+  .newsletter-verify-button-primary:hover {
+    box-shadow: 0 6px 16px rgba(108, 79, 217, 0.4);
+  }
+
+  .newsletter-verify-button-secondary {
+    background: white;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+  }
+
+  .dark .newsletter-verify-button-secondary {
+    background: #374151;
+    color: #d1d5db;
+    border-color: #4b5563;
+  }
+
+  .newsletter-verify-button-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Error State */
+  .newsletter-verify-error {
+    text-align: center;
+  }
+
+  .newsletter-verify-error-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    color: #ef4444;
+  }
+
+  .newsletter-verify-error-title {
+    font-size: 1.75rem !important;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+  }
+
+  .dark .newsletter-verify-error-title {
+    color: #f5f5f5;
+  }
+
+  .newsletter-verify-error-message {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .dark .newsletter-verify-error-message {
+    color: #9ca3af;
+  }
+
+  .newsletter-verify-error-causes {
+    background: #fef2f2;
+    border: 2px solid #fecaca;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: left;
+  }
+
+  .dark .newsletter-verify-error-causes {
+    background: #7f1d1d;
+    border-color: #991b1b;
+  }
+
+  .newsletter-verify-error-causes-title {
+    font-size: 1rem !important;
+    font-weight: 600;
+    color: #991b1b;
+    margin-bottom: 0.75rem;
+  }
+
+  .dark .newsletter-verify-error-causes-title {
+    color: #fca5a5;
+  }
+
+  .newsletter-verify-error-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .newsletter-verify-error-list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9375rem;
+    color: #b91c1c;
+  }
+
+  .dark .newsletter-verify-error-list-item {
+    color: #fbbf24;
+  }
+
+  .newsletter-verify-error-list-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+  }
+
+  /* Invalid State */
+  .newsletter-verify-invalid {
+    text-align: center;
+  }
+
+  .newsletter-verify-invalid-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    color: #f59e0b;
+  }
+
+  .newsletter-verify-invalid-title {
+    font-size: 1.75rem !important;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+  }
+
+  .dark .newsletter-verify-invalid-title {
+    color: #f5f5f5;
+  }
+
+  .newsletter-verify-invalid-message {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .dark .newsletter-verify-invalid-message {
+    color: #9ca3af;
+  }
+
+  .newsletter-verify-invalid-help {
+    font-size: 0.9375rem;
+    color: #9ca3af;
+    line-height: 1.5;
+  }
+
+  /* Footer */
+  .newsletter-verify-footer {
+    text-align: center;
+    padding: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .dark .newsletter-verify-footer {
+    border-top-color: #374151;
+    color: #9ca3af;
+  }
+}
+
+/* ========== Small Mobile Adjustments ========== */
+@media (max-width: 374px) {
+  .newsletter-verify-title {
+    font-size: 1.5rem !important;
+  }
+
+  .newsletter-verify-logo {
+    max-width: 150px;
+  }
+
+  .newsletter-verify-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .newsletter-verify-success-title,
+  .newsletter-verify-error-title,
+  .newsletter-verify-invalid-title {
+    font-size: 1.5rem !important;
+  }
+
+  .newsletter-verify-button {
+    font-size: 0.9375rem;
+    padding: 0.875rem 1.25rem;
+  }
+}

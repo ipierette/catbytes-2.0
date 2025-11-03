@@ -47,7 +47,23 @@ export const metadata: Metadata = {
     shortcut: '/images/favicon-32x32.png',
     apple: '/images/favicon-32x32.png',
   },
-  manifest: '/site.webmanifest',
+  manifest: '/manifest.json',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f0617' }
+  ],
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+    viewportFit: 'cover'
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'CatBytes'
+  },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
