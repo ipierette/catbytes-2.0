@@ -1,6 +1,5 @@
 import { Metadata } from 'next'
-import { getTranslations } from 'next-intl/server'
-import Projects from '@/components/sections/projects'
+import { Projects } from '@/components/sections/projects'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -8,7 +7,6 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
-  const t = await getTranslations({ locale, namespace: 'metadata' })
 
   const title = locale === 'pt-BR' 
     ? 'Projetos | Izadora Pierette - Portfolio de Desenvolvimento'

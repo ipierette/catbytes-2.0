@@ -3,11 +3,10 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { ArrowRight, Sparkles, BookOpen, Briefcase } from 'lucide-react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
 
 export function MobileDashboard() {
   const locale = useLocale()
-  const t = useTranslations()
 
   const highlights = [
     {

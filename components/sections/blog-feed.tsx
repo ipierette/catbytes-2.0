@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { BookOpen, Loader2, Calendar, Clock, ChevronRight } from 'lucide-react'
+import { BookOpen, Calendar, Clock, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import type { BlogPost } from '@/types/blog'
 import { PullToRefresh } from '@/components/app/gestures'
@@ -109,10 +109,10 @@ export default function BlogFeed({ locale }: BlogFeedProps) {
               <Link href={`/${locale}/blog/${post.slug}`}>
                 <AppCard className="overflow-hidden">
                   {/* Cover Image */}
-                  {post.cover_image && (
+                  {post.cover_image_url && (
                     <div className="relative w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20">
                       <img
-                        src={post.cover_image}
+                        src={post.cover_image_url}
                         alt={post.title}
                         className="w-full h-full object-cover"
                         loading="lazy"
@@ -124,7 +124,7 @@ export default function BlogFeed({ locale }: BlogFeedProps) {
                   <div className="p-4">
                     {/* Category */}
                     {post.category && (
-                      <AppChip color="purple" className="mb-3">
+                      <AppChip color="purple">
                         {post.category}
                       </AppChip>
                     )}
@@ -156,12 +156,10 @@ export default function BlogFeed({ locale }: BlogFeedProps) {
                         </div>
                       )}
                       
-                      {post.reading_time && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          <span>{post.reading_time} min</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>{Math.ceil(post.content.split(' ').length / 200)} min</span>
+                      </div>
 
                       <ChevronRight className="w-4 h-4 ml-auto text-purple-500" />
                     </div>
