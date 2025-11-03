@@ -62,22 +62,32 @@ export async function GET() {
     // Calculate total stars
     const totalStars = repos.reduce((acc, repo) => acc + (repo.stargazers_count || 0), 0)
 
-    // Get top language
+    // Get top language with priority for programming languages over markup/styling
     const languages: Record<string, number> = {}
     repos.forEach((repo) => {
       if (repo.language) {
         languages[repo.language] = (languages[repo.language] || 0) + 1
       }
     })
-    const topLanguage =
-      Object.entries(languages).sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] ||
-      'TypeScript'
+    
+    // Define priority order: programming languages > markup/styling languages
+    const programmingLanguages = ['JavaScript', 'TypeScript', 'Python', 'Java', 'Go', 'Rust', 'C++', 'C#', 'PHP', 'Ruby', 'Swift', 'Kotlin']
+    
+    // First, try to find a programming language
+    const programmingLangEntries = Object.entries(languages)
+      .filter(([lang]) => programmingLanguages.includes(lang))
+      .sort(([, a], [, b]) => (b as number) - (a as number))
+    
+    const topLanguage = programmingLangEntries.length > 0
+      ? programmingLangEntries[0][0]
+      : Object.entries(languages).sort(([, a], [, b]) => (b as number) - (a as number))[0]?.[0] || 'JavaScript'
 
-    // Get commit count if authenticated
+    // Get commit count using multiple strategies
     let totalCommits = 0
+    
     if (token) {
       try {
-        // Fetch recent commit activity (last year)
+        // Strategy: Count PushEvents and estimate
         const eventsResponse = await fetch(
           `https://api.github.com/users/${username}/events/public?per_page=100`,
           {
@@ -89,26 +99,36 @@ export async function GET() {
         if (eventsResponse.ok) {
           const events = await eventsResponse.json()
           const pushEvents = events.filter((event: any) => event.type === 'PushEvent')
-
-          // Count commits from push events
-          totalCommits = pushEvents.reduce((acc: number, event: any) => {
-            return acc + (event.payload?.commits?.length || 0)
-          }, 0)
-
-          // If we got commits from events, multiply by estimate factor
-          // (events only show recent activity, not all-time)
-          if (totalCommits > 0) {
-            totalCommits = Math.floor(totalCommits * 2.5) // Rough estimate multiplier
-          }
+          
+          // Count unique push events and estimate commits
+          // Each push event typically represents 1-3 commits, using 2.5 as average
+          const commitsFromEvents = Math.floor(pushEvents.length * 2.5)
+          
+          // Multiply by age factor to account for historical activity
+          // Recent events only show last ~90 days of activity
+          const accountAgeYears = (Date.now() - new Date(userData.created_at).getTime()) / (1000 * 60 * 60 * 24 * 365)
+          const ageFactor = Math.max(1.5, Math.min(accountAgeYears, 4)) // Between 1.5x and 4x
+          
+          totalCommits = Math.floor(commitsFromEvents * ageFactor)
+          console.log('[API] Commits calculation:', { 
+            pushEvents: pushEvents.length, 
+            commitsFromEvents,
+            accountAgeYears: accountAgeYears.toFixed(2),
+            ageFactor: ageFactor.toFixed(2),
+            totalCommits 
+          })
         }
       } catch (error) {
         console.error('[API] Error fetching commit count:', error)
       }
     }
 
-    // Fallback to estimation if we couldn't get commits
+    // Fallback to intelligent estimation based on repos and account age
     if (totalCommits === 0) {
-      totalCommits = repos.length * 15 // Average 15 commits per repo
+      const accountAgeYears = (Date.now() - new Date(userData.created_at).getTime()) / (1000 * 60 * 60 * 24 * 365)
+      const avgCommitsPerRepo = 20 // Conservative estimate
+      totalCommits = Math.floor(repos.length * avgCommitsPerRepo * Math.min(accountAgeYears / 2, 1.5))
+      console.log('[API] Using fallback estimation:', { repos: repos.length, accountAgeYears: accountAgeYears.toFixed(2), totalCommits })
     }
 
     const stats: GitHubStats = {
