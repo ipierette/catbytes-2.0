@@ -21,7 +21,7 @@ export function Contact() {
   const socialLinks = [
     { icon: Linkedin, label: 'LinkedIn', href: 'https://www.linkedin.com/in/izadora-cury-pierette-7a7754253/' },
     { icon: Github, label: 'GitHub', href: 'https://github.com/ipierette' },
-    { icon: Mail, label: 'Email', href: 'mailto:izadoracury@gmail.com' },
+    { icon: Mail, label: 'Email', href: 'mailto:ipierette2@gmail.com' },
   ]
 
   return (
