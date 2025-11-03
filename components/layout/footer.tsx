@@ -19,17 +19,14 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* About Section with Logo */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
+            <div className="mb-4">
               <Image
-                src="/images/logo-desenvolvedora.png"
-                alt="CatBytes Logo"
-                width={48}
-                height={48}
-                className="w-12 h-12 rounded-lg"
+                src="/images/logo300x100-fundo-escuro.svg"
+                alt="CatBytes"
+                width={150}
+                height={50}
+                className="h-12 w-auto"
               />
-              <h3 className="text-xl font-comfortaa font-bold text-purple-400">
-                CatBytes
-              </h3>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
               {t('tagline')}

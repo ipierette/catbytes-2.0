@@ -10,6 +10,7 @@ import type { BlogPost } from '@/types/blog'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { PostModal } from '@/components/blog/post-modal'
+import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
 
 export function RecentPosts() {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -147,7 +148,7 @@ export function RecentPosts() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.4 }}
-              className="text-center"
+              className="text-center mb-16"
             >
               <Link
                 href={`/${locale}/blog`}
@@ -157,6 +158,17 @@ export function RecentPosts() {
                 Ver todos os artigos
                 <ArrowRight className="w-5 h-5" />
               </Link>
+            </motion.div>
+
+            {/* Newsletter Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.6 }}
+              className="max-w-4xl mx-auto"
+            >
+              <NewsletterSignup variant="blog" />
             </motion.div>
           </>
         )}
