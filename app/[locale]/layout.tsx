@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/footer'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { BackToTop } from '@/components/ui/back-to-top'
 import { WhatsAppButton } from '@/components/ui/whatsapp-button'
+import { AppShell } from '@/components/app/app-shell'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -107,6 +108,7 @@ export default async function LocaleLayout({
         <link rel="stylesheet" href="/css/mobile-optimizations.css" />
         <link rel="stylesheet" href="/css/blog-mobile.css" />
         <link rel="stylesheet" href="/css/newsletter-verify-mobile.css" />
+        <link rel="stylesheet" href="/css/pwa-native-app.css" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -120,12 +122,14 @@ export default async function LocaleLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <ScrollProgress />
-            <Header />
-            <main>{children}</main>
-            <Footer />
-            <BackToTop />
-            <WhatsAppButton />
+            <AppShell>
+              <ScrollProgress />
+              <Header />
+              <main>{children}</main>
+              <Footer />
+              <BackToTop />
+              <WhatsAppButton />
+            </AppShell>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
