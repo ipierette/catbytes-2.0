@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { FaWhatsapp } from 'react-icons/fa'
+import { useTranslations } from 'next-intl'
 
 export function WhatsAppButton() {
+  const t = useTranslations('whatsapp')
   const [isVisible, setIsVisible] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '5511999999999'
@@ -15,9 +17,7 @@ export function WhatsAppButton() {
   }, [])
 
   const handleClick = () => {
-    const message = encodeURIComponent(
-      'Olá! Vim do site CatBytes e gostaria de saber mais sobre os serviços digitais com IA! 🐱'
-    )
+    const message = encodeURIComponent(t('message'))
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
   }
@@ -32,7 +32,7 @@ export function WhatsAppButton() {
           showTooltip ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
         }`}
       >
-        Fale comigo no WhatsApp! 💬
+        {t('tooltip')}
         {/* Arrow */}
         <div className="absolute top-full left-6 -mt-px">
           <div className="border-8 border-transparent border-t-gray-900 dark:border-t-gray-100"></div>
@@ -45,7 +45,7 @@ export function WhatsAppButton() {
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
         className="group relative flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full bg-green-500 hover:bg-green-600 text-white shadow-lg hover:shadow-2xl transition-all duration-300 active:scale-95"
-        aria-label="Contato via WhatsApp"
+        aria-label={t('ariaLabel')}
       >
         {/* Pulsing ring effect */}
         <span className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-20"></span>
@@ -59,7 +59,7 @@ export function WhatsAppButton() {
         </span>
       </button>
 
-      <style jsx>{`
+      <style>{`
         @keyframes ping {
           75%, 100% {
             transform: scale(1.5);

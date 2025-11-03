@@ -15,7 +15,7 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, name, source = 'website' } = body
+    const { email, name, source = 'website', locale = 'pt-BR' } = body
 
     // Validate email
     if (!email || !email.match(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)) {
@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
           name: name || null,
           subscribed: true,
           source,
+          locale,
           verification_token: verificationToken,
           verified: false,
           ip_address: ipAddress,
@@ -71,16 +72,20 @@ export async function POST(request: NextRequest) {
     // Send welcome email with Resend
     if (resend) {
       try {
-        await resend.emails.send({
+        console.log('[Newsletter] Sending welcome email to:', email)
+        const emailResponse = await resend.emails.send({
           from: 'CatBytes <contato@catbytes.site>',
           to: [email],
           subject: '🐱 Bem-vindo à Newsletter CatBytes!',
-          html: getWelcomeEmailHTML(name || 'Amigo', verificationToken),
+          html: getWelcomeEmailHTML(name || 'Amigo', verificationToken, locale),
         })
+        console.log('[Newsletter] Email sent successfully:', emailResponse)
       } catch (emailError) {
         console.error('[Newsletter] Welcome email error:', emailError)
         // Don't fail the subscription if email fails
       }
+    } else {
+      console.warn('[Newsletter] Resend client not initialized - RESEND_API_KEY missing')
     }
 
     return NextResponse.json({
@@ -98,9 +103,9 @@ export async function POST(request: NextRequest) {
 }
 
 // Welcome Email HTML Template
-function getWelcomeEmailHTML(name: string, token: string): string {
+function getWelcomeEmailHTML(name: string, token: string, locale: string = 'pt-BR'): string {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
-  const verifyUrl = `${baseUrl}/newsletter/verify?token=${token}`
+  const verifyUrl = `${baseUrl}/${locale}/newsletter/verify?token=${token}`
 
   return `
 <!DOCTYPE html>
@@ -119,7 +124,10 @@ function getWelcomeEmailHTML(name: string, token: string): string {
           <!-- Header -->
           <tr>
             <td style="background: linear-gradient(135deg, #8A2BE2 0%, #FF69B4 50%, #00BFFF 100%); padding: 40px 30px; text-align: center;">
-              <img src="${baseUrl}/images/catbytes-logo.webp" alt="CatBytes" style="width: 120px; height: auto; margin-bottom: 20px;">
+              <div style="display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 20px; flex-wrap: wrap;">
+                <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Logo Desenvolvedora" style="width: 250px; height: auto; max-width: 45%;">
+                <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="width: 250px; height: auto; max-width: 45%;">
+              </div>
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">Bem-vindo à Newsletter CatBytes!</h1>
             </td>
           </tr>

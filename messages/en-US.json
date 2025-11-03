@@ -14,6 +14,11 @@
     "contact": "Contact",
     "themeToggle": "Toggle light/dark theme"
   },
+  "whatsapp": {
+    "tooltip": "Chat with me on WhatsApp! 💬",
+    "message": "Hello! I came from the CatBytes website and would like to know more about digital services with AI! 🐱",
+    "ariaLabel": "Contact via WhatsApp"
+  },
   "hero": {
     "title": "Welcome to the World of",
     "brandName": "CatBytes",
@@ -45,6 +50,12 @@
     "sideButton": "Meow Levels",
     "sideButtonAria": "View Meow Levels",
     "closeAria": "Close",
+    "levelLabels": {
+      "beginner": "Purring Beginner",
+      "intermediate": "Intermediate Meow",
+      "advanced": "Master Cat",
+      "expert": "Master Meow-Code"
+    },
     "levels": {
       "title": "Meow Levels: Understand My Proficiency",
       "intro": "To make the evaluation of my skills more fun and thematic, I used \"Meow Levels\" as a way to indicate my proficiency in each area. The percentage values demonstrate an estimate of time I've spent developing each skill over 4 years:",
@@ -105,6 +116,7 @@
   },
   "aiFeatures": {
     "title": "Feline AI: Smart Tools",
+    "regionNotice": "⚠️ Important: The Feline AI tools are currently available only for users in Brazil. I am working on a more comprehensive system with international coverage coming soon!",
     "tabs": {
       "adopt": "Adopt a Kitten",
       "identify": "Kitten Identifier",
@@ -115,6 +127,12 @@
       "description": "Provide the age, fur color, and your location so our AI can search for cat adoption ads near you.",
       "note": "This feature uses Netlify Functions, SerpApi, and Gemini API. A real database of ads is being compiled. More accurate searches will be available in the future!",
       "scoreInfo": "AI Score: each ad receives a score from 1 to 10, indicating reliability according to signals evaluated by the AI.",
+      "guideTitle": "Before Adopting: Essential Guides",
+      "guideDescription": "Check out these resources to ensure a responsible and happy adoption:",
+      "guideLink1Title": "Basic Care Before Welcoming a Cat Home",
+      "guideLink1Source": "Elanco - Complete guide for new pet parents",
+      "guideLink2Title": "10 Things You Should Know Before Adopting",
+      "guideLink2Source": "Zooplus - Essential adoption checklist",
       "form": {
         "age": "Age:",
         "ageSelect": "Select",
@@ -124,7 +142,13 @@
         "colorPlaceholder": "Ex: Tabby, Black, White",
         "location": "Location (City/State or ZIP):",
         "locationPlaceholder": "Ex: New York, NY or 10001",
-        "submit": "Search Kittens"
+        "submit": "Search Kittens",
+        "searching": "Searching",
+        "errorFetch": "Error fetching ads",
+        "errorUnknown": "Unknown error",
+        "resultsFound": "ad(s) found",
+        "cached": "(from cache ⚡)",
+        "viewAd": "View Ad"
       }
     },
     "identifyCat": {
@@ -135,8 +159,17 @@
       "form": {
         "image": "Kitten Photo:",
         "upload": "Choose Photo",
+        "selectImage": "Please select an image",
         "submit": "Identify Cat",
-        "processing": "Analyzing..."
+        "processing": "Analyzing",
+        "errorIdentify": "Error identifying cat",
+        "errorUnknown": "Unknown error",
+        "analysisComplete": "Analysis complete",
+        "cached": "(from cache ⚡)",
+        "estimatedAge": "Estimated Age:",
+        "possibleBreeds": "Possible Breeds:",
+        "personality": "Personality:",
+        "observations": "Observations:"
       }
     },
     "donateCat": {
@@ -152,8 +185,24 @@
         "personalityPlaceholder": "Ex: Playful, affectionate",
         "description": "Cat Description:",
         "descriptionPlaceholder": "Describe the cat: age, color, temperament, vaccination, neutering, location, adoption requirements...",
+        "descriptionHelper": "Include: age, color, temperament, vaccination, neutering, location, requirements",
         "submit": "Generate Ad",
-        "generating": "Generating..."
+        "generating": "Generating",
+        "errorDescription": "Please describe the cat for donation",
+        "errorGenerate": "Error generating ad",
+        "errorInvalid": "Invalid API response",
+        "errorUnknown": "Unknown error",
+        "successGenerated": "Ad generated successfully!",
+        "adTitle": "Title:",
+        "adCopy": "Ad Text:",
+        "hashtags": "Hashtags:",
+        "postingPlan": "Promotion Plan (7 days):",
+        "whenToPost": "When to Post:",
+        "platforms": "Platforms:",
+        "whereToPost": "Where to Post:",
+        "whoToTag": "Who to Tag:",
+        "mediaTips": "Media Tips:",
+        "crosspostTips": "Crosspost Tips:"
       }
     }
   },
@@ -209,6 +258,32 @@
     "close": "Close",
     "learnMore": "Learn More",
     "backToTop": "Back to Top"
+  },
+  "newsletterVerify": {
+    "title": "CatBytes Newsletter",
+    "verifying": "Verifying your email...",
+    "verifyingMessage": "Please wait while we confirm your subscription",
+    "successTitle": "Email Verified! 🎉",
+    "alreadyVerified": "This email has already been verified!",
+    "confirmedEmail": "is confirmed!",
+    "whatNext": "What's next?",
+    "benefit1": "You'll receive our articles 3x per week (Tuesday, Thursday, Saturday)",
+    "benefit2": "Exclusive content about technology, AI and automation",
+    "benefit3": "Practical tips and tech world news",
+    "spamTip": "Important tip:",
+    "spamMessage": "Add contato@catbytes.site to your contacts to ensure emails don't go to spam!",
+    "backToSite": "Back to Site",
+    "viewBlog": "View Blog",
+    "errorTitle": "Verification Error",
+    "possibleCauses": "Possible causes:",
+    "cause1": "Token expired or already used",
+    "cause2": "Invalid verification link",
+    "cause3": "Email already verified previously",
+    "tryAgain": "Try Again",
+    "invalidTitle": "Invalid Link",
+    "invalidMessage": "Invalid or missing verification token.",
+    "invalidHelp": "Please check if you copied the complete link from the confirmation email.",
+    "footer": "© 2025 CatBytes. All rights reserved."
   },
   "blog": {
     "title": "CatBytes Blog",

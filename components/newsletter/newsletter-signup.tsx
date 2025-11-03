@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, CheckCircle2, AlertCircle, Loader2, Info } from 'lucide-react'
 import Image from 'next/image'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface NewsletterSignupProps {
   variant?: 'blog' | 'footer' | 'offcanvas'
@@ -12,6 +12,7 @@ interface NewsletterSignupProps {
 
 export function NewsletterSignup({ variant = 'blog' }: NewsletterSignupProps) {
   const t = useTranslations('newsletter')
+  const locale = useLocale()
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
@@ -28,7 +29,7 @@ export function NewsletterSignup({ variant = 'blog' }: NewsletterSignupProps) {
       const response = await fetch('/api/newsletter/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, name, source: variant }),
+        body: JSON.stringify({ email, name, source: variant, locale }),
       })
 
       const data = await response.json()

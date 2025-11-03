@@ -14,6 +14,11 @@
     "contact": "Contato",
     "themeToggle": "Alternar tema claro/escuro"
   },
+  "whatsapp": {
+    "tooltip": "Fale comigo no WhatsApp! 💬",
+    "message": "Olá! Vim do site CatBytes e gostaria de saber mais sobre os serviços digitais com IA! 🐱",
+    "ariaLabel": "Contato via WhatsApp"
+  },
   "hero": {
     "title": "Bem-vindo ao Mundo",
     "brandName": "CatBytes",
@@ -45,6 +50,12 @@
     "sideButton": "Níveis de Miado",
     "sideButtonAria": "Ver Níveis de Miado",
     "closeAria": "Fechar",
+    "levelLabels": {
+      "beginner": "Ronronado Iniciante",
+      "intermediate": "Miado Intermediário",
+      "advanced": "Gato Mestre",
+      "expert": "Miaucódigo Mestre"
+    },
     "levels": {
       "title": "Níveis de Miado: Entenda Minha Proficiência",
       "intro": "Para tornar a avaliação das minhas habilidades mais divertida e temática, utilizei os \"Níveis de Miado\" como uma forma de indicar minha proficiência em cada área. Os valores percentuais demonstram uma estimativa de tempo que demandei desenvolvendo cada habilidade ao longo de 4 anos:",
@@ -105,6 +116,7 @@
   },
   "aiFeatures": {
     "title": "IA Felina: Ferramentas Inteligentes",
+    "regionNotice": "",
     "tabs": {
       "adopt": "Adote um Gatinho",
       "identify": "Identificador de Gatinhos",
@@ -115,6 +127,12 @@
       "description": "Informe a idade, cor do pelo e sua localidade para que nossa IA possa buscar anúncios de gatos para adoção próximos a você.",
       "note": "Esta funcionalidade utiliza Netlify Functions, SerpApi e Gemini API. Um banco de dados real de anúncios está sendo compilado. Buscas mais precisas estarão disponíveis no futuro!",
       "scoreInfo": "Score da IA: cada anúncio recebe uma pontuação de 1 a 10, indicando a confiabilidade segundo sinais avaliados pela IA.",
+      "guideTitle": "Antes de Adotar: Guias Essenciais",
+      "guideDescription": "Confira estes recursos para garantir uma adoção responsável e feliz:",
+      "guideLink1Title": "Cuidados Básicos Antes de Acolher um Gato",
+      "guideLink1Source": "Elanco - Guia completo para novos tutores",
+      "guideLink2Title": "10 Coisas que Deve Saber Antes de Adotar",
+      "guideLink2Source": "Zooplus - Checklist essencial de adoção",
       "form": {
         "age": "Idade:",
         "ageSelect": "Selecione",
@@ -124,7 +142,13 @@
         "colorPlaceholder": "Ex: Rajado, Preto, Branco",
         "location": "Localização (Cidade/Estado ou CEP):",
         "locationPlaceholder": "Ex: São Paulo, SP ou 01000-000",
-        "submit": "Buscar Gatinhos"
+        "submit": "Buscar Gatinhos",
+        "searching": "Buscando",
+        "errorFetch": "Erro ao buscar anúncios",
+        "errorUnknown": "Erro desconhecido",
+        "resultsFound": "anúncio(s) encontrado(s)",
+        "cached": "(do cache ⚡)",
+        "viewAd": "Ver anúncio"
       }
     },
     "identifyCat": {
@@ -135,8 +159,17 @@
       "form": {
         "image": "Foto do Gatinho:",
         "upload": "Escolher Foto",
+        "selectImage": "Por favor, selecione uma imagem",
         "submit": "Identificar Gato",
-        "processing": "Analisando..."
+        "processing": "Analisando",
+        "errorIdentify": "Erro ao identificar gato",
+        "errorUnknown": "Erro desconhecido",
+        "analysisComplete": "Análise concluída",
+        "cached": "(do cache ⚡)",
+        "estimatedAge": "Idade Estimada:",
+        "possibleBreeds": "Raças Possíveis:",
+        "personality": "Personalidade:",
+        "observations": "Observações:"
       }
     },
     "donateCat": {
@@ -152,8 +185,24 @@
         "personalityPlaceholder": "Ex: Brincalhão, carinhoso",
         "description": "Descrição do Gato:",
         "descriptionPlaceholder": "Descreva o gato: idade, cor, temperamento, vacinação, castração, localização, requisitos para adoção...",
+        "descriptionHelper": "Inclua: idade, cor, temperamento, vacinação, castração, localização, requisitos",
         "submit": "Gerar Anúncio",
-        "generating": "Gerando..."
+        "generating": "Gerando",
+        "errorDescription": "Por favor, descreva o gato para doação",
+        "errorGenerate": "Erro ao gerar anúncio",
+        "errorInvalid": "Resposta inválida da API",
+        "errorUnknown": "Erro desconhecido",
+        "successGenerated": "Anúncio gerado com sucesso!",
+        "adTitle": "Título:",
+        "adCopy": "Texto do Anúncio:",
+        "hashtags": "Hashtags:",
+        "postingPlan": "Plano de Divulgação (7 dias):",
+        "whenToPost": "Quando Postar:",
+        "platforms": "Plataformas:",
+        "whereToPost": "Onde Postar:",
+        "whoToTag": "Quem Marcar:",
+        "mediaTips": "Dicas de Mídia:",
+        "crosspostTips": "Dicas de Crosspost:"
       }
     }
   },
@@ -209,6 +258,32 @@
     "close": "Fechar",
     "learnMore": "Saiba Mais",
     "backToTop": "Voltar ao Topo"
+  },
+  "newsletterVerify": {
+    "title": "Newsletter CatBytes",
+    "verifying": "Verificando seu email...",
+    "verifyingMessage": "Aguarde enquanto confirmamos sua inscrição",
+    "successTitle": "Email Verificado! 🎉",
+    "alreadyVerified": "Este email já foi verificado anteriormente!",
+    "confirmedEmail": "está confirmado!",
+    "whatNext": "O que vem agora?",
+    "benefit1": "Você receberá nossos artigos 3x por semana (terça, quinta, sábado)",
+    "benefit2": "Conteúdo exclusivo sobre tecnologia, IA e automação",
+    "benefit3": "Dicas práticas e novidades do mundo tech",
+    "spamTip": "Dica importante:",
+    "spamMessage": "Adicione contato@catbytes.site aos seus contatos para garantir que os emails não caiam no spam!",
+    "backToSite": "Voltar ao Site",
+    "viewBlog": "Ver Blog",
+    "errorTitle": "Erro na Verificação",
+    "possibleCauses": "Possíveis causas:",
+    "cause1": "Token expirado ou já utilizado",
+    "cause2": "Link de verificação inválido",
+    "cause3": "Email já verificado anteriormente",
+    "tryAgain": "Tentar Novamente",
+    "invalidTitle": "Link Inválido",
+    "invalidMessage": "Token de verificação inválido ou ausente.",
+    "invalidHelp": "Por favor, verifique se você copiou o link completo do email de confirmação.",
+    "footer": "© 2025 CatBytes. Todos os direitos reservados."
   },
   "blog": {
     "title": "Blog CatBytes",

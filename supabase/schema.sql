@@ -165,6 +165,7 @@ CREATE TABLE IF NOT EXISTS newsletter_subscribers (
 
   -- Metadata
   source TEXT DEFAULT 'website',
+  locale TEXT DEFAULT 'pt-BR',
   ip_address TEXT,
   user_agent TEXT,
 
