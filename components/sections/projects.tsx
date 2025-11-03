@@ -59,6 +59,14 @@ const projectsData: Project[] = [
     github: 'https://github.com/ipierette/simples-m-dico',
     stack: ['HTML', 'CSS', 'JavaScript', 'n8n', 'Supabase', 'OpenAI API'],
     type: 'Institutional Website'
+  },
+  {
+    id: 'catbytes1',
+    image: '/images/desktop-catbytes.webp',
+    link: 'https://catbytes.netlify.app/',
+    github: 'https://github.com/ipierette/catbytes',
+    stack: ['HTML5', 'CSS3', 'JavaScript', 'Responsive Design', 'Animations'],
+    type: 'Portfolio v1.0'
   }
 ]
 

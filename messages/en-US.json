@@ -88,6 +88,10 @@
       "medical": {
         "title": "Medical Institutional Website - Complete Management Platform",
         "description": "Web system for clinics and offices with n8n backend and integrated AI. Includes intelligent chat with OpenAI based on scientific sources, scheduling with automatic weekend and holiday blocking, insurance management and real-time validation."
+      },
+      "catbytes1": {
+        "title": "CatBytes 1.0 - Original Portfolio",
+        "description": "First version of the CatBytes personal portfolio, developed with fundamental web technologies. A project that marked the beginning of the development journey, featuring responsive design, smooth animations, and a feline-themed interface that captures the essence of the CatBytes brand."
       }
     }
   },
@@ -205,5 +209,11 @@
     "close": "Close",
     "learnMore": "Learn More",
     "backToTop": "Back to Top"
+  },
+  "blog": {
+    "newsletter": "Newsletter",
+    "newsletterButton": "Subscribe to Newsletter",
+    "newsletterTitle": "CatBytes Newsletter",
+    "close": "Close"
   }
 }

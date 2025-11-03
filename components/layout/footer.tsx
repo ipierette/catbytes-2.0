@@ -1,21 +1,33 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
 import { FaHeart, FaCat, FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa'
+import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
 
 export function Footer() {
   const t = useTranslations('footer')
+  const params = useParams()
+  const locale = params.locale as string
 
   return (
     <footer className="bg-gray-900 text-white py-12 border-t border-gray-800">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          {/* About Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          {/* About Section with Logo */}
           <div>
-            <h3 className="text-xl font-comfortaa font-bold mb-4 text-purple-400">
-              CatBytes
-            </h3>
+            <div className="mb-4">
+              <Image
+                src="/images/logo300x100-fundo-escuro.svg"
+                alt="CatBytes"
+                width={300}
+                height={100}
+                className="w-auto h-16"
+              />
+            </div>
             <p className="text-sm text-gray-400 leading-relaxed">
               {t('tagline')}
             </p>
@@ -46,6 +58,11 @@ export function Footer() {
                 <a href="#ai-features" className="text-gray-400 hover:text-purple-400 transition-colors">
                   {t('links.aiFeatures')}
                 </a>
+              </li>
+              <li>
+                <Link href={`/${locale}/blog`} className="text-gray-400 hover:text-purple-400 transition-colors">
+                  📝 Blog
+                </Link>
               </li>
               <li>
                 <a href="#contact" className="text-gray-400 hover:text-purple-400 transition-colors">
@@ -90,6 +107,11 @@ export function Footer() {
             <p className="text-sm text-gray-400 mt-4">
               ipierette2@gmail.com
             </p>
+          </div>
+
+          {/* Newsletter Section */}
+          <div>
+            <NewsletterSignup variant="footer" />
           </div>
         </div>
 

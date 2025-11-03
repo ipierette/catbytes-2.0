@@ -6,15 +6,16 @@ import { useTranslations } from 'next-intl'
 import {
   SiHtml5, SiCss3, SiJavascript, SiReact, SiNextdotjs,
   SiTypescript, SiTailwindcss, SiNodedotjs, SiPostgresql,
-  SiGit, SiPython, SiFigma
+  SiGit, SiFigma, SiPostman, SiGooglesearchconsole
 } from 'react-icons/si'
+import { Workflow } from 'lucide-react'
 import { FaBook, FaInfoCircle } from 'react-icons/fa'
 import { X } from 'lucide-react'
 
 const skillsData = [
-  { name: 'HTML5', level: 95, color: 'from-orange-500 to-orange-600', icon: SiHtml5, iconColor: 'text-orange-500' },
-  { name: 'CSS3', level: 90, color: 'from-blue-500 to-blue-600', icon: SiCss3, iconColor: 'text-blue-500' },
-  { name: 'JavaScript', level: 85, color: 'from-yellow-400 to-yellow-500', icon: SiJavascript, iconColor: 'text-yellow-400' },
+  { name: 'HTML5', level: 100, color: 'from-orange-500 to-orange-600', icon: SiHtml5, iconColor: 'text-orange-500' },
+  { name: 'CSS3', level: 100, color: 'from-blue-500 to-blue-600', icon: SiCss3, iconColor: 'text-blue-500' },
+  { name: 'JavaScript', level: 100, color: 'from-yellow-400 to-yellow-500', icon: SiJavascript, iconColor: 'text-yellow-400' },
   { name: 'React', level: 88, color: 'from-cyan-500 to-cyan-600', icon: SiReact, iconColor: 'text-cyan-500' },
   { name: 'Next.js', level: 82, color: 'from-gray-800 to-black', icon: SiNextdotjs, iconColor: 'text-gray-800 dark:text-white' },
   { name: 'TypeScript', level: 75, color: 'from-blue-600 to-blue-700', icon: SiTypescript, iconColor: 'text-blue-600' },
@@ -22,7 +23,9 @@ const skillsData = [
   { name: 'Node.js', level: 70, color: 'from-green-600 to-green-700', icon: SiNodedotjs, iconColor: 'text-green-600' },
   { name: 'PostgreSQL', level: 65, color: 'from-blue-700 to-blue-800', icon: SiPostgresql, iconColor: 'text-blue-700' },
   { name: 'Git', level: 80, color: 'from-red-600 to-red-700', icon: SiGit, iconColor: 'text-red-600' },
-  { name: 'Python', level: 60, color: 'from-yellow-500 to-blue-500', icon: SiPython, iconColor: 'text-yellow-500' },
+  { name: 'API RESTful', level: 50, color: 'from-indigo-500 to-indigo-600', icon: SiPostman, iconColor: 'text-indigo-500' },
+  { name: 'n8n', level: 80, color: 'from-pink-500 to-rose-500', icon: Workflow, iconColor: 'text-pink-500' },
+  { name: 'SEO, SSR e SSG', level: 50, color: 'from-green-500 to-emerald-600', icon: SiGooglesearchconsole, iconColor: 'text-green-500' },
   { name: 'Figma', level: 72, color: 'from-purple-600 to-pink-600', icon: SiFigma, iconColor: 'text-purple-600' },
 ]
 
@@ -71,9 +74,9 @@ export function Skills() {
               <motion.div
                 key={skill.name}
                 initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ delay: index * 0.05, duration: 0.5, ease: "easeOut" }}
-                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300"
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: index * 0.1, duration: 0.6, ease: "easeOut" }}
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
@@ -92,7 +95,7 @@ export function Skills() {
                   <motion.div
                     initial={{ width: 0 }}
                     animate={isInView ? { width: `${skill.level}%` } : { width: 0 }}
-                    transition={{ duration: 0.8, delay: index * 0.03, ease: 'easeOut' }}
+                    transition={{ duration: 1, delay: index * 0.1, ease: 'easeOut' }}
                     className={`h-full bg-gradient-to-r ${skill.color} rounded-full`}
                   />
                 </div>
