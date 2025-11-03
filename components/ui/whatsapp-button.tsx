@@ -28,13 +28,13 @@ export function WhatsAppButton() {
     <div className="fixed bottom-6 left-6 z-50">
       {/* Tooltip */}
       <div
-        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-lg shadow-xl whitespace-nowrap transition-all duration-200 pointer-events-none ${
+        className={`absolute bottom-full left-0 mb-3 px-4 py-2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-lg shadow-xl whitespace-nowrap transition-all duration-200 pointer-events-none ${
           showTooltip ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
         }`}
       >
         Fale comigo no WhatsApp! 💬
         {/* Arrow */}
-        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
+        <div className="absolute top-full left-6 -mt-px">
           <div className="border-8 border-transparent border-t-gray-900 dark:border-t-gray-100"></div>
         </div>
       </div>

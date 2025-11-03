@@ -211,9 +211,31 @@
     "backToTop": "Voltar ao Topo"
   },
   "blog": {
+    "title": "Blog CatBytes",
+    "subtitle": "Fique por dentro das últimas novidades em tecnologia, IA e automação",
+    "noPosts": "Em breve, novos artigos!",
+    "noPostsMessage": "Estamos preparando conteúdos incríveis sobre tecnologia, IA e automação. Inscreva-se na newsletter para ser notificado quando publicarmos!",
+    "readMore": "Ler mais",
+    "viewAllPosts": "Ver todos os artigos",
     "newsletter": "Newsletter",
     "newsletterButton": "Inscrever-se na Newsletter",
     "newsletterTitle": "Newsletter CatBytes",
+    "newsletterDescription": "Receba artigos exclusivos sobre tecnologia, IA e automação",
+    "newsletterDescriptionHighlight": "diretamente no seu email",
     "close": "Fechar"
+  },
+  "newsletter": {
+    "spamWarning": "📧 Para não cair no spam:",
+    "addContact": "Adicione",
+    "toContacts": "aos seus contatos!",
+    "successTitle": "Inscrição Confirmada! 🎉",
+    "successMessage": "Verifique seu email para confirmar a inscrição.",
+    "nameLabel": "Nome (opcional)",
+    "namePlaceholder": "Seu nome",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "seu@email.com",
+    "subscribing": "Inscrevendo...",
+    "subscribeButton": "Inscrever-se Gratuitamente",
+    "frequency": "Enviamos artigos 3x por semana. Cancele quando quiser."
   }
 }
