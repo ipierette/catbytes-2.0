@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     siteName: 'CatBytes',
     images: [
       {
-        url: '/images/logo-desenvolvedora.png',
+        url: '/images/og-1200x630-safe.webp',
         width: 1200,
         height: 630,
         alt: 'CatBytes Portfolio',
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Izadora Cury Pierette | CatBytes — Portfólio Criativo',
     description: 'Conheça projetos que unem design moderno, código limpo e soluções com inteligência artificial e automação.',
-    images: ['/images/logo-desenvolvedora.png'],
+    images: ['/images/og-1200x630-safe.webp'],
   },
 }
 
