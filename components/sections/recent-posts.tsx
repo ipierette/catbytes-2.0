@@ -243,7 +243,7 @@ export function RecentPosts() {
                 {/* Description */}
                 <div className="text-center">
                   <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Receba artigos exclusivos sobre tecnologia, IA e automação <strong className="text-catbytes-purple dark:text-catbytes-pink">diretamente no seu email</strong>!
+                    {t('newsletterDescription')} <strong className="text-catbytes-purple dark:text-catbytes-pink">{t('newsletterDescriptionHighlight')}</strong>!
                   </p>
                 </div>
 
