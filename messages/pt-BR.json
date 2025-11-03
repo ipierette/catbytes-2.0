@@ -209,5 +209,11 @@
     "close": "Fechar",
     "learnMore": "Saiba Mais",
     "backToTop": "Voltar ao Topo"
+  },
+  "blog": {
+    "newsletter": "Newsletter",
+    "newsletterButton": "Inscrever-se na Newsletter",
+    "newsletterTitle": "Newsletter CatBytes",
+    "close": "Fechar"
   }
 }
