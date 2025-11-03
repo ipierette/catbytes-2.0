@@ -228,8 +228,27 @@ export function RecentPosts() {
               </div>
 
               {/* Content */}
-              <div className="p-6 md:p-8">
-                <NewsletterSignup variant="blog" />
+              <div className="p-6 md:p-8 space-y-6">
+                {/* Newsletter Image */}
+                <div className="relative w-full h-56 rounded-xl overflow-hidden shadow-lg">
+                  <Image
+                    src="/images/newsletter.webp"
+                    alt="Newsletter CatBytes"
+                    fill
+                    className="object-contain"
+                    sizes="500px"
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="text-center">
+                  <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+                    Receba artigos exclusivos sobre tecnologia, IA e automação <strong className="text-catbytes-purple dark:text-catbytes-pink">diretamente no seu email</strong>!
+                  </p>
+                </div>
+
+                {/* Newsletter Form */}
+                <NewsletterSignup variant="offcanvas" />
               </div>
             </motion.div>
           </>
