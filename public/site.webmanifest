@@ -1,0 +1,26 @@
+{
+  "name": "CatBytes - Izadora Cury Pierette Portfolio",
+  "short_name": "CatBytes",
+  "description": "Portfólio de desenvolvimento web com foco em soluções modernas, IA e automação",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo-desenvolvedora.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["portfolio", "development", "technology"],
+  "lang": "pt-BR",
+  "dir": "ltr"
+}
