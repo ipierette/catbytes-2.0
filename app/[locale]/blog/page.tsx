@@ -55,9 +55,9 @@ export default function BlogPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="flex items-center justify-center gap-3 mb-4 pb-2">
             <BookOpen className="w-12 h-12 text-catbytes-purple dark:text-catbytes-pink" />
-            <h1 className="text-4xl md:text-6xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-6xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent leading-tight pb-1">
               Blog CatBytes
             </h1>
           </div>

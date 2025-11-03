@@ -74,10 +74,9 @@ export function Skills() {
               <motion.div
                 key={skill.name}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05, duration: 0.5, ease: "easeOut" }}
-                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300"
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: index * 0.1, duration: 0.6, ease: "easeOut" }}
+                className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
@@ -95,9 +94,8 @@ export function Skills() {
                 <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
-                    whileInView={{ width: `${skill.level}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8, delay: index * 0.05, ease: 'easeOut' }}
+                    animate={isInView ? { width: `${skill.level}%` } : { width: 0 }}
+                    transition={{ duration: 1, delay: index * 0.1, ease: 'easeOut' }}
                     className={`h-full bg-gradient-to-r ${skill.color} rounded-full`}
                   />
                 </div>

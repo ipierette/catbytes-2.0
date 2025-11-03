@@ -80,7 +80,6 @@ export function WhatsAppButton() {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleClick}
             onMouseEnter={() => setShowTooltip(true)}
@@ -88,7 +87,7 @@ export function WhatsAppButton() {
               const hasSeenTooltip = localStorage.getItem('catbytes_whatsapp_tooltip_seen')
               if (hasSeenTooltip) setShowTooltip(false)
             }}
-            className="group relative flex items-center justify-center w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white shadow-2xl transition-all duration-300 hover:shadow-green-500/50"
+            className="group relative flex items-center justify-center w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white shadow-2xl transition-colors duration-300"
             aria-label="Abrir WhatsApp"
           >
             {/* Icon */}
