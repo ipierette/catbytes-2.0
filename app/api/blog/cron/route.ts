@@ -45,10 +45,37 @@ export async function GET(request: NextRequest) {
 
     console.log('[Cron] Post generated successfully:', result.post.title)
 
+    // ====== SEND TO NEWSLETTER SUBSCRIBERS ======
+    try {
+      console.log('[Cron] Sending post to newsletter subscribers...')
+
+      const sendNewsletterUrl = `${baseUrl}/api/newsletter/send-post`
+      const newsletterResponse = await fetch(sendNewsletterUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${cronSecret}`,
+        },
+        body: JSON.stringify({
+          blogPostId: result.post.id,
+        }),
+      })
+
+      if (newsletterResponse.ok) {
+        const newsletterResult = await newsletterResponse.json()
+        console.log('[Cron] Newsletter sent:', newsletterResult)
+      } else {
+        console.error('[Cron] Newsletter send failed:', await newsletterResponse.text())
+      }
+    } catch (newsletterError) {
+      // Don't fail the entire cron if newsletter fails
+      console.error('[Cron] Newsletter error (non-critical):', newsletterError)
+    }
+
     // ====== SUCCESS RESPONSE ======
     return NextResponse.json({
       success: true,
-      message: 'Blog post generated successfully',
+      message: 'Blog post generated and newsletter sent',
       post: {
         id: result.post.id,
         title: result.post.title,
