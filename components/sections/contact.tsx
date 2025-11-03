@@ -110,35 +110,6 @@ export function Contact() {
             <p className="text-gray-600 dark:text-gray-300">{t('form.success.description')}</p>
           </motion.div>
         )}
-
-        {/* Social Links */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ delay: 0.5 }}
-          className="mt-12 text-center"
-        >
-          <h3 className="text-xl font-bold mb-6 text-gray-800 dark:text-white">
-            {t('social.title')}
-          </h3>
-          <div className="flex justify-center gap-6">
-            {socialLinks.map((link) => {
-              const Icon = link.icon
-              return (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-4 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all"
-                  aria-label={link.label}
-                >
-                  <Icon className="w-6 h-6 text-catbytes-purple" />
-                </a>
-              )
-            })}
-          </div>
-        </motion.div>
       </div>
     </section>
   )
