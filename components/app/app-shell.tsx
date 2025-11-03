@@ -30,6 +30,8 @@ export function AppShell({ children }: AppShellProps) {
   const [isStandalone, setIsStandalone] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
   
+  const [canShare, setCanShare] = useState(false)
+  
   // Detect if running as PWA
   useEffect(() => {
     const checkStandalone = () => {
@@ -45,6 +47,9 @@ export function AppShell({ children }: AppShellProps) {
         document.body.classList.add('pwa-standalone')
       }
     }
+    
+    // Check if share API is available
+    setCanShare(!!navigator.share)
     
     checkStandalone()
   }, [])
@@ -124,11 +129,11 @@ export function AppShell({ children }: AppShellProps) {
           </div>
 
           <div className="app-header-actions">
-            {typeof navigator !== 'undefined' && navigator.share && (
+            {canShare && (
               <button 
                 onClick={handleShare}
                 className="app-header-button"
-                aria-label={t('share')}
+                aria-label={locale === 'pt-BR' ? 'Compartilhar' : 'Share'}
               >
                 <Share2 className="w-5 h-5" />
               </button>

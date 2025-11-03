@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
-import About from '@/components/sections/about'
-import Skills from '@/components/sections/skills'
-import Contact from '@/components/sections/contact'
+import { About } from '@/components/sections/about'
+import { Skills } from '@/components/sections/skills'
+import { Contact } from '@/components/sections/contact'
 
 type Props = {
   params: Promise<{ locale: string }>
