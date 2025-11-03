@@ -211,6 +211,12 @@
     "backToTop": "Voltar ao Topo"
   },
   "blog": {
+    "title": "Blog CatBytes",
+    "subtitle": "Fique por dentro das últimas novidades em tecnologia, IA e automação",
+    "noPosts": "Em breve, novos artigos!",
+    "noPostsMessage": "Estamos preparando conteúdos incríveis sobre tecnologia, IA e automação. Inscreva-se na newsletter para ser notificado quando publicarmos!",
+    "readMore": "Ler mais",
+    "viewAllPosts": "Ver todos os artigos",
     "newsletter": "Newsletter",
     "newsletterButton": "Inscrever-se na Newsletter",
     "newsletterTitle": "Newsletter CatBytes",
