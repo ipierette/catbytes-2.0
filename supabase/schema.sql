@@ -94,9 +94,20 @@ CREATE POLICY "Anyone can read published posts"
   ON blog_posts FOR SELECT
   USING (published = true);
 
--- Policy: Service role can do everything (for API routes)
-CREATE POLICY "Service role has full access"
-  ON blog_posts
+-- Policy: Service role can INSERT posts
+CREATE POLICY "Service role can insert posts"
+  ON blog_posts FOR INSERT
+  WITH CHECK (auth.jwt() ->> 'role' = 'service_role');
+
+-- Policy: Service role can UPDATE posts
+CREATE POLICY "Service role can update posts"
+  ON blog_posts FOR UPDATE
+  USING (auth.jwt() ->> 'role' = 'service_role')
+  WITH CHECK (auth.jwt() ->> 'role' = 'service_role');
+
+-- Policy: Service role can DELETE posts
+CREATE POLICY "Service role can delete posts"
+  ON blog_posts FOR DELETE
   USING (auth.jwt() ->> 'role' = 'service_role');
 
 -- Function to increment views
@@ -121,6 +132,15 @@ CREATE TABLE IF NOT EXISTS blog_generation_log (
 
 CREATE INDEX IF NOT EXISTS idx_generation_log_created_at ON blog_generation_log(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_generation_log_status ON blog_generation_log(status);
+
+-- RLS for generation log
+ALTER TABLE blog_generation_log ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role full access generation log"
+  ON blog_generation_log
+  FOR ALL
+  USING (auth.jwt() ->> 'role' = 'service_role')
+  WITH CHECK (auth.jwt() ->> 'role' = 'service_role');
 
 -- Comments for documentation
 COMMENT ON TABLE blog_posts IS 'AI-generated blog posts with automatic lifecycle management';
@@ -166,10 +186,23 @@ CREATE INDEX IF NOT EXISTS idx_newsletter_verified ON newsletter_subscribers(ver
 -- RLS
 ALTER TABLE newsletter_subscribers ENABLE ROW LEVEL SECURITY;
 
--- Policy: Service role only
+-- Policy: Anyone can subscribe (INSERT)
+CREATE POLICY "Anyone can subscribe to newsletter"
+  ON newsletter_subscribers FOR INSERT
+  WITH CHECK (true);
+
+-- Policy: Service role has full access
 CREATE POLICY "Service role full access newsletter"
   ON newsletter_subscribers
-  USING (auth.jwt() ->> 'role' = 'service_role');
+  FOR ALL
+  USING (auth.jwt() ->> 'role' = 'service_role')
+  WITH CHECK (auth.jwt() ->> 'role' = 'service_role');
+
+-- Policy: Users can unsubscribe themselves via token
+CREATE POLICY "Users can unsubscribe via token"
+  ON newsletter_subscribers FOR UPDATE
+  USING (verification_token IS NOT NULL)
+  WITH CHECK (subscribed = false);
 
 -- Newsletter Campaigns (for tracking sent emails)
 CREATE TABLE IF NOT EXISTS newsletter_campaigns (
@@ -190,8 +223,32 @@ ALTER TABLE newsletter_campaigns ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Service role full access campaigns"
   ON newsletter_campaigns
-  USING (auth.jwt() ->> 'role' = 'service_role');
+  FOR ALL
+  USING (auth.jwt() ->> 'role' = 'service_role')
+  WITH CHECK (auth.jwt() ->> 'role' = 'service_role');
 
 -- Comments
 COMMENT ON TABLE newsletter_subscribers IS 'Newsletter subscribers with double opt-in';
 COMMENT ON TABLE newsletter_campaigns IS 'Newsletter campaign tracking for sent blog posts';
+
+-- =====================================================
+-- RLS Policies Summary
+-- =====================================================
+-- 
+-- blog_posts:
+--   - SELECT: Anyone can read published posts
+--   - INSERT/UPDATE/DELETE: Service role only (API routes)
+--
+-- blog_generation_log:
+--   - ALL: Service role only
+--
+-- newsletter_subscribers:
+--   - INSERT: Anyone (for subscription form)
+--   - UPDATE: Service role OR user with valid token (for unsubscribe)
+--   - SELECT/DELETE: Service role only
+--
+-- newsletter_campaigns:
+--   - ALL: Service role only
+--
+-- Note: Service role authenticated via SUPABASE_SERVICE_ROLE_KEY
+-- =====================================================
