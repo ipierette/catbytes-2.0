@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { BookOpen, ArrowRight, Loader2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { BookOpen, ArrowRight, Loader2, Mail, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -11,13 +11,16 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { PostModal } from '@/components/blog/post-modal'
 import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
+import { useTranslations } from 'next-intl'
 
 export function RecentPosts() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
+  const [showNewsletter, setShowNewsletter] = useState(false)
   const params = useParams()
   const locale = params.locale as string
+  const t = useTranslations('blog')
 
   useEffect(() => {
     const fetchRecentPosts = async () => {
@@ -43,7 +46,7 @@ export function RecentPosts() {
   return (
     <section
       id="blog"
-      className="py-20 bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-slate-900 dark:to-blue-950"
+      className="py-20 bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-slate-900 dark:to-blue-950 relative"
     >
       <div className="container mx-auto px-4">
         {/* Header */}
@@ -53,11 +56,11 @@ export function RecentPosts() {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <BookOpen className="w-10 h-10 text-catbytes-purple dark:text-catbytes-pink" />
-            <h2 className="text-4xl md:text-5xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent">
+          <div className="flex items-center justify-center gap-3 mb-6 pb-2">
+            <h2 className="text-4xl md:text-5xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent leading-tight pb-2">
               Blog CatBytes
             </h2>
+            <BookOpen className="w-10 h-10 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0" />
           </div>
 
           <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
@@ -169,31 +172,69 @@ export function RecentPosts() {
               </Link>
             </motion.div>
 
-            {/* Newsletter Section */}
+          </>
+        )}
+      </div>
+
+      {/* Floating Newsletter Button */}
+      <button
+        onClick={() => setShowNewsletter(true)}
+        className="absolute right-0 top-1/3 bg-gradient-to-r from-catbytes-purple to-catbytes-pink hover:from-catbytes-pink hover:to-catbytes-blue text-white px-2 py-8 md:px-3 md:py-12 rounded-l-2xl shadow-2xl z-40 flex flex-col items-center gap-2 transition-all duration-300 hover:scale-105"
+        aria-label={t('newsletterButton')}
+        style={{ writingMode: 'vertical-rl' }}
+      >
+        <Mail className="w-6 h-6 md:w-7 md:h-7" style={{ writingMode: 'horizontal-tb' }} />
+        <span className="text-xs md:text-sm font-bold">
+          {t('newsletter')}
+        </span>
+      </button>
+
+      {/* Newsletter Off-Canvas */}
+      <AnimatePresence>
+        {showNewsletter && (
+          <>
+            {/* Backdrop */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.6 }}
-              className="max-w-4xl mx-auto"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowNewsletter(false)}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            />
+
+            {/* Off-Canvas Panel */}
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed right-0 top-0 h-full w-full md:w-[500px] bg-white dark:bg-gray-800 shadow-2xl z-50 overflow-y-auto"
             >
-              <NewsletterSignup variant="blog" />
+              {/* Header */}
+              <div className="sticky top-0 bg-gradient-to-r from-catbytes-purple to-catbytes-pink text-white p-6 flex items-center justify-between z-10">
+                <div className="flex items-center gap-3">
+                  <Mail className="w-6 h-6" />
+                  <h3 className="text-2xl font-comfortaa font-bold">
+                    {t('newsletterTitle')}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowNewsletter(false)}
+                  className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                  aria-label={t('close')}
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 md:p-8">
+                <NewsletterSignup variant="blog" />
+              </div>
             </motion.div>
           </>
         )}
-
-        {/* Newsletter Section - Always show even if no posts */}
-        {!loading && posts.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <NewsletterSignup variant="blog" />
-          </motion.div>
-        )}
-      </div>
+      </AnimatePresence>
 
       {/* Post Modal */}
       <PostModal post={selectedPost} isOpen={!!selectedPost} onClose={() => setSelectedPost(null)} />
