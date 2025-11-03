@@ -211,9 +211,31 @@
     "backToTop": "Back to Top"
   },
   "blog": {
+    "title": "CatBytes Blog",
+    "subtitle": "Stay up to date with the latest news in technology, AI and automation",
+    "noPosts": "New articles coming soon!",
+    "noPostsMessage": "We're preparing amazing content about technology, AI and automation. Subscribe to the newsletter to be notified when we publish!",
+    "readMore": "Read more",
+    "viewAllPosts": "View all articles",
     "newsletter": "Newsletter",
     "newsletterButton": "Subscribe to Newsletter",
     "newsletterTitle": "CatBytes Newsletter",
+    "newsletterDescription": "Receive exclusive articles about technology, AI and automation",
+    "newsletterDescriptionHighlight": "directly in your email",
     "close": "Close"
+  },
+  "newsletter": {
+    "spamWarning": "📧 To avoid spam:",
+    "addContact": "Add",
+    "toContacts": "to your contacts!",
+    "successTitle": "Subscription Confirmed! 🎉",
+    "successMessage": "Check your email to confirm subscription.",
+    "nameLabel": "Name (optional)",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email *",
+    "emailPlaceholder": "your@email.com",
+    "subscribing": "Subscribing...",
+    "subscribeButton": "Subscribe for Free",
+    "frequency": "We send articles 3x per week. Cancel anytime."
   }
 }

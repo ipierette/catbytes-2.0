@@ -4,12 +4,14 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, CheckCircle2, AlertCircle, Loader2, Info } from 'lucide-react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 
 interface NewsletterSignupProps {
   variant?: 'blog' | 'footer' | 'offcanvas'
 }
 
 export function NewsletterSignup({ variant = 'blog' }: NewsletterSignupProps) {
+  const t = useTranslations('newsletter')
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
@@ -177,10 +179,10 @@ export function NewsletterSignup({ variant = 'blog' }: NewsletterSignupProps) {
             <Info className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-yellow-900 dark:text-yellow-300 mb-1">
-                📧 Para não cair no spam:
+                {t('spamWarning')}
               </p>
               <p className="text-sm text-yellow-800 dark:text-yellow-400">
-                Adicione <strong>contato@catbytes.site</strong> aos seus contatos!
+                {t('addContact')} <strong>contato@catbytes.site</strong> {t('toContacts')}
               </p>
             </div>
           </div>
@@ -194,36 +196,36 @@ export function NewsletterSignup({ variant = 'blog' }: NewsletterSignupProps) {
           >
             <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-3" />
             <h4 className="text-xl font-bold text-green-900 dark:text-green-300 mb-2">
-              Inscrição Confirmada! 🎉
+              {t('successTitle')}
             </h4>
             <p className="text-green-800 dark:text-green-400 text-sm">
-              Verifique seu email para confirmar a inscrição.
+              {t('successMessage')}
             </p>
           </motion.div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Nome (opcional)
+                {t('nameLabel')}
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Seu nome"
+                placeholder={t('namePlaceholder')}
                 className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:border-catbytes-purple focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Email *
+                {t('emailLabel')}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu@email.com"
+                placeholder={t('emailPlaceholder')}
                 required
                 className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:border-catbytes-purple focus:outline-none bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               />
@@ -244,18 +246,18 @@ export function NewsletterSignup({ variant = 'blog' }: NewsletterSignupProps) {
               {loading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Inscrevendo...
+                  {t('subscribing')}
                 </>
               ) : (
                 <>
                   <Mail className="w-5 h-5" />
-                  Inscrever-se Gratuitamente
+                  {t('subscribeButton')}
                 </>
               )}
             </button>
 
             <p className="text-xs text-center text-gray-600 dark:text-gray-400">
-              Enviamos artigos 3x por semana. Cancele quando quiser.
+              {t('frequency')}
             </p>
           </form>
         )}

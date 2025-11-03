@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import type { BlogPost } from '@/types/blog'
 import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { ptBR, enUS } from 'date-fns/locale'
 import { PostModal } from '@/components/blog/post-modal'
 import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
 import { useTranslations } from 'next-intl'
@@ -21,6 +21,7 @@ export function RecentPosts() {
   const params = useParams()
   const locale = params.locale as string
   const t = useTranslations('blog')
+  const dateLocale = locale === 'en-US' ? enUS : ptBR
 
   useEffect(() => {
     const fetchRecentPosts = async () => {
@@ -58,13 +59,13 @@ export function RecentPosts() {
         >
           <div className="flex items-center justify-center gap-3 mb-6 pb-2">
             <h2 className="text-4xl md:text-5xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent leading-tight pb-2">
-              Blog CatBytes
+              {t('title')}
             </h2>
             <BookOpen className="w-10 h-10 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0" />
           </div>
 
           <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-            Fique por dentro das últimas novidades em tecnologia, IA e automação
+            {t('subtitle')}
           </p>
         </motion.div>
 
@@ -80,11 +81,10 @@ export function RecentPosts() {
           <div className="text-center py-12 max-w-2xl mx-auto">
             <BookOpen className="w-20 h-20 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
             <h3 className="text-2xl font-bold text-gray-600 dark:text-gray-400 mb-3">
-              Em breve, novos artigos!
+              {t('noPosts')}
             </h3>
             <p className="text-gray-500 dark:text-gray-500 mb-8">
-              Estamos preparando conteúdos incríveis sobre tecnologia, IA e automação.
-              Inscreva-se na newsletter para ser notificado quando publicarmos!
+              {t('noPostsMessage')}
             </p>
           </div>
         )}
@@ -129,9 +129,10 @@ export function RecentPosts() {
                       dateTime={post.created_at}
                       className="text-sm text-gray-500 dark:text-gray-400 mb-2 block"
                     >
-                      {format(new Date(post.created_at), "dd 'de' MMMM, yyyy", {
-                        locale: ptBR,
-                      })}
+                      {format(new Date(post.created_at),
+                        locale === 'en-US' ? "MMMM dd, yyyy" : "dd 'de' MMMM, yyyy",
+                        { locale: dateLocale }
+                      )}
                     </time>
 
                     {/* Title */}
@@ -146,7 +147,7 @@ export function RecentPosts() {
 
                     {/* Read more */}
                     <div className="flex items-center gap-2 text-catbytes-purple dark:text-catbytes-pink font-medium group-hover:gap-3 transition-all">
-                      <span>Ler mais</span>
+                      <span>{t('readMore')}</span>
                       <ArrowRight className="w-5 h-5" />
                     </div>
                   </div>
@@ -167,7 +168,7 @@ export function RecentPosts() {
                 className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-catbytes-purple to-catbytes-blue hover:from-catbytes-blue hover:to-catbytes-purple text-white font-bold rounded-xl transition-all transform hover:scale-105 shadow-lg hover:shadow-2xl"
               >
                 <BookOpen className="w-5 h-5" />
-                Ver todos os artigos
+                {t('viewAllPosts')}
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </motion.div>
@@ -243,7 +244,7 @@ export function RecentPosts() {
                 {/* Description */}
                 <div className="text-center">
                   <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Receba artigos exclusivos sobre tecnologia, IA e automação <strong className="text-catbytes-purple dark:text-catbytes-pink">diretamente no seu email</strong>!
+                    {t('newsletterDescription')} <strong className="text-catbytes-purple dark:text-catbytes-pink">{t('newsletterDescriptionHighlight')}</strong>!
                   </p>
                 </div>
 
