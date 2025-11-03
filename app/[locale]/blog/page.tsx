@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import { BookOpen, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { PostCard } from '@/components/blog/post-card'
 import { PostModal } from '@/components/blog/post-modal'
-import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
 import type { BlogPost, PaginatedBlogPosts } from '@/types/blog'
 
 export default function BlogPage() {
@@ -91,13 +90,6 @@ export default function BlogPage() {
             >
               Tentar novamente
             </button>
-          </div>
-        )}
-
-        {/* Newsletter Signup */}
-        {!loading && !error && (
-          <div className="max-w-6xl mx-auto mb-16">
-            <NewsletterSignup variant="blog" />
           </div>
         )}
 
