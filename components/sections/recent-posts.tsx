@@ -40,11 +40,6 @@ export function RecentPosts() {
     fetchRecentPosts()
   }, [])
 
-  // Don't show section if no posts
-  if (!loading && posts.length === 0) {
-    return null
-  }
-
   return (
     <section
       id="blog"
@@ -74,6 +69,20 @@ export function RecentPosts() {
         {loading && (
           <div className="flex justify-center py-12">
             <Loader2 className="w-10 h-10 text-catbytes-purple dark:text-catbytes-pink animate-spin" />
+          </div>
+        )}
+
+        {/* No Posts State */}
+        {!loading && posts.length === 0 && (
+          <div className="text-center py-12 max-w-2xl mx-auto">
+            <BookOpen className="w-20 h-20 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+            <h3 className="text-2xl font-bold text-gray-600 dark:text-gray-400 mb-3">
+              Em breve, novos artigos!
+            </h3>
+            <p className="text-gray-500 dark:text-gray-500 mb-8">
+              Estamos preparando conteúdos incríveis sobre tecnologia, IA e automação.
+              Inscreva-se na newsletter para ser notificado quando publicarmos!
+            </p>
           </div>
         )}
 
@@ -171,6 +180,18 @@ export function RecentPosts() {
               <NewsletterSignup variant="blog" />
             </motion.div>
           </>
+        )}
+
+        {/* Newsletter Section - Always show even if no posts */}
+        {!loading && posts.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-4xl mx-auto"
+          >
+            <NewsletterSignup variant="blog" />
+          </motion.div>
         )}
       </div>
 
