@@ -260,7 +260,7 @@ function formatMarkdown(markdown: string): string {
     .replace(/\n/g, '<br>')
 
   // Wrap lists
-  html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+  html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>')
 
   // Wrap in paragraphs
   if (!html.startsWith('<h') && !html.startsWith('<ul')) {
