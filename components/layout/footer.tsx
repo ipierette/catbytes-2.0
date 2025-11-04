@@ -1,16 +1,47 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaHeart, FaCat, FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa'
+import { Lock } from 'lucide-react'
 import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
+import { useAdmin } from '@/hooks/use-admin'
+import { useState } from 'react'
 
 export function Footer() {
   const t = useTranslations('footer')
   const params = useParams()
   const locale = params.locale as string
+  const router = useRouter()
+  const { login, isAdmin } = useAdmin()
+  
+  const [showAdminModal, setShowAdminModal] = useState(false)
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setIsLoading(true)
+
+    try {
+      const success = await login(password)
+      if (success) {
+        setShowAdminModal(false)
+        setPassword('')
+        router.push(`/${locale}/blog`)
+      } else {
+        setError('Senha incorreta')
+      }
+    } catch {
+      setError('Erro ao fazer login')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <footer className="bg-gray-900 text-white py-12 border-t border-gray-800">
@@ -123,11 +154,98 @@ export function Footer() {
           <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
             {t('madeWith')} <FaHeart className="text-red-500" /> {t('and')} <FaCat className="text-green-400" />
           </p>
-          <p className="text-xs text-gray-600 mt-4">
-            CatBytes v2.0 | {t('accessibility')}
-          </p>
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <p className="text-xs text-gray-600">
+              CatBytes v2.0 | {t('accessibility')}
+            </p>
+            {/* Admin Access Button */}
+            <button
+              onClick={() => setShowAdminModal(true)}
+              className="text-gray-600 hover:text-purple-400 transition-colors opacity-50 hover:opacity-100"
+              aria-label="Admin Login"
+              title="Admin Access"
+            >
+              <Lock size={14} />
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Admin Login Modal */}
+      {showAdminModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
+            <button
+              onClick={() => {
+                setShowAdminModal(false)
+                setPassword('')
+                setError('')
+              }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              ✕
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
+                <Lock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h2 className="text-2xl font-comfortaa font-bold text-gray-900 dark:text-white">
+                Admin Access
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                {isAdmin ? 'Você já está logado como admin' : 'Digite a senha para acessar o painel admin'}
+              </p>
+            </div>
+
+            {!isAdmin ? (
+              <form onSubmit={handleAdminLogin} className="space-y-4">
+                <div>
+                  <label htmlFor="admin-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Senha
+                  </label>
+                  <input
+                    id="admin-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="••••••••"
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                {error && (
+                  <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? 'Verificando...' : 'Entrar'}
+                </button>
+              </form>
+            ) : (
+              <div className="text-center">
+                <button
+                  onClick={() => {
+                    setShowAdminModal(false)
+                    router.push(`/${locale}/blog`)
+                  }}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                  Ir para o Blog
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </footer>
   )
 }
