@@ -176,6 +176,64 @@ export function generateSlug(title: string): string {
     .substring(0, 100) // Max length
 }
 
+// Upload image from URL to Supabase Storage
+export async function uploadImageFromUrl(imageUrl: string, fileName: string): Promise<string> {
+  if (!supabaseAdmin) {
+    throw new Error('Supabase admin client not configured')
+  }
+
+  try {
+    // Download image from URL
+    console.log('[Supabase] Downloading image from:', imageUrl.substring(0, 60) + '...')
+    const response = await fetch(imageUrl)
+
+    if (!response.ok) {
+      throw new Error(`Failed to download image: ${response.statusText}`)
+    }
+
+    const imageBlob = await response.blob()
+    const imageBuffer = await imageBlob.arrayBuffer()
+    console.log('[Supabase] Image downloaded, size:', (imageBuffer.byteLength / 1024).toFixed(2), 'KB')
+
+    // Generate unique file name with timestamp
+    const timestamp = Date.now()
+    const sanitizedFileName = fileName
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/-+/g, '-')
+      .substring(0, 50)
+    const uniqueFileName = `${sanitizedFileName}-${timestamp}.webp`
+    const filePath = `blog-covers/${uniqueFileName}`
+
+    // Upload to Supabase Storage
+    console.log('[Supabase] Uploading to storage:', filePath)
+    const { data, error } = await supabaseAdmin.storage
+      .from('blog-images')
+      .upload(filePath, imageBuffer, {
+        contentType: 'image/webp',
+        cacheControl: '31536000', // 1 year cache
+        upsert: false,
+      })
+
+    if (error) {
+      throw new Error(`Failed to upload image: ${error.message}`)
+    }
+
+    // Get public URL
+    const { data: publicUrlData } = supabaseAdmin.storage
+      .from('blog-images')
+      .getPublicUrl(filePath)
+
+    const publicUrl = publicUrlData.publicUrl
+    console.log('[Supabase] Image uploaded successfully:', publicUrl)
+
+    return publicUrl
+  } catch (error) {
+    console.error('[Supabase] Error uploading image:', error)
+    throw error
+  }
+}
+
 // Check if Supabase is properly configured
 export function isSupabaseConfigured(): boolean {
   return !!(
