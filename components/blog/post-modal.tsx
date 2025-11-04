@@ -2,11 +2,11 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { X, Calendar, Eye, Tag, Share2, Facebook, Twitter, Linkedin } from 'lucide-react'
+import { X, Calendar, Eye, Tag, Share2, Facebook, Twitter, Linkedin, ImageOff } from 'lucide-react'
 import type { BlogPost } from '@/types/blog'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 interface PostModalProps {
   post: BlogPost | null
@@ -15,6 +15,15 @@ interface PostModalProps {
 }
 
 export function PostModal({ post, isOpen, onClose }: PostModalProps) {
+  const [imageError, setImageError] = useState(false)
+
+  // Reset image error when modal opens with new post
+  useEffect(() => {
+    if (isOpen) {
+      setImageError(false)
+    }
+  }, [isOpen, post?.id])
+
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
@@ -90,15 +99,25 @@ export function PostModal({ post, isOpen, onClose }: PostModalProps) {
 
                 {/* Cover Image */}
                 <div className="relative w-full h-64 md:h-96 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">
-                  <Image
-                    src={post.cover_image_url}
-                    alt={post.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1200px) 90vw, 1200px"
-                    priority
-                    unoptimized
-                  />
+                  {!imageError && (
+                    <Image
+                      src={post.cover_image_url}
+                      alt={post.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                      priority
+                      unoptimized
+                      onError={() => setImageError(true)}
+                    />
+                  )}
+
+                  {/* Fallback icon quando imagem falha */}
+                  {imageError && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <ImageOff className="w-24 h-24 text-gray-400 dark:text-gray-500" />
+                    </div>
+                  )}
 
                   {/* Category overlay */}
                   <div className="absolute bottom-4 left-4">

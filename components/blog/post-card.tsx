@@ -2,10 +2,11 @@
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { Calendar, Eye, Tag } from 'lucide-react'
+import { Calendar, Eye, Tag, ImageOff } from 'lucide-react'
 import type { BlogPost } from '@/types/blog'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { useState } from 'react'
 
 interface PostCardProps {
   post: BlogPost
@@ -14,6 +15,8 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, onClick, index = 0 }: PostCardProps) {
+  const [imageError, setImageError] = useState(false)
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -25,15 +28,25 @@ export function PostCard({ post, onClick, index = 0 }: PostCardProps) {
     >
       {/* Cover Image */}
       <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">
-        <Image
-          src={post.cover_image_url}
-          alt={post.title}
-          fill
-          className="object-cover group-hover:scale-110 transition-transform duration-500"
-          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 400px"
-          loading={index > 2 ? 'lazy' : 'eager'}
-          unoptimized
-        />
+        {!imageError && (
+          <Image
+            src={post.cover_image_url}
+            alt={post.title}
+            fill
+            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 400px"
+            loading={index > 2 ? 'lazy' : 'eager'}
+            unoptimized
+            onError={() => setImageError(true)}
+          />
+        )}
+
+        {/* Fallback icon quando imagem falha */}
+        {imageError && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ImageOff className="w-16 h-16 text-gray-400 dark:text-gray-500" />
+          </div>
+        )}
 
         {/* Category badge */}
         <div className="absolute top-4 left-4">
