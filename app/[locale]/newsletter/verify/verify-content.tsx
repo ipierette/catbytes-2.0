@@ -69,7 +69,7 @@ export function VerifyEmailContent() {
           <div className="bg-gradient-to-r from-purple-600 via-pink-500 to-blue-500 p-8 text-center">
             <div className="flex items-center justify-center gap-6 mb-4">
               <Image
-                src="/images/logo-desenvolvedora.png"
+                src="/images/logo-desenvolvedora.webp"
                 alt="Logo Desenvolvedora"
                 width={250}
                 height={0}
@@ -77,7 +77,7 @@ export function VerifyEmailContent() {
                 className="object-contain"
               />
               <Image
-                src="/images/catbytes-logo.png"
+                src="/images/catbytes-logo.webp"
                 alt="CatBytes Logo"
                 width={250}
                 height={0}

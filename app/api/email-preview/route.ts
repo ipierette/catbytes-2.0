@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     const name = 'Preview Teste'
     const title = 'Exemplo de Post: Como a IA está Transformando o Desenvolvimento Web'
     const excerpt = 'Descubra as principais tendências de IA que estão revolucionando a forma como criamos aplicações web modernas e como você pode aproveitar essas tecnologias no seu próximo projeto.'
-    const coverImageUrl = `${baseUrl}/images/catbytes-logo.png` // Imagem de placeholder
+    const coverImageUrl = `${baseUrl}/images/catbytes-logo.webp` // Imagem de placeholder
     const postUrl = `${baseUrl}/${locale}/blog`
     
     html = getNewPostEmailHTML(name, title, excerpt, coverImageUrl, postUrl, locale, baseUrl)

@@ -39,7 +39,7 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center" aria-label="CatBytes">
             <Image
-              src="/images/logo-desenvolvedora.png"
+              src="/images/logo-desenvolvedora.webp"
               alt="Logo CatBytes"
               width={180}
               height={60}

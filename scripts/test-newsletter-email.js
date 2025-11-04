@@ -100,7 +100,7 @@ function getNewPostEmailHTML(name, title, excerpt, coverImageUrl, postUrl, local
                 
                 <tr>
                   <td align="center" style="padding: 40px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="height: 80px; width: auto; margin-bottom: 20px;">
+                    <img src="${baseUrl}/images/catbytes-logo.webp" alt="CatBytes" style="height: 80px; width: auto; margin-bottom: 20px;">
                     <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">${texts.newPost}</h1>
                   </td>
                 </tr>
@@ -154,7 +154,7 @@ function getNewPostEmailHTML(name, title, excerpt, coverImageUrl, postUrl, local
                     <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
                         <td align="center" style="padding-bottom: 15px;">
-                          <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Developer Logo" style="height: 60px; width: auto;">
+                          <img src="${baseUrl}/images/logo-desenvolvedora.webp" alt="Developer Logo" style="height: 60px; width: auto;">
                         </td>
                       </tr>
                       <tr>

@@ -21,7 +21,7 @@ export function Footer() {
           <div>
             <div className="mb-4">
               <Image
-                src="/images/catbytes-logo.png"
+                src="/images/catbytes-logo.webp"
                 alt="CatBytes"
                 width={250}
                 height={100}

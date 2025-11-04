@@ -56,7 +56,7 @@ export function getNewPostEmailHTML(
                 <!-- Header -->
                 <tr>
                   <td align="center" style="padding: 40px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <img src="${baseUrl}/images/catbytes-logo.png" alt="CatBytes" style="height: 140px; width: 200; margin-bottom: 10px;">
+                    <img src="${baseUrl}/images/catbytes-logo.webp" alt="CatBytes" style="height: 140px; width: 200; margin-bottom: 10px;">
                     <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">${t.newPost}</h1>
                   </td>
                 </tr>
@@ -117,7 +117,7 @@ export function getNewPostEmailHTML(
                     <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
                         <td align="center" style="padding-bottom: 15px;">
-                          <img src="${baseUrl}/images/logo-desenvolvedora.png" alt="Developer Logo" style="height: 80px; width: auto;">
+                          <img src="${baseUrl}/images/logo-desenvolvedora.webp" alt="Developer Logo" style="height: 80px; width: auto;">
                         </td>
                       </tr>
                       <tr>

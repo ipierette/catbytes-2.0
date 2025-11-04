@@ -3,11 +3,11 @@
 <table border="0" cellpadding="0" cellspacing="0">
   <tr>
     <td align="center" valign="middle">
-      <img src="./public/images/catbytes-logo.png" width="150" alt="CatBytes Logo" />
+      <img src="./public/images/catbytes-logo.webp" width="150" alt="CatBytes Logo" />
     </td>
     <td width="40"></td>
     <td align="center" valign="middle">
-      <img src="./public/images/logo-desenvolvedora.png" width="150" alt="Developer Logo" />
+      <img src="./public/images/logo-desenvolvedora.webp" width="150" alt="Developer Logo" />
     </td>
   </tr>
 </table>

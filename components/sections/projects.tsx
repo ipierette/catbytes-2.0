@@ -20,7 +20,7 @@ interface Project {
 const projectsData: Project[] = [
   {
     id: 'meowflix',
-    image: '/images/meowflixia.png',
+    image: '/images/meowflixia.webp',
     link: 'https://meowflixia.netlify.app/',
     github: 'https://github.com/ipierette/meowflix-ai-mood-matcher',
     stack: ['React', 'TypeScript', 'Gemini AI', 'TMDB API', 'Netlify Functions', 'Tailwind CSS'],
@@ -29,7 +29,7 @@ const projectsData: Project[] = [
   },
   {
     id: 'catbutler',
-    image: '/images/catbutler.png',
+    image: '/images/catbutler.webp',
     link: 'https://catbutler-frontend.vercel.app/',
     github: 'https://github.com/ipierette/catbutler-frontend',
     stack: ['React', 'Vite', 'Node.js', 'Express', 'AI Integration', 'Gamification'],
@@ -45,7 +45,7 @@ const projectsData: Project[] = [
   },
   {
     id: 'agent',
-    image: '/images/demo-agente.png',
+    image: '/images/demo-agente.webp',
     link: 'https://demo-agenteia.netlify.app/',
     github: 'https://github.com/ipierette/demo-agente',
     stack: ['n8n', 'PostgreSQL', 'WhatsApp API', 'OpenAI', 'Multimodal AI'],
@@ -54,7 +54,7 @@ const projectsData: Project[] = [
   },
   {
     id: 'medical',
-    image: '/images/simples-medico.png',
+    image: '/images/simples-medico.webp',
     link: 'https://simples-medico.netlify.app/',
     github: 'https://github.com/ipierette/simples-m-dico',
     stack: ['HTML', 'CSS', 'JavaScript', 'n8n', 'Supabase', 'OpenAI API'],
