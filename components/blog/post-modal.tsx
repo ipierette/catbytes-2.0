@@ -97,7 +97,7 @@ export function PostModal({ post, isOpen, onClose }: PostModalProps) {
                     className="object-cover"
                     sizes="(max-width: 640px) 100vw, (max-width: 1200px) 90vw, 1200px"
                     priority
-                    quality={90}
+                    unoptimized
                   />
 
                   {/* Category overlay */}
