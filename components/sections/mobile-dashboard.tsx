@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight, Sparkles, BookOpen, Briefcase } from 'lucide-react'
 import { useLocale } from 'next-intl'
 
@@ -42,8 +43,15 @@ export function MobileDashboard() {
           transition={{ duration: 0.5 }}
           className="text-center"
         >
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-4xl shadow-xl">
-            🐱
+          <div className="relative w-24 h-24 mx-auto mb-6 rounded-full overflow-hidden shadow-xl border-4 border-white/20">
+            <Image
+              src="/favicon-192x192.png"
+              alt="CatBytes Logo"
+              width={96}
+              height={96}
+              className="object-cover"
+              priority
+            />
           </div>
           
           <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent dark:from-purple-400 dark:to-pink-400">
