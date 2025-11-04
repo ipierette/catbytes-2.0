@@ -6,8 +6,6 @@ import { ThemeProvider } from '@/components/providers/theme-provider'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { AppShell } from '@/components/app/app-shell'
 import { DesktopLayout } from '@/components/layout'
-import { PWAInstallBanner } from '@/components/app/pwa-install-banner'
-import { PWAWrapper } from '@/components/pwa/pwa-wrapper'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -121,15 +119,12 @@ export default async function LocaleLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <PWAWrapper>
-              <AppShell>
-                <DesktopLayout>
-                  <ScrollProgress />
-                  <main>{children}</main>
-                </DesktopLayout>
-                <PWAInstallBanner />
-              </AppShell>
-            </PWAWrapper>
+            <AppShell>
+              <DesktopLayout>
+                <ScrollProgress />
+                <main>{children}</main>
+              </DesktopLayout>
+            </AppShell>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
