@@ -1,9 +1,16 @@
 <div align="center">
 
-<p align="center">
-  <img src="./public/images/catbytes-logo.png" width="150" alt="CatBytes Logo" style="margin: 0 20px;" />
-  <img src="./public/images/logo-desenvolvedora.png" width="150" alt="Logo Desenvolvedora" style="margin: 0 20px;" />
-</p>
+<table border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td align="center" valign="middle">
+      <img src="./public/images/catbytes-logo.png" width="150" alt="CatBytes Logo" />
+    </td>
+    <td width="40"></td>
+    <td align="center" valign="middle">
+      <img src="./public/images/logo-desenvolvedora.png" width="150" alt="Logo Desenvolvedora" />
+    </td>
+  </tr>
+</table>
 
 # CatBytes 2.0 — Portfólio Profissional Full Stack
 
