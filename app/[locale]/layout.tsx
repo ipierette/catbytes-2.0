@@ -4,11 +4,10 @@ import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
-import { BackToTop } from '@/components/ui/back-to-top'
-import { WhatsAppButton } from '@/components/ui/whatsapp-button'
 import { AppShell } from '@/components/app/app-shell'
 import { DesktopLayout } from '@/components/layout'
 import { PWAInstallBanner } from '@/components/app/pwa-install-banner'
+import { PWAWrapper } from '@/components/pwa/pwa-wrapper'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -122,15 +121,15 @@ export default async function LocaleLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <AppShell>
-              <DesktopLayout>
-                <ScrollProgress />
-                <main>{children}</main>
-                <BackToTop />
-                <WhatsAppButton />
-              </DesktopLayout>
-              <PWAInstallBanner />
-            </AppShell>
+            <PWAWrapper>
+              <AppShell>
+                <DesktopLayout>
+                  <ScrollProgress />
+                  <main>{children}</main>
+                </DesktopLayout>
+                <PWAInstallBanner />
+              </AppShell>
+            </PWAWrapper>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
