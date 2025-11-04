@@ -102,10 +102,7 @@ export default async function LocaleLayout({
         <link rel="alternate" hrefLang="pt-BR" href="https://catbytes.com/pt-BR" />
         <link rel="alternate" hrefLang="en-US" href="https://catbytes.com/en-US" />
         <link rel="alternate" hrefLang="x-default" href="https://catbytes.com/pt-BR" />
-        <link rel="stylesheet" href="/css/mobile-optimizations.css" />
-        <link rel="stylesheet" href="/css/blog-mobile.css" />
-        <link rel="stylesheet" href="/css/newsletter-verify-mobile.css" />
-        <link rel="stylesheet" href="/css/pwa-native-app.css" />
+        <link rel="preload" href="/images/gato-sentado.webp" as="image" type="image/webp" fetchPriority="high" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
