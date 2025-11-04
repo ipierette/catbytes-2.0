@@ -11,12 +11,17 @@ export const maxDuration = 60
 
 export async function GET(request: NextRequest) {
   try {
-    // ====== SECURITY: Verify cron secret ======
+    // ====== SECURITY: Verify cron secret (optional for now) ======
     const authHeader = request.headers.get('authorization')
     const cronSecret = process.env.CRON_SECRET
 
+    // Log for debugging
+    console.log('[Cron] Auth header present:', !!authHeader)
+    console.log('[Cron] CRON_SECRET configured:', !!cronSecret)
+    
+    // Only verify if CRON_SECRET is set
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      console.error('[Cron] Unauthorized attempt')
+      console.error('[Cron] Unauthorized attempt - auth mismatch')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
