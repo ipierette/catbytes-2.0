@@ -45,6 +45,11 @@ export default function BlogPage() {
     fetchPosts()
   }, [currentPage, locale])
 
+  const handleRefresh = () => {
+    setCurrentPage(1)
+    window.location.reload()
+  }
+
   // Scroll to top on page change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -107,6 +112,8 @@ export default function BlogPage() {
                   post={post}
                   onClick={() => setSelectedPost(post)}
                   index={index}
+                  onDelete={handleRefresh}
+                  onTranslate={handleRefresh}
                 />
               ))}
             </div>

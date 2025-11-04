@@ -3,6 +3,7 @@ import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { ThemeProvider } from '@/components/providers/theme-provider'
+import { AdminProvider } from '@/hooks/use-admin'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { AppShell } from '@/components/app/app-shell'
 import { DesktopLayout } from '@/components/layout'
@@ -116,12 +117,14 @@ export default async function LocaleLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <AppShell>
-              <DesktopLayout>
-                <ScrollProgress />
-                <main>{children}</main>
-              </DesktopLayout>
-            </AppShell>
+            <AdminProvider>
+              <AppShell>
+                <DesktopLayout>
+                  <ScrollProgress />
+                  <main>{children}</main>
+                </DesktopLayout>
+              </AppShell>
+            </AdminProvider>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

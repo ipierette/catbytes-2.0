@@ -2,20 +2,70 @@
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { Calendar, Eye, Tag, ImageOff } from 'lucide-react'
+import { Calendar, Eye, Tag, ImageOff, Trash2, Globe } from 'lucide-react'
 import type { BlogPost } from '@/types/blog'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useState } from 'react'
+import { useAdmin } from '@/hooks/use-admin'
 
 interface PostCardProps {
   post: BlogPost
   onClick: () => void
   index?: number
+  onDelete?: () => void
+  onTranslate?: () => void
 }
 
-export function PostCard({ post, onClick, index = 0 }: PostCardProps) {
+export function PostCard({ post, onClick, index = 0, onDelete, onTranslate }: PostCardProps) {
   const [imageError, setImageError] = useState(false)
+  const { isAdmin } = useAdmin()
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    
+    if (!confirm('Tem certeza que deseja deletar este post?')) return
+
+    try {
+      const response = await fetch(`/api/admin/posts/${post.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        onDelete?.()
+        alert('Post deletado com sucesso!')
+      } else {
+        alert('Erro ao deletar post')
+      }
+    } catch (error) {
+      alert('Erro ao deletar post')
+      console.error(error)
+    }
+  }
+
+  const handleTranslate = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+
+    if (!confirm('Deseja traduzir este post para inglês?')) return
+
+    try {
+      const response = await fetch('/api/blog/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: post.id }),
+      })
+
+      if (response.ok) {
+        onTranslate?.()
+        alert('Post traduzido com sucesso!')
+      } else {
+        alert('Erro ao traduzir post')
+      }
+    } catch (error) {
+      alert('Erro ao traduzir post')
+      console.error(error)
+    }
+  }
 
   return (
     <motion.article
@@ -105,6 +155,30 @@ export function PostCard({ post, onClick, index = 0 }: PostCardProps) {
         <button className="w-full mt-2 px-4 py-2 bg-gradient-to-r from-catbytes-purple to-catbytes-blue hover:from-catbytes-blue hover:to-catbytes-purple text-white font-medium rounded-lg transition-all duration-300 transform group-hover:scale-105">
           Ler artigo completo
         </button>
+
+        {/* Admin buttons */}
+        {isAdmin && (
+          <div className="flex gap-2 mt-3">
+            {post.locale === 'pt-BR' && (
+              <button
+                onClick={handleTranslate}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                title="Traduzir para inglês"
+              >
+                <Globe className="w-4 h-4" />
+                Traduzir
+              </button>
+            )}
+            <button
+              onClick={handleDelete}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+              title="Deletar post"
+            >
+              <Trash2 className="w-4 h-4" />
+              Deletar
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Decorative cat paw print */}
