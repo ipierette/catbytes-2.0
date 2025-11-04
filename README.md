@@ -1,17 +1,20 @@
-# <img src="./public/favicon-32x32.png" width="28" height="28" alt="CatBytes Logo" /> CatBytes 2.0 — Portfólio Profissional Full Stack
-
 <div align="center">
+
+<img src="./public/images/catbytes-logo.png" width="150" alt="CatBytes Logo" />
+<img src="./public/images/logo-desenvolvedora.png" width="150" alt="Desenvolvedora Logo" />
+
+# CatBytes 2.0 — Portfólio Profissional Full Stack
 
 ### 🇧🇷 Português | [🇺🇸 English](./README.en.md)
 
-[![Deploy Status](https://img.shields.io/badge/deploy-vercel-black?style=for-the-badge&logo=vercel)](https://catbytes.site)
-[![Version](https://img.shields.io/badge/version-2.0.0-purple?style=for-the-badge)](./CHANGELOG.md)
+[![Deploy Status](https://img.shields.io/badge/deploy-live-success?style=for-the-badge&logo=vercel&logoColor=white)](https://catbytes.site)
+[![Version](https://img.shields.io/badge/version-2.0.0-purple?style=for-the-badge)](./CHANGELOG.pt-BR.md)
 [![License](https://img.shields.io/badge/license-Custom-blue?style=for-the-badge)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org)
 [![PWA](https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=for-the-badge&logo=pwa)](https://web.dev/progressive-web-apps/)
 
-**[✨ Ver Demonstração](https://catbytes.site)** • **[📄 Changelog Completo](./CHANGELOG.md)** • **[📧 Contato](mailto:ipierette2@gmail.com)**
+**[✨ Ver Demonstração](https://catbytes.site)** • **[📄 Changelog Completo](./CHANGELOG.pt-BR.md)** • **[📧 Contato](mailto:ipierette2@gmail.com)**
 
 </div>
 
@@ -63,9 +66,9 @@ A versão 2.0 representa uma **transformação completa** do projeto original:
 | **Estilização** | CSS Modules | Tailwind CSS 3.4 |
 | **Animações** | ScrollReveal | Framer Motion |
 | **Roteamento** | Single Page | App Router + i18n |
-| **API** | Netlify Functions | Next.js API Routes (Edge) |
+| **API** | Funções Serverless | Next.js API Routes (Edge) |
 | **Ícones** | Font Awesome | Lucide React |
-| **Deploy** | Netlify | Vercel (otimizado) |
+| **Deploy** | Vercel | Vercel (otimizado) |
 
 ### 🎉 Novos Recursos Principais
 
@@ -684,76 +687,7 @@ Criando experiências digitais que unem criatividade, tecnologia e inovação.
 
 ---
 
-## 📖 Sobre o Projeto
-O **CatBytes** é um portfólio criativo que combina **design moderno**, **código limpo** e **soluções com inteligência artificial e automação**.  
-Este projeto foi desenvolvido para apresentar minhas habilidades como desenvolvedora web, com foco em **responsividade**, **acessibilidade** e **experiências interativas**.  
 
----
-
-## ✨ Funcionalidades
-- Layout responsivo (desktop, tablet e mobile).  
-- **Dark mode** dinâmico.  
-- Galeria de projetos com **lazy loading** otimizado.  
-- Integrações com **Netlify Functions + IA**.  
-- Componentes interativos com **JavaScript modular**.  
-- **Score da IA** em anúncios, com explicação interativa.  
-- **Uso da IA** para identificar gatinhos, com observações sobre a foto utilizada.
-- Gerador de texto de anúncios **através da IA** com **geração de Estratégia de Postagem**.    
-- Estrutura de CSS organizada em módulos: `reset.css`, `variables.css`, `responsive.css`, `animations.css` etc, pronta para evoluir com vite e react.  
-
----
-
-## 🗂️ Estrutura do Projeto
-A estrutura principal é:
-
-```
-css/          → Estilos globais e modulares
-images/       → Ícones, favicons e assets do site
-js/           → Scripts organizados em módulos
-netlify/      → Funções serverless
-scripts/      → Scripts auxiliares
-test/         → Testes automatizados
-index.html    → Entrada principal
-README.md     → Documentação do projeto
-```
-
----
-
-## Documentação
-- [CHANGELOG](./CHANGELOG.md) — histórico completo de mudanças
----
-
-## 🚀 Deploy
-O projeto está publicado em **Netlify**.
-🔗 **Demo online**: (https://catbytes.netlify.app/)
-
----
-
-## 💻 Como Executar Localmente(Não é permitida cópia integral do projeto #Licença)
-
-1.  **Clone o repositório:**
-    ```bash
-    git clone [https://github.com/seu-usuario/catbytes.git](https://github.com/ipierette/catbytes-portifolio)
-    ```
-
-2.  **Navegue até o diretório:**
-    ```bash
-    cd catbytes
-    ```
-
-3.  **Abra o `index.html` no seu navegador:**
-    - Você pode simplesmente abrir o arquivo `index.html` diretamente ou usar uma extensão como o "Live Server" no VS Code para uma melhor experiência de desenvolvimento.
-
----
-
-## 🛠️ Tecnologias Utilizadas
-- **HTML5** semântico  
-- **CSS3 avançado + TailwindCSS**  
-- **JavaScript ES6+ modular**  
-- **Netlify Functions** para IA e automação  
-- **Git + GitHub** para versionamento  
-
----
 
 ## 📸 Preview
 

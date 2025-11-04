@@ -11,6 +11,12 @@ export function Contact() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, amount: 0.2 })
   const [submitted, setSubmitted] = useState(false)
+  const [message, setMessage] = useState('')
+
+  // Contador de caracteres sem espaços
+  const charCount = message.replace(/\s/g, '').length
+  const maxChars = 2000
+  const isNearLimit = charCount > maxChars * 0.9 // 90% do limite
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,20 +84,53 @@ export function Contact() {
             </div>
 
             <div>
-              <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">
-                {t('form.message')}
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-gray-700 dark:text-gray-300 font-medium">
+                  {t('form.message')}
+                </label>
+                <span 
+                  className={`text-sm font-medium ${
+                    charCount > maxChars 
+                      ? 'text-red-600 dark:text-red-400' 
+                      : isNearLimit 
+                      ? 'text-orange-600 dark:text-orange-400'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {charCount}/{maxChars} caracteres
+                </span>
+              </div>
               <textarea
                 required
                 rows={5}
-                className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:border-catbytes-purple focus:outline-none resize-none bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                maxLength={maxChars}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none resize-none bg-white dark:bg-gray-700 text-gray-800 dark:text-white ${
+                  charCount > maxChars
+                    ? 'border-red-500 focus:border-red-600'
+                    : isNearLimit
+                    ? 'border-orange-400 focus:border-orange-500'
+                    : 'border-gray-300 dark:border-gray-600 focus:border-catbytes-purple'
+                }`}
                 placeholder={t('form.messagePlaceholder')}
               />
+              {isNearLimit && charCount <= maxChars && (
+                <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                  ⚠️ Você está próximo do limite máximo de caracteres
+                </p>
+              )}
+              {charCount > maxChars && (
+                <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                  ❌ Você excedeu o limite de {maxChars} caracteres
+                </p>
+              )}
             </div>
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-catbytes-purple to-catbytes-blue text-white rounded-lg font-semibold text-lg shadow-xl hover:shadow-2xl transition-shadow"
+              disabled={charCount > maxChars}
+              className="w-full flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-catbytes-purple to-catbytes-blue text-white rounded-lg font-semibold text-lg shadow-xl hover:shadow-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send className="w-5 h-5" />
               {t('form.submit')}
