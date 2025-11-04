@@ -4,42 +4,21 @@
 -- =====================================================
 
 -- 1. Criar o bucket para imagens do blog
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-  'blog-images',
-  'blog-images',
-  true,  -- Bucket público
-  52428800,  -- 50 MB limit por arquivo
-  ARRAY['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']  -- Tipos permitidos
-)
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('blog-images', 'blog-images', true)
 ON CONFLICT (id) DO NOTHING;
 
--- 2. Habilitar RLS (Row Level Security) no bucket
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
--- 3. Política: Qualquer pessoa pode VER imagens (leitura pública)
-CREATE POLICY "Public Access to Blog Images"
+-- 2. Política: Qualquer pessoa pode VER imagens (leitura pública)
+CREATE POLICY "Public read access for blog images"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'blog-images');
 
--- 4. Política: Apenas service_role pode FAZER UPLOAD
-CREATE POLICY "Service Role Can Upload Blog Images"
-ON storage.objects FOR INSERT
-TO service_role
-WITH CHECK (bucket_id = 'blog-images');
-
--- 5. Política: Apenas service_role pode ATUALIZAR
-CREATE POLICY "Service Role Can Update Blog Images"
-ON storage.objects FOR UPDATE
-TO service_role
-USING (bucket_id = 'blog-images')
-WITH CHECK (bucket_id = 'blog-images');
-
--- 6. Política: Apenas service_role pode DELETAR
-CREATE POLICY "Service Role Can Delete Blog Images"
-ON storage.objects FOR DELETE
-TO service_role
-USING (bucket_id = 'blog-images');
+-- =====================================================
+-- IMPORTANTE: Service Role NÃO precisa de políticas!
+-- =====================================================
+-- O service_role key BYPASSA todas as políticas RLS automaticamente.
+-- Por isso NÃO criamos políticas de INSERT/UPDATE/DELETE.
+-- Nossa API route usa o service_role, então já tem acesso total.
 
 -- =====================================================
 -- Verificação (opcional - execute depois)
@@ -49,7 +28,7 @@ USING (bucket_id = 'blog-images');
 -- SELECT * FROM storage.buckets WHERE id = 'blog-images';
 
 -- Verificar políticas criadas:
--- SELECT * FROM pg_policies WHERE tablename = 'objects' AND policyname LIKE '%Blog Images%';
+-- SELECT * FROM pg_policies WHERE tablename = 'objects' AND schemaname = 'storage';
 
 -- Ver todos os buckets:
--- SELECT id, name, public, file_size_limit, allowed_mime_types FROM storage.buckets;
+-- SELECT id, name, public FROM storage.buckets;
