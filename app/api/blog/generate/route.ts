@@ -27,8 +27,11 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now()
 
   try {
+    console.log('[Generate] Starting blog post generation...')
+
     // Validate OpenAI API key
     if (!process.env.OPENAI_API_KEY) {
+      console.error('[Generate] OpenAI API key not configured')
       return NextResponse.json(
         { error: 'OpenAI API key not configured' },
         { status: 500 }
@@ -37,11 +40,14 @@ export async function POST(request: NextRequest) {
 
     // Validate Supabase
     if (!supabaseAdmin) {
+      console.error('[Generate] Supabase admin client not configured')
       return NextResponse.json(
         { error: 'Supabase admin client not configured' },
         { status: 500 }
       )
     }
+
+    console.log('[Generate] Environment validated successfully')
 
     // Get request body (optional parameters)
     let body: any = {}
@@ -49,6 +55,7 @@ export async function POST(request: NextRequest) {
       body = await request.json()
     } catch {
       // No body provided, use defaults
+      console.log('[Generate] No request body, using defaults')
     }
 
     const { topic, keywords, category } = body
@@ -316,13 +323,15 @@ No text in image. Aspect ratio: 16:9. High quality.`
   } catch (error) {
     const generationTime = Date.now() - startTime
     console.error('[Generate] Error:', error)
+    console.error('[Generate] Error type:', typeof error)
+    console.error('[Generate] Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)))
 
     // Log error to database
     if (supabaseAdmin) {
       await supabaseAdmin.from('blog_generation_log').insert({
         post_id: null,
         status: 'error',
-        error_message: error instanceof Error ? error.message : 'Unknown error',
+        error_message: error instanceof Error ? error.message : String(error),
         generation_time_ms: generationTime,
       })
     }
@@ -331,7 +340,8 @@ No text in image. Aspect ratio: 16:9. High quality.`
       {
         success: false,
         error: 'Failed to generate post',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
       },
       { status: 500 }
     )
