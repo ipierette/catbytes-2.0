@@ -5,6 +5,8 @@ All notable changes to the CatBytes project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+**🌐 Languages:** [🇧🇷 Português](./CHANGELOG.pt-BR.md) | [🇺🇸 English](./CHANGELOG.md)
+
 ---
 
 ## [2.0.0] - 2025-11-03 🚀
@@ -83,7 +85,7 @@ This version represents a **complete rewrite** of the CatBytes portfolio, migrat
 - **Styling**: Custom CSS modules → Tailwind CSS 3.4 with custom theme
 - **State Management**: DOM manipulation → React hooks + Framer Motion
 - **Routing**: Single page → App Router with nested layouts
-- **API**: Netlify Functions → Next.js API Routes (Edge Runtime)
+- **API**: Serverless Functions → Next.js API Routes (Edge Runtime)
 - **Animations**: ScrollReveal → Framer Motion (page transitions, gestures)
 - **Icons**: Font Awesome → Lucide React (tree-shakeable)
 
@@ -235,7 +237,7 @@ If you're upgrading from CatBytes 1.x:
 
 ### 🎯 Breaking Changes
 
-- Netlify Functions removed (replaced with Next.js API Routes)
+- Serverless Functions removed (replaced with Next.js API Routes)
 - CSS modules replaced with Tailwind utility classes
 - Static HTML removed (now fully React-based)
 - Old theme switcher incompatible (use new next-themes)
@@ -255,7 +257,7 @@ If you're upgrading from CatBytes 1.x:
 
 ### Fixed
 - Blocking empty or whitespace-only message submission
-- Email validation via Netlify Functions:
+- Email validation via API Routes:
   - Format checking and invisible character cleanup
   - Blocking known disposable domains
   - Auto-correction for common typos (`gmil.com` → `gmail.com`, etc.)

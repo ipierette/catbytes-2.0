@@ -1,10 +1,13 @@
-# <img src="./public/favicon-32x32.png" width="28" height="28" alt="CatBytes Logo" /> CatBytes 2.0 — Professional Full Stack Portfolio
-
 <div align="center">
+
+<img src="./public/images/catbytes-logo.png" width="150" alt="CatBytes Logo" />
+<img src="./public/images/logo-desenvolvedora.png" width="150" alt="Developer Logo" />
+
+# CatBytes 2.0 — Professional Full Stack Portfolio
 
 ### [🇧🇷 Português](./README.md) | 🇺🇸 English
 
-[![Deploy Status](https://img.shields.io/badge/deploy-vercel-black?style=for-the-badge&logo=vercel)](https://catbytes.site)
+[![Deploy Status](https://img.shields.io/badge/deploy-live-success?style=for-the-badge&logo=vercel)](https://catbytes.site)
 [![Version](https://img.shields.io/badge/version-2.0.0-purple?style=for-the-badge)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-Custom-blue?style=for-the-badge)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
@@ -63,9 +66,9 @@ Version 2.0 represents a **complete transformation** of the original project:
 | **Styling** | CSS Modules | Tailwind CSS 3.4 |
 | **Animations** | ScrollReveal | Framer Motion |
 | **Routing** | Single Page | App Router + i18n |
-| **API** | Netlify Functions | Next.js API Routes (Edge) |
+| **API** | Serverless Functions | Next.js API Routes (Edge) |
 | **Icons** | Font Awesome | Lucide React |
-| **Deploy** | Netlify | Vercel (optimized) |
+| **Deploy** | Vercel | Vercel (optimized) |
 
 ### 🎉 Main New Features
 
@@ -684,71 +687,7 @@ Creating digital experiences that unite creativity, technology and innovation.
 
 ---
 
-## 🚀 About the Project
 
-**CatBytes** is a creative portfolio that blends **modern design**, **clean code**, and **solutions powered by artificial intelligence and automation**.  
-Inspired by the world of cats 🐱 and programming, the project highlights not only technical skills but also creativity and personality.
-
----
-
-## ✨ Features
-
-- 🎨 Responsive layout (desktop and mobile)  
-- 🌙 Light/Dark mode  
-- ⚡ Smooth animations with ScrollReveal and JavaScript interactions  
-- 🧩 Modular structure (separated HTML, CSS, JS)  
-- 📂 Well-structured folders for scalable maintenance  
-- 🤖 Features with **Netlify Functions** and **Google Gemini AI**  
-- 📊 Interactive project gallery  
-- 🐾 Creative extras (badges, tooltips, mock IA tabs)  
-
----
-
-## 📸 Preview
-
-<details>
-  <summary>Clique para ver o preview da versão Desktop e Mobile</summary>
-
-  ### Versão Desktop
-  <img src="./images/desktop-catbytes.webp" alt="Preview Desktop">
-
-  ### Versão Mobile
-  <img src="./images/mobile-catbytes.webp" alt="Preview Mobile" width="400">
-</details>
-
----
-
-## 📂 Project Structure
-
-Organized for scalability and maintainability:
-
-```
-css/          → modular styles (reset, responsive, animations, tailwind, etc.)
-images/       → optimized assets and favicon
-js/           → JS modules separated by functionality
-netlify/      → serverless functions (adopt-cat, identify-cat, generate-ad)
-test/         → automated tests (Vitest/Playwright in future)
-```
-
----
-
-## ⚡ Technologies
-
-- **Semantic HTML5**  
-- **CSS3** (Flexbox, Grid, Tailwind, modular CSS)  
-- **JavaScript (ES6+)** modular  
-- **Netlify Functions** + **Google Gemini AI**  
-- **Git/GitHub** versioning  
-- **Automation** with n8n (Docker on OCI in future)  
-
----
-
-## 📖 Additional Docs
-
-- [CHANGELOG](./CHANGELOG.md)  
-- License available at [LICENSE](./LICENSE)  
-
----
 
 ## 👩‍💻 Author
 
