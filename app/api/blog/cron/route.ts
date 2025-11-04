@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // =====================================================
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
+export const maxDuration = 300 // 5 minutes for AI generation + translation + emails
 
 export async function GET(request: NextRequest) {
   try {
@@ -71,32 +71,8 @@ export async function GET(request: NextRequest) {
 
     console.log('[Cron] Post generated successfully:', result.post.title)
 
-    // ====== SEND TO NEWSLETTER SUBSCRIBERS ======
-    try {
-      console.log('[Cron] Sending post to newsletter subscribers...')
-
-      const sendNewsletterUrl = `${baseUrl}/api/newsletter/send-post`
-      const newsletterResponse = await fetch(sendNewsletterUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cronSecret}`,
-        },
-        body: JSON.stringify({
-          blogPostId: result.post.id,
-        }),
-      })
-
-      if (newsletterResponse.ok) {
-        const newsletterResult = await newsletterResponse.json()
-        console.log('[Cron] Newsletter sent:', newsletterResult)
-      } else {
-        console.error('[Cron] Newsletter send failed:', await newsletterResponse.text())
-      }
-    } catch (newsletterError) {
-      // Don't fail the entire cron if newsletter fails
-      console.error('[Cron] Newsletter error (non-critical):', newsletterError)
-    }
+    // NOTE: Newsletter is already sent by the generate API
+    // No need to send it again here
 
     // ====== SUCCESS RESPONSE ======
     return NextResponse.json({
