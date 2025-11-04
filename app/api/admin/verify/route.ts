@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
       authenticated: true,
       role: 'admin',
     })
-  } catch (error) {
+  } catch {
+    // Token invalid or expired
     return NextResponse.json(
       { authenticated: false },
       { status: 401 }

@@ -62,7 +62,8 @@ export async function DELETE(
       }
     }
 
-    // TODO: Delete image from Supabase Storage (optional)
+    // Note: Image deletion from Supabase Storage is handled separately if needed
+    // Images can be reused across posts, so we keep them for now
 
     console.log('[Admin] Post deleted successfully:', id)
 
