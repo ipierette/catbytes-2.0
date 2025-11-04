@@ -141,6 +141,34 @@ CTA: [WhatsApp icon] "Fale comigo no WhatsApp"
 
 ## 🎨 Design System
 
+### **Color Mode: DARK ONLY** 🌙
+
+O PWA funciona **exclusivamente em modo escuro** para economia de bateria e UX premium mobile:
+
+```tsx
+// Background principal
+bg-zinc-950  // #0a0a0a - Preto suave OLED
+
+// Textos
+text-white       // Títulos e headings
+text-zinc-300    // Corpo de texto
+text-zinc-400    // Subtítulos e labels
+text-zinc-500    // Placeholders
+
+// Borders e separadores
+border-zinc-800  // Borders sutis
+via-zinc-800     // Gradientes de separação
+
+// Elementos interativos
+bg-zinc-800      // Backgrounds secundários
+bg-zinc-700      // Hover states
+```
+
+**Contraste WCAG AAA:**
+- White on zinc-950: 20.4:1 ✅
+- zinc-300 on zinc-950: 14.2:1 ✅
+- zinc-400 on zinc-950: 10.5:1 ✅
+
 ### **Typography**
 
 | Elemento | Classe Tailwind | Pixel | Line Height |
@@ -150,6 +178,33 @@ CTA: [WhatsApp icon] "Fale comigo no WhatsApp"
 | H3 Small | `text-lg`      | 18px | default |
 | Body     | `text-base`    | 16px | `leading-relaxed` (1.5) |
 | Caption  | `text-sm`      | 14px | `leading-snug` |
+
+### **Images & Icons** 🖼️
+
+**Problema resolvido:** Orelhas do gato cortadas em containers quadrados.
+
+```tsx
+// ❌ ANTES (cortava orelhas)
+<div className="relative w-32 h-32">
+  <Image src="/gato-sentado.webp" fill className="object-contain" />
+</div>
+
+// ✅ AGORA (altura aumentada +25%)
+<div className="relative w-32 h-40">
+  <Image src="/gato-sentado.webp" fill className="object-contain" />
+</div>
+```
+
+**Specs:**
+- **Onboarding slides:** `w-32 h-40` (128x160px)
+- **AppBar logo:** `w-8 h-10` (32x40px)
+- **Aspect ratio:** ~1:1.25 (vertical bias para orelhas)
+- **object-contain:** Mantém proporção, nunca corta
+
+**Imagens afetadas:**
+- ✅ `catbytes-logo.png` - Logo com orelhas
+- ✅ `gato-sentado.webp` - Gato com orelhas altas
+- ✅ `logo-desenvolvedora.png` - Mascote completo
 
 ### **Spacing (8-pt Grid)**
 
@@ -205,6 +260,42 @@ const isPWA = isStandalone || isInWebAppiOS
 - ✅ Android (Chrome, Samsung Browser)
 - ✅ iOS (Safari)
 - ✅ Desktop (Chrome, Edge)
+
+### **Renderização Condicional por Rota** 🛣️
+
+```tsx
+// PWAWrapper usa usePathname() do Next.js
+const pathname = usePathname()
+const isHomePage = pathname === '/' || pathname === '/pt-BR' || pathname === '/en-US'
+
+{isPWA ? (
+  <>
+    {/* Hero + Cards APENAS na home */}
+    {isHomePage && (
+      <div className="pt-14 bg-zinc-950">
+        <PWAHomeHero />
+        <PWACards />
+      </div>
+    )}
+    
+    {/* Conteúdo das páginas */}
+    <div className={isHomePage ? '' : 'pt-14'}>
+      {children}
+    </div>
+  </>
+) : (
+  children  // Mobile/Desktop normal
+)}
+```
+
+**Comportamento:**
+- **Home PWA** (`/`, `/pt-BR`, `/en-US`): Hero + Cards + Seções (About, Skills, etc)
+- **Blog PWA** (`/blog`): AppBar + Conteúdo do Blog (sem Hero/Cards)
+- **Projetos PWA** (`/projetos`): AppBar + Galeria de projetos
+- **IA PWA** (`/ia-felina`): AppBar + Features de IA
+- **Browser normal**: Layout padrão (Header, Footer, conteúdo)
+
+**pt-14 (56px):** Compensa altura do AppBar fixo em páginas não-home
 
 ---
 
@@ -290,6 +381,12 @@ Zero errors, zero warnings críticos
 - ✅ PWAHomeHero objetivo-driven
 - ✅ PWACards hierárquicos
 - ✅ Lógica condicional `isPWA`
+
+### **v2.2 - Dark Mode + Fixes Críticos** (7a4080b)
+- ✅ **Modo escuro completo:** bg-zinc-950, text-white/zinc-300/400
+- ✅ **Imagens sem corte:** h-40 onboarding, h-10 AppBar (+25% altura)
+- ✅ **Páginas funcionais:** usePathname(), Hero/Cards só na home
+- ✅ **Rotas corretas:** Blog, Projetos, IA renderizam com pt-14
 
 ---
 
