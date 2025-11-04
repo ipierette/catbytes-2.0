@@ -13,7 +13,7 @@ import { translatePostToEnglish, estimateTranslationCost } from '@/lib/translati
 // =====================================================
 
 export const runtime = 'nodejs'
-export const maxDuration = 60 // 60 seconds for image generation
+export const maxDuration = 300 // 5 minutes for AI generation + translation + emails
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,

@@ -61,8 +61,10 @@ export async function GET(request: NextRequest) {
       // Try to parse JSON error
       try {
         const error = await response.json()
-        throw new Error(`Generation failed: ${error.details || error.error}`)
+        console.error('[Cron] Generate API error response:', JSON.stringify(error, null, 2))
+        throw new Error(`Generation failed: ${error.details || error.error || JSON.stringify(error)}`)
       } catch (parseError) {
+        console.error('[Cron] Could not parse error response:', parseError)
         throw new Error(`Generation failed with status ${response.status}`)
       }
     }
