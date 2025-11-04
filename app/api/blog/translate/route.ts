@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       tags: originalPost.tags || [],
       author: originalPost.author,
       ai_model: originalPost.ai_model,
-      generation_prompt: originalPost.generation_prompt,
+      generation_prompt: originalPost.generation_prompt || undefined,
       locale: 'en-US',
       translated_from: originalPost.id,
     }
