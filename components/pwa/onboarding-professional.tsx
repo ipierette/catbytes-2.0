@@ -101,11 +101,11 @@ export function OnboardingProfessional({ onComplete }: OnboardingProfessionalPro
   const slide = slides[currentSlide]
 
   return (
-    <div className="fixed inset-0 z-50 bg-white dark:bg-zinc-950 flex flex-col">
+    <div className="fixed inset-0 z-50 bg-zinc-950 flex flex-col">
       {/* Skip Button - Ghost style no topo direito */}
       <button
         onClick={handleSkip}
-        className="absolute top-4 right-4 z-10 px-4 py-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 opacity-70 hover:opacity-100 transition-all"
+        className="absolute top-4 right-4 z-10 px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-100 opacity-70 hover:opacity-100 transition-all"
         style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
       >
         Pular
@@ -139,13 +139,13 @@ export function OnboardingProfessional({ onComplete }: OnboardingProfessionalPro
                 {slide.icon}
               </motion.div>
 
-              {/* Image - sem corte, altura controlada */}
+              {/* Image - altura aumentada para não cortar orelhas */}
               {slide.image && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="relative w-32 h-32 mb-6"
+                  className="relative w-32 h-40 mb-6"
                 >
                   <Image
                     src={slide.image}
@@ -158,12 +158,12 @@ export function OnboardingProfessional({ onComplete }: OnboardingProfessionalPro
               )}
             </div>
 
-            {/* Título - H1 28-32px, máx 2 linhas */}
+            {/* Título - H1 28-32px */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white text-center mb-3"
+              className="text-3xl font-semibold tracking-tight text-white text-center mb-3"
             >
               {slide.title}
             </motion.h1>
@@ -173,7 +173,7 @@ export function OnboardingProfessional({ onComplete }: OnboardingProfessionalPro
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="text-base text-zinc-600 dark:text-zinc-400 text-center mb-6 leading-relaxed"
+              className="text-base text-zinc-400 text-center mb-6 leading-relaxed"
             >
               {slide.subtitle}
             </motion.p>
@@ -198,7 +198,7 @@ export function OnboardingProfessional({ onComplete }: OnboardingProfessionalPro
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <span className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                  <span className="text-sm text-zinc-300 leading-relaxed">
                     {bullet}
                   </span>
                 </motion.li>
@@ -210,7 +210,7 @@ export function OnboardingProfessional({ onComplete }: OnboardingProfessionalPro
 
       {/* Footer fixo - Dots + CTA sempre na mesma posição */}
       <div 
-        className="bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 px-5 pt-4 pb-4"
+        className="bg-zinc-950 border-t border-zinc-800 px-5 pt-4 pb-4"
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
         {/* Dots de progresso */}
@@ -222,7 +222,7 @@ export function OnboardingProfessional({ onComplete }: OnboardingProfessionalPro
               className={`h-2 rounded-full transition-all duration-300 ${
                 index === currentSlide
                   ? 'w-8 bg-violet-600'
-                  : 'w-2 bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-400 dark:hover:bg-zinc-600'
+                  : 'w-2 bg-zinc-700 hover:bg-zinc-600'
               }`}
               aria-label={`Ir para slide ${index + 1}`}
               aria-current={index === currentSlide ? 'true' : 'false'}

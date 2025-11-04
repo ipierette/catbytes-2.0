@@ -20,15 +20,15 @@ export function PWAHomeHero() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="px-5 pt-20 pb-12"
+      className="px-5 pt-20 pb-12 bg-zinc-950"
     >
       {/* Headline - Objetivo claro */}
-      <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-white mb-4 leading-tight">
+      <h1 className="text-3xl font-semibold tracking-tight text-white mb-4 leading-tight">
         Crio PWAs e automações de IA que geram resultado
       </h1>
 
       {/* Subtitle - Stack */}
-      <p className="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed mb-8">
+      <p className="text-base text-zinc-400 leading-relaxed mb-8">
         Desenvolvimento full-stack especializado em aplicações web modernas e inteligência artificial
       </p>
 
@@ -42,10 +42,10 @@ export function PWAHomeHero() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
-              className={`flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r ${tech.color} bg-opacity-10 backdrop-blur-sm`}
+              className={`flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r ${tech.color} bg-opacity-10 backdrop-blur-sm border border-zinc-800`}
             >
-              <Icon className="w-4 h-4 text-zinc-700 dark:text-zinc-300" />
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              <Icon className="w-4 h-4 text-zinc-300" />
+              <span className="text-sm font-medium text-zinc-300">
                 {tech.name}
               </span>
             </motion.div>
@@ -67,7 +67,7 @@ export function PWAHomeHero() {
       </motion.a>
 
       {/* Separator */}
-      <div className="mt-12 mb-8 h-px bg-gradient-to-r from-transparent via-zinc-200 dark:via-zinc-800 to-transparent" />
+      <div className="mt-12 mb-8 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
     </motion.div>
   )
 }

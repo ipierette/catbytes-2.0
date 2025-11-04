@@ -58,9 +58,9 @@ export function PWAAppBar() {
           className="flex items-center justify-between h-14 px-5"
           style={{ paddingTop: 'env(safe-area-inset-top)' }}
         >
-          {/* Logo */}
+          {/* Logo - altura aumentada para não cortar orelhas */}
           <a href="/" className="flex items-center gap-2">
-            <div className="relative w-8 h-8">
+            <div className="relative w-8 h-10">
               <Image
                 src="/images/catbytes-logo.png"
                 alt="CatBytes"

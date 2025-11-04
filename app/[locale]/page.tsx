@@ -9,39 +9,11 @@ import { Curiosities } from '@/components/sections/curiosities'
 import { AIFeatures } from '@/components/sections/ai-features'
 import { RecentPosts } from '@/components/sections/recent-posts'
 import { Contact } from '@/components/sections/contact'
-import { MobileDashboard } from '@/components/sections/mobile-dashboard'
 
 export default function Home() {
-  const [isMobileView, setIsMobileView] = useState(false)
-  const [isStandalone, setIsStandalone] = useState(false)
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobileView(window.innerWidth < 768)
-    }
-
-    const checkStandalone = () => {
-      const isPWA =
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone ||
-        document.referrer.includes('android-app://')
-      setIsStandalone(isPWA)
-    }
-
-    checkMobile()
-    checkStandalone()
-
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  // Mobile PWA: Dashboard com destaques
-  // Desktop ou Mobile Browser: Landing page completa
-  if (isMobileView && isStandalone) {
-    return <MobileDashboard />
-  }
-
-  // Landing page tradicional para desktop e mobile web
+  // O PWAWrapper agora gerencia toda a lógica de PWA
+  // Esta página renderiza apenas o conteúdo padrão
+  
   return (
     <>
       <Hero />

@@ -42,7 +42,7 @@ export function PWACards() {
   const t = useTranslations()
 
   return (
-    <div className="px-5 pb-12 space-y-4">
+    <div className="px-5 pb-12 bg-zinc-950 space-y-4">
       {/* Card Principal - Projetos (Maior) */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
