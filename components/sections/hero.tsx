@@ -127,125 +127,114 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* Mobile Layout - Professional Design */}
-      <div className="md:hidden w-full h-dvh flex items-center justify-center px-6 py-20 z-10 relative">
-        {/* Main Content Container */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="w-full max-w-md flex flex-col space-y-6"
-        >
-          {/* Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-2xl font-comfortaa font-bold leading-tight text-gray-900 dark:text-white"
-          >
-            {t('title')}
-            <br />
-            <span className="bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent text-3xl block mt-1">
-              {t('brandName')}
-            </span>
-          </motion.h1>
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed font-medium"
-          >
-            {t('subtitle')}
-          </motion.p>
-
-          {/* Typing Animation - Mobile */}
+      {/* Mobile Layout - Professional Design (Like Image 3) */}
+      <div className="md:hidden w-full min-h-screen flex flex-col justify-center px-6 py-20 z-10 relative overflow-hidden">
+        {/* Background subtle gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-white to-pink-50/50 dark:from-gray-900 dark:via-slate-900 dark:to-purple-950/50 -z-10" />
+        
+        {/* Content + Cat Container */}
+        <div className="relative w-full max-w-md mx-auto">
+          {/* Text Content - Left Aligned */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="text-lg font-bold"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
+            className="relative z-10 space-y-4 pr-32"
           >
-            <TypeAnimation
-              sequence={[
-                t('typing.creativity'),
-                2000,
-                t('typing.code'),
-                2000,
-                t('typing.ai'),
-                2000,
-                t('typing.passion'),
-                2000,
-              ]}
-              wrapper="span"
-              speed={50}
-              repeat={Infinity}
-              className="bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent"
-            />
+            {/* Title */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.6 }}
+              className="text-4xl font-bold leading-tight text-gray-900 dark:text-white"
+            >
+              Bem-vindo ao
+              <br />
+              Mundo
+              <br />
+              <span className="bg-gradient-to-r from-green-500 via-pink-500 to-blue-500 bg-clip-text text-transparent">
+                CatBytes
+              </span>
+            </motion.h1>
+
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed max-w-xs"
+            >
+              {t('subtitle')}
+            </motion.p>
+
+            {/* CTA Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+            >
+              <button className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 group">
+                Conheça meus projetos miau 🐾
+                <motion.span
+                  initial={{ x: 0 }}
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  →
+                </motion.span>
+              </button>
+            </motion.div>
           </motion.div>
 
-          {/* GitHub Stats - Mobile Grid */}
+          {/* Cat Image - Positioned at Right, Sitting on Floor */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
-            className="grid grid-cols-2 gap-3"
+            initial={{ opacity: 0, scale: 0.8, x: 50 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{
+              duration: 0.8,
+              delay: 0.3,
+              type: "spring",
+              stiffness: 150,
+              damping: 12
+            }}
+            className="absolute -right-8 -bottom-12 z-0"
+            onTouchStart={() => setShowCatMessage(true)}
+            onTouchEnd={() => setTimeout(() => setShowCatMessage(false), 2000)}
           >
-            <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-lg">
-              <p className="text-lg font-bold text-catbytes-purple dark:text-catbytes-pink">250+</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Commits</p>
+            <div className="relative">
+              <Image
+                src="/images/gato-sentado.webp"
+                alt="Axel - Mascote CatBytes"
+                width={240}
+                height={240}
+                className="w-56 h-56 object-contain drop-shadow-2xl"
+                priority
+              />
+              
+              {/* Subtle glow under cat */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-8 bg-gradient-to-r from-purple-300/30 via-pink-300/30 to-purple-300/30 rounded-full blur-2xl" />
             </div>
-            <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-xl p-3 border border-gray-200 dark:border-gray-700 shadow-lg">
-              <p className="text-lg font-bold text-catbytes-blue">18</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Repositories</p>
-            </div>
+
+            {/* Cat Speech Bubble - Touch/Tap */}
+            <AnimatePresence>
+              {showCatMessage && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                  transition={{ 
+                    duration: 0.3,
+                    ease: "easeOut"
+                  }}
+                  className="absolute -top-20 right-4 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-3 rounded-2xl shadow-2xl text-xs font-medium border-2 border-purple-200 dark:border-purple-700 max-w-[160px]"
+                >
+                  {t('catMessage')}
+                  <div className="absolute bottom-0 right-8 translate-y-full w-0 h-0 border-l-[8px] border-r-[8px] border-t-[12px] border-transparent border-t-white dark:border-t-gray-800" />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
-        </motion.div>
-
-        {/* Decorative Cat - Positioned at Bottom Right (Sitting on Floor) */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{
-            duration: 0.8,
-            delay: 0.5,
-            type: "spring",
-            stiffness: 200,
-            damping: 15
-          }}
-          className="absolute bottom-0 right-2 z-20 pointer-events-auto"
-          onTouchStart={() => setShowCatMessage(true)}
-          onTouchEnd={() => setShowCatMessage(false)}
-        >
-          <div className="relative w-[128px] h-[128px] opacity-90 hover:opacity-100 transition-opacity">
-            <Image
-              src="/images/gato-sentado.webp"
-              alt="Axel - Mascote CatBytes"
-              width={128}
-              height={128}
-              className="w-full h-full object-contain drop-shadow-xl"
-              priority
-            />
-            {/* Decorative glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-catbytes-purple/20 via-catbytes-pink/20 to-catbytes-blue/20 rounded-full blur-xl -z-10 animate-pulse"></div>
-          </div>
-
-          {/* Cat Speech Bubble - Mobile */}
-          <AnimatePresence>
-            {showCatMessage && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: -10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.8, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 text-gray-800 dark:text-white px-4 py-3 rounded-b-2xl shadow-2xl text-xs border-b-2 border-catbytes-purple dark:border-catbytes-pink z-[1050] text-center mx-auto"
-              >
-                <p className="font-medium">{t('catMessage')}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+        </div>
       </div>
 
       {/* Scroll Indicator */}

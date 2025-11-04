@@ -96,106 +96,118 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
 
   return (
     <div className="app-shell">
-      {/* App Header - Native Style */}
-      <header className="app-header">
-        <div className="app-header-content">
-          {pathname !== `/${locale}` && pathname !== '/' ? (
-            <button 
-              onClick={() => globalThis.history?.back()}
-              className="app-header-button"
-              aria-label="Voltar"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-          ) : (
-            <button 
-              onClick={() => setShowMenu(true)}
-              className="app-header-button"
-              aria-label="Menu"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-          )}
-
-          <div className="app-header-title">
-            <span className="app-logo-text">Cat</span>
-            <span className="app-logo-highlight">Bytes</span>
+      {/* App Header - Professional Minimal */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50">
+        <div className="flex items-center justify-between px-4 h-14">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <div className="relative w-8 h-8 rounded-lg overflow-hidden">
+              <img
+                src="/favicon-192x192.png"
+                alt="CatBytes"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              CatBytes
+            </span>
           </div>
 
-          <div className="app-header-actions">
+          {/* Actions */}
+          <div className="flex items-center gap-1">
             {canShare && (
               <button 
                 onClick={handleShare}
-                className="app-header-button"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 aria-label={locale === 'pt-BR' ? 'Compartilhar' : 'Share'}
               >
-                <Share2 className="w-5 h-5" />
+                <Share2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
               </button>
             )}
             <button 
-              className="app-header-button"
-              aria-label="Mais opções"
+              onClick={() => setShowMenu(true)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Menu"
             >
-              <MoreVertical className="w-5 h-5" />
+              <Menu className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </button>
           </div>
         </div>
       </header>
 
       {/* Main Content with Page Transitions */}
-      <main className="app-content">
+      <main className="pt-14 pb-20 min-h-screen bg-gray-50 dark:bg-gray-950">
         <AnimatePresence mode="wait">
           <motion.div
             key={pathname}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
             transition={{ 
-              type: 'spring',
-              stiffness: 380,
-              damping: 30
+              duration: 0.2,
+              ease: 'easeInOut'
             }}
-            className="app-page"
+            className="w-full"
           >
             {children}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      {/* Bottom Navigation - Native Style */}
-      <nav className="app-bottom-nav">
-        {navigation.map((item) => {
-          const Icon = item.icon
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`app-nav-item ${item.active ? 'active' : ''}`}
-            >
-              <motion.div
-                whileTap={{ scale: 0.9 }}
-                className="app-nav-icon-wrapper"
+      {/* Bottom Navigation - iOS Style Professional */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-800/50 pb-safe">
+        <div className="flex items-center justify-around px-2 h-16">
+          {navigation.map((item) => {
+            const Icon = item.icon
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="flex-1 flex flex-col items-center justify-center gap-1 py-2 relative"
               >
-                <Icon className="app-nav-icon" />
-                {item.active && (
-                  <motion.div
-                    layoutId="activeIndicator"
-                    className="app-nav-indicator"
-                    transition={{ 
-                      type: 'spring',
-                      stiffness: 380,
-                      damping: 30
-                    }}
+                <motion.div
+                  whileTap={{ scale: 0.85 }}
+                  className="relative"
+                >
+                  <Icon 
+                    className={`w-6 h-6 transition-colors ${
+                      item.active 
+                        ? 'text-purple-600 dark:text-purple-400' 
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}
+                    strokeWidth={item.active ? 2.5 : 2}
                   />
-                )}
-              </motion.div>
-              <span className="app-nav-label">{item.name}</span>
-            </Link>
-          )
-        })}
+                  
+                  {/* Active indicator dot */}
+                  {item.active && (
+                    <motion.div
+                      layoutId="activeDot"
+                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-purple-600 dark:bg-purple-400"
+                      transition={{ 
+                        type: 'spring',
+                        stiffness: 500,
+                        damping: 30
+                      }}
+                    />
+                  )}
+                </motion.div>
+                
+                <span 
+                  className={`text-xs font-medium transition-colors ${
+                    item.active 
+                      ? 'text-purple-600 dark:text-purple-400' 
+                      : 'text-gray-600 dark:text-gray-400'
+                  }`}
+                >
+                  {item.name}
+                </span>
+              </Link>
+            )
+          })}
+        </div>
       </nav>
 
-      {/* Side Menu Drawer */}
+      {/* Side Menu Drawer - Modern Design */}
       <AnimatePresence>
         {showMenu && (
           <>
@@ -203,7 +215,7 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="app-drawer-overlay"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]"
               onClick={() => setShowMenu(false)}
             />
             <motion.div
@@ -212,66 +224,88 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
               exit={{ x: '-100%' }}
               transition={{ 
                 type: 'spring',
-                stiffness: 300,
-                damping: 30
+                damping: 25,
+                stiffness: 300
               }}
-              className="app-drawer"
+              className="fixed left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white dark:bg-gray-900 z-[70] shadow-2xl overflow-y-auto"
             >
-              <div className="app-drawer-header">
-                <div className="app-drawer-logo">
-                  <span className="text-2xl">🐱</span>
-                  <div>
-                    <h2 className="text-xl font-comfortaa font-bold text-white">
-                      CatBytes
-                    </h2>
-                    <p className="text-xs text-purple-200">
-                      Tecnologia Felina
-                    </p>
+              {/* Drawer Header with Profile */}
+              <div className="relative h-40 bg-gradient-to-br from-purple-600 via-pink-600 to-purple-700 overflow-hidden">
+                <div className="absolute inset-0 bg-black/10" />
+                <div className="relative p-6 flex flex-col justify-end h-full">
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-14 h-14 rounded-full overflow-hidden ring-4 ring-white/30 shadow-xl">
+                      <img
+                        src="/favicon-192x192.png"
+                        alt="CatBytes"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-white">
+                        CatBytes
+                      </h2>
+                      <p className="text-sm text-purple-100">
+                        Tecnologia com estilo felino 🐱
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="app-drawer-content">
+              {/* Navigation Links */}
+              <div className="p-4 space-y-1">
                 <Link 
                   href={`/${locale}`}
-                  className="app-drawer-item"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
                   onClick={() => setShowMenu(false)}
                 >
-                  <Home className="w-5 h-5" />
-                  <span>Home</span>
+                  <Home className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+                  <span className="font-medium text-gray-900 dark:text-white">Home</span>
                 </Link>
+                
                 <Link 
                   href={`/${locale}/projetos`}
-                  className="app-drawer-item"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
                   onClick={() => setShowMenu(false)}
                 >
-                  <BookOpen className="w-5 h-5" />
-                  <span>Projetos</span>
+                  <BookOpen className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+                  <span className="font-medium text-gray-900 dark:text-white">Projetos</span>
                 </Link>
+                
                 <Link 
                   href={`/${locale}/blog`}
-                  className="app-drawer-item"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
                   onClick={() => setShowMenu(false)}
                 >
-                  <Sparkles className="w-5 h-5" />
-                  <span>Blog</span>
+                  <Sparkles className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+                  <span className="font-medium text-gray-900 dark:text-white">Blog</span>
                 </Link>
+                
                 <Link 
                   href={`/${locale}/ia-felina`}
-                  className="app-drawer-item"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
                   onClick={() => setShowMenu(false)}
                 >
-                  <Sparkles className="w-5 h-5" />
-                  <span>IA Felina</span>
+                  <Sparkles className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+                  <span className="font-medium text-gray-900 dark:text-white">IA Felina</span>
                 </Link>
+                
                 <Link 
                   href={`/${locale}/sobre`}
-                  className="app-drawer-item"
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
                   onClick={() => setShowMenu(false)}
                 >
-                  <User className="w-5 h-5" />
-                  <span>Sobre</span>
+                  <User className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+                  <span className="font-medium text-gray-900 dark:text-white">Sobre</span>
                 </Link>
+              </div>
+
+              {/* Footer Info */}
+              <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                  v2.0.0 · Made with 💜 by Izadora
+                </p>
               </div>
             </motion.div>
           </>
