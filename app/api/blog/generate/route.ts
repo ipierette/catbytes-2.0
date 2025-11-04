@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { Resend } from 'resend'
-import { db, generateSlug, supabaseAdmin } from '@/lib/supabase'
+import { db, generateSlug, supabaseAdmin, uploadImageFromUrl } from '@/lib/supabase'
 import { SEO_KEYWORDS, BLOG_TOPICS, BLOG_CATEGORIES } from '@/types/blog'
 import type { AIGeneratedPost, BlogPostInsert } from '@/types/blog'
 import { getNewPostEmailHTML } from '@/lib/email-templates'
@@ -133,15 +133,27 @@ No text in image. Aspect ratio: 16:9. High quality.`
       style: 'vivid',
     })
 
-    const coverImageUrl = imageResponse.data?.[0]?.url
-    if (!coverImageUrl) {
+    const dallEImageUrl = imageResponse.data?.[0]?.url
+    if (!dallEImageUrl) {
       throw new Error('No image generated from DALL-E')
     }
 
-    console.log('[Generate] Image generated:', coverImageUrl)
+    console.log('[Generate] DALL-E image generated:', dallEImageUrl)
+
+    // ====== STEP 2.5: Upload image to Supabase Storage ======
+    console.log('[Generate] Uploading image to Supabase Storage...')
+    const slug = generateSlug(generatedPost.title)
+
+    let coverImageUrl: string
+    try {
+      coverImageUrl = await uploadImageFromUrl(dallEImageUrl, slug)
+      console.log('[Generate] Image uploaded to Supabase:', coverImageUrl)
+    } catch (uploadError) {
+      console.error('[Generate] Failed to upload to Supabase, using DALL-E URL as fallback:', uploadError)
+      coverImageUrl = dallEImageUrl // Fallback to DALL-E URL if upload fails
+    }
 
     // ====== STEP 3: Create post in database ======
-    const slug = generateSlug(generatedPost.title)
 
     const postData: BlogPostInsert = {
       title: generatedPost.title,
