@@ -4,10 +4,12 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useLocale } from 'next-intl'
 
 export function PWAAppBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { scrollY } = useScroll()
+  const locale = useLocale()
   
   // Fade to solid após 24px de scroll
   const backgroundColor = useTransform(
@@ -35,12 +37,14 @@ export function PWAAppBar() {
   }, [isMenuOpen])
 
   const menuItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Sobre', href: '#about' },
-    { label: 'Projetos', href: '/projetos' },
-    { label: 'Skills', href: '#skills' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Contato', href: '#contact' }
+    { label: 'Home', href: `/${locale}` },
+    { label: 'Sobre', href: `/${locale}#about` },
+    { label: 'Skills', href: `/${locale}#skills` },
+    { label: 'Projetos', href: `/${locale}/projetos` },
+    { label: 'Curiosidades', href: `/${locale}#curiosities` },
+    { label: 'IA Felina', href: `/${locale}/ia-felina` },
+    { label: 'Blog', href: `/${locale}/blog` },
+    { label: 'Contato', href: `/${locale}#contact` }
   ]
 
   return (
