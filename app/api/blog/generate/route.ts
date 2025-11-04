@@ -183,58 +183,11 @@ No text in image. Aspect ratio: 16:9. High quality.`
     const createdPost = await db.createPost(postData)
     console.log('[Generate] Post created:', createdPost.id)
 
-    // ====== STEP 3.5: Translate post to English ======
+    // ====== STEP 3.5: Translate post to English (DISABLED FOR NOW) ======
+    // Translation can be enabled later via a separate API endpoint if needed
     let translatedPost: any = null
-    try {
-      console.log('[Generate] Translating post to English...')
-      const translationStartTime = Date.now()
-      
-      const translatedContent = await translatePostToEnglish({
-        title: generatedPost.title,
-        content: generatedPost.content,
-        excerpt: generatedPost.excerpt,
-        category: selectedCategory
-      })
-
-      const translationTime = Date.now() - translationStartTime
-      const estimatedCost = estimateTranslationCost({
-        title: generatedPost.title,
-        content: generatedPost.content,
-        excerpt: generatedPost.excerpt,
-        category: selectedCategory
-      })
-      
-      console.log(`[Generate] Translation completed in ${translationTime}ms (estimated cost: $${estimatedCost.toFixed(4)})`)
-
-      // Create English version with same slug + "-en"
-      const enSlug = `${slug}-en`
-      
-      const enPostData: BlogPostInsert = {
-        title: translatedContent.title,
-        slug: enSlug,
-        excerpt: translatedContent.excerpt,
-        content: translatedContent.content,
-        cover_image_url: coverImageUrl, // Same image for both languages
-        keywords: selectedKeywords,
-        seo_title: translatedContent.title,
-        seo_description: translatedContent.excerpt,
-        published: true,
-        category: translatedContent.category,
-        tags: generatedPost.tags || [],
-        author: 'CatBytes AI',
-        ai_model: 'gpt-4o-mini',
-        generation_prompt: selectedTopic,
-        locale: 'en-US', // English version
-        translated_from: createdPost.id // Link to original PT post
-      }
-
-      translatedPost = await db.createPost(enPostData)
-      console.log('[Generate] English translation saved:', translatedPost.id)
-
-    } catch (translationError) {
-      console.error('[Generate] Translation error (continuing without translation):', translationError)
-      // Don't fail the entire generation if translation fails
-    }
+    
+    console.log('[Generate] Translation skipped - generating Portuguese only')
 
     // ====== STEP 4: Send to newsletter subscribers ======
     if (resend) {
