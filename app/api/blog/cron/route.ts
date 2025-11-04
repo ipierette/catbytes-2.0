@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        // Pass authorization to bypass Vercel Protection
+        'Authorization': authHeader || `Bearer ${cronSecret}`,
       },
       body: JSON.stringify({
         // Let the generate API choose random topic

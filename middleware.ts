@@ -5,5 +5,6 @@ export default createMiddleware(routing)
 
 export const config = {
   // Match only internationalized pathnames
-  matcher: ['/', '/(pt-BR|en-US)/:path*']
+  // Exclude API routes from i18n middleware
+  matcher: ['/', '/(pt-BR|en-US)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)']
 }
