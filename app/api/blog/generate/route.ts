@@ -324,24 +324,45 @@ No text in image. Aspect ratio: 16:9. High quality.`
     const generationTime = Date.now() - startTime
     console.error('[Generate] Error:', error)
     console.error('[Generate] Error type:', typeof error)
-    console.error('[Generate] Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)))
+    
+    let errorMessage = 'Unknown error'
+    let errorStack = undefined
+    
+    if (error instanceof Error) {
+      errorMessage = error.message
+      errorStack = error.stack
+    } else if (typeof error === 'object' && error !== null) {
+      try {
+        errorMessage = JSON.stringify(error, Object.getOwnPropertyNames(error))
+      } catch {
+        errorMessage = String(error)
+      }
+    } else {
+      errorMessage = String(error)
+    }
+    
+    console.error('[Generate] Error message:', errorMessage)
 
     // Log error to database
     if (supabaseAdmin) {
-      await supabaseAdmin.from('blog_generation_log').insert({
-        post_id: null,
-        status: 'error',
-        error_message: error instanceof Error ? error.message : String(error),
-        generation_time_ms: generationTime,
-      })
+      try {
+        await supabaseAdmin.from('blog_generation_log').insert({
+          post_id: null,
+          status: 'error',
+          error_message: errorMessage,
+          generation_time_ms: generationTime,
+        })
+      } catch (dbError) {
+        console.error('[Generate] Failed to log error to database:', dbError)
+      }
     }
 
     return NextResponse.json(
       {
         success: false,
         error: 'Failed to generate post',
-        details: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
+        details: errorMessage,
+        stack: errorStack,
       },
       { status: 500 }
     )
