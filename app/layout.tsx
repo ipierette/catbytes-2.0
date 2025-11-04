@@ -42,10 +42,12 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/images/favicon-32x32.png', sizes: 'any', type: 'image/png' },
+      { url: '/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
-    shortcut: '/images/favicon-32x32.png',
-    apple: '/images/favicon-32x32.png',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.json',
   themeColor: [

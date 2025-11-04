@@ -2,8 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { ExternalLink, FileText, Sparkles, Code2 } from 'lucide-react'
-import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 const cards = [
   {
@@ -13,7 +12,7 @@ const cards = [
     icon: Code2,
     href: '/projetos',
     gradient: 'from-violet-500 to-purple-600',
-    size: 'large', // Card principal, maior
+    size: 'large',
     elevation: 'shadow-xl shadow-violet-500/20'
   },
   {
@@ -23,7 +22,7 @@ const cards = [
     icon: FileText,
     href: '/blog',
     gradient: 'from-cyan-500 to-blue-600',
-    size: 'small', // Secundário, menor
+    size: 'small',
     elevation: 'shadow-lg shadow-cyan-500/10'
   },
   {
@@ -31,8 +30,8 @@ const cards = [
     title: 'IA Felina',
     description: 'Identifique raças, gere anúncios e mais',
     icon: Sparkles,
-    href: '/#ai-features',
-    gradient: 'from-amber-500 to-orange-600', // Cor exclusiva, não reciclada
+    href: '/ia-felina',
+    gradient: 'from-amber-500 to-orange-600',
     size: 'small',
     elevation: 'shadow-lg shadow-amber-500/10'
   }
@@ -40,6 +39,7 @@ const cards = [
 
 export function PWACards() {
   const t = useTranslations()
+  const locale = useLocale()
 
   return (
     <div className="px-5 pb-12 bg-zinc-950 space-y-4">
@@ -49,7 +49,7 @@ export function PWACards() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <Link href={cards[0].href} className="block">
+        <a href={`/${locale}${cards[0].href}`} className="block">
           <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -79,7 +79,7 @@ export function PWACards() {
             {/* Mini-mockup decorativo */}
             <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-white/5 rounded-xl rotate-12 backdrop-blur-sm" />
           </motion.div>
-        </Link>
+        </a>
       </motion.div>
 
       {/* Cards Secundários - Grid 2 colunas */}
@@ -90,7 +90,7 @@ export function PWACards() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Link href={cards[1].href} className="block">
+          <a href={`/${locale}${cards[1].href}`} className="block">
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -107,7 +107,7 @@ export function PWACards() {
                 {cards[1].description}
               </p>
             </motion.div>
-          </Link>
+          </a>
         </motion.div>
 
         {/* Card IA Felina */}
@@ -116,7 +116,7 @@ export function PWACards() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Link href={cards[2].href} className="block">
+          <a href={`/${locale}${cards[2].href}`} className="block">
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -133,7 +133,7 @@ export function PWACards() {
                 {cards[2].description}
               </p>
             </motion.div>
-          </Link>
+          </a>
         </motion.div>
       </div>
     </div>

@@ -55,7 +55,7 @@ export function PWAWrapper({ children }: PWAWrapperProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="min-h-screen bg-zinc-950"
+          className="min-h-screen bg-zinc-950 overflow-x-hidden"
         >
           {/* AppBar - só no PWA */}
           {isPWA && <PWAAppBar />}
@@ -63,7 +63,7 @@ export function PWAWrapper({ children }: PWAWrapperProps) {
           {/* Layout condicional */}
           {isPWA ? (
             // Layout PWA
-            <>
+            <div className="w-full overflow-x-hidden">
               {/* Hero e Cards personalizados APENAS na home */}
               {isHomePage && (
                 <div className="pt-14 bg-zinc-950">
@@ -75,7 +75,7 @@ export function PWAWrapper({ children }: PWAWrapperProps) {
               <div className={isHomePage ? '' : 'pt-14'}>
                 {children}
               </div>
-            </>
+            </div>
           ) : (
             // Layout normal (mobile/desktop)
             children
