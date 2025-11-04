@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { BookOpen, Calendar, Clock, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
 import type { BlogPost } from '@/types/blog'
 import { PullToRefresh } from '@/components/app/gestures'
 import { AppSkeleton, AppCard, AppChip } from '@/components/app/native-ui'
@@ -112,14 +111,11 @@ export default function BlogFeed({ locale }: BlogFeedProps) {
                   {/* Cover Image */}
                   {post.cover_image_url && (
                     <div className="relative w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20">
-                      <Image
+                      <img
                         src={post.cover_image_url}
                         alt={post.title}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+                        className="w-full h-full object-cover"
                         loading="lazy"
-                        quality={80}
                       />
                     </div>
                   )}
