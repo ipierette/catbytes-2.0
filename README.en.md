@@ -21,7 +21,6 @@
 [![License](https://img.shields.io/badge/license-Custom-blue?style=for-the-badge)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org)
-[![PWA](https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=for-the-badge&logo=pwa)](https://web.dev/progressive-web-apps/)
 
 **[✨ View Demo](https://catbytes.site)** • **[📄 Full Changelog](./CHANGELOG.md)** • **[📧 Contact](mailto:ipierette2@gmail.com)**
 
@@ -36,7 +35,6 @@
 - [🚀 Features](#-features)
 - [🛠️ Tech Stack](#️-tech-stack)
 - [📦 Installation & Usage](#-installation--usage)
-- [🌍 PWA - Progressive Web App](#-pwa---progressive-web-app)
 - [🤖 AI Integrations](#-ai-integrations)
 - [🗂️ Project Structure](#️-project-structure)
 - [🎨 Design System](#-design-system)
@@ -49,7 +47,7 @@
 
 ## 🎯 About the Project
 
-**CatBytes** is a professional full stack portfolio showcasing the integration of modern technologies to create high-quality web experiences. The project combines **Next.js 15**, **TypeScript**, **Artificial Intelligence**, and **Progressive Web App** features in a bilingual application (PT-BR/EN-US) with advanced capabilities.
+**CatBytes** is a professional full stack portfolio showcasing the integration of modern technologies to create high-quality web experiences. The project combines **Next.js 15**, **TypeScript** and **Artificial Intelligence** in a bilingual application (PT-BR/EN-US) with advanced capabilities.
 
 ### 🎨 Design Philosophy
 
@@ -81,13 +79,7 @@ Version 2.0 represents a **complete transformation** of the original project:
 
 ### 🎉 Main New Features
 
-#### 📱 **Native Progressive Web App**
-- Installable as native app on iOS and Android
-- Native app-style bottom navigation (PWA mode only)
-- Professional glassmorphism design
-- Offline functionality with Service Worker
-
-#### 📝 **AI-Powered Blog System**
+####  **AI-Powered Blog System**
 - Automatic article generation with GPT-4o-mini
 - Cover image creation with DALL-E 3
 - Automatic translation PT-BR ↔ EN-US
@@ -115,17 +107,9 @@ Version 2.0 represents a **complete transformation** of the original project:
 - ✅ **Responsive Design** - Mobile-first with 3 breakpoints (sm, md, lg)
 - ✅ **Light/Dark Theme** - Smooth switching with system preference detection
 - ✅ **Page Animations** - Smooth route transitions with Framer Motion
-- ✅ **Smart Navigation** - Bottom nav in PWA, traditional header in browser
+- ✅ **Traditional Navigation** - Responsive header with hamburger menu on mobile
 - ✅ **Dynamic Hero** - Sitting cat with animated particles and GitHub stats
 - ✅ **Project Gallery** - Interactive cards with hover effects and lazy loading
-
-### 📱 PWA Features
-
-- ✅ **Native Installation** - Banner with platform-specific instructions (iOS/Android)
-- ✅ **Offline First** - Page and image caching for offline use
-- ✅ **App Shell** - Instant interface loading
-- ✅ **Splash Screen** - Custom splash screen
-- ✅ **Touch Gestures** - Swipe navigation on mobile devices
 
 ### 🤖 AI Features
 
@@ -174,11 +158,7 @@ Version 2.0 represents a **complete transformation** of the original project:
 - **Supabase** `2.78.0` - PostgreSQL Database
 - **Resend** `6.4.0` - Professional email delivery
 
-### 📱 PWA
-
-- **Next PWA** `5.6.0` - Service Worker and manifest
-
-### 📝 Forms & Validation
+###  Forms & Validation
 
 - **React Hook Form** `7.53.2` - Form management
 - **Zod** `3.23.8` - TypeScript-first schema validation
@@ -262,51 +242,6 @@ npm run type-check
 ### 🌐 Access
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## 🌍 PWA - Progressive Web App
-
-### 📲 Installation
-
-CatBytes can be installed as a native app:
-
-#### **iOS (Safari)**
-1. Open the site in Safari
-2. Tap the share icon (square with arrow)
-3. Scroll to "Add to Home Screen"
-4. Tap "Add"
-
-#### **Android (Chrome)**
-1. Open the site in Chrome
-2. Tap the three dots (⋮)
-3. Select "Install app" or "Add to home screen"
-4. Confirm installation
-
-### ✨ PWA Features
-
-- **🔌 Offline**: Works without internet after first visit
-- **⚡ Fast**: Smart caching with Service Worker
-- **📱 Native**: Bottom navigation only in app mode
-- **🎨 Immersive**: No browser bar in fullscreen
-- **🔔 Notifications**: (planned for v2.1)
-
-### 🎯 Cache Strategies
-
-```javascript
-// Runtime caching configured
-{
-  urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|webp|avif|svg|ico)$/,
-  handler: 'StaleWhileRevalidate',
-  options: {
-    cacheName: 'static-image-assets',
-    expiration: {
-      maxEntries: 64,
-      maxAgeSeconds: 365 * 24 * 60 * 60, // 1 year
-    }
-  }
-}
-```
 
 ---
 
@@ -403,11 +338,6 @@ catbytes-2.0/
 │   └── sitemap.ts               # Dynamic sitemap
 │
 ├── 📁 components/                # React components
-│   ├── 📁 app/                  # PWA shell components
-│   │   ├── app-shell.tsx        # Shell with bottom nav
-│   │   ├── pwa-install-banner.tsx
-│   │   ├── native-ui.tsx        # Native components
-│   │   └── gestures.tsx         # Touch gestures
 │   ├── 📁 blog/                 # Blog components
 │   │   ├── post-card.tsx
 │   │   ├── post-modal.tsx
@@ -556,7 +486,6 @@ Performance:    98/100 ⚡
 Accessibility:  96/100 ♿
 Best Practices: 100/100 ✅
 SEO:           100/100 🎯
-PWA:           100/100 📱
 ```
 
 ### 🚀 Implemented Optimizations
@@ -568,7 +497,6 @@ PWA:           100/100 📱
 - ✅ **Edge Runtime** - API routes on edge for low latency
 - ✅ **Font Optimization** - Google Fonts with display=swap
 - ✅ **Bundle Size** - Gzip/Brotli compression
-- ✅ **Service Worker** - Smart caching with Workbox
 
 ### 📈 Core Web Vitals
 

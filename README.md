@@ -21,7 +21,6 @@
 [![License](https://img.shields.io/badge/license-Custom-blue?style=for-the-badge)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org)
-[![PWA](https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=for-the-badge&logo=pwa)](https://web.dev/progressive-web-apps/)
 
 **[✨ Ver Demonstração](https://catbytes.site)** • **[📄 Changelog Completo](./CHANGELOG.pt-BR.md)** • **[📧 Contato](mailto:ipierette2@gmail.com)**
 
@@ -36,7 +35,6 @@
 - [🚀 Funcionalidades](#-funcionalidades)
 - [🛠️ Stack Tecnológica](#️-stack-tecnológica)
 - [📦 Instalação e Uso](#-instalação-e-uso)
-- [🌍 PWA - Progressive Web App](#-pwa---progressive-web-app)
 - [🤖 Integrações com IA](#-integrações-com-ia)
 - [🗂️ Estrutura do Projeto](#️-estrutura-do-projeto)
 - [🎨 Design System](#-design-system)
@@ -49,7 +47,7 @@
 
 ## 🎯 Sobre o Projeto
 
-**CatBytes** é um portfólio profissional full stack que demonstra a integração de tecnologias modernas para criar experiências web de alta qualidade. O projeto combina **Next.js 15**, **TypeScript**, **Inteligência Artificial**, e **Progressive Web App** em uma aplicação bilíngue (PT-BR/EN-US) com recursos avançados.
+**CatBytes** é um portfólio profissional full stack que demonstra a integração de tecnologias modernas para criar experiências web de alta qualidade. O projeto combina **Next.js 15**, **TypeScript** e **Inteligência Artificial** em uma aplicação bilíngue (PT-BR/EN-US) com recursos avançados.
 
 ### 🎨 Filosofia do Design
 
@@ -81,13 +79,7 @@ A versão 2.0 representa uma **transformação completa** do projeto original:
 
 ### 🎉 Novos Recursos Principais
 
-#### 📱 **Progressive Web App Nativa**
-- Instalável como aplicativo nativo no iOS e Android
-- Navegação inferior estilo app nativo (apenas em modo PWA)
-- Design glassmorphism profissional
-- Funcionamento offline com Service Worker
-
-#### 📝 **Sistema de Blog com IA**
+####  **Sistema de Blog com IA**
 - Geração automática de artigos com GPT-4o-mini
 - Criação de imagens de capa com DALL-E 3
 - Tradução automática PT-BR ↔ EN-US
@@ -115,17 +107,9 @@ A versão 2.0 representa uma **transformação completa** do projeto original:
 - ✅ **Design Responsivo** - Mobile-first com 3 breakpoints (sm, md, lg)
 - ✅ **Tema Claro/Escuro** - Troca suave com detecção de preferência do sistema
 - ✅ **Animações de Página** - Transições suaves entre rotas com Framer Motion
-- ✅ **Navegação Inteligente** - Bottom nav em PWA, header tradicional em browser
+- ✅ **Navegação Tradicional** - Header responsivo com menu hambúrguer no mobile
 - ✅ **Hero Dinâmico** - Gato sentado com partículas animadas e estatísticas do GitHub
 - ✅ **Galeria de Projetos** - Cards interativos com hover effects e lazy loading
-
-### 📱 PWA Features
-
-- ✅ **Instalação Nativa** - Banner com instruções específicas (iOS/Android)
-- ✅ **Offline First** - Cache de páginas e imagens para uso sem internet
-- ✅ **App Shell** - Carregamento instantâneo da interface
-- ✅ **Splash Screen** - Tela de abertura personalizada
-- ✅ **Gestos Touch** - Swipe para navegação em dispositivos móveis
 
 ### 🤖 Recursos de IA
 
@@ -174,11 +158,7 @@ A versão 2.0 representa uma **transformação completa** do projeto original:
 - **Supabase** `2.78.0` - Database PostgreSQL
 - **Resend** `6.4.0` - Envio profissional de emails
 
-### 📱 PWA
-
-- **Next PWA** `5.6.0` - Service Worker e manifest
-
-### 📝 Formulários & Validação
+###  Formulários & Validação
 
 - **React Hook Form** `7.53.2` - Gerenciamento de formulários
 - **Zod** `3.23.8` - Validação de schemas TypeScript-first
@@ -262,51 +242,6 @@ npm run type-check
 ### 🌐 Acesso
 
 Abra [http://localhost:3000](http://localhost:3000) no navegador.
-
----
-
-## 🌍 PWA - Progressive Web App
-
-### 📲 Instalação
-
-O CatBytes pode ser instalado como aplicativo nativo:
-
-#### **iOS (Safari)**
-1. Abra o site no Safari
-2. Toque no ícone de compartilhar (quadrado com seta)
-3. Role até "Adicionar à Tela de Início"
-4. Toque em "Adicionar"
-
-#### **Android (Chrome)**
-1. Abra o site no Chrome
-2. Toque nos três pontos (⋮)
-3. Selecione "Instalar aplicativo" ou "Adicionar à tela inicial"
-4. Confirme a instalação
-
-### ✨ Recursos PWA
-
-- **🔌 Offline**: Funciona sem internet após primeira visita
-- **⚡ Rápido**: Cache inteligente com Service Worker
-- **📱 Nativo**: Navegação inferior apenas em modo app
-- **🎨 Imersivo**: Sem barra de navegador em tela cheia
-- **🔔 Notificações**: (planejado para v2.1)
-
-### 🎯 Estratégias de Cache
-
-```javascript
-// Runtime caching configurado
-{
-  urlPattern: /^https:\/\/.*\.(?:png|jpg|jpeg|webp|avif|svg|ico)$/,
-  handler: 'StaleWhileRevalidate',
-  options: {
-    cacheName: 'static-image-assets',
-    expiration: {
-      maxEntries: 64,
-      maxAgeSeconds: 365 * 24 * 60 * 60, // 1 ano
-    }
-  }
-}
-```
 
 ---
 
@@ -403,11 +338,6 @@ catbytes-2.0/
 │   └── sitemap.ts               # Sitemap dinâmico
 │
 ├── 📁 components/                # Componentes React
-│   ├── 📁 app/                  # PWA shell components
-│   │   ├── app-shell.tsx        # Shell com bottom nav
-│   │   ├── pwa-install-banner.tsx
-│   │   ├── native-ui.tsx        # Componentes nativos
-│   │   └── gestures.tsx         # Gestos touch
 │   ├── 📁 blog/                 # Blog components
 │   │   ├── post-card.tsx
 │   │   ├── post-modal.tsx
@@ -556,7 +486,6 @@ Performance:    98/100 ⚡
 Accessibility:  96/100 ♿
 Best Practices: 100/100 ✅
 SEO:           100/100 🎯
-PWA:           100/100 📱
 ```
 
 ### 🚀 Otimizações Implementadas
@@ -568,7 +497,6 @@ PWA:           100/100 📱
 - ✅ **Edge Runtime** - API routes na edge para baixa latência
 - ✅ **Font Optimization** - Google Fonts com display=swap
 - ✅ **Bundle Size** - Compressão Gzip/Brotli
-- ✅ **Service Worker** - Cache inteligente com Workbox
 
 ### 📈 Core Web Vitals
 
