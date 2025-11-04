@@ -198,12 +198,12 @@ export function Hero() {
               stiffness: 100,
               damping: 15
             }}
-            className="absolute bottom-0 -right-8 z-0 w-[55%] h-[85%] overflow-hidden"
+            className="absolute -bottom-20 -right-8 z-0 w-[55%] h-[100%] overflow-visible"
             onTouchStart={() => setShowCatMessage(true)}
             onTouchEnd={() => setTimeout(() => setShowCatMessage(false), 2000)}
           >
             <div className="relative w-full h-full">
-              {/* Cat positioned to PEEK from right, sitting at bottom */}
+              {/* Cat positioned to PEEK from right, sitting at bottom with butt at floor */}
               <Image
                 src="/images/gato-sentado.webp"
                 alt="Axel - Mascote CatBytes"
