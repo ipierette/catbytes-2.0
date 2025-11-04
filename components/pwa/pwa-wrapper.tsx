@@ -1,7 +1,11 @@
 'use client'
 
 import { usePWAOnboarding } from '@/hooks/use-pwa-onboarding'
+import { usePWADetection } from '@/hooks/use-pwa-detection'
 import { OnboardingProfessional } from './onboarding-professional'
+import { PWAAppBar } from './pwa-appbar'
+import { PWAHomeHero } from './pwa-home-hero'
+import { PWACards } from './pwa-cards'
 import { AnimatePresence, motion } from 'framer-motion'
 
 interface PWAWrapperProps {
@@ -10,6 +14,7 @@ interface PWAWrapperProps {
 
 export function PWAWrapper({ children }: PWAWrapperProps) {
   const { showOnboarding, isLoading, completeOnboarding } = usePWAOnboarding()
+  const { isPWA } = usePWADetection()
 
   // Loading minimalista
   if (isLoading) {
@@ -25,6 +30,7 @@ export function PWAWrapper({ children }: PWAWrapperProps) {
 
   return (
     <>
+      {/* Onboarding - só aparece na primeira vez */}
       <AnimatePresence mode="wait">
         {showOnboarding && (
           <motion.div
@@ -38,13 +44,31 @@ export function PWAWrapper({ children }: PWAWrapperProps) {
         )}
       </AnimatePresence>
 
+      {/* Conteúdo principal */}
       {!showOnboarding && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
-          {children}
+          {/* AppBar - só no PWA */}
+          {isPWA && <PWAAppBar />}
+          
+          {/* Layout condicional */}
+          {isPWA ? (
+            // Layout PWA com Hero e Cards customizados
+            <div className="pt-14">
+              <PWAHomeHero />
+              <PWACards />
+              {/* Resto do conteúdo original */}
+              <div className="px-5">
+                {children}
+              </div>
+            </div>
+          ) : (
+            // Layout normal (mobile/desktop)
+            children
+          )}
         </motion.div>
       )}
     </>
