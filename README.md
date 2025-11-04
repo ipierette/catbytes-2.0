@@ -1,7 +1,9 @@
 <div align="center">
 
-<img src="./public/images/catbytes-logo.png" width="150" alt="CatBytes Logo" />
-<img src="./public/images/logo-desenvolvedora.png" width="150" alt="Desenvolvedora Logo" />
+<p align="center">
+  <img src="./public/images/catbytes-logo.png" width="150" alt="CatBytes Logo" style="margin: 0 20px;" />
+  <img src="./public/images/logo-desenvolvedora.png" width="150" alt="Logo Desenvolvedora" style="margin: 0 20px;" />
+</p>
 
 # CatBytes 2.0 — Portfólio Profissional Full Stack
 
