@@ -3,12 +3,12 @@ import { getMessages } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { ThemeProvider } from '@/components/providers/theme-provider'
-import { Header } from '@/components/layout/header'
-import { Footer } from '@/components/layout/footer'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { BackToTop } from '@/components/ui/back-to-top'
 import { WhatsAppButton } from '@/components/ui/whatsapp-button'
 import { AppShell } from '@/components/app/app-shell'
+import { DesktopLayout } from '@/components/layout/desktop-layout'
+import { PWAInstallBanner } from '@/components/app/pwa-install-banner'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -75,10 +75,10 @@ export async function generateMetadata({
 export default async function LocaleLayout({
   children,
   params
-}: {
+}: Readonly<{
   children: React.ReactNode
   params: Promise<{ locale: string }>
-}) {
+}>) {
   // Await params (Next.js 15 requirement)
   const { locale } = await params
 
@@ -123,12 +123,13 @@ export default async function LocaleLayout({
             disableTransitionOnChange
           >
             <AppShell>
-              <ScrollProgress />
-              <Header />
-              <main>{children}</main>
-              <Footer />
-              <BackToTop />
-              <WhatsAppButton />
+              <DesktopLayout>
+                <ScrollProgress />
+                <main>{children}</main>
+                <BackToTop />
+                <WhatsAppButton />
+              </DesktopLayout>
+              <PWAInstallBanner />
             </AppShell>
           </ThemeProvider>
         </NextIntlClientProvider>

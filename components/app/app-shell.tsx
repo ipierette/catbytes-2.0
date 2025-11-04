@@ -24,7 +24,7 @@ interface AppShellProps {
   children: React.ReactNode
 }
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children }: Readonly<AppShellProps>) {
   const pathname = usePathname()
   const locale = useLocale()
   const [isStandalone, setIsStandalone] = useState(false)
@@ -35,27 +35,21 @@ export function AppShell({ children }: AppShellProps) {
   // Detect if running as PWA
   useEffect(() => {
     const checkStandalone = () => {
-      const isStandalonePWA = 
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone ||
-        document.referrer.includes('android-app://')
-      
-      setIsStandalone(isStandalonePWA)
-      
-      // Add class to body for PWA-specific styling
-      if (isStandalonePWA) {
-        document.body.classList.add('pwa-standalone')
+      if (globalThis.window !== undefined) {
+        setIsStandalone(
+          globalThis.window.matchMedia('(display-mode: standalone)').matches ||
+          (globalThis.navigator as any).standalone ||
+          globalThis.document?.referrer.includes('android-app://')
+        )
       }
-    }
-    
-    // Check if share API is available
+    }    // Check if share API is available
     setCanShare(!!navigator.share)
     
     checkStandalone()
   }, [])
 
   // Hide app shell on non-mobile or browser mode
-  if (!isStandalone && typeof window !== 'undefined' && window.innerWidth > 768) {
+  if (!isStandalone && globalThis.window !== undefined && globalThis.window.innerWidth > 768) {
     return <>{children}</>
   }
 
@@ -87,15 +81,15 @@ export function AppShell({ children }: AppShellProps) {
   ]
 
   const handleShare = async () => {
-    if (navigator.share) {
+    if (canShare && globalThis.navigator?.share) {
       try {
-        await navigator.share({
+        await globalThis.navigator.share({
           title: 'CatBytes',
           text: 'Confira o CatBytes - Tecnologia com estilo felino! 🐱',
-          url: window.location.href
+          url: globalThis.window?.location.href
         })
-      } catch (err) {
-        console.log('Share cancelled')
+      } catch {
+        // Usuário cancelou o compartilhamento
       }
     }
   }
@@ -107,7 +101,7 @@ export function AppShell({ children }: AppShellProps) {
         <div className="app-header-content">
           {pathname !== `/${locale}` && pathname !== '/' ? (
             <button 
-              onClick={() => window.history.back()}
+              onClick={() => globalThis.history?.back()}
               className="app-header-button"
               aria-label="Voltar"
             >
