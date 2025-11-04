@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
     const baseUrl = request.nextUrl.origin
     const generateUrl = `${baseUrl}/api/blog/generate`
 
+    console.log('[Cron] Calling generate API:', generateUrl)
+
     const response = await fetch(generateUrl, {
       method: 'POST',
       headers: {
@@ -41,9 +43,26 @@ export async function GET(request: NextRequest) {
       }),
     })
 
+    console.log('[Cron] Generate API response status:', response.status)
+
     if (!response.ok) {
-      const error = await response.json()
-      throw new Error(`Generation failed: ${error.details || error.error}`)
+      const contentType = response.headers.get('content-type')
+      console.error('[Cron] Generate API failed. Status:', response.status, 'Content-Type:', contentType)
+      
+      // Check if response is HTML (error page) or JSON
+      if (contentType?.includes('text/html')) {
+        const htmlText = await response.text()
+        console.error('[Cron] Received HTML error page (first 500 chars):', htmlText.substring(0, 500))
+        throw new Error(`Generation API returned HTML error page (status ${response.status})`)
+      }
+      
+      // Try to parse JSON error
+      try {
+        const error = await response.json()
+        throw new Error(`Generation failed: ${error.details || error.error}`)
+      } catch (parseError) {
+        throw new Error(`Generation failed with status ${response.status}`)
+      }
     }
 
     const result = await response.json()
