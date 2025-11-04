@@ -7,7 +7,7 @@ import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { BackToTop } from '@/components/ui/back-to-top'
 import { WhatsAppButton } from '@/components/ui/whatsapp-button'
 import { AppShell } from '@/components/app/app-shell'
-import { DesktopLayout } from '@/components/layout/desktop-layout'
+import { DesktopLayout } from '@/components/layout'
 import { PWAInstallBanner } from '@/components/app/pwa-install-banner'
 
 export function generateStaticParams() {
