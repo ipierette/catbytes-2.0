@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, ArrowRight, Loader2, Mail, X } from 'lucide-react'
+import { BookOpen, ArrowRight, Loader2, Mail, X, ImageOff } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -18,10 +18,15 @@ export function RecentPosts() {
   const [loading, setLoading] = useState(true)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [showNewsletter, setShowNewsletter] = useState(false)
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set())
   const params = useParams()
   const locale = params.locale as string
   const t = useTranslations('blog')
   const dateLocale = locale === 'en-US' ? enUS : ptBR
+
+  const handleImageError = (postId: string) => {
+    setImageErrors(prev => new Set(prev).add(postId))
+  }
 
   useEffect(() => {
     const fetchRecentPosts = async () => {
@@ -106,16 +111,28 @@ export function RecentPosts() {
                 >
                   {/* Image */}
                   <div className="relative w-full h-56 overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">
-                    <Image
-                      src={post.cover_image_url}
-                      alt={post.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
+                    {!imageErrors.has(post.id) && (
+                      <Image
+                        src={post.cover_image_url}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
+                        loading="lazy"
+                        unoptimized
+                        onError={() => handleImageError(post.id)}
+                      />
+                    )}
+
+                    {/* Fallback icon quando imagem falha */}
+                    {imageErrors.has(post.id) && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <ImageOff className="w-16 h-16 text-gray-400 dark:text-gray-500" />
+                      </div>
+                    )}
 
                     {/* Category badge */}
-                    <div className="absolute top-3 left-3">
+                    <div className="absolute top-3 left-3 z-10">
                       <span className="px-3 py-1 bg-catbytes-purple/90 dark:bg-catbytes-pink/90 text-white text-xs font-bold rounded-full backdrop-blur-sm">
                         {post.category}
                       </span>

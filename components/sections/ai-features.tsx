@@ -703,6 +703,7 @@ export function AIFeatures() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
+                  aria-label={tab.label}
                   className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 font-semibold transition-colors ${
                     activeTab === tab.id
                       ? 'text-catbytes-purple border-b-2 border-catbytes-purple'
