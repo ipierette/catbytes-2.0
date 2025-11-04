@@ -48,9 +48,16 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
     checkStandalone()
   }, [])
 
-  // Hide app shell on non-mobile or browser mode
-  if (!isStandalone && globalThis.window !== undefined && globalThis.window.innerWidth > 768) {
-    return <>{children}</>
+  // Hide app shell completely if:
+  // 1. Desktop (width > 768)
+  // 2. Mobile browser (NOT standalone)
+  if (globalThis.window !== undefined) {
+    const isDesktop = globalThis.window.innerWidth > 768
+    const isMobileBrowser = !isStandalone && globalThis.window.innerWidth <= 768
+    
+    if (isDesktop || isMobileBrowser) {
+      return <>{children}</>
+    }
   }
 
   const navigation = [
