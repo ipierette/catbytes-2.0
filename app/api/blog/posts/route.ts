@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     const page = parseInt(searchParams.get('page') || '1', 10)
     const pageSize = parseInt(searchParams.get('pageSize') || '10', 10)
+    const locale = searchParams.get('locale') || 'pt-BR'
 
     // Validate pagination
     if (page < 1 || pageSize < 1 || pageSize > 50) {
@@ -23,8 +24,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get paginated posts
-    const result = await db.getPosts(page, pageSize)
+    // Get paginated posts for the specified locale
+    const result = await db.getPosts(page, pageSize, locale)
 
     return NextResponse.json(result, {
       headers: {

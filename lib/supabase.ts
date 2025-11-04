@@ -30,7 +30,7 @@ export const supabaseAdmin = supabaseServiceKey
 // Type-safe database helpers
 export const db = {
   // Get all published posts with pagination
-  async getPosts(page = 1, pageSize = 10) {
+  async getPosts(page = 1, pageSize = 10, locale = 'pt-BR') {
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
 
@@ -38,6 +38,7 @@ export const db = {
       .from('blog_posts')
       .select('*', { count: 'exact' })
       .eq('published', true)
+      .eq('locale', locale) // Filter by locale
       .order('created_at', { ascending: false })
       .range(from, to)
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { BookOpen, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { PostCard } from '@/components/blog/post-card'
@@ -8,6 +9,9 @@ import { PostModal } from '@/components/blog/post-modal'
 import type { BlogPost, PaginatedBlogPosts } from '@/types/blog'
 
 export default function BlogPage() {
+  const params = useParams()
+  const locale = (params?.locale as string) || 'pt-BR'
+  
   const [posts, setPosts] = useState<PaginatedBlogPosts | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -22,7 +26,7 @@ export default function BlogPage() {
         setLoading(true)
         setError(null)
 
-        const response = await fetch(`/api/blog/posts?page=${currentPage}&pageSize=${pageSize}`)
+        const response = await fetch(`/api/blog/posts?page=${currentPage}&pageSize=${pageSize}&locale=${locale}`)
 
         if (!response.ok) {
           throw new Error('Failed to fetch posts')
@@ -39,7 +43,7 @@ export default function BlogPage() {
     }
 
     fetchPosts()
-  }, [currentPage])
+  }, [currentPage, locale])
 
   // Scroll to top on page change
   useEffect(() => {
