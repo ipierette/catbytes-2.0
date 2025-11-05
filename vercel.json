@@ -4,5 +4,11 @@
   "regions": ["gru1"],
   "git": {
     "deploymentEnabled": true
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/unified-cron",
+      "schedule": "0 13,15 * * 1,2,4,6"
+    }
+  ]
 }
