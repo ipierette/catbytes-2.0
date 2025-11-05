@@ -36,7 +36,7 @@ const adminNavItems: AdminNavItem[] = [
   },
   {
     title: 'Blog',
-    href: '/pt-BR/blog',
+    href: '/pt-BR/admin/blog',
     icon: FileText,
     description: 'Criar e gerenciar posts do blog'
   },
