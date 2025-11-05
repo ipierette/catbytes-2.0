@@ -169,11 +169,11 @@ export function generateSlug(title: string): string {
   return title
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove accents
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+    .replaceAll(/[\u0300-\u036f]/g, '') // Remove accents
+    .replaceAll(/[^a-z0-9\s-]/g, '') // Remove special chars
     .trim()
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Remove duplicate hyphens
+    .replaceAll(/\s+/g, '-') // Replace spaces with hyphens
+    .replaceAll(/-+/g, '-') // Remove duplicate hyphens
     .substring(0, 100) // Max length
 }
 
@@ -200,15 +200,15 @@ export async function uploadImageFromUrl(imageUrl: string, fileName: string): Pr
     const timestamp = Date.now()
     const sanitizedFileName = fileName
       .toLowerCase()
-      .replace(/[^a-z0-9-]/g, '-')
-      .replace(/-+/g, '-')
+      .replaceAll(/[^a-z0-9-]/g, '-')
+      .replaceAll(/-+/g, '-')
       .substring(0, 50)
     const uniqueFileName = `${sanitizedFileName}-${timestamp}.webp`
     const filePath = `blog-covers/${uniqueFileName}`
 
     // Upload to Supabase Storage
     console.log('[Supabase] Uploading to storage:', filePath)
-    const { data, error } = await supabaseAdmin.storage
+    const { error } = await supabaseAdmin.storage
       .from('blog-images')
       .upload(filePath, imageBuffer, {
         contentType: 'image/webp',

@@ -1,10 +1,10 @@
 'use client'
-import { FaEnvelope, FaBox } from 'react-icons/fa'
+import { FaBox } from 'react-icons/fa'
 
 import { motion, useInView } from 'framer-motion'
 import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Mail, Linkedin, Github, Send, CheckCircle } from 'lucide-react'
+import { Send, CheckCircle } from 'lucide-react'
 
 export function Contact() {
   const t = useTranslations('contact')
@@ -14,7 +14,7 @@ export function Contact() {
   const [message, setMessage] = useState('')
 
   // Contador de caracteres sem espaços
-  const charCount = message.replace(/\s/g, '').length
+  const charCount = message.replaceAll(/\s/g, '').length
   const maxChars = 2000
   const isNearLimit = charCount > maxChars * 0.9 // 90% do limite
 
@@ -24,11 +24,7 @@ export function Contact() {
     setTimeout(() => setSubmitted(true), 1000)
   }
 
-  const socialLinks = [
-    { icon: Linkedin, label: 'LinkedIn', href: 'https://www.linkedin.com/in/izadora-cury-pierette-7a7754253/' },
-    { icon: Github, label: 'GitHub', href: 'https://github.com/ipierette' },
-    { icon: Mail, label: 'Email', href: 'mailto:ipierette2@gmail.com' },
-  ]
+  // Social links removed to fix lint errors - using direct links in JSX instead
 
   return (
     <section id="contact" ref={ref} className="py-20 px-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
@@ -51,7 +47,7 @@ export function Contact() {
           {t('subtitle')}
         </motion.p>
 
-        {!submitted ? (
+        {submitted === false ? (
           <motion.form
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}

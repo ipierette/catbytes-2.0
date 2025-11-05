@@ -197,3 +197,37 @@ export function getClientIP(request: Request): string {
 
   return 'unknown'
 }
+
+/**
+ * Verify admin access for protected routes
+ */
+export function verifyAdmin(request: Request): { valid: boolean; error?: NextResponse } {
+  // Simple admin verification - in production, use proper JWT tokens
+  const authHeader = request.headers.get('authorization')
+  const adminKey = process.env.ADMIN_API_KEY
+
+  if (!adminKey) {
+    return {
+      valid: false,
+      error: apiError('Admin authentication not configured', 500)
+    }
+  }
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return {
+      valid: false,
+      error: apiError('Missing or invalid authorization header', 401)
+    }
+  }
+
+  const token = authHeader.substring(7) // Remove 'Bearer ' prefix
+
+  if (token !== adminKey) {
+    return {
+      valid: false,
+      error: apiError('Invalid admin credentials', 403)
+    }
+  }
+
+  return { valid: true }
+}

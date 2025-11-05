@@ -19,35 +19,40 @@ export default function BlogPage() {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const pageSize = 10
 
+  // Fetch posts function
+  const fetchPosts = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const response = await fetch(`/api/blog/posts?page=${currentPage}&pageSize=${pageSize}&locale=${locale}`)
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts')
+      }
+
+      const data = await response.json()
+      setPosts(data)
+    } catch (err) {
+      console.error('Error fetching posts:', err)
+      setError(err instanceof Error ? err.message : 'Unknown error')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Fetch posts
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-
-        const response = await fetch(`/api/blog/posts?page=${currentPage}&pageSize=${pageSize}&locale=${locale}`)
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts')
-        }
-
-        const data = await response.json()
-        setPosts(data)
-      } catch (err) {
-        console.error('Error fetching posts:', err)
-        setError(err instanceof Error ? err.message : 'Unknown error')
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchPosts()
   }, [currentPage, locale])
 
-  const handleRefresh = () => {
-    setCurrentPage(1)
-    window.location.reload()
+  const handleRefresh = async () => {
+    // Reset to page 1 and refetch
+    if (currentPage !== 1) {
+      setCurrentPage(1)
+    } else {
+      await fetchPosts()
+    }
   }
 
   // Scroll to top on page change

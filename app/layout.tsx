@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Comfortaa } from 'next/font/google'
-import { routing } from '@/i18n/routing'
-import { notFound } from 'next/navigation'
+// Removed unused imports: routing, notFound
 import './globals.css'
 
 const inter = Inter({
@@ -93,10 +92,10 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
   params,
-}: {
+}: Readonly<{
   children: React.ReactNode
   params?: Promise<{ locale?: string }>
-}) {
+}>) {
   // Await params if they exist (Next.js 15)
   const resolvedParams = params ? await params : undefined
 

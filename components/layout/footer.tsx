@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FaHeart, FaCat, FaLinkedin, FaGithub, FaEnvelope } from 'react-icons/fa'
+import { FaHeart, FaCat, FaLinkedin, FaGithub, FaEnvelope, FaInstagram } from 'react-icons/fa'
 import { Lock } from 'lucide-react'
 import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
 import { useAdmin } from '@/hooks/use-admin'
@@ -126,6 +126,16 @@ export function Footer() {
                 aria-label="GitHub"
               >
                 <FaGithub size={24} />
+              </a>
+              <a
+                href="https://www.instagram.com/catbytes_izadora_pierette/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-purple-400 transition-colors"
+                aria-label="Instagram"
+                title="Siga no Instagram"
+              >
+                <FaInstagram size={24} />
               </a>
               <a
                 href="mailto:ipierette2@gmail.com"
