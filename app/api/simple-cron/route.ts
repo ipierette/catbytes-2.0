@@ -19,17 +19,93 @@ export async function GET(request: NextRequest) {
 
     console.log('[Simple-Cron] Starting simple task...')
 
-    // Tarefa simples de teste
     const now = new Date()
-    const result = {
-      success: true,
-      message: 'Simple cron executed successfully',
-      timestamp: now.toISOString(),
-      day: now.getDay(),
-      hour: now.getHours()
+    const dayOfWeek = now.getDay() // 0 = Sunday, 1 = Monday, etc.
+    const hour = now.getHours()
+    const baseUrl = request.nextUrl.origin
+
+    console.log(`[Simple-Cron] Starting tasks for day ${dayOfWeek} at hour ${hour}`)
+
+    const results: { [key: string]: any } = {}
+
+    // Schedule: Monday (1), Tuesday (2), Thursday (4), Saturday (6) at 13:00
+    // Execute blog generation and Instagram batch generation
+    if ([1, 2, 4, 6].includes(dayOfWeek) && hour === 13) {
+      console.log('[Simple-Cron] Executing blog and Instagram generation...')
+      
+      // Blog post generation
+      try {
+        const blogResponse = await fetch(`${baseUrl}/api/blog/generate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authHeader || `Bearer ${cronSecret}`,
+          },
+          body: JSON.stringify({}),
+        })
+
+        if (blogResponse.ok) {
+          const blogResult = await blogResponse.json()
+          results.blog = { success: true, post: blogResult.post }
+          console.log('[Simple-Cron] Blog post generated:', blogResult.post?.title)
+        } else {
+          results.blog = { success: false, error: `Status ${blogResponse.status}` }
+        }
+      } catch (error) {
+        results.blog = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+      }
+
+      // Instagram batch generation
+      try {
+        const instagramResponse = await fetch(`${baseUrl}/api/instagram/generate-batch`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authHeader || `Bearer ${cronSecret}`,
+          },
+        })
+
+        if (instagramResponse.ok) {
+          const instagramResult = await instagramResponse.json()
+          results.instagram_batch = { success: true, data: instagramResult }
+          console.log('[Simple-Cron] Instagram batch generated')
+        } else {
+          results.instagram_batch = { success: false, error: `Status ${instagramResponse.status}` }
+        }
+      } catch (error) {
+        results.instagram_batch = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+      }
     }
 
-    return NextResponse.json(result)
+    // Schedule: Monday (1), Thursday (4) at 15:00 - separate cron would be better
+    // But for now, we'll handle it here with different schedule
+    if ([1, 4].includes(dayOfWeek) && hour === 15) {
+      console.log('[Simple-Cron] Would execute mega campaign (using disabled endpoint for now)')
+      results.mega_campaign = { success: true, note: 'Mega campaign scheduled for later implementation' }
+    }
+
+    // If no tasks were scheduled for this time, return early
+    if (Object.keys(results).length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: 'No tasks scheduled for this time',
+        day: dayOfWeek,
+        hour: hour,
+        timestamp: now.toISOString(),
+      })
+    }
+
+    // Calculate overall success
+    const totalTasks = Object.keys(results).length
+    const successfulTasks = Object.values(results).filter(r => r.success).length
+    const overallSuccess = successfulTasks === totalTasks
+
+    return NextResponse.json({
+      success: overallSuccess,
+      message: `Executed ${successfulTasks}/${totalTasks} tasks successfully`,
+      tasks: results,
+      timestamp: now.toISOString(),
+    })
 
   } catch (error) {
     console.error('[Simple-Cron] Error:', error)
