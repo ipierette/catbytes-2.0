@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     console.log('Triggered by:', isCronJob ? 'Cron Job' : 'Manual Admin')
 
     // Validações de ambiente
-    const requiredEnvVars = ['OPENAI_API_KEY', 'NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_SERVICE_KEY']
+    const requiredEnvVars = ['OPENAI_API_KEY', 'NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']
     const missingVars = requiredEnvVars.filter(v => !process.env[v])
     if (missingVars.length > 0) {
       throw new Error(`Missing environment variables: ${missingVars.join(', ')}`)

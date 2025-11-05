@@ -5,15 +5,18 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Client-side Supabase (for tracking user events)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Check if Supabase is configured
+const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey && supabaseServiceKey)
 
-// Server-side Supabase (for analytics queries)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+// Client-side Supabase (for tracking user events) - only create if configured
+export const supabase = isSupabaseConfigured ? createClient(supabaseUrl!, supabaseAnonKey!) : null
+
+// Server-side Supabase (for analytics queries) - only create if configured
+export const supabaseAdmin = isSupabaseConfigured ? createClient(supabaseUrl!, supabaseServiceKey!) : null
 
 // =====================================================
 // TRACKING FUNCTIONS (Client-side)
@@ -38,6 +41,12 @@ export interface BlogPostViewData {
 
 // Track page view
 export async function trackPageView(data: PageViewData) {
+  // Skip tracking if Supabase is not configured
+  if (!supabase) {
+    console.log('[Analytics] Supabase not configured, skipping page view tracking')
+    return
+  }
+
   try {
     const { error } = await supabase
       .from('analytics_page_views')
@@ -61,6 +70,12 @@ export async function trackPageView(data: PageViewData) {
 
 // Track blog post view
 export async function trackBlogPostView(data: BlogPostViewData) {
+  // Skip tracking if Supabase is not configured
+  if (!supabase) {
+    console.log('[Analytics] Supabase not configured, skipping blog post view tracking')
+    return
+  }
+
   try {
     const { error } = await supabase
       .from('analytics_blog_views')
@@ -85,6 +100,12 @@ export async function trackBlogPostView(data: BlogPostViewData) {
 
 // Track custom event
 export async function trackEvent(eventName: string, properties?: Record<string, any>) {
+  // Skip tracking if Supabase is not configured
+  if (!supabase) {
+    console.log('[Analytics] Supabase not configured, skipping event tracking')
+    return
+  }
+
   try {
     const { error } = await supabase
       .from('analytics_events')
@@ -108,6 +129,10 @@ export async function trackEvent(eventName: string, properties?: Record<string, 
 // =====================================================
 
 export async function getPageViewsAnalytics(period: string = '30d') {
+  if (!supabaseAdmin) {
+    throw new Error('Supabase admin client not configured')
+  }
+
   try {
     const dateRange = getDateRange(period)
     
@@ -127,6 +152,10 @@ export async function getPageViewsAnalytics(period: string = '30d') {
 }
 
 export async function getBlogAnalytics(period: string = '30d') {
+  if (!supabaseAdmin) {
+    throw new Error('Supabase admin client not configured')
+  }
+
   try {
     const dateRange = getDateRange(period)
     
@@ -155,6 +184,10 @@ export async function getBlogAnalytics(period: string = '30d') {
 }
 
 export async function getTopContent(limit: number = 10) {
+  if (!supabaseAdmin) {
+    throw new Error('Supabase admin client not configured')
+  }
+
   try {
     const { data, error } = await supabaseAdmin
       .from('analytics_blog_views')
@@ -188,6 +221,10 @@ export async function getTopContent(limit: number = 10) {
 }
 
 export async function getRealTimeStats() {
+  if (!supabaseAdmin) {
+    throw new Error('Supabase admin client not configured')
+  }
+
   try {
     const now = new Date()
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)

@@ -53,9 +53,10 @@
 import { createClient } from '@supabase/supabase-js'
 import type { InstagramPost, Niche } from './instagram-automation'
 
-const supabase = createClient(
+// Supabase Admin Client (server-side only)
+export const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 export const instagramDB = {
@@ -63,7 +64,7 @@ export const instagramDB = {
    * Salva uma nova postagem no banco (status: pending por padrão)
    */
   async savePost(post: Omit<InstagramPost, 'id' | 'created_at'>): Promise<InstagramPost> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('instagram_posts')
       .insert([post])
       .select()
@@ -81,7 +82,7 @@ export const instagramDB = {
    * Busca posts pendentes de aprovação
    */
   async getPendingPosts(): Promise<InstagramPost[]> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('instagram_posts')
       .select('*')
       .eq('status', 'pending')
@@ -101,7 +102,7 @@ export const instagramDB = {
   async getApprovedPostsReadyToPublish(): Promise<InstagramPost[]> {
     const now = new Date().toISOString()
     
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('instagram_posts')
       .select('*')
       .eq('status', 'approved')
@@ -120,7 +121,7 @@ export const instagramDB = {
    * Aprova um post e agenda para publicação
    */
   async approvePost(id: string, scheduledFor: Date, approvedBy: string): Promise<InstagramPost> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('instagram_posts')
       .update({
         status: 'approved',
@@ -144,7 +145,7 @@ export const instagramDB = {
    * Rejeita um post
    */
   async rejectPost(id: string, reason?: string): Promise<InstagramPost> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('instagram_posts')
       .update({
         status: 'rejected',
@@ -166,7 +167,7 @@ export const instagramDB = {
    * Marca post como publicado
    */
   async markAsPublished(id: string, instagramPostId: string): Promise<InstagramPost> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('instagram_posts')
       .update({
         status: 'published',
@@ -189,7 +190,7 @@ export const instagramDB = {
    * Marca post como falho
    */
   async markAsFailed(id: string, errorMessage: string): Promise<InstagramPost> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('instagram_posts')
       .update({
         status: 'failed',
@@ -211,7 +212,7 @@ export const instagramDB = {
    * Busca a última postagem para determinar o próximo nicho
    */
   async getLastPost(): Promise<InstagramPost | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('instagram_posts')
       .select('*')
       .order('created_at', { ascending: false })
@@ -251,7 +252,7 @@ export const instagramDB = {
     const start = (page - 1) * pageSize
     const end = start + pageSize - 1
 
-    const { data, error, count } = await supabase
+    const { data, error, count } = await supabaseAdmin
       .from('instagram_posts')
       .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
@@ -275,31 +276,31 @@ export const instagramDB = {
    * Estatísticas das postagens
    */
   async getStats() {
-    const { data: publishedCount } = await supabase
+    const { data: publishedCount } = await supabaseAdmin
       .from('instagram_posts')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'published')
 
-    const { data: pendingCount } = await supabase
+    const { data: pendingCount } = await supabaseAdmin
       .from('instagram_posts')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'pending')
 
-    const { data: approvedCount } = await supabase
+    const { data: approvedCount } = await supabaseAdmin
       .from('instagram_posts')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'approved')
 
-    const { data: failedCount } = await supabase
+    const { data: failedCount } = await supabaseAdmin
       .from('instagram_posts')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'failed')
 
-    const { data: totalCount } = await supabase
+    const { data: totalCount } = await supabaseAdmin
       .from('instagram_posts')
       .select('id', { count: 'exact', head: true })
 
-    const { data: byNiche } = await supabase
+    const { data: byNiche } = await supabaseAdmin
       .from('instagram_posts')
       .select('nicho')
       .eq('status', 'published')
@@ -329,7 +330,7 @@ export const instagramDB = {
     const postHour = 10 // 10h da manhã
     
     // Busca todas as datas já agendadas
-    const { data: scheduledPosts } = await supabase
+    const { data: scheduledPosts } = await supabaseAdmin
       .from('instagram_posts')
       .select('scheduled_for')
       .eq('status', 'approved')
