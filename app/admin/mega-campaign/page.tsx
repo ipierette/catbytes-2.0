@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 
 interface CampaignStats {
   status: string
@@ -186,16 +187,11 @@ export default function MegaCampaignDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          🤖 Mega Automação Digital
-        </h1>
-        <p className="text-xl text-gray-600 mt-2">
-          Campanha multi-plataforma automatizada v{stats.campaignSystem.version}
-        </p>
-      </div>
+          <AdminLayoutWrapper
+        title="Mega Campaign Manager"
+        description="Gerencie suas campanhas de automação"
+      >
+      <div className="max-w-7xl mx-auto">{/* Container removido do header, agora está no layout */}
 
       {/* Status Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -422,6 +418,7 @@ export default function MegaCampaignDashboard() {
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </AdminLayoutWrapper>
   )
 }

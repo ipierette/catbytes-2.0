@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, Eye } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 
 interface InstagramPost {
   id: string
@@ -162,7 +163,11 @@ export default function InstagramAdminPage() {
   }
 
   return (
-    <div className="container mx-auto p-8 space-y-8">
+    <AdminLayoutWrapper
+      title="Instagram Admin"
+      description="Gerencie e aprove posts do Instagram"
+    >
+      <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -421,6 +426,7 @@ export default function InstagramAdminPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminLayoutWrapper>
   )
 }

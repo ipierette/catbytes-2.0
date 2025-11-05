@@ -10,20 +10,12 @@
   },
   "crons": [
     {
-      "path": "/api/blog/cron",
-      "schedule": "0 13 * * 2,4,6"
-    },
-    {
-      "path": "/api/instagram/generate-batch",
-      "schedule": "0 13 * * 2,4,6"
+      "path": "/api/unified-cron",
+      "schedule": "0 13,15 * * 1,2,4,6"
     },
     {
       "path": "/api/instagram/publish-scheduled",
       "schedule": "0 13 * * 1,3,5,0"
-    },
-    {
-      "path": "/api/campaign/mega-automation",
-      "schedule": "0 15 * * 1,4"
     }
   ]
 }
