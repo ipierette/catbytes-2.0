@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { instagramDB } from '@/lib/instagram-db'
 import { instagramSettings } from '@/lib/instagram-settings'
 import { generatePostContent } from '@/lib/content-generator'
-import { generateImage, optimizePromptWithText } from '@/lib/image-generator'
+import { generateImage, generateImageWithTextOverlay, optimizePromptWithText } from '@/lib/image-generator'
 import type { Niche } from '@/lib/instagram-automation'
 
 export const maxDuration = 300 // 5 minutos para gerar 10 posts
@@ -76,10 +76,13 @@ export async function POST(request: NextRequest) {
         const content = await generatePostContent(nicho)
         console.log(`  ✓ Content generated: ${content.titulo}`)
 
-        // Gera imagem
-        const imagePrompt = optimizePromptWithText(content.imagePrompt, content.textoImagem)
-        const imageUrl = await generateImage(imagePrompt)
-        console.log(`  ✓ Image generated`)
+        // Gera imagem com texto sobreposto (novo sistema)
+        const imageUrl = await generateImageWithTextOverlay(
+          content.imagePrompt, 
+          content.textoImagem,
+          nicho as any // Mapeia nicho para tema do overlay
+        )
+        console.log(`  ✓ Image with text overlay generated`)
 
         // Salva como pending
         const dbRecord = await instagramDB.savePost({

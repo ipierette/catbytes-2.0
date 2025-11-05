@@ -3,10 +3,18 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { FileText, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Plus, Edit, Trash2, Eye, Clock } from 'lucide-react'
+import { FileText, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Plus, Edit, Trash2, Eye, Clock, ChevronDown } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 interface BlogPost {
   id: string
@@ -69,25 +77,27 @@ export default function BlogAdminPage() {
     }
   }
 
-  const handleGeneratePost = async () => {
+  const handleGeneratePost = async (theme?: string) => {
     try {
-      setMessage({ type: 'success', text: 'Gerando novo post... Isso pode demorar alguns minutos.' })
+      const themeText = theme ? ` (${theme})` : ''
+      setMessage({ type: 'success', text: `Gerando novo artigo${themeText}... Isso pode demorar alguns minutos.` })
       
       const response = await fetch('/api/blog/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme })
       })
 
       const data = await response.json()
 
       if (data.success) {
-        setMessage({ type: 'success', text: `Post "${data.post?.title}" gerado com sucesso!` })
+        setMessage({ type: 'success', text: `Artigo "${data.post?.title}" gerado com sucesso!` })
         await loadData()
       } else {
-        setMessage({ type: 'error', text: data.error || 'Erro ao gerar post' })
+        setMessage({ type: 'error', text: data.error || 'Erro ao gerar artigo' })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Erro ao gerar post' })
+      setMessage({ type: 'error', text: 'Erro ao gerar artigo' })
     }
   }
 
@@ -208,14 +218,61 @@ export default function BlogAdminPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button 
-              onClick={handleGeneratePost}
-              size="lg"
-              className="gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Gerar Novo Post
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="lg" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Gerar Artigos
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel>Escolha o Tema do Artigo</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuItem 
+                  onClick={() => handleGeneratePost('Automação e Negócios')}
+                  className="cursor-pointer"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-semibold">💼 Automação e Negócios</span>
+                    <span className="text-xs text-muted-foreground">Para clientes e recrutadores</span>
+                  </div>
+                </DropdownMenuItem>
+                
+                <DropdownMenuItem 
+                  onClick={() => handleGeneratePost('Programação e IA')}
+                  className="cursor-pointer"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-semibold">💻 Programação e IA</span>
+                    <span className="text-xs text-muted-foreground">Dicas técnicas acessíveis</span>
+                  </div>
+                </DropdownMenuItem>
+                
+                <DropdownMenuItem 
+                  onClick={() => handleGeneratePost('Cuidados Felinos')}
+                  className="cursor-pointer"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-semibold">🐱 Cuidados Felinos</span>
+                    <span className="text-xs text-muted-foreground">Gatinhos e bem-estar animal</span>
+                  </div>
+                </DropdownMenuItem>
+                
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuItem 
+                  onClick={() => handleGeneratePost()}
+                  className="cursor-pointer"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-semibold">🎯 Automático</span>
+                    <span className="text-xs text-muted-foreground">Baseado no dia atual</span>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -279,30 +336,54 @@ export default function BlogAdminPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Sistema de Automação
+              Sistema Temático de Blog
             </CardTitle>
             <CardDescription>
-              Posts são gerados automaticamente pelo sistema
+              3 categorias de artigos que rotacionam por dia da semana
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
               <div>
-                <h4 className="font-semibold mb-2">🤖 Geração Automática</h4>
-                <p className="text-sm text-muted-foreground mb-2">
-                  <strong>Dias:</strong> Segunda, Terça, Quinta e Sábado às 13:00<br/>
-                  <strong>Tópicos:</strong> Programação, Tecnologia, IA e Desenvolvimento Web<br/>
-                  <strong>Status:</strong> <span className="text-green-600 font-semibold">ATIVA</span>
-                </p>
+                <h4 className="font-semibold mb-2 text-blue-600">🗓️ Terça-feira</h4>
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <p className="font-medium text-sm mb-1">💼 Automação e Negócios</p>
+                  <p className="text-xs text-muted-foreground">
+                    Para clientes e recrutadores sobre vantagens de sistemas automáticos, 
+                    ROI digital e transformação empresarial
+                  </p>
+                </div>
               </div>
+              
               <div>
-                <h4 className="font-semibold mb-2">📝 Características dos Posts</h4>
-                <p className="text-sm text-muted-foreground">
-                  <strong>Formato:</strong> Markdown com código e exemplos<br/>
-                  <strong>Idiomas:</strong> Português e Inglês<br/>
-                  <strong>SEO:</strong> Otimizado automaticamente
-                </p>
+                <h4 className="font-semibold mb-2 text-purple-600">🗓️ Quinta-feira</h4>
+                <div className="bg-purple-50 p-3 rounded-lg">
+                  <p className="font-medium text-sm mb-1">💻 Programação e IA</p>
+                  <p className="text-xs text-muted-foreground">
+                    Dicas de programação para iniciantes, novidades sobre IA 
+                    explicadas de forma acessível a leigos
+                  </p>
+                </div>
               </div>
+              
+              <div>
+                <h4 className="font-semibold mb-2 text-pink-600">�️ Sábado</h4>
+                <div className="bg-pink-50 p-3 rounded-lg">
+                  <p className="font-medium text-sm mb-1">🐱 Cuidados Felinos</p>
+                  <p className="text-xs text-muted-foreground">
+                    Artigos sobre cuidados com gatinhos, com imagens 
+                    aconchegantes e tom carinhoso
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-sm">
+                <strong className="text-green-700">Status do Sistema:</strong>{' '}
+                <span className="text-green-600 font-semibold">ATIVO</span> - 
+                Geração automática nos dias programados + geração manual por tema
+              </p>
             </div>
           </CardContent>
         </Card>

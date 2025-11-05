@@ -1,8 +1,9 @@
 /**
- * Image Generator - Gera imagens com DALL-E
+ * Image Generator - Gera imagens com DALL-E e adiciona texto via Canvas
  */
 
 import OpenAI from 'openai'
+import { addTextOverlay, THEME_TEXT_CONFIGS } from './image-text-overlay'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!
@@ -40,25 +41,81 @@ export async function generateImage(prompt: string): Promise<string> {
 }
 
 /**
- * Adiciona texto overlay à imagem (alternativa: usar API externa ou Canvas)
- * Esta versão retorna o prompt otimizado para DALL-E incluir o texto
+ * Gera prompt otimizado SEM texto para DALL-E
+ * O texto será adicionado posteriormente via Canvas
  */
-export function optimizePromptWithText(basePrompt: string, overlayText: string): string {
+export function optimizePromptWithoutText(basePrompt: string): string {
   return `${basePrompt}
 
-CRITICAL TEXT OVERLAY REQUIREMENTS:
-- Display this EXACT text: "${overlayText}"
-- Text must be LARGE, BOLD, and HIGHLY READABLE
-- Use modern sans-serif font (like Arial or Roboto)
-- Position text in CENTER of image
-- Text color: Pure WHITE (#FFFFFF)
-- Add thick BLACK border/outline around each letter for maximum contrast
-- Text should occupy 20-25% of image height
-- Background behind text should have subtle dark gradient overlay for better readability
-- Ensure high contrast ratio for accessibility
-- Text must be the DOMINANT visual element
+IMPORTANT: DO NOT include any text, words, letters or typography in the image.
+Generate a clean, text-free image that will serve as a background.
+Focus on visual elements, composition, and atmosphere only.
+Leave space for text overlay to be added later.
+High quality, professional photography or illustration style.
+Clean composition with balanced visual weight.`
+}
 
-Style: Clean, professional, modern business aesthetic. High contrast. Professional photography quality.`
+/**
+ * Função legada - mantida para compatibilidade
+ * @deprecated Use generateImageWithTextOverlay instead
+ */
+export function optimizePromptWithText(basePrompt: string, overlayText: string): string {
+  return optimizePromptWithoutText(basePrompt)
+}
+
+/**
+ * Gera imagem de fundo limpa + adiciona texto via Canvas
+ * Nova abordagem para textos em português sem erros
+ */
+export async function generateImageWithTextOverlay(
+  backgroundPrompt: string,
+  overlayText: string,
+  theme?: keyof typeof THEME_TEXT_CONFIGS
+): Promise<string> {
+  try {
+    console.log('Generating image with text overlay system...')
+    
+    // 1. Gera imagem de fundo limpa (sem texto)
+    const cleanPrompt = optimizePromptWithoutText(backgroundPrompt)
+    const backgroundImageUrl = await generateImage(cleanPrompt)
+    
+    console.log('Background image generated, adding text overlay...')
+    
+    // 2. Adiciona texto usando Canvas
+    let finalImageDataUrl: string
+    
+    if (theme && THEME_TEXT_CONFIGS[theme]) {
+      // Usa configuração do tema
+      const config = THEME_TEXT_CONFIGS[theme]
+      finalImageDataUrl = await addTextOverlay({
+        text: overlayText,
+        imageUrl: backgroundImageUrl,
+        ...config
+      })
+    } else {
+      // Usa configuração padrão
+      finalImageDataUrl = await addTextOverlay({
+        text: overlayText,
+        imageUrl: backgroundImageUrl,
+        fontSize: 55,
+        textColor: '#FFFFFF',
+        strokeColor: '#000000',
+        strokeWidth: 4,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        position: 'center',
+        maxWidth: 700
+      })
+    }
+    
+    console.log('Text overlay added successfully')
+    return finalImageDataUrl
+    
+  } catch (error) {
+    console.error('Error generating image with text overlay:', error)
+    // Fallback para método antigo em caso de erro
+    console.log('Falling back to legacy text generation...')
+    return generateImage(optimizePromptWithText(backgroundPrompt, overlayText))
+  }
 }
 
 /**
