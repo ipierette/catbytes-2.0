@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, Eye } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
+import { AdminGuard } from '@/components/admin/admin-guard'
 
 interface InstagramPost {
   id: string
@@ -163,10 +164,11 @@ export default function InstagramAdminPage() {
   }
 
   return (
-    <AdminLayoutWrapper
-      title="Instagram Admin"
-      description="Gerencie e aprove posts do Instagram"
-    >
+    <AdminGuard>
+      <AdminLayoutWrapper
+        title="Instagram Admin"
+        description="Gerencie e aprove posts do Instagram"
+      >
       <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -428,5 +430,6 @@ export default function InstagramAdminPage() {
       )}
       </div>
     </AdminLayoutWrapper>
+    </AdminGuard>
   )
 }

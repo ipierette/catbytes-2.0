@@ -21,7 +21,7 @@ export default function AdminLoginPage() {
     const success = await login(password)
 
     if (success) {
-      router.push('/pt-BR/blog')
+      router.push('/pt-BR/admin/blog')
     } else {
       setError('Senha incorreta')
       setLoading(false)

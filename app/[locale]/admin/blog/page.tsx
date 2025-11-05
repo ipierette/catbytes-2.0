@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { FileText, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Plus, Edit, Trash2, Eye, Clock } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
+import { AdminGuard } from '@/components/admin/admin-guard'
 
 interface BlogPost {
   id: string
@@ -146,10 +147,11 @@ export default function BlogAdminPage() {
   }
 
   return (
-    <AdminLayoutWrapper
-      title="Blog Admin"
-      description="Gerencie posts e conteúdo do blog"
-    >
+    <AdminGuard>
+      <AdminLayoutWrapper
+        title="Blog Admin"
+        description="Gerencie posts e conteúdo do blog"
+      >
       <div className="space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -353,5 +355,6 @@ export default function BlogAdminPage() {
         </Card>
       </div>
     </AdminLayoutWrapper>
+    </AdminGuard>
   )
 }
