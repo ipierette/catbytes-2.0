@@ -32,7 +32,7 @@ export function Footer() {
       if (success) {
         setShowAdminModal(false)
         setPassword('')
-        router.push(`/${locale}/blog`)
+        router.push(`/${locale}/admin/blog`)
       } else {
         setError('Senha incorreta')
       }
@@ -245,11 +245,11 @@ export function Footer() {
                 <button
                   onClick={() => {
                     setShowAdminModal(false)
-                    router.push(`/${locale}/blog`)
+                    router.push(`/${locale}/admin/blog`)
                   }}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
                 >
-                  Ir para o Blog
+                  Ir para Admin
                 </button>
               </div>
             )}

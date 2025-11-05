@@ -97,6 +97,43 @@ export default function InstagramAdminPage() {
     }
   }
 
+  const handleGenerateBatch = async () => {
+    try {
+      setLoading(true)
+      setMessage({ 
+        type: 'success', 
+        text: 'Gerando lote de posts do Instagram... Isso pode demorar alguns minutos.' 
+      })
+
+      const response = await fetch('/api/instagram/generate-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setMessage({ 
+          type: 'success', 
+          text: `Lote gerado com sucesso! ${data.postsGenerated || 10} posts criados e aguardando aprovação.` 
+        })
+        await loadData() // Recarrega os dados para mostrar os novos posts
+      } else {
+        setMessage({ 
+          type: 'error', 
+          text: data.error || 'Erro ao gerar lote de posts' 
+        })
+      }
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: 'Erro ao conectar com o servidor' 
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleApprove = async (postId: string) => {
     try {
       const response = await fetch(`/api/instagram/approve/${postId}`, {
@@ -191,6 +228,16 @@ export default function InstagramAdminPage() {
             {autoGenEnabled ? <Power className="h-4 w-4" /> : <PowerOff className="h-4 w-4" />}
             {autoGenEnabled ? 'Geração Ativa' : 'Geração Pausada'}
           </Button>
+          <Button 
+            onClick={handleGenerateBatch}
+            variant="secondary"
+            size="lg" 
+            className="gap-2"
+            disabled={loading}
+          >
+            <Play className="h-4 w-4" />
+            {loading ? 'Gerando...' : 'Gerar Lote Agora'}
+          </Button>
         </div>
       </div>
 
@@ -275,19 +322,21 @@ export default function InstagramAdminPage() {
             <div>
               <h4 className="font-semibold mb-2">🤖 Geração Automática</h4>
               <p className="text-sm text-muted-foreground mb-2">
-                <strong>Dias:</strong> Sábado, Terça e Quinta<br/>
+                <strong>Cron Jobs:</strong> Segunda, Terça, Quinta e Sábado às 13:00<br/>
                 <strong>Quantidade:</strong> 10 posts por execução<br/>
                 <strong>Status:</strong> <span className={autoGenEnabled ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
                   {autoGenEnabled ? 'ATIVA' : 'PAUSADA'}
-                </span>
+                </span><br/>
+                <strong>Manual:</strong> Use o botão "Gerar Lote Agora" para criar posts a qualquer momento
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-2">📤 Publicação Automática</h4>
               <p className="text-sm text-muted-foreground">
                 <strong>Dias:</strong> Segunda, Quarta, Sexta e Domingo<br/>
-                <strong>Horário:</strong> 10:00 BRT<br/>
-                <strong>Publica:</strong> Posts aprovados automaticamente
+                <strong>Horário:</strong> 13:00 BRT<br/>
+                <strong>Publica:</strong> Posts aprovados automaticamente<br/>
+                <strong>Funciona:</strong> Independente da geração automática
               </p>
             </div>
           </div>
