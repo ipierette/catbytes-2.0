@@ -10,6 +10,10 @@
     "type-check": "tsc --noEmit",
     "generate:favicons": "node scripts/generate-favicons.js"
   },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "@radix-ui/react-dialog": "^1.1.2",

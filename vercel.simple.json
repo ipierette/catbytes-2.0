@@ -11,7 +11,7 @@
       "schedule": "0 13,15 * * 1,2,4,6"
     },
     {
-      "path": "/api/instagram/publish-scheduled",
+      "path": "/api/instagram/publish-scheduled", 
       "schedule": "0 13 * * 1,3,5,0"
     }
   ]
