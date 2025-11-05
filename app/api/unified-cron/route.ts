@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     if ([2, 4, 6].includes(dayOfWeek) && hour === 13) {
       console.log('[Unified-Cron] Executing blog and Instagram generation...')
       
-      // Blog post generation
+      // Blog post generation (using the original blog/generate endpoint)
       try {
         const blogResponse = await fetch(`${baseUrl}/api/blog/generate`, {
           method: 'POST',
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       console.log('[Unified-Cron] Executing mega campaign automation...')
       
       try {
-        const campaignResponse = await fetch(`${baseUrl}/api/campaign/mega-automation`, {
+        const campaignResponse = await fetch(`${baseUrl}/api/campaign/mega-automation-disabled`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

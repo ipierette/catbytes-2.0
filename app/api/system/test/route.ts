@@ -205,7 +205,7 @@ async function testCronJobs(): Promise<any> {
   const endpoints = [
     '/api/instagram/generate-batch',
     '/api/instagram/publish-scheduled',
-    '/api/campaign/mega-automation'
+    '/api/campaign/mega-automation-disabled'
   ]
 
   const results = []

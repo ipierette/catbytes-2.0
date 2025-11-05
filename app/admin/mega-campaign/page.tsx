@@ -69,7 +69,7 @@ export default function MegaCampaignDashboard() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/campaign/mega-automation')
+      const response = await fetch('/api/campaign/mega-automation-disabled')
       const data = await response.json()
       setStats(data)
     } catch (error) {
@@ -82,7 +82,7 @@ export default function MegaCampaignDashboard() {
     setLogs(['🚀 Iniciando mega campanha digital...'])
     
     try {
-      const response = await fetch('/api/campaign/mega-automation', {
+      const response = await fetch('/api/campaign/mega-automation-disabled', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
