@@ -6,6 +6,13 @@ import { SEO_KEYWORDS, BLOG_TOPICS, BLOG_CATEGORIES } from '@/types/blog'
 import type { AIGeneratedPost, BlogPostInsert } from '@/types/blog'
 import { getNewPostEmailHTML } from '@/lib/email-templates'
 import { translatePostToEnglish, estimateTranslationCost } from '@/lib/translation-service'
+import { 
+  getCurrentBlogTheme, 
+  getRandomTopicForTheme, 
+  generateImagePromptForTheme, 
+  getThemeKeywords,
+  getBlogScheduleInfo 
+} from '@/lib/blog-scheduler'
 
 // =====================================================
 // POST /api/blog/generate
@@ -58,45 +65,92 @@ export async function POST(request: NextRequest) {
       console.log('[Generate] No request body, using defaults')
     }
 
-    const { topic, keywords, category } = body
+    const { topic, keywords, category, theme } = body
 
-    // Select random topic if not provided
-    const selectedTopic = topic || BLOG_TOPICS[Math.floor(Math.random() * BLOG_TOPICS.length)]
-    const selectedCategory = category || BLOG_CATEGORIES[Math.floor(Math.random() * BLOG_CATEGORIES.length)]
+    // Determine blog theme based on current day or provided theme
+    const blogTheme = theme || getCurrentBlogTheme()
+    const scheduleInfo = getBlogScheduleInfo()
+    
+    // Select topic based on theme
+    const selectedTopic = topic || getRandomTopicForTheme(blogTheme)
+    const selectedCategory = category || blogTheme
     const selectedKeywords = keywords || [
-      ...SEO_KEYWORDS.slice(0, 3),
-      selectedCategory.toLowerCase(),
+      ...getThemeKeywords(blogTheme),
+      ...SEO_KEYWORDS.slice(0, 2),
     ]
 
+    console.log('[Generate] Blog theme:', blogTheme)
     console.log('[Generate] Creating post about:', selectedTopic)
+    console.log('[Generate] Schedule info:', scheduleInfo)
 
     // ====== STEP 1: Generate blog content with ChatGPT ======
-    const contentPrompt = `Você é um redator especialista em tecnologia e transformação digital, escrevendo para o blog da CatBytes - uma empresa que oferece serviços digitais com IA, aplicações web inteligentes e chatbots personalizados.
+    const themePrompts: Record<string, string> = {
+      'Automação e Negócios': `Você é um consultor empresarial especialista em transformação digital, escrevendo para o blog da CatBytes - empresa que oferece automação com IA, aplicações web inteligentes e chatbots.
 
-TAREFA: Escreva um artigo de blog completo e profissional sobre o tema: "${selectedTopic}"
+TEMA: ${blogTheme} | TÓPICO: "${selectedTopic}"
+
+PÚBLICO-ALVO: Empresários, gestores, profissionais liberais e recrutadores
+OBJETIVO: Mostrar vantagens tangíveis da automação e digitalização
 
 REQUISITOS:
-- Tom: Profissional mas acessível, com toques criativos
-- Público-alvo: Empresários, gestores e profissionais de TI
-- Objetivo: Educar, engajar e gerar leads qualificados
-- SEO: Incluir naturalmente as palavras-chave: ${selectedKeywords.join(', ')}
-- Estrutura: Introdução engajante, 3-5 seções com subtítulos, conclusão com CTA
-- Tamanho: 800-1200 palavras
-- Inclua exemplos práticos e dados quando relevante
-- Use listas e bullets para melhor legibilidade
-- Mencione sutilmente como a CatBytes pode ajudar (sem ser vendedor demais)
+- Tom: Profissional, persuasivo, mas acessível a leigos
+- Foque em ROI, economia de tempo, aumento de vendas
+- Use dados reais e exemplos práticos de empresas
+- Explique benefícios de ter presença digital profissional
+- Inclua cases de sucesso (pode ser genérico mas realista)
+- Mencione sutilmente como CatBytes ajuda na transformação digital`,
 
-FORMATO DE RESPOSTA (JSON):
+      'Programação e IA': `Você é um educador tech que torna programação e IA acessíveis para iniciantes, escrevendo para o blog da CatBytes.
+
+TEMA: ${blogTheme} | TÓPICO: "${selectedTopic}"
+
+PÚBLICO-ALVO: Iniciantes em programação, curiosos sobre IA, profissionais querendo se atualizar
+OBJETIVO: Educar sobre tecnologia de forma simples e prática
+
+REQUISITOS:
+- Tom: Didático, amigável, sem jargões excessivos
+- Explique conceitos complexos de forma simples
+- Use analogias do dia a dia para explicar tecnologia
+- Inclua exemplos práticos e step-by-step quando possível
+- Inspire pessoas a começarem a programar/usar IA
+- Mostre como a tecnologia está mudando o mundo`,
+
+      'Cuidados Felinos': `Você é um veterinário apaixonado por felinos, escrevendo dicas carinhosas sobre cuidados com gatos para o blog da CatBytes.
+
+TEMA: ${blogTheme} | TÓPICO: "${selectedTopic}"
+
+PÚBLICO-ALVO: Tutores de gatos, amantes de felinos, pessoas considerando adotar
+OBJETIVO: Educar sobre cuidados felinos e promover bem-estar animal
+
+REQUISITOS:
+- Tom: Carinhoso, acolhedor, informativo mas afetuoso
+- Foque no amor e cuidado com os felinos
+- Use linguagem simples e acessível para todos
+- Inclua dicas práticas e sinais de alerta importantes
+- Promova adoção responsável e cuidados preventivos
+- Seja empático com tutores preocupados
+- NÃO mencione CatBytes (tema totalmente diferente)`
+    }
+
+    const selectedPrompt = themePrompts[blogTheme] || themePrompts['Automação e Negócios']
+    
+    const contentPrompt = `${selectedPrompt}
+
+ESTRUTURA: Introdução envolvente, 3-4 seções com subtítulos, conclusão inspiradora
+TAMANHO: 700-1000 palavras
+SEO: Incluir naturalmente: ${selectedKeywords.join(', ')}
+
+FORMATO JSON:
 {
-  "title": "Título impactante e SEO-friendly (max 70 caracteres)",
-  "excerpt": "Resumo atrativo do artigo (150-200 caracteres)",
-  "content": "Conteúdo completo em Markdown com ## para títulos, ### para subtítulos, **negrito**, listas, etc.",
-  "seo_title": "Título otimizado para SEO (55-60 caracteres)",
-  "seo_description": "Meta description otimizada (150-160 caracteres)",
+  "title": "Título cativante (máx 70 caracteres)",
+  "excerpt": "Resumo atrativo (150-200 caracteres)", 
+  "content": "Conteúdo completo em Markdown",
+  "seo_title": "Título SEO (55-60 caracteres)",
+  "seo_description": "Meta description (150-160 caracteres)",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
 }
 
-Gere APENAS o JSON, sem texto adicional antes ou depois.`
+Responda APENAS com JSON válido.`
 
     const chatCompletion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -124,10 +178,7 @@ Gere APENAS o JSON, sem texto adicional antes ou depois.`
     console.log('[Generate] Content generated:', generatedPost.title)
 
     // ====== STEP 2: Generate cover image with DALL-E ======
-    const imagePrompt = `Professional tech blog header image for article about "${generatedPost.title}".
-Modern, clean design with technology elements (circuits, AI, code) combined with cat-themed accents (subtle paw prints, cat silhouette).
-Colors: Purple, blue, pink gradient. Style: Minimalist, professional, web-ready.
-No text in image. Aspect ratio: 16:9. High quality.`
+    const imagePrompt = generateImagePromptForTheme(blogTheme, generatedPost.title)
 
     console.log('[Generate] Creating cover image...')
 
@@ -264,6 +315,7 @@ No text in image. Aspect ratio: 16:9. High quality.`
       translatedPost: translatedPost || null,
       generationTime,
       metadata: {
+        theme: blogTheme,
         topic: selectedTopic,
         category: selectedCategory,
         keywords: selectedKeywords,
@@ -271,6 +323,7 @@ No text in image. Aspect ratio: 16:9. High quality.`
         imageModel: 'dall-e-3',
         translated: !!translatedPost,
         languages: translatedPost ? ['pt-BR', 'en-US'] : ['pt-BR'],
+        scheduleInfo: scheduleInfo,
       },
     })
   } catch (error) {

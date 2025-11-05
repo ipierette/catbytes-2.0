@@ -119,25 +119,58 @@ export const SEO_KEYWORDS = [
   'desenvolvimento de software',
 ] as const
 
+// Blog Theme Categories (rotating by day)
 export const BLOG_CATEGORIES = [
-  'Tecnologia',
-  'Inteligência Artificial',
-  'Desenvolvimento Web',
-  'Automação',
-  'Chatbots',
-  'Inovação Digital',
+  'Automação e Negócios', // Terça-feira - Para clientes e recrutadores
+  'Programação e IA',     // Quinta-feira - Dicas técnicas acessíveis  
+  'Cuidados Felinos',     // Sábado - Gatinhos e cuidados
 ] as const
 
-// Topic ideas for automated generation
-export const BLOG_TOPICS = [
-  'Como a IA está transformando os negócios digitais',
-  'Chatbots: o futuro do atendimento ao cliente',
-  'Automação inteligente: ganhe tempo e produtividade',
-  'Aplicações web modernas com IA integrada',
-  'Por que sua empresa precisa de um chatbot personalizado',
-  'Desenvolvimento web em 2024: tendências e tecnologias',
-  'Como escolher a melhor solução digital para seu negócio',
-  'Inteligência artificial aplicada ao e-commerce',
-  'Automação de processos: guia completo',
-  'APIs de IA: integrando inteligência nos seus projetos',
-] as const
+export type BlogTheme = typeof BLOG_CATEGORIES[number]
+
+// Schedule: Tuesday (Automação), Thursday (Programação), Saturday (Gatinhos)
+export const BLOG_SCHEDULE = {
+  2: 'Automação e Negócios', // Terça
+  4: 'Programação e IA',     // Quinta  
+  6: 'Cuidados Felinos',     // Sábado
+} as const
+
+// Topic ideas for each theme
+export const BLOG_TOPICS = {
+  'Automação e Negócios': [
+    'Por que toda empresa precisa de automação em 2024',
+    'Como um site profissional aumenta sua credibilidade',
+    'Chatbots: o segredo para atendimento 24/7',
+    'ROI de aplicações web: vale a pena investir?',
+    'Transformação digital para pequenas empresas',
+    'Como a IA pode revolucionar seu negócio',
+    'Sites responsivos: por que são essenciais hoje',
+    'Automação de vendas: ganhe mais vendendo menos',
+    'Portfolio online: sua vitrine digital profissional',
+    'Como escolher a tecnologia certa para sua empresa',
+  ],
+  'Programação e IA': [
+    'JavaScript moderno: recursos que todo dev deveria conhecer',
+    'Como começar com Inteligência Artificial em 2024',
+    'React vs Vue: qual framework escolher?',
+    'APIs REST: guia completo para iniciantes',
+    'Machine Learning explicado de forma simples',
+    'Git: comandos essenciais que todo programador deve saber',
+    'TypeScript: por que você deveria usar',
+    'Algoritmos básicos explicados com exemplos práticos',
+    'Como estruturar um projeto web profissional',
+    'Tendências em desenvolvimento web para 2024',
+  ],
+  'Cuidados Felinos': [
+    'Primeiros cuidados com filhotes de gato',
+    'Como criar um ambiente seguro para gatos',
+    'Alimentação felina: guia completo por idade',
+    'Sinais de que seu gato precisa de veterinário',
+    'Como socializar gatos com outros pets',
+    'Brincadeiras essenciais para o bem-estar felino',
+    'Cuidados com gatos idosos: amor na terceira idade',
+    'Como identificar o stress em felinos',
+    'Vacinação felina: cronograma essencial',
+    'Plantas tóxicas para gatos: lista de cuidados',
+  ]
+} as const
