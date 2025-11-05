@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 // =====================================================
-// GET /api/blog/cron
-// Vercel Cron Job - Auto-generate blog posts
-// Schedule: Tuesday, Thursday, Saturday at 10:00 AM (BRT)
+// GET /api/blog/cron-disabled
+// DISABLED - Blog cron job (now handled by unified-cron)
 // =====================================================
 
 export const runtime = 'nodejs'

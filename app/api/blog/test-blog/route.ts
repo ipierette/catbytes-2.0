@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 // =====================================================
 // GET /api/blog/cron-test
-// Test endpoint to manually trigger cron without auth
+// Test endpoint for blog generation (not a cron job)
 // TEMPORARY - Remove after testing
 // =====================================================
 
