@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { BlogPreviewModal } from '@/components/blog/blog-preview-modal'
 
 interface BlogPost {
   id: string
@@ -44,6 +45,9 @@ export default function BlogAdminPage() {
   const [loading, setLoading] = useState(true)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [previewModalOpen, setPreviewModalOpen] = useState(false)
+  const [previewTheme, setPreviewTheme] = useState('')
+  const [generatedPost, setGeneratedPost] = useState<any>(null)
 
   useEffect(() => {
     loadData()
@@ -80,24 +84,58 @@ export default function BlogAdminPage() {
   const handleGeneratePost = async (theme?: string) => {
     try {
       const themeText = theme ? ` (${theme})` : ''
-      setMessage({ type: 'success', text: `Gerando novo artigo${themeText}... Isso pode demorar alguns minutos.` })
+      setMessage({ type: 'success', text: `Gerando rascunho do artigo${themeText}... Prepare-se para personalizar!` })
       
       const response = await fetch('/api/blog/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ theme })
+        body: JSON.stringify({ theme, generateOnly: true }) // Só gera, não salva ainda
       })
 
       const data = await response.json()
 
       if (data.success) {
-        setMessage({ type: 'success', text: `Artigo "${data.post?.title}" gerado com sucesso!` })
-        await loadData()
+        // Abre modal de preview com o post gerado
+        setGeneratedPost({
+          title: data.post?.title || '',
+          excerpt: data.post?.excerpt || '',
+          content: data.post?.content || '',
+          cover_image_url: data.post?.cover_image_url || '',
+          category: theme || data.post?.category || '',
+          tags: data.post?.tags || []
+        })
+        setPreviewTheme(theme || data.metadata?.theme || 'Automação e Negócios')
+        setPreviewModalOpen(true)
+        setMessage({ type: 'success', text: 'Rascunho gerado! Agora você pode personalizar antes de publicar.' })
       } else {
         setMessage({ type: 'error', text: data.error || 'Erro ao gerar artigo' })
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Erro ao gerar artigo' })
+    }
+  }
+
+  const handleSaveFromPreview = async (postData: any) => {
+    try {
+      setMessage({ type: 'success', text: 'Salvando artigo personalizado...' })
+      
+      const response = await fetch('/api/blog/save-custom', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData)
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setMessage({ type: 'success', text: `Artigo "${data.post?.title}" salvo com sucesso!` })
+        setPreviewModalOpen(false)
+        await loadData()
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erro ao salvar artigo' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Erro ao salvar artigo' })
     }
   }
 
@@ -488,6 +526,15 @@ export default function BlogAdminPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Modal de Preview e Edição */}
+      <BlogPreviewModal
+        isOpen={previewModalOpen}
+        onClose={() => setPreviewModalOpen(false)}
+        onSave={handleSaveFromPreview}
+        initialPost={generatedPost || {}}
+        theme={previewTheme}
+      />
     </AdminLayoutWrapper>
     </AdminGuard>
   )

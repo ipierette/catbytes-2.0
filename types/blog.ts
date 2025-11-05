@@ -100,6 +100,30 @@ export interface BlogGenerationResponse {
   generationTime?: number
 }
 
+// Image Text Overlay Types
+export interface ImageTextSettings {
+  fontSize: number
+  fontFamily: string
+  color: string
+  strokeColor?: string
+  strokeWidth?: number
+  backgroundColor?: string
+  position: 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
+  isBold?: boolean
+  isItalic?: boolean
+}
+
+export interface CustomBlogPostRequest {
+  title: string
+  excerpt: string
+  content: string
+  category: string
+  tags: string[]
+  cover_image_url: string
+  imageText?: string
+  imageSettings?: ImageTextSettings
+}
+
 // SEO Keywords for blog automation
 export const SEO_KEYWORDS = [
   'automação com IA',
