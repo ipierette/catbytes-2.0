@@ -7,8 +7,8 @@
   },
   "crons": [
     {
-      "path": "/api/simple-cron",
-      "schedule": "0 13 * * 1,2,4,6"
+      "path": "/api/unified-cron",
+      "schedule": "0 13,15 * * 1,2,4,6"
     }
   ]
 }
