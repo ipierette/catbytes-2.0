@@ -91,6 +91,49 @@ export default function BlogAdminPage() {
     }
   }
 
+  const handleTranslatePost = async (postId: string, title: string) => {
+    if (!confirm(`Traduzir "${title}" para inglês? Esta ação criará uma versão em inglês do post.`)) return
+
+    try {
+      setLoading(true)
+      setMessage({ 
+        type: 'success', 
+        text: `Traduzindo "${title}"... Isso pode demorar alguns minutos.` 
+      })
+
+      const response = await fetch('/api/blog/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          postId: postId,
+          targetLanguage: 'en'
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        const slug = data.post?.slug || 'unknown'
+        setMessage({ 
+          type: 'success', 
+          text: `Post traduzido com sucesso! A versão em inglês estará disponível em /en-US/blog/${slug}` 
+        })
+      } else {
+        setMessage({ 
+          type: 'error', 
+          text: data.error || 'Erro ao traduzir post' 
+        })
+      }
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: 'Erro ao conectar com o servidor de tradução' 
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleDeletePost = async (postId: string) => {
     if (!confirm('Deseja realmente excluir este post?')) return
 
@@ -334,6 +377,16 @@ export default function BlogAdminPage() {
                         >
                           <Eye className="h-3 w-3" />
                           Ver
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="gap-1"
+                          onClick={() => handleTranslatePost(post.id, post.title)}
+                          disabled={loading}
+                        >
+                          🌐 Traduzir
                         </Button>
                         
                         <Button
