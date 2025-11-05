@@ -24,7 +24,7 @@ interface AdminNavItem {
 const adminNavItems: AdminNavItem[] = [
   {
     title: 'Dashboard Principal',
-    href: '/admin/mega-campaign',
+    href: '/pt-BR/admin/dashboard',
     icon: LayoutDashboard,
     description: 'Painel de controle da mega automação'
   },
@@ -42,13 +42,13 @@ const adminNavItems: AdminNavItem[] = [
   },
   {
     title: 'Analytics',
-    href: '/admin/analytics',
+    href: '/pt-BR/admin/analytics',
     icon: BarChart3,
     description: 'Métricas e relatórios'
   },
   {
     title: 'Configurações',
-    href: '/admin/settings',
+    href: '/pt-BR/admin/settings',
     icon: Settings,
     description: 'Configurações do sistema'
   }
@@ -179,11 +179,11 @@ export function AdminLayoutWrapper({
   description?: string
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
+    <div className="min-h-screen bg-gray-50 pt-20">
+      <div className="flex min-h-[calc(100vh-5rem)]">
         {/* Sidebar */}
-        <div className="hidden md:flex md:w-64 md:flex-col">
-          <div className="flex flex-col flex-grow pt-5 bg-white border-r border-gray-200">
+        <div className="hidden md:flex md:w-64 md:flex-col fixed left-0 top-20 bottom-0 z-10">
+          <div className="flex flex-col flex-grow pt-5 bg-white border-r border-gray-200 h-full overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -203,7 +203,7 @@ export function AdminLayoutWrapper({
         </div>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col md:ml-64">
           {/* Header */}
           <header className="bg-white border-b border-gray-200 px-6 py-4">
             <div className="flex items-center justify-between">
