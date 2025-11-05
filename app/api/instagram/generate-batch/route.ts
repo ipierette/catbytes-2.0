@@ -23,7 +23,12 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization')
     const isCronJob = authHeader === `Bearer ${process.env.CRON_SECRET}`
     
-    if (!isCronJob) {
+    // Também verifica se é um admin logado via cookie/session
+    const adminApiKey = request.headers.get('x-admin-key')
+    const isAdmin = adminApiKey === process.env.ADMIN_API_KEY
+    
+    // Permite acesso via cron OU via admin
+    if (!isCronJob && !isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
