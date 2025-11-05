@@ -7,6 +7,7 @@ import { AdminProvider } from '@/hooks/use-admin'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { AppShell } from '@/components/app/app-shell'
 import { DesktopLayout } from '@/components/layout'
+import { AnalyticsTracker } from '@/components/analytics/analytics-tracker'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -121,6 +122,7 @@ export default async function LocaleLayout({
               <AppShell>
                 <DesktopLayout>
                   <ScrollProgress />
+                  <AnalyticsTracker />
                   <main>{children}</main>
                 </DesktopLayout>
               </AppShell>
