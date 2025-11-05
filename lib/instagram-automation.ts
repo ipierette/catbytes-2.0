@@ -64,7 +64,7 @@ export const NICHES: Record<Niche, {
       '#LegalTech',
       '#AdvocaciaEficiente'
     ],
-    contextoImagem: 'Professional lawyer in modern office with stacks of legal documents on desk, looking stressed, warm office lighting, realistic photography style'
+    contextoImagem: 'Modern law office with sleek laptop showing automated legal dashboard, organized desk with minimal documents, bright natural lighting, professional and efficient workspace. Clean, sophisticated environment showcasing digital transformation and productivity. No people in frame, focus on technology and organization.'
   },
   medicos: {
     nome: 'Médicos',
@@ -90,7 +90,7 @@ export const NICHES: Record<Niche, {
       '#ProdutividadeMédica',
       '#TecnologiaNaSaúde'
     ],
-    contextoImagem: 'Doctor in white coat sitting at clinic desk with computer and medical charts, overwhelmed with paperwork, bright medical office, realistic photography'
+    contextoImagem: 'Modern medical office with digital tablet showing appointment scheduling system, clean organized desk with stethoscope, bright professional healthcare environment. Efficient digital medical workspace with technology integration. No people in frame, focus on medical technology and organization.'
   },
   terapeutas: {
     nome: 'Terapeutas',
@@ -116,7 +116,7 @@ export const NICHES: Record<Niche, {
       '#ProdutividadeTerapêutica',
       '#InovaçãoNaSaúdeMental'
     ],
-    contextoImagem: 'Therapist in calm office with notebook and laptop, surrounded by appointment books, peaceful therapy room setting, natural lighting, realistic photography'
+    contextoImagem: 'Peaceful therapy office with modern laptop showing digital calendar system, comfortable seating area, plants, soft natural lighting, organized and serene environment. Professional therapeutic workspace showcasing digital organization tools. No people in frame, focus on calm productivity and technology.'
   },
   nutricionistas: {
     nome: 'Nutricionistas',
@@ -142,7 +142,7 @@ export const NICHES: Record<Niche, {
       '#ProdutividadeNutri',
       '#TecnologiaNaNutrição'
     ],
-    contextoImagem: 'Nutritionist at desk with meal plans and food charts spread out, working on laptop, bright professional office, realistic photography style'
+    contextoImagem: 'Modern nutrition office with digital tablet displaying meal planning app, fresh fruits and vegetables artfully arranged, bright clean workspace with natural lighting. Professional nutrition consultation room showcasing digital tools and healthy lifestyle. No people in frame, focus on nutrition technology and wellness.'
   }
 }
 
@@ -157,27 +157,35 @@ export const POST_SCHEDULE = {
 // Textos curtos para overlay na imagem (máximo 6 palavras)
 export const IMAGE_OVERLAY_TEXTS = {
   advogados: [
-    'Ganhe 12h por semana',
-    'Automatize contratos em segundos',
-    'Reduza 60% tarefas administrativas',
-    'IA jurídica que escala'
+    '+12h LIVRES POR SEMANA',
+    'CONTRATOS EM 30 SEGUNDOS',
+    '60% MENOS BUROCRACIA',
+    'IA JURÍDICA REVOLUCIONÁRIA',
+    'AUTOMATIZAÇÃO TOTAL ESCRITÓRIO',
+    'GANHE TEMPO, GANHE MAIS'
   ],
   medicos: [
-    'Aumente receita em 47%',
-    'Libere 3h diárias de trabalho',
-    'Agendamentos 24/7 com IA',
-    'Mais consultas, menos burocracia'
+    '+47% DE RECEITA GARANTIDO',
+    '3H EXTRAS PARA CONSULTAS',
+    'AGENDAMENTO 100% AUTOMÁTICO',
+    'ZERO LIGAÇÕES PERDIDAS',
+    'CONSULTÓRIO DO FUTURO',
+    'MAIS PACIENTES, ZERO STRESS'
   ],
   terapeutas: [
-    'Reduza 80% das faltas',
-    'Ganhe 2h por dia',
-    'IA confirma sessões automaticamente',
-    'Escale sem contratar assistente'
+    '80% MENOS FALTAS',
+    '+2H LIVRES DIARIAMENTE',
+    'IA CONFIRMA TUDO SOZINHA',
+    'ESCALE SEM FUNCIONÁRIOS',
+    'TERAPIA DIGITAL AVANÇADA',
+    'ORGANIZE-SE AUTOMATICAMENTE'
   ],
   nutricionistas: [
-    'Aumente ROI em 55%',
-    'Dobre sua capacidade atendimento',
-    'Planos personalizados em minutos',
-    'Acompanhamento 24/7 automático'
+    '+55% DE ROI COMPROVADO',
+    'DOBRE SEUS ATENDIMENTOS',
+    'PLANOS EM 2 MINUTOS',
+    'ACOMPANHAMENTO INTELIGENTE',
+    'NUTRIÇÃO AUTOMATIZADA',
+    'MAIS RESULTADOS, MENOS TEMPO'
   ]
 }

@@ -39,14 +39,17 @@ GERE:
 1. TÍTULO (uma linha, máx 60 caracteres, chamativo e direto):
 Exemplo: "IA que faz seu consultório trabalhar sozinho"
 
-2. CAPTION (200-300 palavras):
-- Início com gancho emocional ou pergunta provocativa
-- Apresente uma dor específica do público
-- Mostre como a automação resolve (com dados específicos quando possível)
-- CTA clara direcionando para https://catbytes.site
-- Tom: profissional, mas conversacional
-- Use quebras de linha para facilitar leitura
-- NÃO use emojis excessivos (máx 2-3 estratégicos)
+2. CAPTION (250-400 palavras):
+- Início com gancho emocional FORTE ou pergunta que gera curiosidade
+- Apresente uma dor específica e mensurável do público
+- Mostre benefícios tangíveis da automação (use números e percentuais)
+- Inclua prova social ou caso de sucesso se possível
+- CTA persuasiva direcionando para: "Saiba mais: https://catbytes.site"
+- Tom: conversacional, empático, mas autoritativo
+- Use quebras de linha curtas (máx 2 linhas por parágrafo)
+- Máximo 2 emojis estratégicos no início e final
+- Evite jargões técnicos excessivos
+- Foque em resultados e transformação
 
 Responda APENAS em formato JSON:
 {

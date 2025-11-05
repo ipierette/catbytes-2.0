@@ -46,15 +46,19 @@ export async function generateImage(prompt: string): Promise<string> {
 export function optimizePromptWithText(basePrompt: string, overlayText: string): string {
   return `${basePrompt}
 
-IMPORTANT: Include text overlay in the image with these exact words: "${overlayText}"
-The text should be:
-- Centered in the image
-- Large, bold, and easily readable
-- White text with black outline or shadow for contrast
-- Professional typography
-- Positioned in the middle third of the image
+CRITICAL TEXT OVERLAY REQUIREMENTS:
+- Display this EXACT text: "${overlayText}"
+- Text must be LARGE, BOLD, and HIGHLY READABLE
+- Use modern sans-serif font (like Arial or Roboto)
+- Position text in CENTER of image
+- Text color: Pure WHITE (#FFFFFF)
+- Add thick BLACK border/outline around each letter for maximum contrast
+- Text should occupy 20-25% of image height
+- Background behind text should have subtle dark gradient overlay for better readability
+- Ensure high contrast ratio for accessibility
+- Text must be the DOMINANT visual element
 
-The text MUST be clearly visible and readable.`
+Style: Clean, professional, modern business aesthetic. High contrast. Professional photography quality.`
 }
 
 /**
