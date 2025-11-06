@@ -32,13 +32,24 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Verificar se a OpenAI API Key está configurada
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({
+        success: false,
+        error: 'OPENAI_API_KEY não configurada. Configure no .env.local'
+      }, { status: 500 })
+    }
+
     // Usar template do nicho se disponível
     const nicheTemplate = NICHE_TEMPLATES[nicho as keyof typeof NICHE_TEMPLATES]
 
     const generatedPosts = []
+    const errors = []
 
     for (let i = 0; i < quantidade; i++) {
       try {
+        console.log(`[DALL-E API] Tentando gerar post ${i + 1}/${quantidade}...`)
+        
         // 1. Gerar com DALL-E 3
         const post = await generateInstagramPostWithDALLE({
           nicho,
@@ -66,6 +77,7 @@ export async function POST(request: NextRequest) {
 
         if (insertError || !tempPost) {
           console.error('[DALL-E API] Erro ao criar post:', insertError)
+          errors.push(`Post ${i + 1}: Erro ao salvar no banco`)
           continue
         }
 
@@ -103,7 +115,9 @@ export async function POST(request: NextRequest) {
         }
 
       } catch (error) {
-        console.error(`[DALL-E API] Erro ao gerar post ${i + 1}:`, error)
+        const errorMsg = error instanceof Error ? error.message : 'Erro desconhecido'
+        console.error(`[DALL-E API] Erro ao gerar post ${i + 1}:`, errorMsg)
+        errors.push(`Post ${i + 1}: ${errorMsg}`)
         // Continuar com os próximos
       }
     }
@@ -111,7 +125,9 @@ export async function POST(request: NextRequest) {
     if (generatedPosts.length === 0) {
       return NextResponse.json({
         success: false,
-        error: 'Nenhum post foi gerado com sucesso'
+        error: 'Nenhum post foi gerado com sucesso',
+        detalhes: errors,
+        sugestao: 'Verifique se sua conta OpenAI tem acesso ao DALL-E 3 e créditos disponíveis. Alternativamente, use a geração tradicional com IA.'
       }, { status: 500 })
     }
 
@@ -119,14 +135,28 @@ export async function POST(request: NextRequest) {
       success: true,
       posts: generatedPosts,
       generated: generatedPosts.length,
+      errors: errors.length > 0 ? errors : undefined,
       message: `${generatedPosts.length} post(s) gerado(s) com sucesso usando DALL-E 3!`
     })
 
   } catch (error) {
-    console.error('[DALL-E API] Erro geral:', error)
+    const errorMsg = error instanceof Error ? error.message : 'Erro desconhecido'
+    console.error('[DALL-E API] Erro geral:', errorMsg)
+    
+    // Mensagem de erro mais detalhada
+    let userMessage = errorMsg
+    if (errorMsg.includes('api_key')) {
+      userMessage = 'API Key da OpenAI inválida ou não configurada'
+    } else if (errorMsg.includes('insufficient_quota')) {
+      userMessage = 'Créditos OpenAI insuficientes. Adicione créditos na sua conta OpenAI.'
+    } else if (errorMsg.includes('model_not_found')) {
+      userMessage = 'DALL-E 3 não está disponível na sua conta OpenAI. Use a geração tradicional.'
+    }
+    
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Erro desconhecido'
+      error: userMessage,
+      errorTecnico: errorMsg
     }, { status: 500 })
   }
 }

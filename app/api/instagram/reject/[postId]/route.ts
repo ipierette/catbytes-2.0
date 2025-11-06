@@ -10,19 +10,52 @@ export async function POST(
     const body = await request.json()
     const reason = body.reason || 'Qualidade não aprovada'
 
-    // Buscar post para enviar notificação
+    // Buscar post antes de deletar
     const { data: post } = await supabaseAdmin
       .from('instagram_posts')
-      .select('caption')
+      .select('*')
       .eq('id', postId)
       .single()
 
-    // ✅ USAR método rejectPost (vamos atualizar ele para usar rejection_reason)
-    const updatedPost = await instagramDB.rejectPost(postId, reason)
+    if (!post) {
+      return NextResponse.json({
+        success: false,
+        error: 'Post não encontrado'
+      }, { status: 404 })
+    }
 
-    // Enviar notificação por email
+    // DELETAR permanentemente do banco de dados
+    const { error: deleteError } = await supabaseAdmin
+      .from('instagram_posts')
+      .delete()
+      .eq('id', postId)
+
+    if (deleteError) {
+      console.error('Error deleting post:', deleteError)
+      return NextResponse.json({
+        success: false,
+        error: 'Erro ao deletar post'
+      }, { status: 500 })
+    }
+
+    // Tentar deletar imagem do storage (se não for URL externa)
+    if (post.image_url && post.image_url.includes('supabase')) {
+      try {
+        const imagePath = post.image_url.split('/').pop()
+        if (imagePath) {
+          await supabaseAdmin.storage
+            .from('instagram-images')
+            .remove([`generated/${imagePath}`])
+        }
+      } catch (error) {
+        console.error('Error deleting image from storage:', error)
+        // Continuar mesmo se falhar ao deletar imagem
+      }
+    }
+
+    // Enviar notificação por email (opcional)
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notifications/email`, {
+      await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/notifications/email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -31,19 +64,24 @@ export async function POST(
           type: 'post_rejected',
           data: {
             postId,
-            caption: post?.caption || 'N/A',
+            caption: post.caption || 'N/A',
             reason
           }
         })
       })
     } catch (error) {
       console.error('Error sending notification email:', error)
+      // Continuar mesmo se falhar ao enviar email
     }
 
     return NextResponse.json({
       success: true,
-      post: updatedPost,
-      message: 'Post rejeitado com sucesso'
+      message: 'Post rejeitado e deletado permanentemente',
+      deletedPost: {
+        id: post.id,
+        titulo: post.titulo,
+        caption: post.caption
+      }
     })
   } catch (error) {
     console.error('Error in reject endpoint:', error)
