@@ -3,18 +3,31 @@
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Mail, Eye, Send } from 'lucide-react'
+import { Mail, Eye, Send, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 type EmailType = 'welcome' | 'new-post'
 
+interface QualityReport {
+  score: number
+  passed: boolean
+  summary: {
+    criticalIssues: number
+    totalIssues: number
+    totalWarnings: number
+  }
+  formattedReport: string
+}
+
 export default function EmailPreviewPage() {
   const [selectedEmail, setSelectedEmail] = useState<EmailType>('welcome')
   const [previewHtml, setPreviewHtml] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [qualityReport, setQualityReport] = useState<QualityReport | null>(null)
+  const [showQualityReport, setShowQualityReport] = useState(false)
 
   const loadPreview = async (type: EmailType) => {
     try {
@@ -60,6 +73,41 @@ export default function EmailPreviewPage() {
     } catch (error) {
       console.error('Error sending test email:', error)
       setMessage({ type: 'error', text: 'Erro ao enviar email de teste' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const checkQuality = async () => {
+    try {
+      setLoading(true)
+      setMessage(null)
+      setShowQualityReport(false)
+
+      const response = await fetch(`/api/email-quality?template=${selectedEmail}`)
+      const data = await response.json()
+
+      if (data.success) {
+        setQualityReport(data)
+        setShowQualityReport(true)
+        
+        if (data.report.passed) {
+          setMessage({ 
+            type: 'success', 
+            text: `✅ Email passou no teste de qualidade! Score: ${data.report.score}/100` 
+          })
+        } else {
+          setMessage({ 
+            type: 'error', 
+            text: `⚠️ Email não passou no teste. Score: ${data.report.score}/100 - Veja o relatório abaixo.` 
+          })
+        }
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erro ao verificar qualidade' })
+      }
+    } catch (error) {
+      console.error('Error checking quality:', error)
+      setMessage({ type: 'error', text: 'Erro ao verificar qualidade do email' })
     } finally {
       setLoading(false)
     }
@@ -140,13 +188,22 @@ export default function EmailPreviewPage() {
                   {loading ? 'Carregando...' : 'Recarregar Preview'}
                 </Button>
                 <Button
+                  onClick={checkQuality}
+                  disabled={loading}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Verificar Qualidade
+                </Button>
+                <Button
                   onClick={sendTestEmail}
                   disabled={loading}
                   variant="outline"
                   className="flex-1"
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  Enviar Email de Teste
+                  Enviar Teste
                 </Button>
               </div>
             </CardContent>
@@ -177,6 +234,82 @@ export default function EmailPreviewPage() {
                     Certifique-se de que o site está no ar para ver as imagens corretamente.
                   </p>
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Quality Report */}
+          {showQualityReport && qualityReport && (
+            <Card className={qualityReport.passed ? 'border-green-500' : 'border-orange-500'}>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    {qualityReport.passed ? (
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <AlertTriangle className="h-5 w-5 text-orange-600" />
+                    )}
+                    Relatório de Qualidade
+                  </span>
+                  <span className={`text-2xl font-bold ${
+                    qualityReport.score >= 90 ? 'text-green-600' :
+                    qualityReport.score >= 70 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>
+                    {qualityReport.score}/100
+                  </span>
+                </CardTitle>
+                <CardDescription>
+                  Análise completa de qualidade do email
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Summary */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <XCircle className="h-4 w-4 text-red-600" />
+                      <span className="text-sm font-medium text-red-600">Críticos</span>
+                    </div>
+                    <div className="text-2xl font-bold text-red-700">
+                      {qualityReport.summary.criticalIssues}
+                    </div>
+                  </div>
+                  <div className="text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <AlertTriangle className="h-4 w-4 text-orange-600" />
+                      <span className="text-sm font-medium text-orange-600">Issues</span>
+                    </div>
+                    <div className="text-2xl font-bold text-orange-700">
+                      {qualityReport.summary.totalIssues}
+                    </div>
+                  </div>
+                  <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <AlertTriangle className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-600">Warnings</span>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-700">
+                      {qualityReport.summary.totalWarnings}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Detailed Report */}
+                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                  <pre className="text-xs whitespace-pre-wrap font-mono overflow-x-auto">
+                    {qualityReport.formattedReport}
+                  </pre>
+                </div>
+
+                {/* Action Button */}
+                <Button
+                  onClick={() => setShowQualityReport(false)}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Fechar Relatório
+                </Button>
               </CardContent>
             </Card>
           )}
