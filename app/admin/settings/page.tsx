@@ -74,11 +74,72 @@ export default function SettingsPage() {
         
         if (data.success) {
           setSettings(data.settings)
+          return
         }
       }
+      
+      // Se falhar, usar configurações padrão
+      setSettings({
+        automation: {
+          blogGeneration: true,
+          instagramGeneration: true,
+          autoPublishing: true,
+          batchSize: 10
+        },
+        api: {
+          openaiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || '',
+          instagramToken: process.env.NEXT_PUBLIC_INSTAGRAM_TOKEN || '',
+          emailService: true,
+          databaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+        },
+        content: {
+          blogLanguages: ['pt-BR', 'en-US'],
+          instagramNiches: ['advogados', 'medicos', 'terapeutas', 'nutricionistas'],
+          defaultAuthor: 'Izadora Cury Pierette',
+          contentTone: 'professional'
+        },
+        notifications: {
+          emailAlerts: true,
+          errorNotifications: true,
+          successNotifications: false,
+          dailyReports: true
+        }
+      })
     } catch (error) {
       console.error('Erro ao carregar configurações:', error)
-      setMessage({ type: 'error', text: 'Erro ao carregar configurações' })
+      
+      // Mesmo em erro, carregar configurações padrão
+      setSettings({
+        automation: {
+          blogGeneration: true,
+          instagramGeneration: true,
+          autoPublishing: true,
+          batchSize: 10
+        },
+        api: {
+          openaiKey: '',
+          instagramToken: '',
+          emailService: true,
+          databaseUrl: ''
+        },
+        content: {
+          blogLanguages: ['pt-BR', 'en-US'],
+          instagramNiches: ['advogados', 'medicos', 'terapeutas', 'nutricionistas'],
+          defaultAuthor: 'Izadora Cury Pierette',
+          contentTone: 'professional'
+        },
+        notifications: {
+          emailAlerts: true,
+          errorNotifications: true,
+          successNotifications: false,
+          dailyReports: true
+        }
+      })
+      
+      setMessage({ 
+        type: 'error', 
+        text: 'Usando configurações padrão. Algumas funcionalidades podem estar limitadas.' 
+      })
     } finally {
       setLoading(false)
     }

@@ -9,6 +9,43 @@ const supabase = createClient(
 // GET - Buscar configurações
 export async function GET() {
   try {
+    // Configurações padrão
+    const defaultSettings = {
+      automation: {
+        blogGeneration: true,
+        instagramGeneration: true,
+        autoPublishing: true,
+        batchSize: 10
+      },
+      api: {
+        openaiKey: process.env.OPENAI_API_KEY || '',
+        instagramToken: process.env.INSTAGRAM_ACCESS_TOKEN || '',
+        emailService: true,
+        databaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+      },
+      content: {
+        blogLanguages: ['pt-BR', 'en-US'],
+        instagramNiches: ['advogados', 'medicos', 'terapeutas', 'nutricionistas'],
+        defaultAuthor: 'Izadora Cury Pierette',
+        contentTone: 'professional' as const
+      },
+      notifications: {
+        emailAlerts: true,
+        errorNotifications: true,
+        successNotifications: false,
+        dailyReports: true
+      }
+    }
+
+    // Se Supabase não estiver configurado, retornar padrão
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json({
+        success: true,
+        settings: defaultSettings,
+        isDefault: true
+      })
+    }
+
     // Buscar configurações do banco
     const { data: settings, error } = await supabase
       .from('admin_settings')
@@ -17,35 +54,16 @@ export async function GET() {
 
     if (error && error.code !== 'PGRST116') { // PGRST116 = not found
       console.error('Error fetching settings:', error)
+      // Retornar padrão mesmo com erro
       return NextResponse.json({
-        success: false,
-        error: 'Erro ao buscar configurações'
-      }, { status: 500 })
+        success: true,
+        settings: defaultSettings,
+        isDefault: true
+      })
     }
 
     // Se não existir, retornar configurações padrão
     if (!settings) {
-      const defaultSettings = {
-        automation: {
-          blogGeneration: true,
-          instagramGeneration: true,
-          autoPublishing: true,
-          batchSize: 10
-        },
-        content: {
-          blogLanguages: ['pt-BR', 'en-US'],
-          instagramNiches: ['advogados', 'medicos', 'terapeutas', 'nutricionistas'],
-          defaultAuthor: 'Izadora Cury Pierette',
-          contentTone: 'professional'
-        },
-        notifications: {
-          emailAlerts: true,
-          errorNotifications: true,
-          successNotifications: false,
-          dailyReports: true
-        }
-      }
-
       return NextResponse.json({
         success: true,
         settings: defaultSettings,
@@ -60,10 +78,38 @@ export async function GET() {
     })
   } catch (error) {
     console.error('Error in GET /api/admin/settings:', error)
+    
+    // Retornar padrão em caso de erro
     return NextResponse.json({
-      success: false,
-      error: 'Erro interno do servidor'
-    }, { status: 500 })
+      success: true,
+      settings: {
+        automation: {
+          blogGeneration: true,
+          instagramGeneration: true,
+          autoPublishing: true,
+          batchSize: 10
+        },
+        api: {
+          openaiKey: '',
+          instagramToken: '',
+          emailService: true,
+          databaseUrl: ''
+        },
+        content: {
+          blogLanguages: ['pt-BR', 'en-US'],
+          instagramNiches: ['advogados', 'medicos', 'terapeutas', 'nutricionistas'],
+          defaultAuthor: 'Izadora Cury Pierette',
+          contentTone: 'professional' as const
+        },
+        notifications: {
+          emailAlerts: true,
+          errorNotifications: true,
+          successNotifications: false,
+          dailyReports: true
+        }
+      },
+      isDefault: true
+    })
   }
 }
 
