@@ -163,15 +163,15 @@ export function Header() {
 
       {/* Admin Login Modal */}
       {showAdminModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative my-8 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => {
                 setShowAdminModal(false)
                 setPassword('')
                 setError('')
               }}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10"
             >
               ✕
             </button>
@@ -194,7 +194,7 @@ export function Header() {
                   ✓ Autenticado como admin
                 </div>
                 <button
-                  onClick={() => router.push(`/${params.locale || locale}/admin/dashboard`)}
+                  onClick={() => router.push('/admin/dashboard')}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
                 >
                   Ir para Dashboard
