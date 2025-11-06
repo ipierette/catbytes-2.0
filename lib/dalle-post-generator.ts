@@ -78,8 +78,16 @@ IMPORTANTE: O texto deve ser direto, impactante e otimizado para mobile.
       style: request.estilo === 'elegante' ? 'natural' : 'vivid'
     })
 
-    const imageUrl = imageResponse.data[0].url!
-    const revisedPrompt = imageResponse.data[0].revised_prompt
+    if (!imageResponse.data || imageResponse.data.length === 0) {
+      throw new Error('DALL-E não retornou nenhuma imagem')
+    }
+
+    const imageUrl = imageResponse.data[0]?.url
+    const revisedPrompt = imageResponse.data[0]?.revised_prompt
+
+    if (!imageUrl) {
+      throw new Error('URL da imagem não está disponível')
+    }
 
     console.log('[DALL-E Generator] Imagem gerada com sucesso!')
     console.log('[DALL-E Generator] Revised prompt:', revisedPrompt)
