@@ -2,13 +2,14 @@
 
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaHeart, FaCat, FaLinkedin, FaGithub, FaEnvelope, FaInstagram } from 'react-icons/fa'
 import { Lock } from 'lucide-react'
 import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
 import { useAdmin } from '@/hooks/use-admin'
-import { useState } from 'react'
 
 export function Footer() {
   const t = useTranslations('footer')
@@ -21,6 +22,11 @@ export function Footer() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,6 +50,7 @@ export function Footer() {
   }
 
   return (
+    <>
     <footer className="bg-gray-900 text-white py-12 border-t border-gray-800">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
@@ -180,82 +187,89 @@ export function Footer() {
           </div>
         </div>
       </div>
-
-      {/* Admin Login Modal */}
-      {showAdminModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative my-8 max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => {
-                setShowAdminModal(false)
-                setPassword('')
-                setError('')
-              }}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10"
-            >
-              ✕
-            </button>
-
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
-                <Lock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h2 className="text-2xl font-comfortaa font-bold text-gray-900 dark:text-white">
-                Admin Access
-              </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                {isAdmin ? 'Você já está logado como admin' : 'Digite a senha para acessar o painel admin'}
-              </p>
-            </div>
-
-            {!isAdmin ? (
-              <form onSubmit={handleAdminLogin} className="space-y-4">
-                <div>
-                  <label htmlFor="admin-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Senha
-                  </label>
-                  <input
-                    id="admin-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="••••••••"
-                    required
-                    autoFocus
-                  />
-                </div>
-
-                {error && (
-                  <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? 'Verificando...' : 'Entrar'}
-                </button>
-              </form>
-            ) : (
-              <div className="text-center">
-                <button
-                  onClick={() => {
-                    setShowAdminModal(false)
-                    router.push('/admin/dashboard')
-                  }}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-                >
-                  Ir para Admin
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </footer>
+
+    {/* Admin Login Modal - Rendered outside footer using Portal */}
+    {mounted && showAdminModal && createPortal(
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div 
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="admin-modal-title-footer"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative"
+        >
+          <button
+            onClick={() => {
+              setShowAdminModal(false)
+              setPassword('')
+              setError('')
+            }}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          >
+            ✕
+          </button>
+
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
+              <Lock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+            </div>
+            <h2 id="admin-modal-title-footer" className="text-2xl font-comfortaa font-bold text-gray-900 dark:text-white">
+              Admin Access
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              {isAdmin ? 'Você já está logado como admin' : 'Digite a senha para acessar o painel admin'}
+            </p>
+          </div>
+
+          {!isAdmin ? (
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div>
+                <label htmlFor="admin-password-footer" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Senha
+                </label>
+                <input
+                  id="admin-password-footer"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="••••••••"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              {error && (
+                <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Verificando...' : 'Entrar'}
+              </button>
+            </form>
+          ) : (
+            <div className="text-center">
+              <button
+                onClick={() => {
+                  setShowAdminModal(false)
+                  router.push('/admin/dashboard')
+                }}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Ir para Admin
+              </button>
+            </div>
+          )}
+        </div>
+      </div>,
+      document.body
+    )}
+  </>
   )
 }
