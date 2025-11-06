@@ -298,6 +298,16 @@ export default function BlogAdminPage() {
                   </div>
                 </DropdownMenuItem>
                 
+                <DropdownMenuItem 
+                  onClick={() => handleGeneratePost('Novidades sobre IA')}
+                  className="cursor-pointer"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-semibold">🤖 Novidades sobre IA</span>
+                    <span className="text-xs text-muted-foreground">Últimas notícias de IA</span>
+                  </div>
+                </DropdownMenuItem>
+                
                 <DropdownMenuSeparator />
                 
                 <DropdownMenuItem 
@@ -377,11 +387,11 @@ export default function BlogAdminPage() {
               Sistema Temático de Blog
             </CardTitle>
             <CardDescription>
-              3 categorias de artigos que rotacionam por dia da semana
+              4 categorias de artigos que rotacionam por dia da semana
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
                 <h4 className="font-semibold mb-2 text-blue-600">🗓️ Segunda-feira</h4>
                 <div className="bg-blue-50 p-3 rounded-lg">
@@ -405,6 +415,17 @@ export default function BlogAdminPage() {
               </div>
               
               <div>
+                <h4 className="font-semibold mb-2 text-pink-600">🗓️ Sábado</h4>
+                <div className="bg-pink-50 p-3 rounded-lg">
+                  <p className="font-medium text-sm mb-1">🐱 Cuidados Felinos</p>
+                  <p className="text-xs text-muted-foreground">
+                    Artigos acolhedores sobre cuidados com gatinhos: saúde, alimentação, 
+                    bem-estar animal com fotos adoráveis de gatinhos
+                  </p>
+                </div>
+              </div>
+              
+              <div>
                 <h4 className="font-semibold mb-2 text-emerald-600">🗓️ Domingo</h4>
                 <div className="bg-emerald-50 p-3 rounded-lg">
                   <p className="font-medium text-sm mb-1">🤖 Novidades sobre IA</p>
@@ -420,7 +441,7 @@ export default function BlogAdminPage() {
               <p className="text-sm">
                 <strong className="text-green-700">Status do Sistema:</strong>{' '}
                 <span className="text-green-600 font-semibold">ATIVO</span> - 
-                Geração automática nos dias programados (Segunda, Quinta, Domingo) + geração manual por tema
+                Geração automática nos dias programados (Segunda, Quinta, Sábado, Domingo) + geração manual por tema
               </p>
             </div>
           </CardContent>

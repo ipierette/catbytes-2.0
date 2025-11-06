@@ -1,5 +1,6 @@
 import { AdminProvider } from '@/hooks/use-admin'
 import { ThemeProvider } from '@/components/providers/theme-provider'
+import { AdminHeader } from '@/components/layout/admin-header'
 import type { Metadata } from 'next'
 import '@/app/globals.css'
 
@@ -26,6 +27,7 @@ export default function AdminLayout({
     >
       <AdminProvider>
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <AdminHeader />
           {children}
         </div>
       </AdminProvider>

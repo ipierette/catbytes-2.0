@@ -146,17 +146,19 @@ export const SEO_KEYWORDS = [
 // Blog Theme Categories (rotating by day)
 export const BLOG_CATEGORIES = [
   'Automação e Negócios', // Segunda-feira - Para clientes e recrutadores
-  'Programação e IA',     // Quinta-feira - Dicas de programação web para leigos  
-  'Cuidados Felinos',     // Domingo - Novidades sobre IA
+  'Programação e IA',     // Quinta-feira - Dicas de programação web fullstack para leigos
+  'Cuidados Felinos',     // Sábado - Gatinhos com fotos acolhedoras
+  'Novidades sobre IA',   // Domingo - Notícias e atualizações de IA
 ] as const
 
 export type BlogTheme = typeof BLOG_CATEGORIES[number]
 
-// Schedule: Monday (Automação), Thursday (Programação Web), Sunday (Novidades IA)
+// Schedule: Monday, Thursday, Saturday, Sunday
 export const BLOG_SCHEDULE = {
   1: 'Automação e Negócios', // Segunda
-  4: 'Programação e IA',     // Quinta  
-  0: 'Cuidados Felinos',     // Domingo
+  4: 'Programação e IA',     // Quinta
+  6: 'Cuidados Felinos',     // Sábado
+  0: 'Novidades sobre IA',   // Domingo
 } as const
 
 // Topic ideas for each theme
@@ -202,6 +204,18 @@ export const BLOG_TOPICS = {
     'SEO para desenvolvedores: seu site no Google',
   ],
   'Cuidados Felinos': [
+    'Primeiros cuidados com filhotes de gato',
+    'Como criar um ambiente seguro para gatos',
+    'Alimentação felina: guia completo por idade',
+    'Sinais de que seu gato precisa de veterinário',
+    'Como socializar gatos com outros pets',
+    'Brincadeiras essenciais para o bem-estar felino',
+    'Cuidados com gatos idosos: amor na terceira idade',
+    'Como identificar o stress em felinos',
+    'Vacinação felina: cronograma essencial',
+    'Plantas tóxicas para gatos: lista de cuidados',
+  ],
+  'Novidades sobre IA': [
     'ChatGPT lança novo modelo: o que mudou?',
     'Google apresenta Gemini 2.0: principais novidades',
     'Claude AI: nova atualização traz recursos surpreendentes',

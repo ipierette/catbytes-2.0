@@ -20,12 +20,14 @@ export default function EmailPreviewPage() {
     try {
       setLoading(true)
       setMessage(null)
+      setSelectedEmail(type) // Atualiza o email selecionado
 
       const response = await fetch(`/api/email-preview?template=${type}&locale=pt-BR`)
       
       if (response.ok) {
         const html = await response.text()
         setPreviewHtml(html)
+        setMessage({ type: 'success', text: 'Preview carregado com sucesso!' })
       } else {
         setMessage({ type: 'error', text: 'Erro ao carregar preview' })
       }
@@ -98,7 +100,7 @@ export default function EmailPreviewPage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
-                  onClick={() => setSelectedEmail('welcome')}
+                  onClick={() => loadPreview('welcome')}
                   className={`p-6 border-2 rounded-lg transition-all ${
                     selectedEmail === 'welcome'
                       ? 'border-primary bg-primary/5'
@@ -113,7 +115,7 @@ export default function EmailPreviewPage() {
                 </button>
 
                 <button
-                  onClick={() => setSelectedEmail('new-post')}
+                  onClick={() => loadPreview('new-post')}
                   className={`p-6 border-2 rounded-lg transition-all ${
                     selectedEmail === 'new-post'
                       ? 'border-primary bg-primary/5'
@@ -135,7 +137,7 @@ export default function EmailPreviewPage() {
                   className="flex-1"
                 >
                   <Eye className="h-4 w-4 mr-2" />
-                  {loading ? 'Carregando...' : 'Visualizar Preview'}
+                  {loading ? 'Carregando...' : 'Recarregar Preview'}
                 </Button>
                 <Button
                   onClick={sendTestEmail}
@@ -160,13 +162,20 @@ export default function EmailPreviewPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="border rounded-lg overflow-hidden bg-gray-50">
+                <div className="border rounded-lg overflow-hidden bg-white">
                   <iframe
                     srcDoc={previewHtml}
-                    className="w-full h-[600px] border-0"
+                    className="w-full border-0"
+                    style={{ height: '800px', minHeight: '600px' }}
                     title="Email Preview"
-                    sandbox="allow-same-origin"
+                    sandbox="allow-same-origin allow-popups"
                   />
+                </div>
+                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    💡 <strong>Dica:</strong> As imagens são carregadas de <code className="bg-white dark:bg-gray-800 px-1 rounded">{process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'}</code>. 
+                    Certifique-se de que o site está no ar para ver as imagens corretamente.
+                  </p>
                 </div>
               </CardContent>
             </Card>
