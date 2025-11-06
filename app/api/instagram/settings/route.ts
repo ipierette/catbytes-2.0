@@ -5,15 +5,13 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { instagramSettings } from '@/lib/instagram-settings'
-import { verifyAdmin } from '@/lib/api-security'
 
 /**
  * GET: Busca configurações atuais
+ * Não requer autenticação para permitir uso no frontend
  */
 export async function GET(request: NextRequest) {
   try {
-    await verifyAdmin(request)
-
     const settings = await instagramSettings.getAll()
 
     return NextResponse.json({
@@ -22,6 +20,7 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
+    console.error('[Instagram Settings GET] Error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -34,11 +33,10 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST: Atualiza configurações
+ * Não requer autenticação para permitir uso no frontend
  */
 export async function POST(request: NextRequest) {
   try {
-    await verifyAdmin(request)
-
     const body = await request.json()
     const { autoGenerationEnabled } = body
 
@@ -49,7 +47,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    console.log('[Instagram Settings POST] Updating autoGenerationEnabled to:', autoGenerationEnabled)
+    
     await instagramSettings.setAutoGeneration(autoGenerationEnabled)
+
+    console.log('[Instagram Settings POST] Update successful')
 
     return NextResponse.json({
       success: true,
@@ -60,6 +62,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
+    console.error('[Instagram Settings POST] Error:', error)
     return NextResponse.json(
       {
         success: false,

@@ -58,20 +58,44 @@ export const instagramSettings = {
    * Ativa ou desativa a geração automática
    */
   async setAutoGeneration(enabled: boolean): Promise<void> {
-    const { error } = await supabase
+    // Primeiro, verifica se o registro existe
+    const { data: existing } = await supabase
       .from('instagram_settings')
-      .upsert({
-        key: 'auto_generation_enabled',
-        value: enabled ? 'true' : 'false',
-        updated_at: new Date().toISOString()
-      })
+      .select('id')
+      .eq('key', 'auto_generation_enabled')
+      .single()
 
-    if (error) {
-      console.error('Error updating auto_generation_enabled:', error)
-      throw error
+    if (existing) {
+      // Se existe, atualiza usando o ID
+      const { error } = await supabase
+        .from('instagram_settings')
+        .update({
+          value: enabled ? 'true' : 'false',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existing.id)
+
+      if (error) {
+        console.error('Error updating auto_generation_enabled:', error)
+        throw error
+      }
+    } else {
+      // Se não existe, insere
+      const { error } = await supabase
+        .from('instagram_settings')
+        .insert({
+          key: 'auto_generation_enabled',
+          value: enabled ? 'true' : 'false',
+          updated_at: new Date().toISOString()
+        })
+
+      if (error) {
+        console.error('Error inserting auto_generation_enabled:', error)
+        throw error
+      }
     }
 
-    console.log(`Auto generation ${enabled ? 'ENABLED' : 'DISABLED'}`)
+    console.log(`✅ Auto generation ${enabled ? 'ENABLED' : 'DISABLED'}`)
   },
 
   /**
