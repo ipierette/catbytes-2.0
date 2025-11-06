@@ -82,6 +82,13 @@ export async function GET(request: NextRequest) {
     const nextPublication = calculateNextPublicationDate()
 
     const automationStats = {
+      status: settings?.auto_generation_enabled === false ? 'paused' : 'active',
+      nextGeneration: nextGeneration.toISOString(),
+      nextPublication: nextPublication.toISOString(),
+      lastRun: settings?.last_generation_run || new Date().toISOString(),
+      cronJobs: 2 // Generation + Publication
+    }
+
     const stats = {
       blog: blogStats,
       instagram: instagramStats,
@@ -104,13 +111,6 @@ export async function GET(request: NextRequest) {
       data: stats,
       cached: false,
       cacheAge: 0
-    })chedStats = stats
-    cacheTime = now
-
-    return NextResponse.json({
-      success: true,
-      data: stats,
-      cached: false
     })
   } catch (error) {
     console.error('Error in stats/overview endpoint:', error)
