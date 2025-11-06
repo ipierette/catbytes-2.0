@@ -383,7 +383,7 @@ export default function BlogAdminPage() {
           <CardContent>
             <div className="grid md:grid-cols-3 gap-6">
               <div>
-                <h4 className="font-semibold mb-2 text-blue-600">🗓️ Terça-feira</h4>
+                <h4 className="font-semibold mb-2 text-blue-600">🗓️ Segunda-feira</h4>
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <p className="font-medium text-sm mb-1">💼 Automação e Negócios</p>
                   <p className="text-xs text-muted-foreground">
@@ -396,21 +396,21 @@ export default function BlogAdminPage() {
               <div>
                 <h4 className="font-semibold mb-2 text-purple-600">🗓️ Quinta-feira</h4>
                 <div className="bg-purple-50 p-3 rounded-lg">
-                  <p className="font-medium text-sm mb-1">💻 Programação e IA</p>
+                  <p className="font-medium text-sm mb-1">💻 Programação Web Full Stack</p>
                   <p className="text-xs text-muted-foreground">
-                    Dicas de programação para iniciantes, novidades sobre IA 
-                    explicadas de forma acessível a leigos
+                    De HTML básico até frameworks modernos (React, Angular, Node.js, bancos de dados, 
+                    N8N, ferramentas e atualizações). Tudo explicado para leigos com imagens didáticas.
                   </p>
                 </div>
               </div>
               
               <div>
-                <h4 className="font-semibold mb-2 text-pink-600">�️ Sábado</h4>
-                <div className="bg-pink-50 p-3 rounded-lg">
-                  <p className="font-medium text-sm mb-1">🐱 Cuidados Felinos</p>
+                <h4 className="font-semibold mb-2 text-emerald-600">🗓️ Domingo</h4>
+                <div className="bg-emerald-50 p-3 rounded-lg">
+                  <p className="font-medium text-sm mb-1">🤖 Novidades sobre IA</p>
                   <p className="text-xs text-muted-foreground">
-                    Artigos sobre cuidados com gatinhos, com imagens 
-                    aconchegantes e tom carinhoso
+                    Últimas notícias sobre inteligência artificial: novos modelos (ChatGPT, Gemini, Claude), 
+                    ferramentas, atualizações e tendências de fontes confiáveis
                   </p>
                 </div>
               </div>
@@ -420,7 +420,7 @@ export default function BlogAdminPage() {
               <p className="text-sm">
                 <strong className="text-green-700">Status do Sistema:</strong>{' '}
                 <span className="text-green-600 font-semibold">ATIVO</span> - 
-                Geração automática nos dias programados + geração manual por tema
+                Geração automática nos dias programados (Segunda, Quinta, Domingo) + geração manual por tema
               </p>
             </div>
           </CardContent>

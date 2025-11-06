@@ -11,7 +11,8 @@ import {
   BarChart3,
   Rocket,
   ChevronLeft,
-  User
+  User,
+  Mail
 } from 'lucide-react'
 
 interface AdminNavItem {
@@ -24,31 +25,37 @@ interface AdminNavItem {
 const adminNavItems: AdminNavItem[] = [
   {
     title: 'Dashboard Principal',
-    href: '/pt-BR/admin/dashboard',
+    href: '/admin/dashboard',
     icon: LayoutDashboard,
     description: 'Painel de controle da mega automação'
   },
   {
     title: 'Instagram',
-    href: '/pt-BR/admin/instagram', 
+    href: '/admin/instagram', 
     icon: Instagram,
     description: 'Gerenciar posts do Instagram'
   },
   {
     title: 'Blog',
-    href: '/pt-BR/admin/blog',
+    href: '/admin/blog',
     icon: FileText,
     description: 'Criar e gerenciar posts do blog'
   },
   {
     title: 'Analytics',
-    href: '/pt-BR/admin/analytics',
+    href: '/admin/analytics',
     icon: BarChart3,
     description: 'Métricas e relatórios'
   },
   {
+    title: 'Email Preview',
+    href: '/admin/email-preview',
+    icon: Mail,
+    description: 'Visualizar templates de email'
+  },
+  {
     title: 'Configurações',
-    href: '/pt-BR/admin/settings',
+    href: '/admin/settings',
     icon: Settings,
     description: 'Configurações do sistema'
   }
