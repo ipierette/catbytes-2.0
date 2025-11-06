@@ -219,8 +219,9 @@ RESEND_API_KEY=re_...
 
 **Arquivos criados:**
 - `/app/api/notifications/email/route.ts`
-- `/app/api/cron/daily-report/route.ts`
-- `/vercel-cron.json`
+
+**Modificado:**
+- `/app/api/simple-cron/route.ts` - Integrado relatório diário às 9h (respeitando limite de 2 cron jobs do Vercel)
 
 **Tipos de Notificação:**
 
@@ -251,12 +252,21 @@ RESEND_API_KEY=re_...
 - Link: Post traduzido no blog
 
 **Cron Job:**
+⚠️ **IMPORTANTE:** Vercel Free tier permite apenas **2 cron jobs**. O relatório diário foi integrado ao cron existente `/api/simple-cron` que agora executa:
+- **9h diariamente:** Envia relatório por email
+- **13h seg/ter/qui/sáb:** Gera posts de blog + Instagram batch
+
+Configuração já existente em `vercel.json`:
 ```json
 {
   "crons": [
     {
-      "path": "/api/cron/daily-report",
-      "schedule": "0 9 * * *"  // 9h todos os dias
+      "path": "/api/simple-cron",
+      "schedule": "0 9,13 * * *"  // 9h e 13h todos os dias
+    },
+    {
+      "path": "/api/instagram/publish-scheduled",
+      "schedule": "0 13 * * 1,3,5,0"  // 13h seg/qua/sex/dom
     }
   ]
 }
@@ -412,14 +422,20 @@ npm install @google-analytics/data
 3. Gerar API Key
 4. Adicionar ao `.env.local`
 
-### 5. Configurar Cron Job no Vercel
+### 5. Configurar Cron Jobs no Vercel
+⚠️ **Cron jobs já configurados em `vercel.json`** (limite de 2 no Free tier)
+
 ```bash
-# Fazer deploy com vercel-cron.json
+# Deploy com configuração existente
 vercel --prod
 
 # Configurar CRON_SECRET no Vercel Dashboard:
 # Settings > Environment Variables > CRON_SECRET
 ```
+
+**Cron jobs ativos:**
+- `/api/simple-cron` - 9h diariamente (relatório) + 13h seg/ter/qui/sáb (geração)
+- `/api/instagram/publish-scheduled` - 13h seg/qua/sex/dom (publicação)
 
 ### 6. Testar Sistema
 

@@ -116,10 +116,17 @@ vercel --prod
 4. ✅ Se não configurou GA: ver dados mock
 
 ### Teste 5: Relatório Diário
+⚠️ **Integrado ao cron existente** (Vercel limita a 2 cron jobs)
+
 ```bash
-curl -X GET https://catbytes.site/api/cron/daily-report \
-  -H "Authorization: Bearer SEU_CRON_SECRET"
+# Testar manualmente chamando o endpoint de notificações diretamente:
+curl -X POST https://catbytes.site/api/notifications/email \
+  -H "Content-Type: application/json" \
+  -d '{"type":"daily_report","data":{}}'
 ```
+
+**Ou aguardar execução automática às 9h** via `/api/simple-cron`
+
 ✅ Verificar email com estatísticas
 
 ---
@@ -167,8 +174,11 @@ curl -X GET https://catbytes.site/api/cron/daily-report \
 ### Relatório diário não executando
 **Solução:**
 1. Verificar CRON_SECRET no Vercel
-2. Verificar `vercel-cron.json` no deploy
-3. Logs no Vercel Dashboard → Cron Jobs
+2. Verificar `/api/simple-cron` no Vercel Dashboard → Cron Jobs (executa às 9h)
+3. Testar manualmente via `/api/notifications/email` (POST)
+4. Checar logs no Vercel
+
+⚠️ **Nota:** Relatório integrado ao cron existente (limite de 2 no Vercel Free)
 
 ---
 
