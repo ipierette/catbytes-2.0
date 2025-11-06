@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Moon, Sun, Lock } from 'lucide-react'
 import { useTheme } from 'next-themes'
@@ -17,13 +18,17 @@ export function Header() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { theme, setTheme } = useTheme()
   const t = useTranslations('nav')
   const locale = useLocale()
   const pathname = usePathname()
-  const params = useParams()
   const router = useRouter()
   const { login, isAdmin } = useAdmin()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,7 +40,7 @@ export function Header() {
       if (success) {
         setShowAdminModal(false)
         setPassword('')
-        router.push('/admin/blog')
+        router.push('/admin/dashboard')
       } else {
         setError('Senha incorreta')
       }
@@ -61,6 +66,7 @@ export function Header() {
   ]
 
   return (
+    <>
     <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-md shadow-lg"
     >
       <nav className="container mx-auto px-4 py-4">
@@ -160,88 +166,98 @@ export function Header() {
           )}
         </AnimatePresence>
       </nav>
-
-      {/* Admin Login Modal */}
-      {showAdminModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative my-8 max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => {
-                setShowAdminModal(false)
-                setPassword('')
-                setError('')
-              }}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 z-10"
-            >
-              ✕
-            </button>
-
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
-                <Lock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Admin Access
-              </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                {isAdmin ? 'Você já está logado como admin' : 'Digite a senha para acessar o painel admin'}
-              </p>
-            </div>
-
-            {isAdmin ? (
-              <div className="space-y-4">
-                <div className="text-center text-green-600 dark:text-green-400 mb-4">
-                  ✓ Autenticado como admin
-                </div>
-                <button
-                  onClick={() => router.push('/admin/dashboard')}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                >
-                  Ir para Dashboard
-                </button>
-                <button
-                  onClick={() => setShowAdminModal(false)}
-                  className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                >
-                  Fechar
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleAdminLogin} className="space-y-4">
-                <div>
-                  <label htmlFor="admin-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Senha
-                  </label>
-                  <input
-                    id="admin-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="••••••••"
-                    required
-                    autoFocus
-                  />
-                </div>
-
-                {error && (
-                  <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
-                    {error}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? 'Entrando...' : 'Entrar'}
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
     </header>
+
+    {/* Admin Login Modal - Rendered outside header using Portal */}
+    {mounted && showAdminModal && createPortal(
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+        <div 
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="admin-modal-title"
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative"
+        >
+          <button
+            onClick={() => {
+              setShowAdminModal(false)
+              setPassword('')
+              setError('')
+            }}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          >
+            ✕
+          </button>
+
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
+              <Lock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+            </div>
+            <h2 id="admin-modal-title" className="text-2xl font-bold text-gray-900 dark:text-white">
+              Admin Access
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              {isAdmin ? 'Você já está logado como admin' : 'Digite a senha para acessar o painel admin'}
+            </p>
+          </div>
+
+          {isAdmin ? (
+            <div className="space-y-4">
+              <div className="text-center text-green-600 dark:text-green-400 mb-4">
+                ✓ Autenticado como admin
+              </div>
+              <button
+                onClick={() => {
+                  setShowAdminModal(false)
+                  router.push('/admin/dashboard')
+                }}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                Ir para Dashboard
+              </button>
+              <button
+                onClick={() => setShowAdminModal(false)}
+                className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div>
+                <label htmlFor="admin-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Senha
+                </label>
+                <input
+                  id="admin-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  placeholder="••••••••"
+                  required
+                  autoFocus
+                />
+              </div>
+
+              {error && (
+                <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Entrando...' : 'Entrar'}
+              </button>
+            </form>
+          )}
+        </div>
+      </div>,
+      document.body
+    )}
+  </>
   )
 }
