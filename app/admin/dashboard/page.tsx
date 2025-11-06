@@ -16,7 +16,8 @@ import {
   Clock,
   Zap,
   Mail,
-  FileBarChart
+  FileBarChart,
+  RefreshCw
 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
@@ -27,13 +28,13 @@ interface SystemStats {
     totalPosts: number
     publishedPosts: number
     drafts: number
-    lastGenerated: string
+    lastGenerated: string | null
   }
   instagram: {
     totalPosts: number
     pendingPosts: number
     publishedPosts: number
-    lastGenerated: string
+    lastGenerated: string | null
   }
   automation: {
     status: 'active' | 'paused'
@@ -48,6 +49,52 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [sendingReport, setSendingReport] = useState<'daily' | 'weekly' | null>(null)
+  const [isCached, setIsCached] = useState(false)
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
+
+  // Função para formatar data relativa (tempo passado)
+  const formatRelativeTime = (dateString: string | null): string => {
+    if (!dateString) return 'Nunca'
+    
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return 'Agora mesmo'
+    if (diffMins < 60) return `${diffMins} min atrás`
+    if (diffHours < 24) return `${diffHours}h atrás`
+    if (diffDays === 1) return 'Ontem'
+    if (diffDays < 7) return `${diffDays} dias atrás`
+    
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  }
+
+  // Função para formatar próxima execução (tempo futuro)
+  const formatNextExecution = (dateString: string): string => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffMs = date.getTime() - now.getTime()
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+
+    if (diffDays === 0) return `Hoje às ${time}`
+    if (diffDays === 1) return `Amanhã às ${time}`
+    if (diffDays < 7) {
+      const weekday = date.toLocaleDateString('pt-BR', { weekday: 'long' })
+      return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} às ${time}`
+    }
+    
+    return date.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
 
   useEffect(() => {
     loadStats()
@@ -76,13 +123,13 @@ export default function DashboardPage() {
               totalPosts: data.data.blog.total,
               publishedPosts: data.data.blog.published,
               drafts: data.data.blog.drafts,
-              lastGenerated: data.data.automation.lastRun
+              lastGenerated: data.data.blog.lastGenerated
             },
             instagram: {
               totalPosts: data.data.instagram.total,
               pendingPosts: data.data.instagram.pending,
               publishedPosts: data.data.instagram.published,
-              lastGenerated: data.data.automation.lastRun
+              lastGenerated: data.data.instagram.lastGenerated
             },
             automation: {
               status: data.data.automation.status as 'active' | 'paused',
@@ -91,11 +138,21 @@ export default function DashboardPage() {
               cronJobs: data.data.automation.cronJobs
             }
           })
+          setIsCached(data.cached || false)
+          setLastUpdate(new Date())
         }
+      } else {
+        setMessage({ 
+          type: 'error', 
+          text: `Erro ${response.status}: Não foi possível carregar estatísticas` 
+        })
       }
     } catch (error) {
       console.error('Erro ao carregar estatísticas:', error)
-      setMessage({ type: 'error', text: 'Erro ao carregar estatísticas' })
+      setMessage({ 
+        type: 'error', 
+        text: error instanceof Error ? error.message : 'Erro ao carregar estatísticas' 
+      })
     } finally {
       setLoading(false)
     }
@@ -140,7 +197,7 @@ export default function DashboardPage() {
     }
   }
 
-  if (loading) {
+  if (loading && !stats) {
     return (
       <AdminGuard>
         <AdminLayoutWrapper title="Dashboard Principal" description="Painel de controle da mega automação">
@@ -163,10 +220,29 @@ export default function DashboardPage() {
                 <LayoutDashboard className="h-8 w-8" />
                 Dashboard Principal
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 flex items-center gap-2">
                 Visão geral do sistema de automação
+                {isCached && (
+                  <span className="text-xs text-blue-600 flex items-center gap-1">
+                    • Dados em cache
+                  </span>
+                )}
+                {lastUpdate && (
+                  <span className="text-xs text-muted-foreground">
+                    • Atualizado {formatRelativeTime(lastUpdate.toISOString())}
+                  </span>
+                )}
               </p>
             </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={loadStats}
+              disabled={loading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Atualizar
+            </Button>
           </div>
 
           {/* Message Alert */}
@@ -230,9 +306,17 @@ export default function DashboardPage() {
                 <Clock className="h-4 w-4 text-orange-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-orange-600">13:00</div>
+                <div className="text-xl font-bold text-orange-600">
+                  {stats?.automation.nextRun 
+                    ? new Date(stats.automation.nextRun).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+                    : '13:00'
+                  }
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  Amanhã
+                  {stats?.automation.nextRun 
+                    ? formatNextExecution(stats.automation.nextRun).replace(/ às \d{2}:\d{2}$/, '')
+                    : 'Amanhã'
+                  }
                 </p>
               </CardContent>
             </Card>
@@ -262,10 +346,12 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Última Geração</span>
-                  <span className="text-sm text-muted-foreground">Hoje às 13:00</span>
+                  <span className="text-sm text-muted-foreground">
+                    {formatRelativeTime(stats?.blog.lastGenerated || null)}
+                  </span>
                 </div>
                 <div className="pt-2">
-                  <Button variant="outline" className="w-full" onClick={() => window.open('/pt-BR/admin/blog', '_self')}>
+                  <Button variant="outline" className="w-full" onClick={() => window.open('/admin/blog', '_self')}>
                     Gerenciar Blog
                   </Button>
                 </div>
@@ -294,10 +380,12 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Última Geração</span>
-                  <span className="text-sm text-muted-foreground">Hoje às 13:00</span>
+                  <span className="text-sm text-muted-foreground">
+                    {formatRelativeTime(stats?.instagram.lastGenerated || null)}
+                  </span>
                 </div>
                 <div className="pt-2">
-                  <Button variant="outline" className="w-full" onClick={() => window.open('/pt-BR/admin/instagram', '_self')}>
+                  <Button variant="outline" className="w-full" onClick={() => window.open('/admin/instagram', '_self')}>
                     Gerenciar Instagram
                   </Button>
                 </div>
@@ -324,7 +412,7 @@ export default function DashboardPage() {
                     Geração Automática
                   </h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    <strong>Próxima:</strong> Amanhã às 13:00<br/>
+                    <strong>Próxima:</strong> {stats?.automation.nextRun ? formatNextExecution(stats.automation.nextRun) : 'Não agendada'}<br/>
                     <strong>Frequência:</strong> Seg, Ter, Qui, Sáb<br/>
                     <strong>Conteúdo:</strong> Blog + 10 posts Instagram
                   </p>
@@ -335,7 +423,7 @@ export default function DashboardPage() {
                     Publicação Automática
                   </h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    <strong>Próxima:</strong> Amanhã às 13:00<br/>
+                    <strong>Próxima:</strong> {stats?.automation.nextRun ? formatNextExecution(stats.automation.nextRun) : 'Não agendada'}<br/>
                     <strong>Frequência:</strong> Seg, Qua, Sex, Dom<br/>
                     <strong>Ação:</strong> Publica posts aprovados
                   </p>
@@ -346,7 +434,7 @@ export default function DashboardPage() {
                     Recursos do Sistema
                   </h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    <strong>Cron Jobs:</strong> 2/2 ativos<br/>
+                    <strong>Cron Jobs:</strong> {stats?.automation.cronJobs || 0}/2 ativos<br/>
                     <strong>APIs:</strong> OpenAI, Instagram<br/>
                     <strong>Storage:</strong> Supabase
                   </p>
@@ -456,7 +544,7 @@ export default function DashboardPage() {
                     <div>
                       <h4 className="font-semibold">Relatório Semanal</h4>
                       <p className="text-sm text-muted-foreground">
-                        Resumo das últimas 7 dias
+                        Resumo dos últimos 7 dias
                       </p>
                     </div>
                   </div>
