@@ -6,10 +6,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Cache simples (5 minutos)
+// Cache simples (2 minutos para dados mais atualizados)
 let cachedStats: any = null
 let cacheTime: number = 0
-const CACHE_DURATION = 5 * 60 * 1000 // 5 minutos
+const CACHE_DURATION = 2 * 60 * 1000 // 2 minutos
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,41 +19,56 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         data: cachedStats,
-        cached: true
+        cached: true,
+        cacheAge: Math.floor((now - cacheTime) / 1000) // segundos desde cache
       })
     }
 
     // Buscar estatísticas do blog
     const { data: blogPosts, error: blogError } = await supabase
       .from('blog_posts')
-      .select('status')
+      .select('status, created_at, published_at')
+      .order('created_at', { ascending: false })
 
     if (blogError) {
       console.error('Error fetching blog stats:', blogError)
     }
 
+    // Encontrar último post gerado
+    const lastBlogGenerated = blogPosts && blogPosts.length > 0 
+      ? blogPosts[0].created_at 
+      : null
+
     const blogStats = {
       total: blogPosts?.length || 0,
       published: blogPosts?.filter(p => p.status === 'published').length || 0,
       drafts: blogPosts?.filter(p => p.status === 'draft').length || 0,
-      scheduled: blogPosts?.filter(p => p.status === 'scheduled').length || 0
+      scheduled: blogPosts?.filter(p => p.status === 'scheduled').length || 0,
+      lastGenerated: lastBlogGenerated
     }
 
     // Buscar estatísticas do Instagram
     const { data: instagramPosts, error: instagramError } = await supabase
       .from('instagram_posts')
-      .select('status')
+      .select('status, created_at, published_at')
+      .order('created_at', { ascending: false })
 
     if (instagramError) {
       console.error('Error fetching instagram stats:', instagramError)
     }
+
+    // Encontrar último post do Instagram gerado
+    const lastInstagramGenerated = instagramPosts && instagramPosts.length > 0 
+      ? instagramPosts[0].created_at 
+      : null
 
     const instagramStats = {
       total: instagramPosts?.length || 0,
       pending: instagramPosts?.filter(p => p.status === 'pending').length || 0,
       approved: instagramPosts?.filter(p => p.status === 'approved').length || 0,
       published: instagramPosts?.filter(p => p.status === 'published').length || 0,
-      failed: instagramPosts?.filter(p => p.status === 'failed').length || 0
+      failed: instagramPosts?.filter(p => p.status === 'failed').length || 0,
+      lastGenerated: lastInstagramGenerated
     }
 
     // Buscar configurações de automação
@@ -67,22 +82,29 @@ export async function GET(request: NextRequest) {
     const nextPublication = calculateNextPublicationDate()
 
     const automationStats = {
-      status: settings?.auto_generation_enabled === false ? 'paused' : 'active',
-      nextGeneration: nextGeneration.toISOString(),
-      nextPublication: nextPublication.toISOString(),
-      lastRun: settings?.last_generation_run || new Date().toISOString(),
-      cronJobs: 2 // Generation + Publication
-    }
-
     const stats = {
       blog: blogStats,
       instagram: instagramStats,
       automation: automationStats,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      // Metadados úteis para o frontend
+      meta: {
+        cacheEnabled: true,
+        cacheDuration: CACHE_DURATION / 1000, // em segundos
+        refreshRate: 30 // frontend atualiza a cada 30s
+      }
     }
 
     // Atualizar cache
     cachedStats = stats
+    cacheTime = now
+
+    return NextResponse.json({
+      success: true,
+      data: stats,
+      cached: false,
+      cacheAge: 0
+    })chedStats = stats
     cacheTime = now
 
     return NextResponse.json({
