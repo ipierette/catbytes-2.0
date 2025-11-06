@@ -9,10 +9,6 @@
     {
       "path": "/api/simple-cron",
       "schedule": "0 9,13 * * *"
-    },
-    {
-      "path": "/api/instagram/publish-scheduled",
-      "schedule": "0 13 * * 1,3,5,0"
     }
   ]
 }
