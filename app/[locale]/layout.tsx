@@ -91,45 +91,23 @@ export default async function LocaleLayout({
   const messages = await getMessages()
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <head>
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="alternate" hrefLang="pt-BR" href="https://catbytes.com/pt-BR" />
-        <link rel="alternate" hrefLang="en-US" href="https://catbytes.com/en-US" />
-        <link rel="alternate" hrefLang="x-default" href="https://catbytes.com/pt-BR" />
-        <link rel="preload" href="/images/gato-sentado.webp" as="image" type="image/webp" fetchPriority="high" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="CatBytes" />
-      </head>
-      <body suppressHydrationWarning>
-        <NextIntlClientProvider messages={messages}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <AdminProvider>
-              <AppShell>
-                <DesktopLayout>
-                  <ScrollProgress />
-                  <AnalyticsTracker />
-                  <main>{children}</main>
-                </DesktopLayout>
-              </AppShell>
-            </AdminProvider>
-          </ThemeProvider>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider messages={messages}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="light"
+        enableSystem
+        disableTransitionOnChange
+      >
+        <AdminProvider>
+          <AppShell>
+            <DesktopLayout>
+              <ScrollProgress />
+              <AnalyticsTracker />
+              <main>{children}</main>
+            </DesktopLayout>
+          </AppShell>
+        </AdminProvider>
+      </ThemeProvider>
+    </NextIntlClientProvider>
   )
 }
