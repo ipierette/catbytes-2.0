@@ -8,27 +8,41 @@ import { useTranslations, useLocale } from 'next-intl'
 import { LanguageToggle } from './language-toggle'
 import { Link } from '@/i18n/routing'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter, useParams } from 'next/navigation'
+import { useAdmin } from '@/hooks/use-admin'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showAdminModal, setShowAdminModal] = useState(false)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const { theme, setTheme } = useTheme()
   const t = useTranslations('nav')
   const locale = useLocale()
   const pathname = usePathname()
+  const params = useParams()
+  const router = useRouter()
+  const { login, isAdmin } = useAdmin()
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD || password === 'admin123') {
-      setIsAdmin(true)
-      setShowAdminModal(false)
-      globalThis.location.href = '/admin/dashboard'
-    } else {
-      setError('Senha incorreta')
+    setError('')
+    setIsLoading(true)
+
+    try {
+      const success = await login(password)
+      if (success) {
+        setShowAdminModal(false)
+        setPassword('')
+        router.push(`/${params.locale || locale}/admin/blog`)
+      } else {
+        setError('Senha incorreta')
+      }
+    } catch {
+      setError('Erro ao fazer login')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -174,7 +188,25 @@ export function Header() {
               </p>
             </div>
 
-            {!isAdmin ? (
+            {isAdmin ? (
+              <div className="space-y-4">
+                <div className="text-center text-green-600 dark:text-green-400 mb-4">
+                  ✓ Autenticado como admin
+                </div>
+                <button
+                  onClick={() => router.push(`/${params.locale || locale}/admin/dashboard`)}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Ir para Dashboard
+                </button>
+                <button
+                  onClick={() => setShowAdminModal(false)}
+                  className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Fechar
+                </button>
+              </div>
+            ) : (
               <form onSubmit={handleAdminLogin} className="space-y-4">
                 <div>
                   <label htmlFor="admin-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -200,29 +232,12 @@ export function Header() {
 
                 <button
                   type="submit"
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                  disabled={isLoading}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Entrar
+                  {isLoading ? 'Entrando...' : 'Entrar'}
                 </button>
               </form>
-            ) : (
-              <div className="space-y-4">
-                <div className="text-center text-green-600 dark:text-green-400 mb-4">
-                  ✓ Autenticado como admin
-                </div>
-                <button
-                  onClick={() => globalThis.location.href = '/admin/dashboard'}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                >
-                  Ir para Dashboard
-                </button>
-                <button
-                  onClick={() => setShowAdminModal(false)}
-                  className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                >
-                  Fechar
-                </button>
-              </div>
             )}
           </div>
         </div>

@@ -14,7 +14,9 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  Zap
+  Zap,
+  Mail,
+  FileBarChart
 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
@@ -45,6 +47,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<SystemStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [sendingReport, setSendingReport] = useState<'daily' | 'weekly' | null>(null)
 
   useEffect(() => {
     loadStats()
@@ -79,9 +82,49 @@ export default function DashboardPage() {
         }
       })
     } catch (error) {
+      console.error('Erro ao carregar estatísticas:', error)
       setMessage({ type: 'error', text: 'Erro ao carregar estatísticas' })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const sendReport = async (type: 'daily' | 'weekly') => {
+    try {
+      setSendingReport(type)
+      setMessage(null)
+
+      const response = await fetch('/api/reports/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ type }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setMessage({
+          type: 'success',
+          text: data.message || `Relatório ${type === 'daily' ? 'diário' : 'semanal'} enviado com sucesso!`
+        })
+      } else {
+        setMessage({
+          type: 'error',
+          text: data.error || 'Erro ao enviar relatório'
+        })
+      }
+    } catch (error) {
+      console.error('Error sending report:', error)
+      setMessage({
+        type: 'error',
+        text: 'Erro ao enviar relatório'
+      })
+    } finally {
+      setSendingReport(null)
+      // Remove mensagem após 5 segundos
+      setTimeout(() => setMessage(null), 5000)
     }
   }
 
@@ -342,6 +385,80 @@ export default function DashboardPage() {
                   <Users className="h-6 w-6" />
                   Configurações
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Reports Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5" />
+                Relatórios por Email
+              </CardTitle>
+              <CardDescription>
+                Envie relatórios de atividades do sistema
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <FileBarChart className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <h4 className="font-semibold">Relatório Diário</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Resumo das atividades de hoje
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => sendReport('daily')}
+                    disabled={sendingReport === 'daily'}
+                    className="w-full"
+                  >
+                    {sendingReport === 'daily' ? (
+                      <>
+                        <Clock className="h-4 w-4 mr-2 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="h-4 w-4 mr-2" />
+                        Enviar Relatório Diário
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <FileBarChart className="h-5 w-5 text-green-600" />
+                    <div>
+                      <h4 className="font-semibold">Relatório Semanal</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Resumo das últimas 7 dias
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => sendReport('weekly')}
+                    disabled={sendingReport === 'weekly'}
+                    className="w-full"
+                    variant="outline"
+                  >
+                    {sendingReport === 'weekly' ? (
+                      <>
+                        <Clock className="h-4 w-4 mr-2 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="h-4 w-4 mr-2" />
+                        Enviar Relatório Semanal
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
