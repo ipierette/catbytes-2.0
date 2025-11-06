@@ -331,6 +331,76 @@ export default function InstagramAdminPage() {
     }
   }
 
+  const handleBulkApprove = async () => {
+    if (selectedPosts.size === 0) {
+      setMessage({ type: 'error', text: '❌ Nenhum post selecionado' })
+      return
+    }
+
+    if (!confirm(`Deseja aprovar ${selectedPosts.size} post(s)?`)) return
+
+    try {
+      setLoading(true)
+      setMessage({ type: 'success', text: `⏳ Aprovando ${selectedPosts.size} posts...` })
+
+      let successCount = 0
+      let errorCount = 0
+      const errors: string[] = []
+
+      for (const postId of Array.from(selectedPosts)) {
+        try {
+          const response = await fetch(`/api/instagram/approve/${postId}`, {
+            method: 'POST'
+          })
+
+          const data = await response.json()
+
+          if (data.success) {
+            successCount++
+          } else {
+            errorCount++
+            errors.push(`Post ${postId}: ${data.error}`)
+          }
+        } catch (error) {
+          errorCount++
+          errors.push(`Post ${postId}: Erro de conexão`)
+        }
+      }
+
+      // Limpar seleção
+      setSelectedPosts(new Set())
+      setBulkMode(false)
+
+      // Mostrar resultado
+      if (successCount > 0 && errorCount === 0) {
+        setMessage({ 
+          type: 'success', 
+          text: `✅ ${successCount} post(s) aprovado(s) com sucesso!` 
+        })
+      } else if (successCount > 0 && errorCount > 0) {
+        setMessage({ 
+          type: 'error', 
+          text: `⚠️ ${successCount} aprovado(s), ${errorCount} falhou(ram). Verifique os logs.` 
+        })
+        console.error('Erros na aprovação em lote:', errors)
+      } else {
+        setMessage({ 
+          type: 'error', 
+          text: `❌ Nenhum post foi aprovado. Verifique os logs.` 
+        })
+        console.error('Erros na aprovação em lote:', errors)
+      }
+
+      // Recarregar dados
+      await loadData()
+    } catch (error) {
+      console.error('Erro na aprovação em lote:', error)
+      setMessage({ type: 'error', text: '❌ Erro na aprovação em lote' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleReject = async (postId: string) => {
     if (!confirm('Deseja realmente rejeitar este post?')) return
 
@@ -571,6 +641,47 @@ export default function InstagramAdminPage() {
             </svg>
             {loading ? 'Gerando...' : '⚡ Stability AI (Debug)'}
           </Button>
+        </div>
+        
+        {/* Botões de Ações em Lote */}
+        <div className="flex gap-2">
+          <Button
+            onClick={() => {
+              setBulkMode(!bulkMode)
+              setSelectedPosts(new Set())
+            }}
+            variant={bulkMode ? 'default' : 'outline'}
+            size="lg"
+            className="gap-2"
+          >
+            {bulkMode ? '✓ Modo Seleção Ativo' : '☑️ Modo Seleção'}
+          </Button>
+          
+          {bulkMode && selectedPosts.size > 0 && (
+            <>
+              <Button
+                onClick={handleBulkApprove}
+                variant="default"
+                size="lg"
+                className="gap-2 bg-green-600 hover:bg-green-700"
+                disabled={loading}
+              >
+                <CheckCircle className="h-4 w-4" />
+                Aprovar {selectedPosts.size} post(s)
+              </Button>
+              <Button
+                onClick={() => {
+                  setSelectedPosts(new Set())
+                  setBulkMode(false)
+                }}
+                variant="outline"
+                size="lg"
+                className="gap-2"
+              >
+                Cancelar
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

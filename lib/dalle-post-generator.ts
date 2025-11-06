@@ -34,7 +34,11 @@ export async function generateInstagramPostWithDALLE(
   request: PostGenerationRequest
 ): Promise<GeneratedPost> {
   
+  console.log('🟣 [DALLE-LIB] === INICIANDO GERAÇÃO ===')
+  console.log('🟣 [DALLE-LIB] Request:', request)
+  
   // 1. Primeiro, usar GPT-4 para criar conteúdo otimizado
+  console.log('🟣 [DALLE-LIB] Gerando conteúdo com GPT-4...')
   const contentPrompt = `
 Crie conteúdo para um post do Instagram sobre:
 
@@ -54,6 +58,7 @@ Gere um JSON com:
 IMPORTANTE: O texto deve ser direto, impactante e otimizado para mobile.
 `
 
+  console.log('🟣 [DALLE-LIB] Chamando GPT-4...')
   const contentResponse = await openai.chat.completions.create({
     model: 'gpt-4-turbo-preview',
     messages: [{ role: 'user', content: contentPrompt }],
@@ -61,14 +66,18 @@ IMPORTANTE: O texto deve ser direto, impactante e otimizado para mobile.
   })
 
   const content = JSON.parse(contentResponse.choices[0].message.content!)
+  console.log('🟣 [DALLE-LIB] ✓ Conteúdo gerado:', content)
 
   // 2. Criar prompt visual detalhado para DALL-E 3
   const visualPrompt = buildDALLEPrompt(request, content)
 
-  console.log('[DALL-E Generator] Gerando imagem com prompt:', visualPrompt)
+  console.log('🟣 [DALLE-LIB] Prompt visual:', visualPrompt.substring(0, 200) + '...')
 
   // 3. Gerar imagem com DALL-E 3
   try {
+    console.log('🟣 [DALLE-LIB] Chamando DALL-E 3...')
+    console.log('🟣 [DALLE-LIB] Modelo: dall-e-3, Size: 1024x1024, Quality: HD')
+    
     const imageResponse = await openai.images.generate({
       model: 'dall-e-3',
       prompt: visualPrompt,
@@ -78,7 +87,13 @@ IMPORTANTE: O texto deve ser direto, impactante e otimizado para mobile.
       style: request.estilo === 'elegante' ? 'natural' : 'vivid'
     })
 
+    console.log('🟣 [DALLE-LIB] Response recebido:', {
+      dataLength: imageResponse.data?.length,
+      hasUrl: !!imageResponse.data?.[0]?.url
+    })
+
     if (!imageResponse.data || imageResponse.data.length === 0) {
+      console.error('🟣 [DALLE-LIB] ❌ DALL-E não retornou nenhuma imagem')
       throw new Error('DALL-E não retornou nenhuma imagem')
     }
 
@@ -86,11 +101,13 @@ IMPORTANTE: O texto deve ser direto, impactante e otimizado para mobile.
     const revisedPrompt = imageResponse.data[0]?.revised_prompt
 
     if (!imageUrl) {
+      console.error('🟣 [DALLE-LIB] ❌ URL da imagem não disponível')
       throw new Error('URL da imagem não está disponível')
     }
 
-    console.log('[DALL-E Generator] Imagem gerada com sucesso!')
-    console.log('[DALL-E Generator] Revised prompt:', revisedPrompt)
+    console.log('🟣 [DALLE-LIB] ✅ Imagem gerada com sucesso!')
+    console.log('🟣 [DALLE-LIB] Image URL:', imageUrl.substring(0, 80) + '...')
+    console.log('🟣 [DALLE-LIB] Revised prompt:', revisedPrompt?.substring(0, 150) + '...')
 
     return {
       imageUrl,
@@ -101,7 +118,11 @@ IMPORTANTE: O texto deve ser direto, impactante e otimizado para mobile.
       revisedPrompt
     }
   } catch (error) {
-    console.error('[DALL-E Generator] Erro ao gerar imagem:', error)
+    console.error('🟣 [DALLE-LIB] ❌ ERRO CRÍTICO:', error)
+    if (error instanceof Error) {
+      console.error('🟣 [DALLE-LIB] Error message:', error.message)
+      console.error('🟣 [DALLE-LIB] Error stack:', error.stack)
+    }
     throw new Error(`Falha ao gerar imagem: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
