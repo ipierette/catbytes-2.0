@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { InstagramEditModal } from '@/components/instagram/instagram-edit-modal'
+import { DALLEConfigModal } from '@/components/instagram/dalle-config-modal'
 
 interface InstagramPost {
   id: string
@@ -36,6 +37,7 @@ interface Stats {
 }
 
 export default function InstagramAdminPage() {
+  const [allPosts, setAllPosts] = useState<InstagramPost[]>([])
   const [pendingPosts, setPendingPosts] = useState<InstagramPost[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -46,6 +48,15 @@ export default function InstagramAdminPage() {
   const [bulkMode, setBulkMode] = useState(false)
   const [editingPost, setEditingPost] = useState<InstagramPost | null>(null)
   const [publishingPostId, setPublishingPostId] = useState<string | null>(null)
+  
+  // Novos estados
+  const [showDALLEModal, setShowDALLEModal] = useState(false)
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'published' | 'failed'>('all')
+  
+  // Posts filtrados
+  const filteredPosts = filterStatus === 'all' 
+    ? allPosts 
+    : allPosts.filter(p => p.status === filterStatus)
 
   useEffect(() => {
     loadData()
@@ -55,18 +66,20 @@ export default function InstagramAdminPage() {
     try {
       setLoading(true)
       
-      // Busca posts pendentes
-      const postsRes = await fetch('/api/instagram/posts?status=pending')
+      // Busca TODOS os posts
+      const postsRes = await fetch('/api/instagram/posts')
       if (postsRes.ok) {
         const data = await postsRes.json()
-        setPendingPosts(data.posts || [])
+        const posts = data.posts || []
+        setAllPosts(posts)
+        setPendingPosts(posts.filter((p: InstagramPost) => p.status === 'pending'))
       }
 
       // Busca estatísticas
-      const statsRes = await fetch('/api/instagram/post')
+      const statsRes = await fetch('/api/instagram/stats')
       if (statsRes.ok) {
         const data = await statsRes.json()
-        setStats(data.data?.stats)
+        setStats(data.stats)
       }
 
       // Busca configurações
@@ -162,8 +175,19 @@ export default function InstagramAdminPage() {
   }
 
   const handleGenerateWithDALLE = async () => {
+    setShowDALLEModal(true)
+  }
+
+  const handleDALLEGenerate = async (config: {
+    nicho: string
+    tema: string
+    quantidade: number
+    estilo: string
+    palavrasChave?: string[]
+  }) => {
     try {
       setLoading(true)
+      setShowDALLEModal(false)
       setMessage({ 
         type: 'success', 
         text: '🎨 Gerando posts com DALL-E 3... Isso pode levar alguns minutos.' 
@@ -175,11 +199,7 @@ export default function InstagramAdminPage() {
           'Content-Type': 'application/json',
           'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
         },
-        body: JSON.stringify({
-          nicho: 'tech', // Pode ser customizado
-          quantidade: 5,
-          estilo: 'moderno'
-        })
+        body: JSON.stringify(config)
       })
 
       const data = await response.json()
@@ -290,13 +310,26 @@ export default function InstagramAdminPage() {
           type: 'success', 
           text: `✅ Post publicado com sucesso! Ver no Instagram: ${data.instagramUrl || ''}` 
         })
+        
+        // Remover dos pendentes e atualizar estatísticas IMEDIATAMENTE
+        setPendingPosts(prev => prev.filter(p => p.id !== postId))
+        setStats(prevStats => prevStats ? {
+          ...prevStats,
+          pending: Math.max(0, prevStats.pending - 1),
+          published: prevStats.published + 1
+        } : null)
+        
         setSelectedPost(null)
-        await loadData()
+        
+        // Recarregar dados completos após 1 segundo
+        setTimeout(() => loadData(), 1000)
       } else {
         setMessage({ 
           type: 'error', 
           text: data.error || 'Erro ao publicar no Instagram' 
         })
+        // Recarregar em caso de erro para sincronizar
+        await loadData()
       }
     } catch (error) {
       console.error('Erro ao publicar:', error)
@@ -496,53 +529,83 @@ export default function InstagramAdminPage() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          <Card>
+          <Card 
+            className="cursor-pointer hover:border-yellow-600 hover:shadow-lg transition-all"
+            onClick={() => setFilterStatus(filterStatus === 'pending' ? 'all' : 'pending')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
               <Clock className="h-4 w-4 text-yellow-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-600">{stats?.pending || 0}</div>
+              {filterStatus === 'pending' && (
+                <p className="text-xs text-yellow-600 mt-1">✓ Filtro ativo</p>
+              )}
             </CardContent>
           </Card>
 
-          <Card>
+          <Card 
+            className="cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all"
+            onClick={() => setFilterStatus(filterStatus === 'approved' ? 'all' : 'approved')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Agendados</CardTitle>
               <Calendar className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">{stats?.approved || 0}</div>
+              {filterStatus === 'approved' && (
+                <p className="text-xs text-blue-600 mt-1">✓ Filtro ativo</p>
+              )}
             </CardContent>
           </Card>
 
-          <Card>
+          <Card 
+            className="cursor-pointer hover:border-green-600 hover:shadow-lg transition-all"
+            onClick={() => setFilterStatus(filterStatus === 'published' ? 'all' : 'published')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Publicados</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">{stats?.published || 0}</div>
+              {filterStatus === 'published' && (
+                <p className="text-xs text-green-600 mt-1">✓ Filtro ativo</p>
+              )}
             </CardContent>
           </Card>
 
-          <Card>
+          <Card 
+            className="cursor-pointer hover:border-red-600 hover:shadow-lg transition-all"
+            onClick={() => setFilterStatus(filterStatus === 'failed' ? 'all' : 'failed')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Falhas</CardTitle>
               <XCircle className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-red-600">{stats?.failed || 0}</div>
+              {filterStatus === 'failed' && (
+                <p className="text-xs text-red-600 mt-1">✓ Filtro ativo</p>
+              )}
             </CardContent>
           </Card>
 
-          <Card>
+          <Card 
+            className="cursor-pointer hover:border-gray-600 hover:shadow-lg transition-all"
+            onClick={() => setFilterStatus('all')}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats?.total || 0}</div>
+              {filterStatus === 'all' && (
+                <p className="text-xs text-muted-foreground mt-1">✓ Todos</p>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -645,13 +708,16 @@ export default function InstagramAdminPage() {
           )}
         </CardHeader>
         <CardContent>
-          {pendingPosts.length === 0 ? (
+          {filteredPosts.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">
-              Nenhum post pendente. A próxima geração será em breve!
+              {filterStatus === 'all' 
+                ? 'Nenhum post encontrado. Gere novos posts usando os botões acima!' 
+                : `Nenhum post ${filterStatus === 'pending' ? 'pendente' : filterStatus === 'approved' ? 'agendado' : filterStatus === 'published' ? 'publicado' : 'com falha'}.`
+              }
             </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pendingPosts.map(post => (
+              {filteredPosts.map(post => (
                 <div
                   key={post.id}
                   className={`border rounded-lg overflow-hidden transition-all ${
@@ -822,6 +888,13 @@ export default function InstagramAdminPage() {
           onSave={handleSaveEdit}
         />
       )}
+      
+      {/* Modal de Configuração DALL-E 3 */}
+      <DALLEConfigModal
+        open={showDALLEModal}
+        onClose={() => setShowDALLEModal(false)}
+        onGenerate={handleDALLEGenerate}
+      />
       </div>
     </AdminLayoutWrapper>
     </AdminGuard>
