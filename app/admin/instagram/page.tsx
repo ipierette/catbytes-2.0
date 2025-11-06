@@ -644,7 +644,7 @@ export default function InstagramAdminPage() {
         </div>
         
         {/* Botões de Ações em Lote */}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             onClick={() => {
               setBulkMode(!bulkMode)
