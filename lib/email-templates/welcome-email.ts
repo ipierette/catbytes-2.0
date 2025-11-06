@@ -48,7 +48,7 @@ export function getWelcomeEmailHTML(name: string, token: string, locale: string 
     confirmButton: isPortuguese ? '✓ Confirmar Inscrição' : '✓ Confirm Subscription',
     
     goodbye: isPortuguese ? 'Até breve! 🐱' : 'See you soon! 🐱',
-    team: isPortuguese ? 'Equipe CatBytes' : 'CatBytes Team',
+    team: isPortuguese ? 'Izadora Cury Pierette - Criadora da CatBytes' : 'Izadora Cury Pierette - CatBytes Founder',
     
     footer: isPortuguese ? 'Você está recebendo este email porque se inscreveu em nosso site.' : 'You are receiving this email because you subscribed on our website.',
     unsubscribe: isPortuguese ? 'Cancelar inscrição' : 'Unsubscribe',
@@ -107,7 +107,7 @@ export function getWelcomeEmailHTML(name: string, token: string, locale: string 
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                 <tr>
                   <td align="center" style="padding-bottom: 20px;">
-                    <img src="https://catbytes.site/images/catbytes-logo.webp" alt="CatBytes" width="200" height="133" style="display: block; width: 200px; height: auto; max-width: 100%; margin: 0 auto;" class="mobile-full-width">
+                    <img src="https://catbytes.site/images/catbytes-logo.png" alt="CatBytes" width="240" height="160" style="display: block; width: 240px; height: auto; max-width: 100%; margin: 0 auto;" class="mobile-full-width">
                   </td>
                 </tr>
               </table>

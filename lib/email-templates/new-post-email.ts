@@ -54,7 +54,7 @@ export function getNewPostEmailHTML(
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
           <tr>
             <td align="center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px;">
-              <img src="https://catbytes.site/images/catbytes-logo.webp" alt="CatBytes" width="200" height="133" style="display: block; width: 200px; height: auto; max-width: 100%; margin: 0 auto 15px auto;">
+              <img src="https://catbytes.site/images/catbytes-logo.png" alt="CatBytes" width="240" height="160" style="display: block; width: 240px; height: auto; max-width: 100%; margin: 0 auto 15px auto;">
               <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; line-height: 1.3; text-align: center;">${t.newPost}</h1>
             </td>
           </tr>
@@ -90,6 +90,9 @@ export function getNewPostEmailHTML(
           </tr>
           <tr>
             <td align="center" style="background-color: #F9FAFB; padding: 30px; border-top: 1px solid #E5E7EB;">
+              <p style="margin: 0 0 10px 0; font-size: 14px; color: #374151; text-align: center; font-weight: 600;">
+                ${isPortuguese ? 'Izadora Cury Pierette - Criadora da CatBytes' : 'Izadora Cury Pierette - CatBytes Founder'}
+              </p>
               <p style="margin: 0 0 15px 0; font-size: 12px; color: #6B7280; text-align: center;">${t.footer}</p>
               <p style="margin: 0 0 15px 0; font-size: 12px; color: #9CA3AF; text-align: center;">${t.copyright}</p>
               <p style="margin: 0; font-size: 11px; color: #9CA3AF; text-align: center;"><a href="${baseUrl}/${locale}/newsletter/unsubscribe" style="color: #667eea; text-decoration: underline;">${t.unsubscribe}</a></p>
