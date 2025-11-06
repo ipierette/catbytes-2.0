@@ -35,7 +35,7 @@ export function Header() {
       if (success) {
         setShowAdminModal(false)
         setPassword('')
-        router.push(`/${params.locale || locale}/admin/blog`)
+        router.push('/admin/blog')
       } else {
         setError('Senha incorreta')
       }

@@ -265,7 +265,7 @@ export default function DashboardPage() {
                   <span className="text-sm text-muted-foreground">Hoje às 13:00</span>
                 </div>
                 <div className="pt-2">
-                  <Button variant="outline" className="w-full" onClick={() => window.open('/pt-BR/admin/blog', '_self')}>
+                  <Button variant="outline" className="w-full" onClick={() => window.open('/admin/blog', '_self')}>
                     Gerenciar Blog
                   </Button>
                 </div>
@@ -297,7 +297,7 @@ export default function DashboardPage() {
                   <span className="text-sm text-muted-foreground">Hoje às 13:00</span>
                 </div>
                 <div className="pt-2">
-                  <Button variant="outline" className="w-full" onClick={() => window.open('/pt-BR/admin/instagram', '_self')}>
+                  <Button variant="outline" className="w-full" onClick={() => window.open('/admin/instagram', '_self')}>
                     Gerenciar Instagram
                   </Button>
                 </div>
@@ -368,7 +368,7 @@ export default function DashboardPage() {
                 <Button 
                   variant="outline" 
                   className="h-24 flex-col gap-2"
-                  onClick={() => window.open('/pt-BR/admin/blog', '_self')}
+                  onClick={() => window.open('/admin/blog', '_self')}
                 >
                   <FileText className="h-6 w-6" />
                   Blog Admin
@@ -376,7 +376,7 @@ export default function DashboardPage() {
                 <Button 
                   variant="outline" 
                   className="h-24 flex-col gap-2"
-                  onClick={() => window.open('/pt-BR/admin/instagram', '_self')}
+                  onClick={() => window.open('/admin/instagram', '_self')}
                 >
                   <Instagram className="h-6 w-6" />
                   Instagram Admin
