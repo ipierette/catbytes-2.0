@@ -1,6 +1,6 @@
 /**
  * Blog Scheduler - Sistema de rotação de temas por dia
- * Terça: Automação e Negócios | Quinta: Programação e IA | Sábado: Cuidados Felinos
+ * Segunda: Automação e Negócios | Quinta: Dicas de Programação Web | Domingo: Novidades sobre IA
  */
 
 import { BLOG_CATEGORIES, BLOG_TOPICS, BLOG_SCHEDULE } from '@/types/blog'
@@ -14,9 +14,9 @@ export function getCurrentBlogTheme(): BlogTheme {
   const dayOfWeek = today.getDay() // 0=domingo, 1=segunda, ..., 6=sábado
   
   // Mapeia os dias de postagem para temas
-  if (dayOfWeek === 2) return 'Automação e Negócios'  // Terça
-  if (dayOfWeek === 4) return 'Programação e IA'      // Quinta
-  if (dayOfWeek === 6) return 'Cuidados Felinos'      // Sábado
+  if (dayOfWeek === 1) return 'Automação e Negócios'     // Segunda
+  if (dayOfWeek === 4) return 'Programação e IA'         // Quinta (Dicas de Programação Web)
+  if (dayOfWeek === 0) return 'Cuidados Felinos'         // Domingo (Novidades sobre IA)
   
   // Para outros dias, determina baseado no próximo dia de postagem
   return getNextScheduledTheme()
@@ -30,10 +30,9 @@ export function getNextScheduledTheme(): BlogTheme {
   const dayOfWeek = today.getDay()
   
   // Lógica para determinar próximo tema
-  if (dayOfWeek === 0 || dayOfWeek === 1) return 'Automação e Negócios'  // Dom/Seg -> Terça
-  if (dayOfWeek === 2 || dayOfWeek === 3) return 'Programação e IA'      // Ter/Qua -> Quinta
-  if (dayOfWeek === 4 || dayOfWeek === 5) return 'Cuidados Felinos'      // Qui/Sex -> Sábado
-  return 'Automação e Negócios' // Sábado -> próxima Terça
+  if (dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3) return 'Programação e IA'      // Seg/Ter/Qua -> Quinta
+  if (dayOfWeek === 4 || dayOfWeek === 5 || dayOfWeek === 6) return 'Cuidados Felinos'      // Qui/Sex/Sab -> Domingo
+  return 'Automação e Negócios' // Domingo -> próxima Segunda
 }
 
 /**
@@ -52,9 +51,9 @@ export function generateImagePromptForTheme(theme: BlogTheme, title: string): st
   const basePrompts = {
     'Automação e Negócios': `Professional business office scene showcasing digital transformation. Modern workspace with laptop displaying automation dashboard, clean organized desk, bright natural lighting. Corporate aesthetic with technology elements (charts, graphs, digital interfaces). Colors: Blue, white, professional tones. Style: Clean, modern, business-focused. No people in frame.`,
     
-    'Programação e IA': `Modern developer workspace with multiple monitors showing code, AI interfaces, and programming environments. Sleek desk setup with mechanical keyboard, tech gadgets, soft RGB lighting. Futuristic but approachable tech aesthetic. Colors: Purple, blue, green accent lights. Style: Tech-focused, innovative, clean. No people in frame.`,
+    'Programação e IA': `Friendly and approachable coding scene perfect for beginners. Modern laptop showing colorful code editor with HTML/CSS/JavaScript, helpful icons and illustrations around (like lightbulbs, checkmarks, beginner-friendly elements). Bright, inviting workspace with plants, coffee mug, and learning materials. Colors: Vibrant but not overwhelming - blue, green, purple accents. Style: Welcoming, educational, modern, accessible. No people in frame.`,
     
-    'Cuidados Felinos': `Cozy, warm scene with adorable kittens in a safe, comfortable environment. Soft natural lighting, plants, comfortable cat furniture, toys. Peaceful and heartwarming atmosphere. One or two cute kittens (different breeds) in focus, showing them happy and healthy. Colors: Warm tones, pastels, natural lighting. Style: Heartwarming, cozy, pet-friendly aesthetic.`
+    'Cuidados Felinos': `Modern tech workspace with AI theme. Multiple monitors displaying AI models, neural networks, tech news websites, and futuristic interfaces. Sleek setup with ambient LED lighting (blue/purple glow). Tech gadgets, latest AI tools visualization, news headlines visible. Colors: Deep blue, purple, cyan, tech aesthetic. Style: Cutting-edge, news-focused, innovative, professional. No people in frame.`
   }
   
   return `${basePrompts[theme]} Professional blog header image for article about "${title}". High quality, web-ready. Aspect ratio: 16:9.`
@@ -75,19 +74,21 @@ export function getThemeKeywords(theme: BlogTheme): string[] {
     ],
     'Programação e IA': [
       'programação para iniciantes',
-      'desenvolvimento web',
-      'inteligência artificial',
+      'desenvolvimento web para leigos',
+      'HTML CSS JavaScript básico',
       'dicas de programação',
-      'tecnologia acessível',
-      'IA explicada'
+      'aprender a programar',
+      'web development fácil',
+      'tutorial programação simples'
     ],
     'Cuidados Felinos': [
-      'cuidados com gatos',
-      'saúde felina',
-      'dicas para gatos',
-      'bem-estar animal',
-      'pets saudáveis',
-      'amor felino'
+      'novidades inteligência artificial',
+      'notícias IA',
+      'novos modelos IA',
+      'ferramentas IA',
+      'atualizações IA',
+      'tecnologia IA',
+      'tendências inteligência artificial'
     ]
   }
   
@@ -99,7 +100,7 @@ export function getThemeKeywords(theme: BlogTheme): string[] {
  */
 export function isBlogPostDay(): boolean {
   const dayOfWeek = new Date().getDay()
-  return dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 6 // Ter, Qui, Sab
+  return dayOfWeek === 1 || dayOfWeek === 4 || dayOfWeek === 0 // Seg, Qui, Dom
 }
 
 /**
@@ -115,9 +116,9 @@ export function getBlogScheduleInfo() {
     isPostDay,
     nextTheme,
     schedule: {
-      tuesday: 'Automação e Negócios',
-      thursday: 'Programação e IA', 
-      saturday: 'Cuidados Felinos'
+      monday: 'Automação e Negócios',
+      thursday: 'Programação e IA (Dicas para Leigos)', 
+      sunday: 'Cuidados Felinos (Novidades sobre IA)'
     }
   }
 }

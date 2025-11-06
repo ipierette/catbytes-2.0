@@ -145,18 +145,18 @@ export const SEO_KEYWORDS = [
 
 // Blog Theme Categories (rotating by day)
 export const BLOG_CATEGORIES = [
-  'Automação e Negócios', // Terça-feira - Para clientes e recrutadores
-  'Programação e IA',     // Quinta-feira - Dicas técnicas acessíveis  
-  'Cuidados Felinos',     // Sábado - Gatinhos e cuidados
+  'Automação e Negócios', // Segunda-feira - Para clientes e recrutadores
+  'Programação e IA',     // Quinta-feira - Dicas de programação web para leigos  
+  'Cuidados Felinos',     // Domingo - Novidades sobre IA
 ] as const
 
 export type BlogTheme = typeof BLOG_CATEGORIES[number]
 
-// Schedule: Tuesday (Automação), Thursday (Programação), Saturday (Gatinhos)
+// Schedule: Monday (Automação), Thursday (Programação Web), Sunday (Novidades IA)
 export const BLOG_SCHEDULE = {
-  2: 'Automação e Negócios', // Terça
+  1: 'Automação e Negócios', // Segunda
   4: 'Programação e IA',     // Quinta  
-  6: 'Cuidados Felinos',     // Sábado
+  0: 'Cuidados Felinos',     // Domingo
 } as const
 
 // Topic ideas for each theme
@@ -174,27 +174,32 @@ export const BLOG_TOPICS = {
     'Como escolher a tecnologia certa para sua empresa',
   ],
   'Programação e IA': [
-    'JavaScript moderno: recursos que todo dev deveria conhecer',
-    'Como começar com Inteligência Artificial em 2024',
-    'React vs Vue: qual framework escolher?',
-    'APIs REST: guia completo para iniciantes',
-    'Machine Learning explicado de forma simples',
-    'Git: comandos essenciais que todo programador deve saber',
-    'TypeScript: por que você deveria usar',
-    'Algoritmos básicos explicados com exemplos práticos',
-    'Como estruturar um projeto web profissional',
-    'Tendências em desenvolvimento web para 2024',
+    'O que é HTML? Guia para quem nunca programou',
+    'CSS para iniciantes: deixando seu site bonito',
+    'JavaScript explicado: o que ele faz no seu navegador?',
+    'Como funciona um site? Entenda de forma simples',
+    'Git e GitHub: salvando seu código na nuvem',
+    'O que são APIs? Explicado com exemplos do dia a dia',
+    'Diferença entre Front-end e Back-end',
+    'Como começar a programar do zero em 2024',
+    'Frameworks: por que facilitam a vida do programador',
+    'Responsividade: fazendo seu site funcionar no celular',
+    'Hospedagem de sites: onde colocar seu projeto online',
+    'Debugging: como encontrar e corrigir erros no código',
   ],
   'Cuidados Felinos': [
-    'Primeiros cuidados com filhotes de gato',
-    'Como criar um ambiente seguro para gatos',
-    'Alimentação felina: guia completo por idade',
-    'Sinais de que seu gato precisa de veterinário',
-    'Como socializar gatos com outros pets',
-    'Brincadeiras essenciais para o bem-estar felino',
-    'Cuidados com gatos idosos: amor na terceira idade',
-    'Como identificar o stress em felinos',
-    'Vacinação felina: cronograma essencial',
-    'Plantas tóxicas para gatos: lista de cuidados',
+    'ChatGPT lança novo modelo: o que mudou?',
+    'Google apresenta Gemini 2.0: principais novidades',
+    'Claude AI: nova atualização traz recursos surpreendentes',
+    'Microsoft Copilot: integrações anunciadas esta semana',
+    'Novas ferramentas de IA para criação de imagens',
+    'IA Open Source: modelos gratuitos que você pode usar',
+    'Atualizações no Midjourney: geração de imagens evolui',
+    'Antropic lança API com recursos inéditos',
+    'IA para desenvolvedores: ferramentas que aceleram código',
+    'Regulamentação de IA: novidades legislativas',
+    'Deepfakes: tecnologia avança e preocupa',
+    'IA em medicina: diagnósticos mais precisos',
+    'Novos plugins e extensões para ferramentas de IA',
   ]
 } as const
