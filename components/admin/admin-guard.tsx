@@ -9,7 +9,7 @@ interface AdminGuardProps {
   redirectTo?: string
 }
 
-export function AdminGuard({ children, redirectTo = '/pt-BR/admin/login' }: AdminGuardProps) {
+export function AdminGuard({ children, redirectTo = '/admin/login' }: AdminGuardProps) {
   const { isAdmin, isLoading } = useAdmin()
   const router = useRouter()
 
