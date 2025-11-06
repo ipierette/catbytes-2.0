@@ -28,34 +28,6 @@ export async function GET(request: NextRequest) {
 
     const results: { [key: string]: any } = {}
 
-    // Schedule: Every day at 09:00 - Send daily report email
-    if (hour === 9) {
-      console.log('[Simple-Cron] Sending daily report email...')
-      
-      try {
-        const reportResponse = await fetch(`${baseUrl}/api/notifications/email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': authHeader || `Bearer ${cronSecret}`,
-          },
-          body: JSON.stringify({
-            type: 'daily_report',
-            data: {}
-          }),
-        })
-
-        if (reportResponse.ok) {
-          results.daily_report = { success: true }
-          console.log('[Simple-Cron] Daily report sent successfully')
-        } else {
-          results.daily_report = { success: false, error: `Status ${reportResponse.status}` }
-        }
-      } catch (error) {
-        results.daily_report = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
-      }
-    }
-
     // Schedule: Monday (1), Tuesday (2), Thursday (4), Saturday (6) at 13:00
     // Execute blog generation and Instagram batch generation
     if ([1, 2, 4, 6].includes(dayOfWeek) && hour === 13) {
