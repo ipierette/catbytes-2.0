@@ -19,13 +19,17 @@ const supabase = createClient(
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('🟣 [DEBUG DALL-E] === INICIANDO GERAÇÃO ===')
+    
     await verifyAdmin(request)
+    console.log('🟣 [DEBUG DALL-E] ✓ Admin verificado')
 
     const { nicho, tema, palavrasChave, estilo, quantidade = 1 } = await request.json()
 
-    console.log('[DALL-E API] Gerando posts:', { nicho, tema, quantidade })
+    console.log('🟣 [DEBUG DALL-E] Parâmetros recebidos:', { nicho, tema, quantidade, estilo })
 
     if (!nicho || !tema) {
+      console.error('🟣 [DEBUG DALL-E] ❌ Nicho ou tema faltando')
       return NextResponse.json({
         success: false,
         error: 'Nicho e tema são obrigatórios'
@@ -33,24 +37,32 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se a OpenAI API Key está configurada
-    if (!process.env.OPENAI_API_KEY) {
+    const apiKey = process.env.OPENAI_API_KEY
+    console.log('🟣 [DEBUG DALL-E] OpenAI API Key:', apiKey ? `Configurada (${apiKey.substring(0, 10)}...)` : '❌ NÃO CONFIGURADA')
+    
+    if (!apiKey) {
+      console.error('🟣 [DEBUG DALL-E] ❌ OPENAI_API_KEY não encontrada no .env')
       return NextResponse.json({
         success: false,
-        error: 'OPENAI_API_KEY não configurada. Configure no .env.local'
+        error: 'OPENAI_API_KEY não configurada. Configure no .env.local',
+        errorTecnico: 'Variável de ambiente OPENAI_API_KEY não encontrada',
+        sugestao: 'Adicione OPENAI_API_KEY=sk-... no arquivo .env.local'
       }, { status: 500 })
     }
 
     // Usar template do nicho se disponível
     const nicheTemplate = NICHE_TEMPLATES[nicho as keyof typeof NICHE_TEMPLATES]
+    console.log('🟣 [DEBUG DALL-E] Template do nicho:', nicheTemplate ? 'Encontrado' : 'Usando padrão')
 
     const generatedPosts = []
     const errors = []
 
     for (let i = 0; i < quantidade; i++) {
       try {
-        console.log(`[DALL-E API] Tentando gerar post ${i + 1}/${quantidade}...`)
+        console.log(`🟣 [DEBUG DALL-E] === POST ${i + 1}/${quantidade} ===`)
         
         // 1. Gerar com DALL-E 3
+        console.log('🟣 [DEBUG DALL-E] Chamando generateInstagramPostWithDALLE...')
         const post = await generateInstagramPostWithDALLE({
           nicho,
           tema: quantidade > 1 ? `${tema} - Variação ${i + 1}` : tema,
@@ -59,8 +71,15 @@ export async function POST(request: NextRequest) {
           coresPrincipais: nicheTemplate?.coresPrincipais,
           incluirLogo: true
         })
+        
+        console.log('🟣 [DEBUG DALL-E] ✓ Post gerado:', {
+          titulo: post.titulo,
+          imageUrl: post.imageUrl ? 'OK' : 'FALHOU',
+          promptLength: post.prompt?.length || 0
+        })
 
         // 2. Criar registro temporário no banco para obter ID
+        console.log('🟣 [DEBUG DALL-E] Salvando no banco de dados...')
         const { data: tempPost, error: insertError } = await supabase
           .from('instagram_posts')
           .insert({
@@ -76,18 +95,24 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (insertError || !tempPost) {
-          console.error('[DALL-E API] Erro ao criar post:', insertError)
-          errors.push(`Post ${i + 1}: Erro ao salvar no banco`)
+          console.error('🟣 [DEBUG DALL-E] ❌ Erro ao criar post no DB:', insertError)
+          errors.push(`Post ${i + 1}: Erro ao salvar no banco - ${insertError?.message || 'Desconhecido'}`)
           continue
         }
+        
+        console.log('🟣 [DEBUG DALL-E] ✓ Post salvo no DB, ID:', tempPost.id)
 
         // 3. Baixar e salvar imagem permanentemente
+        console.log('🟣 [DEBUG DALL-E] Baixando e salvando imagem...')
         const permanentUrl = await downloadAndSaveDALLEImage(
           post.imageUrl,
           tempPost.id
         )
+        
+        console.log('🟣 [DEBUG DALL-E] ✓ Imagem salva:', permanentUrl)
 
         // 4. Atualizar post com URL permanente
+        console.log('🟣 [DEBUG DALL-E] Atualizando post com URL permanente...')
         const { error: updateError } = await supabase
           .from('instagram_posts')
           .update({
@@ -98,7 +123,9 @@ export async function POST(request: NextRequest) {
           .eq('id', tempPost.id)
 
         if (updateError) {
-          console.error('[DALL-E API] Erro ao atualizar post:', updateError)
+          console.error('🟣 [DEBUG DALL-E] ⚠️ Erro ao atualizar post:', updateError)
+        } else {
+          console.log('🟣 [DEBUG DALL-E] ✓ Post atualizado com sucesso')
         }
 
         generatedPosts.push({
@@ -107,22 +134,30 @@ export async function POST(request: NextRequest) {
           permanentUrl
         })
 
-        console.log(`[DALL-E API] Post ${i + 1}/${quantidade} gerado com sucesso!`)
+        console.log(`🟣 [DEBUG DALL-E] ✅ Post ${i + 1}/${quantidade} CONCLUÍDO!`)
 
         // Aguardar 3 segundos entre gerações para evitar rate limit
         if (i < quantidade - 1) {
+          console.log('🟣 [DEBUG DALL-E] Aguardando 3s antes do próximo...')
           await new Promise(resolve => setTimeout(resolve, 3000))
         }
 
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Erro desconhecido'
-        console.error(`[DALL-E API] Erro ao gerar post ${i + 1}:`, errorMsg)
+        const errorStack = error instanceof Error ? error.stack : undefined
+        console.error(`🟣 [DEBUG DALL-E] ❌ ERRO no post ${i + 1}:`, errorMsg)
+        console.error(`🟣 [DEBUG DALL-E] Stack:`, errorStack)
         errors.push(`Post ${i + 1}: ${errorMsg}`)
         // Continuar com os próximos
       }
     }
+    
+    console.log('🟣 [DEBUG DALL-E] === FIM DA GERAÇÃO ===')
+    console.log('🟣 [DEBUG DALL-E] Posts gerados:', generatedPosts.length)
+    console.log('🟣 [DEBUG DALL-E] Erros:', errors.length)
 
     if (generatedPosts.length === 0) {
+      console.error('🟣 [DEBUG DALL-E] ❌ NENHUM POST GERADO!')
       return NextResponse.json({
         success: false,
         error: 'Nenhum post foi gerado com sucesso',
@@ -141,22 +176,40 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Erro desconhecido'
-    console.error('[DALL-E API] Erro geral:', errorMsg)
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error('🟣 [DEBUG DALL-E] ❌ ERRO GERAL:', errorMsg)
+    console.error('🟣 [DEBUG DALL-E] Stack:', errorStack)
     
     // Mensagem de erro mais detalhada
     let userMessage = errorMsg
-    if (errorMsg.includes('api_key')) {
+    let sugestao = 'Verifique os logs do console para mais detalhes'
+    
+    if (errorMsg.includes('api_key') || errorMsg.includes('API key')) {
       userMessage = 'API Key da OpenAI inválida ou não configurada'
-    } else if (errorMsg.includes('insufficient_quota')) {
-      userMessage = 'Créditos OpenAI insuficientes. Adicione créditos na sua conta OpenAI.'
-    } else if (errorMsg.includes('model_not_found')) {
-      userMessage = 'DALL-E 3 não está disponível na sua conta OpenAI. Use a geração tradicional.'
+      sugestao = 'Verifique se OPENAI_API_KEY no .env.local está correta e começa com sk-'
+    } else if (errorMsg.includes('insufficient_quota') || errorMsg.includes('quota')) {
+      userMessage = 'Créditos OpenAI insuficientes'
+      sugestao = 'Adicione créditos na sua conta OpenAI em https://platform.openai.com/settings/organization/billing'
+    } else if (errorMsg.includes('model_not_found') || errorMsg.includes('dall-e-3')) {
+      userMessage = 'DALL-E 3 não está disponível na sua conta OpenAI'
+      sugestao = 'Use o botão "⚡ Stability AI" que é mais barato e funciona imediatamente'
+    } else if (errorMsg.includes('rate_limit') || errorMsg.includes('Too Many Requests')) {
+      userMessage = 'Limite de requisições atingido'
+      sugestao = 'Aguarde alguns minutos antes de tentar novamente'
     }
+    
+    console.error('🟣 [DEBUG DALL-E] Mensagem para usuário:', userMessage)
+    console.error('🟣 [DEBUG DALL-E] Sugestão:', sugestao)
     
     return NextResponse.json({
       success: false,
       error: userMessage,
-      errorTecnico: errorMsg
+      errorTecnico: errorMsg,
+      sugestao,
+      debugInfo: {
+        timestamp: new Date().toISOString(),
+        errorType: error instanceof Error ? error.constructor.name : typeof error
+      }
     }, { status: 500 })
   }
 }

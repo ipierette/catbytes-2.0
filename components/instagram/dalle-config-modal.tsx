@@ -17,6 +17,7 @@ interface DALLEConfigModalProps {
     estilo: string
     palavrasChave?: string[]
   }) => void
+  mode?: 'dalle' | 'stability' // Novo: tipo de geração
 }
 
 const NICHOS = [
@@ -35,12 +36,49 @@ const ESTILOS = [
   { value: 'corporativo', label: 'Corporativo' },
 ]
 
-export function DALLEConfigModal({ open, onClose, onGenerate }: DALLEConfigModalProps) {
-  const [nicho, setNicho] = useState('tech')
-  const [tema, setTema] = useState('')
-  const [quantidade, setQuantidade] = useState(5)
-  const [estilo, setEstilo] = useState('moderno')
-  const [palavrasChave, setPalavrasChave] = useState('')
+export function DALLEConfigModal({ open, onClose, onGenerate, mode = 'dalle' }: DALLEConfigModalProps) {
+  const [nicho, setNicho] = useState<string>('')
+  const [tema, setTema] = useState<string>('')
+  const [quantidade, setQuantidade] = useState<number>(1)
+  const [estilo, setEstilo] = useState<string>('moderno')
+  const [palavrasChave, setPalavrasChave] = useState<string>('')
+  const [loadingSuggestion, setLoadingSuggestion] = useState(false)
+
+  const isDALLE = mode === 'dalle'
+  const title = isDALLE ? '✨ Gerar com DALL-E 3 (Debug)' : '⚡ Gerar com Stability AI (Debug)'
+  const description = isDALLE 
+    ? 'Configure os parâmetros para gerar posts com DALL-E 3. Logs detalhados no console.' 
+    : 'Configure os parâmetros para gerar posts com Stability AI. 10x mais barato que DALL-E. Logs detalhados no console.'
+
+  const handleGetSuggestion = async () => {
+    setLoadingSuggestion(true)
+    try {
+      const response = await fetch('/api/instagram/suggest-theme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentNicho: nicho || undefined })
+      })
+
+      if (!response.ok) {
+        throw new Error('Falha ao buscar sugestão')
+      }
+
+      const data = await response.json()
+      
+      // Preenche automaticamente os campos
+      if (data.nicho) setNicho(data.nicho)
+      if (data.tema) setTema(data.tema)
+      if (data.estilo) setEstilo(data.estilo)
+      if (data.palavrasChave) setPalavrasChave(data.palavrasChave)
+      
+      alert('✨ Sugestão aplicada! Você pode editar os campos antes de gerar.')
+    } catch (error) {
+      console.error('Erro ao buscar sugestão:', error)
+      alert('❌ Erro ao buscar sugestão da IA')
+    } finally {
+      setLoadingSuggestion(false)
+    }
+  }
 
   const handleGenerate = () => {
     if (!nicho || !tema) {
@@ -66,13 +104,24 @@ export function DALLEConfigModal({ open, onClose, onGenerate }: DALLEConfigModal
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>✨ Configurar Geração DALL-E 3</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            Configure os parâmetros para gerar posts com imagens profissionais usando DALL-E 3
+            {description}
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
+          {/* Botão de Sugestão da IA */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGetSuggestion}
+            disabled={loadingSuggestion}
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+          >
+            {loadingSuggestion ? '🤔 Pensando...' : '✨ Sugestão da IA (Auto-preencher)'}
+          </Button>
+
           {/* Nicho */}
           <div className="grid gap-2">
             <Label htmlFor="nicho">Nicho *</Label>

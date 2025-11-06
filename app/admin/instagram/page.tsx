@@ -51,6 +51,7 @@ export default function InstagramAdminPage() {
   
   // Novos estados
   const [showDALLEModal, setShowDALLEModal] = useState(false)
+  const [showStabilityModal, setShowStabilityModal] = useState(false)
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'published' | 'failed'>('all')
   
   // Posts filtrados
@@ -220,6 +221,67 @@ export default function InstagramAdminPage() {
       setMessage({ 
         type: 'error', 
         text: 'Erro ao gerar posts com DALL-E 3' 
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleGenerateWithStability = async () => {
+    setShowStabilityModal(true)
+  }
+
+  const handleStabilityGenerate = async (config: {
+    nicho: string
+    tema: string
+    quantidade: number
+    estilo: string
+    palavrasChave?: string[]
+  }) => {
+    try {
+      setLoading(true)
+      setShowStabilityModal(false)
+      
+      console.log('🔷 [DEBUG STABILITY] Iniciando geração:', config)
+      
+      setMessage({ 
+        type: 'success', 
+        text: '⚡ Gerando posts com Stability AI... Aguarde.' 
+      })
+
+      const response = await fetch('/api/instagram/generate-with-stability', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
+        },
+        body: JSON.stringify(config)
+      })
+
+      console.log('🔷 [DEBUG STABILITY] Response status:', response.status)
+      
+      const data = await response.json()
+      
+      console.log('🔷 [DEBUG STABILITY] Response data:', data)
+
+      if (data.success) {
+        setMessage({ 
+          type: 'success', 
+          text: `✅ ${data.posts.length} posts gerados com Stability AI! Custo: ~$${(data.posts.length * 0.007).toFixed(3)}` 
+        })
+        await loadData()
+      } else {
+        console.error('🔷 [DEBUG STABILITY] Erro na resposta:', data)
+        setMessage({ 
+          type: 'error', 
+          text: `❌ ${data.error || 'Erro desconhecido'}\n${data.errorTecnico || ''}\n${data.sugestao || ''}` 
+        })
+      }
+    } catch (error) {
+      console.error('🔷 [DEBUG STABILITY] Exception:', error)
+      setMessage({ 
+        type: 'error', 
+        text: `❌ Erro ao conectar com Stability AI: ${error instanceof Error ? error.message : 'Erro desconhecido'}` 
       })
     } finally {
       setLoading(false)
@@ -495,7 +557,19 @@ export default function InstagramAdminPage() {
               <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" opacity="0.5"/>
               <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z" fill="currentColor"/>
             </svg>
-            {loading ? 'Gerando...' : '✨ Gerar com DALL-E 3'}
+            {loading ? 'Gerando...' : '✨ DALL-E 3 (Debug)'}
+          </Button>
+          <Button 
+            onClick={handleGenerateWithStability}
+            variant="default"
+            size="lg" 
+            className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+            disabled={loading}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
+            </svg>
+            {loading ? 'Gerando...' : '⚡ Stability AI (Debug)'}
           </Button>
         </div>
       </div>
@@ -894,6 +968,15 @@ export default function InstagramAdminPage() {
         open={showDALLEModal}
         onClose={() => setShowDALLEModal(false)}
         onGenerate={handleDALLEGenerate}
+        mode="dalle"
+      />
+      
+      {/* Modal de Configuração Stability AI */}
+      <DALLEConfigModal
+        open={showStabilityModal}
+        onClose={() => setShowStabilityModal(false)}
+        onGenerate={handleStabilityGenerate}
+        mode="stability"
       />
       </div>
     </AdminLayoutWrapper>
