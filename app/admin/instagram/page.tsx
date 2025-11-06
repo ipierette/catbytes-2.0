@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, CheckSquare, Square, Trash2, Edit, Send } from 'lucide-react'
+import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, CheckSquare, Square, Trash2, Edit, Send, RefreshCw } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
@@ -161,6 +161,51 @@ export default function InstagramAdminPage() {
     }
   }
 
+  const handleGenerateWithDALLE = async () => {
+    try {
+      setLoading(true)
+      setMessage({ 
+        type: 'success', 
+        text: '🎨 Gerando posts com DALL-E 3... Isso pode levar alguns minutos.' 
+      })
+
+      const response = await fetch('/api/instagram/generate-with-dalle', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
+        },
+        body: JSON.stringify({
+          nicho: 'tech', // Pode ser customizado
+          quantidade: 5,
+          estilo: 'moderno'
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setMessage({ 
+          type: 'success', 
+          text: `✅ ${data.posts.length} posts gerados com DALL-E 3! Você pode editá-los manualmente antes de publicar.` 
+        })
+        await loadData()
+      } else {
+        setMessage({ 
+          type: 'error', 
+          text: data.error || 'Erro ao gerar posts com DALL-E 3' 
+        })
+      }
+    } catch (error) {
+      setMessage({ 
+        type: 'error', 
+        text: 'Erro ao gerar posts com DALL-E 3' 
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleApprove = async (postId: string) => {
     try {
       // Feedback visual IMEDIATO - Optimistic Update
@@ -261,22 +306,25 @@ export default function InstagramAdminPage() {
     }
   }
 
-  const handleSaveEdit = async (updatedPost: InstagramPost) => {
+  const handleSaveEdit = async (updatedPost: InstagramPost, finalImageUrl?: string) => {
     try {
+      setMessage({ type: 'success', text: '💾 Salvando alterações...' })
+
       const response = await fetch(`/api/instagram/posts/${updatedPost.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           titulo: updatedPost.titulo,
           texto_imagem: updatedPost.texto_imagem,
-          caption: updatedPost.caption
+          caption: updatedPost.caption,
+          image_url: finalImageUrl || updatedPost.image_url
         })
       })
 
       const data = await response.json()
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'Post atualizado com sucesso!' })
+        setMessage({ type: 'success', text: '✅ Post atualizado com sucesso!' })
         setEditingPost(null)
         await loadData()
       } else {
@@ -401,7 +449,20 @@ export default function InstagramAdminPage() {
             disabled={loading}
           >
             <Play className="h-4 w-4" />
-            {loading ? 'Gerando...' : 'Gerar Lote Agora'}
+            {loading ? 'Gerando...' : '🤖 Gerar com IA (Tradicional)'}
+          </Button>
+          <Button 
+            onClick={handleGenerateWithDALLE}
+            variant="default"
+            size="lg" 
+            className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            disabled={loading}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" opacity="0.5"/>
+              <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z" fill="currentColor"/>
+            </svg>
+            {loading ? 'Gerando...' : '✨ Gerar com DALL-E 3'}
           </Button>
         </div>
       </div>
@@ -419,59 +480,73 @@ export default function InstagramAdminPage() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats?.pending || 0}</div>
-          </CardContent>
-        </Card>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">📊 Estatísticas</h2>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadData}
+            disabled={loading}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Atualizar
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
+              <Clock className="h-4 w-4 text-yellow-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-600">{stats?.pending || 0}</div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Agendados</CardTitle>
-            <Calendar className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats?.approved || 0}</div>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Agendados</CardTitle>
+              <Calendar className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">{stats?.approved || 0}</div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Publicados</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats?.published || 0}</div>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Publicados</CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{stats?.published || 0}</div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Falhas</CardTitle>
-            <XCircle className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats?.failed || 0}</div>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Falhas</CardTitle>
+              <XCircle className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{stats?.failed || 0}</div>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats?.total || 0}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Schedule Info */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.total || 0}</div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>      {/* Schedule Info */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -485,14 +560,25 @@ export default function InstagramAdminPage() {
         <CardContent>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-semibold mb-2">🤖 Geração Automática</h4>
-              <p className="text-sm text-muted-foreground mb-2">
-                <strong>Cron Jobs:</strong> Segunda, Terça, Quinta e Sábado às 13:00<br/>
-                <strong>Quantidade:</strong> 10 posts por execução<br/>
+              <h4 className="font-semibold mb-2">🤖 Geração de Posts</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                <strong>Opção 1 - IA Tradicional:</strong><br/>
+                • Usa GPT-4 para criar conteúdo<br/>
+                • Você edita texto e imagem manualmente<br/>
+                • Mais controle e personalização<br/>
+              </p>
+              <p className="text-sm text-muted-foreground mb-3">
+                <strong>Opção 2 - DALL-E 3:</strong><br/>
+                • Gera imagem com texto integrado<br/>
+                • Mais rápido e profissional<br/>
+                • Você pode editar manualmente depois<br/>
+              </p>
+              <p className="text-sm text-muted-foreground">
+                <strong>Automático:</strong> Cron jobs geram posts automaticamente (segunda, terça, quinta e sábado às 13:00)<br/>
+                <strong>Manual:</strong> Use os botões de geração a qualquer momento<br/>
                 <strong>Status:</strong> <span className={autoGenEnabled ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
                   {autoGenEnabled ? 'ATIVA' : 'PAUSADA'}
-                </span><br/>
-                <strong>Manual:</strong> Use o botão "Gerar Lote Agora" para criar posts a qualquer momento
+                </span>
               </p>
             </div>
             <div>
@@ -696,26 +782,26 @@ export default function InstagramAdminPage() {
                 </div>
               </div>
 
-              <div className="p-4 border-t flex gap-3">
+              <div className="p-4 border-t flex flex-wrap gap-3">
                 <Button
                   variant="secondary"
-                  className="gap-2"
+                  className="gap-2 flex-1 min-w-[140px]"
                   onClick={() => handlePublishNow(selectedPost.id)}
                   disabled={publishingPostId === selectedPost.id}
                 >
                   <Send className="h-4 w-4" />
-                  {publishingPostId === selectedPost.id ? 'Publicando...' : '🚀 Publicar Agora'}
+                  {publishingPostId === selectedPost.id ? 'Publicando...' : '🚀 Publicar'}
                 </Button>
                 <Button
-                  className="flex-1 gap-2"
+                  className="flex-1 gap-2 min-w-[140px]"
                   onClick={() => handleApprove(selectedPost.id)}
                 >
                   <CheckCircle className="h-4 w-4" />
-                  Aprovar e Agendar
+                  Aprovar
                 </Button>
                 <Button
                   variant="destructive"
-                  className="gap-2"
+                  className="gap-2 min-w-[120px]"
                   onClick={() => handleReject(selectedPost.id)}
                 >
                   <XCircle className="h-4 w-4" />

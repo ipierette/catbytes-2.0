@@ -78,12 +78,24 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
   }, [post.texto_imagem])
 
   const addTextLayer = (initialText = 'Novo texto') => {
+    // Calcular tamanho baseado no comprimento do texto para melhor visualização
+    const textLength = initialText.length
+    let idealFontSize = 64 // Padrão para textos curtos (títulos)
+    
+    if (textLength > 50) {
+      idealFontSize = 40 // Textos médios
+    } else if (textLength > 100) {
+      idealFontSize = 32 // Textos longos
+    } else if (textLength < 20) {
+      idealFontSize = 80 // Títulos muito curtos e impactantes
+    }
+    
     const newLayer: TextLayer = {
       id: `layer-${Date.now()}`,
       text: initialText,
       x: 50,
       y: 50,
-      fontSize: 48,
+      fontSize: idealFontSize,
       fontFamily: 'Impact',
       color: '#FFFFFF',
       bold: true,
@@ -628,26 +640,34 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
                     className="object-cover"
                     unoptimized
                   />
-                  {textLayers.map(layer => (
-                    <div
-                      key={`preview-${layer.id}`}
-                      className="absolute"
-                      style={{
-                        left: `${(layer.x / (imageContainerRef.current?.offsetWidth || 500)) * 100}%`,
-                        top: `${(layer.y / (imageContainerRef.current?.offsetWidth || 500)) * 100}%`,
-                        fontSize: `${(layer.fontSize / (imageContainerRef.current?.offsetWidth || 500)) * 100}%`,
-                        fontFamily: layer.fontFamily,
-                        color: layer.color,
-                        fontWeight: layer.bold ? 'bold' : 'normal',
-                        fontStyle: layer.italic ? 'italic' : 'normal',
-                        transform: `rotate(${layer.rotation}deg)`,
-                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                        whiteSpace: 'pre-wrap'
-                      }}
-                    >
-                      {layer.text}
-                    </div>
-                  ))}
+                  {textLayers.map(layer => {
+                    // Calculate proper preview sizing
+                    const containerWidth = imageContainerRef.current?.offsetWidth || 500
+                    const previewWidth = 400 // Approximate preview container width
+                    const scaleFactor = previewWidth / containerWidth
+                    
+                    return (
+                      <div
+                        key={`preview-${layer.id}`}
+                        className="absolute"
+                        style={{
+                          left: `${layer.x * scaleFactor}px`,
+                          top: `${layer.y * scaleFactor}px`,
+                          fontSize: `${layer.fontSize * scaleFactor}px`,
+                          fontFamily: layer.fontFamily,
+                          color: layer.color,
+                          fontWeight: layer.bold ? 'bold' : 'normal',
+                          fontStyle: layer.italic ? 'italic' : 'normal',
+                          transform: `rotate(${layer.rotation}deg)`,
+                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                          whiteSpace: 'pre-wrap',
+                          maxWidth: '80%'
+                        }}
+                      >
+                        {layer.text}
+                      </div>
+                    )
+                  })}
                 </div>
 
                 {/* Instagram Actions */}

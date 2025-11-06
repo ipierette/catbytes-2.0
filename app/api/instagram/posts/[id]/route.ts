@@ -20,9 +20,9 @@ export async function PATCH(
     const { id } = await params
 
     const body = await request.json()
-    const { titulo, texto_imagem, caption } = body
+    const { titulo, texto_imagem, caption, image_url } = body
 
-    if (!titulo && !texto_imagem && !caption) {
+    if (!titulo && !texto_imagem && !caption && !image_url) {
       return NextResponse.json(
         { success: false, error: 'At least one field is required' },
         { status: 400 }
@@ -36,6 +36,7 @@ export async function PATCH(
     if (titulo) updates.titulo = titulo
     if (texto_imagem) updates.texto_imagem = texto_imagem
     if (caption) updates.caption = caption
+    if (image_url) updates.image_url = image_url
 
     const post = await instagramDB.updatePost(id, updates)
 

@@ -14,6 +14,10 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+.instagram-token.txt
+
+# Scripts com tokens configurados
+scripts/generate-long-lived-instagram-token.js
 
 # Google Cloud Service Account JSON - NUNCA comitar!
 *-credentials.json

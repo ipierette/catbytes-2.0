@@ -17,11 +17,12 @@ const supabase = createClient(
  */
 export async function POST(request: NextRequest) {
   try {
-    const { dataUrl, postId } = await request.json()
+    const { dataUrl, imageData, postId } = await request.json()
+    const finalDataUrl = dataUrl || imageData // Accept both parameter names
 
-    if (!dataUrl || !postId) {
+    if (!finalDataUrl || !postId) {
       return NextResponse.json(
-        { error: 'dataUrl and postId are required' },
+        { error: 'dataUrl/imageData and postId are required' },
         { status: 400 }
       )
     }
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     console.log('[Upload Custom Image] Processing for post:', postId)
 
     // Converter dataURL para buffer
-    const base64Data = dataUrl.replace(/^data:image\/\w+;base64,/, '')
+    const base64Data = finalDataUrl.replace(/^data:image\/\w+;base64,/, '')
     const buffer = Buffer.from(base64Data, 'base64')
 
     console.log('[Upload Custom Image] Buffer size:', buffer.length, 'bytes')
@@ -93,6 +94,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       url: publicUrl,
+      imageUrl: publicUrl, // Also return as imageUrl for compatibility
       path: uploadData.path
     })
 
