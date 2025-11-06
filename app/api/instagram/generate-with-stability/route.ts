@@ -133,22 +133,63 @@ export async function POST(request: NextRequest) {
 
         // 4. Criar registro no banco de dados
         console.log('🔷 [DEBUG STABILITY] Salvando no banco de dados...')
+        
+        // Validar dados antes de inserir
+        const postData = {
+          nicho,
+          titulo: post.titulo,
+          texto_imagem: post.textoImagem,
+          caption: post.caption,
+          image_url: imageUrl,
+          status: 'pending' as const,
+          generation_method: 'stability-ai'
+        }
+        
+        console.log('🔷 [DEBUG STABILITY] Validando dados:', {
+          nicho: postData.nicho,
+          tituloLength: postData.titulo?.length || 0,
+          textoImagemLength: postData.texto_imagem?.length || 0,
+          captionLength: postData.caption?.length || 0,
+          imageUrlLength: postData.image_url?.length || 0,
+          status: postData.status,
+          generation_method: postData.generation_method
+        })
+        
+        // Verificar campos obrigatórios
+        if (!postData.nicho) {
+          console.error('🔷 [DEBUG STABILITY] ❌ Campo nicho está vazio')
+          errors.push(`Post ${i + 1}: Nicho não pode ser vazio`)
+          continue
+        }
+        
+        if (!postData.titulo) {
+          console.error('🔷 [DEBUG STABILITY] ❌ Campo titulo está vazio')
+          errors.push(`Post ${i + 1}: Título não pode ser vazio`)
+          continue
+        }
+        
+        if (!postData.image_url) {
+          console.error('🔷 [DEBUG STABILITY] ❌ Campo image_url está vazio')
+          errors.push(`Post ${i + 1}: URL da imagem não pode ser vazia`)
+          continue
+        }
+        
+        console.log('🔷 [DEBUG STABILITY] ✓ Validação passou, inserindo no DB...')
+        
         const { data: dbPost, error: insertError } = await supabase
           .from('instagram_posts')
-          .insert({
-            nicho,
-            titulo: post.titulo,
-            texto_imagem: post.textoImagem,
-            caption: post.caption,
-            image_url: imageUrl,
-            status: 'pending',
-            generation_method: 'stability-ai'
-          })
+          .insert(postData)
           .select()
           .single()
 
         if (insertError || !dbPost) {
           console.error('🔷 [DEBUG STABILITY] ❌ Erro ao salvar no DB:', insertError)
+          console.error('🔷 [DEBUG STABILITY] Detalhes do erro:', {
+            code: insertError?.code,
+            message: insertError?.message,
+            details: insertError?.details,
+            hint: insertError?.hint
+          })
           errors.push(`Post ${i + 1}: Erro ao salvar no banco - ${insertError?.message || 'Desconhecido'}`)
           continue
         }

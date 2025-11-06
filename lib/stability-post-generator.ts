@@ -24,13 +24,20 @@ interface StabilityGenerationRequest {
  * Mais barato e igualmente eficaz para posts do Instagram
  */
 export async function generatePostWithStability(request: StabilityGenerationRequest) {
+  console.log('🔷 [STABILITY-LIB] === INICIANDO GERAÇÃO ===')
+  console.log('🔷 [STABILITY-LIB] Request:', request)
+  
   const stabilityKey = process.env.STABILITY_API_KEY
 
   if (!stabilityKey) {
+    console.error('🔷 [STABILITY-LIB] ❌ STABILITY_API_KEY não configurada')
     throw new Error('STABILITY_API_KEY não configurada. Adicione ao .env.local')
   }
+  
+  console.log('🔷 [STABILITY-LIB] ✓ API Key configurada:', stabilityKey.substring(0, 10) + '...')
 
   // 1. Gerar conteúdo com GPT-4 (mesmo sistema do DALL-E)
+  console.log('🔷 [STABILITY-LIB] Gerando conteúdo com GPT-4...')
   const contentPrompt = `
 Crie conteúdo para um post do Instagram sobre "${request.tema}" no nicho "${request.nicho}".
 
@@ -45,6 +52,7 @@ Palavras-chave: ${request.palavrasChave?.join(', ') || 'tecnologia, inovação'}
 Estilo: ${request.estilo || 'moderno'}
 `
 
+  console.log('🔷 [STABILITY-LIB] Chamando GPT-4...')
   const contentResponse = await openai.chat.completions.create({
     model: 'gpt-4-turbo-preview',
     messages: [
@@ -61,10 +69,14 @@ Estilo: ${request.estilo || 'moderno'}
   })
 
   const content = JSON.parse(contentResponse.choices[0].message.content || '{}')
+  console.log('🔷 [STABILITY-LIB] ✓ Conteúdo gerado:', content)
 
   // 2. Gerar imagem com Stability AI
+  console.log('🔷 [STABILITY-LIB] Construindo prompt para Stability AI...')
   const imagePrompt = buildStabilityPrompt(request, content)
+  console.log('🔷 [STABILITY-LIB] Prompt:', imagePrompt.substring(0, 150) + '...')
 
+  console.log('🔷 [STABILITY-LIB] Chamando Stability AI API...')
   const stabilityResponse = await fetch(
     'https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image',
     {
@@ -95,17 +107,33 @@ Estilo: ${request.estilo || 'moderno'}
     }
   )
 
+  console.log('🔷 [STABILITY-LIB] Response status:', stabilityResponse.status)
+  
   if (!stabilityResponse.ok) {
     const error = await stabilityResponse.json()
+    console.error('🔷 [STABILITY-LIB] ❌ Erro da API:', error)
     throw new Error(`Stability AI error: ${error.message || stabilityResponse.statusText}`)
   }
 
   const stabilityData = await stabilityResponse.json()
+  console.log('🔷 [STABILITY-LIB] ✓ Resposta recebida, artifacts:', stabilityData.artifacts?.length || 0)
+  
+  if (!stabilityData.artifacts || stabilityData.artifacts.length === 0) {
+    console.error('🔷 [STABILITY-LIB] ❌ Nenhuma imagem foi gerada')
+    throw new Error('Stability AI não retornou nenhuma imagem')
+  }
   
   // Imagem vem em base64
   const imageBase64 = stabilityData.artifacts[0].base64
   const imageUrl = `data:image/png;base64,${imageBase64}`
+  
+  console.log('🔷 [STABILITY-LIB] ✓ Imagem gerada:', {
+    base64Length: imageBase64?.length || 0,
+    hasImageUrl: !!imageUrl
+  })
 
+  console.log('🔷 [STABILITY-LIB] ✅ GERAÇÃO COMPLETA!')
+  
   return {
     imageUrl,
     imageBase64,
