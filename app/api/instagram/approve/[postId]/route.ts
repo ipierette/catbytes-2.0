@@ -3,10 +3,10 @@ import { instagramDB, supabaseAdmin } from '@/lib/instagram-db'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
-    const { postId } = params
+    const { postId } = await params
 
     // Buscar o post usando supabaseAdmin
     const { data: post, error: fetchError } = await supabaseAdmin
