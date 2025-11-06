@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
         console.log('[Simple-Cron] Publishing scheduled Instagram posts...')
         
         try {
-          const publishResponse = await fetch(`${baseUrl}/api/instagram/publish-scheduled`, {
+          const publishResponse = await fetch(`${baseUrl}/api/instagram/publish-scheduled-DISABLED`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
