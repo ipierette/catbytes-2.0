@@ -29,6 +29,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
   const [loading, setLoading] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [generatingSuggestion, setGeneratingSuggestion] = useState(false)
   
   // Form inicial
   const [nicho, setNicho] = useState('')
@@ -84,6 +85,65 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
       setMessage({ type: 'error', text: error.message })
     } finally {
       setGenerating(false)
+    }
+  }
+
+  const handleGenerateSuggestedPost = async () => {
+    setGeneratingSuggestion(true)
+    setMessage(null)
+
+    try {
+      // Passo 1: Obter sugestão de tema
+      const suggestionResponse = await fetch('/api/instagram/suggest-theme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      })
+
+      const suggestionData = await suggestionResponse.json()
+
+      if (!suggestionResponse.ok) {
+        throw new Error(suggestionData.error || 'Erro ao gerar sugestão')
+      }
+
+      // Preencher os campos com a sugestão
+      setNicho(suggestionData.nicho)
+      setTema(suggestionData.tema)
+      setEstilo(suggestionData.estilo)
+      setPalavrasChave(suggestionData.palavrasChave)
+
+      // Passo 2: Gerar conteúdo completo automaticamente
+      const contentResponse = await fetch('/api/instagram/generate-text-only', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nicho: suggestionData.nicho,
+          tema: suggestionData.tema,
+          estilo: suggestionData.estilo,
+          palavrasChave: suggestionData.palavrasChave,
+          quantidade: 1
+        })
+      })
+
+      const contentData = await contentResponse.json()
+
+      if (!contentResponse.ok) {
+        throw new Error(contentData.error || 'Erro ao gerar conteúdo')
+      }
+
+      if (contentData.posts && contentData.posts.length > 0) {
+        setGeneratedContent(contentData.posts[0])
+        setMessage({ 
+          type: 'success', 
+          text: '✨ Post sugerido gerado! Tema: ' + suggestionData.categoria + '. Copie o prompt e faça upload da imagem.' 
+        })
+      }
+
+    } catch (error: any) {
+      console.error('Erro ao gerar sugestão:', error)
+      setMessage({ type: 'error', text: error.message })
+    } finally {
+      setGeneratingSuggestion(false)
     }
   }
 
@@ -267,6 +327,31 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
           {/* Formulário Inicial */}
           {!generatedContent && (
             <div className="space-y-4">
+              {/* Botão de Sugestão Rápida */}
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-4">
+                <p className="text-sm text-gray-700 mb-3">
+                  <strong>💡 Dica:</strong> Deixe a IA sugerir um post completo com tema estratégico e conteúdo pronto!
+                </p>
+                <Button
+                  onClick={handleGenerateSuggestedPost}
+                  disabled={generatingSuggestion}
+                  variant="default"
+                  className="w-full gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  size="lg"
+                >
+                  {generatingSuggestion ? '🤖 Gerando sugestão...' : '✨ Gerar Post Sugerido por IA (Tudo Automático)'}
+                </Button>
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-2 text-gray-500">Ou preencha manualmente</span>
+                </div>
+              </div>
+
               <div>
                 <Label>Nicho *</Label>
                 <Input

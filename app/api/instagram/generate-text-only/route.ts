@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyAdmin } from '@/lib/api-security'
 
 const openai = require('openai')
 
@@ -75,16 +74,6 @@ export async function POST(request: NextRequest) {
   console.log('🎨 [TEXT-ONLY] === INICIANDO GERAÇÃO DE TEXTO + PROMPT ===')
   
   try {
-    // Verificar autenticação admin
-    const adminCheck = await verifyAdmin(request)
-    if (!adminCheck.valid) {
-      console.log('🎨 [TEXT-ONLY] ❌ Não autorizado')
-      return adminCheck.error || NextResponse.json(
-        { error: 'Não autorizado' },
-        { status: 401 }
-      )
-    }
-
     const body = await request.json()
     const { nicho, tema, estilo, palavrasChave, quantidade = 1 } = body
 
