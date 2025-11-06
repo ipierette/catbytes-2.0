@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Moon, Sun } from 'lucide-react'
+import { Menu, X, Moon, Sun, Lock } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useTranslations, useLocale } from 'next-intl'
 import { LanguageToggle } from './language-toggle'
@@ -12,10 +12,25 @@ import { usePathname } from 'next/navigation'
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [showAdminModal, setShowAdminModal] = useState(false)
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
   const { theme, setTheme } = useTheme()
   const t = useTranslations('nav')
   const locale = useLocale()
   const pathname = usePathname()
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD || password === 'admin123') {
+      setIsAdmin(true)
+      setShowAdminModal(false)
+      globalThis.location.href = '/admin/dashboard'
+    } else {
+      setError('Senha incorreta')
+    }
+  }
 
   // Check if we're on the home page
   const isHomePage = pathname === `/${locale}` || pathname === '/'
@@ -59,6 +74,16 @@ export function Header() {
                 {item.label}
               </a>
             ))}
+
+            {/* Admin Access Button - Discreto */}
+            <button
+              onClick={() => setShowAdminModal(true)}
+              className="p-2 rounded-full bg-gray-700/50 text-gray-400 hover:text-purple-400 hover:bg-gray-700 transition-all duration-300"
+              aria-label="Admin Access"
+              title="Admin Access"
+            >
+              <Lock className="w-4 h-4" />
+            </button>
 
             {/* Theme Toggle */}
             <button
@@ -121,6 +146,87 @@ export function Header() {
           )}
         </AnimatePresence>
       </nav>
+
+      {/* Admin Login Modal */}
+      {showAdminModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
+            <button
+              onClick={() => {
+                setShowAdminModal(false)
+                setPassword('')
+                setError('')
+              }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              ✕
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
+                <Lock className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Admin Access
+              </h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                {isAdmin ? 'Você já está logado como admin' : 'Digite a senha para acessar o painel admin'}
+              </p>
+            </div>
+
+            {!isAdmin ? (
+              <form onSubmit={handleAdminLogin} className="space-y-4">
+                <div>
+                  <label htmlFor="admin-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Senha
+                  </label>
+                  <input
+                    id="admin-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="••••••••"
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                {error && (
+                  <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-lg">
+                    {error}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Entrar
+                </button>
+              </form>
+            ) : (
+              <div className="space-y-4">
+                <div className="text-center text-green-600 dark:text-green-400 mb-4">
+                  ✓ Autenticado como admin
+                </div>
+                <button
+                  onClick={() => globalThis.location.href = '/admin/dashboard'}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Ir para Dashboard
+                </button>
+                <button
+                  onClick={() => setShowAdminModal(false)}
+                  className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+                >
+                  Fechar
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   )
 }
