@@ -19,7 +19,7 @@ export function AdminHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700">
+    <header className="sticky top-0 z-50 bg-gray-900 shadow-lg border-b border-gray-800">
       <nav className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -32,7 +32,7 @@ export function AdminHeader() {
               className="h-12 w-auto"
               priority
             />
-            <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 hidden sm:inline">
+            <span className="text-sm font-semibold text-gray-300 hidden sm:inline">
               Admin Panel
             </span>
           </Link>
@@ -44,7 +44,7 @@ export function AdminHeader() {
               variant="ghost"
               size="sm"
               onClick={() => router.push('/')}
-              className="gap-2"
+              className="gap-2 text-gray-300 hover:text-white hover:bg-gray-800"
             >
               <Home className="h-4 w-4" />
               <span className="hidden sm:inline">Site</span>
@@ -55,7 +55,7 @@ export function AdminHeader() {
               variant="ghost"
               size="sm"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="gap-2"
+              className="gap-2 text-gray-300 hover:text-white hover:bg-gray-800"
             >
               {theme === 'dark' ? (
                 <>
@@ -75,7 +75,7 @@ export function AdminHeader() {
               variant="ghost"
               size="sm"
               onClick={handleLogout}
-              className="gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+              className="gap-2 text-red-400 hover:text-red-300 hover:bg-red-900/30"
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">Sair</span>

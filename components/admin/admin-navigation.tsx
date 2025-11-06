@@ -186,10 +186,10 @@ export function AdminLayoutWrapper({
   description?: string
 }) {
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
-      <div className="flex min-h-[calc(100vh-5rem)]">
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex min-h-screen">
         {/* Sidebar */}
-        <div className="hidden md:flex md:w-64 md:flex-col fixed left-0 top-20 bottom-0 z-10">
+        <div className="hidden md:flex md:w-64 md:flex-col fixed left-0 top-[73px] bottom-0 z-10">
           <div className="flex flex-col flex-grow pt-5 bg-white border-r border-gray-200 h-full overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4">
               <div className="flex items-center gap-2">
