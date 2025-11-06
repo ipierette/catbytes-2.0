@@ -2,6 +2,18 @@
 -- MIGRATION: Corrigir schema e adicionar índices
 -- =====================================================
 
+-- 0. Criar tabela instagram_posts se não existir
+CREATE TABLE IF NOT EXISTS instagram_posts (
+  id SERIAL PRIMARY KEY,
+  caption TEXT NOT NULL,
+  image_url TEXT NOT NULL,
+  image_storage_path TEXT,
+  tone TEXT DEFAULT 'professional',
+  niche TEXT DEFAULT 'geral',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- 1. Verificar e adicionar coluna 'status' na tabela instagram_posts
 DO $$ 
 BEGIN
@@ -110,7 +122,7 @@ DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
                    WHERE table_name='blog_posts' AND column_name='original_post_id') THEN
-        ALTER TABLE blog_posts ADD COLUMN original_post_id INTEGER REFERENCES blog_posts(id);
+        ALTER TABLE blog_posts ADD COLUMN original_post_id UUID REFERENCES blog_posts(id);
     END IF;
 END $$;
 

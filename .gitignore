@@ -15,6 +15,12 @@ dist-ssr
 .env.local
 .env.*.local
 
+# Google Cloud Service Account JSON - NUNCA comitar!
+*-credentials.json
+*-service-account.json
+*analytics*.json
+service-account-*.json
+
 # Arquivos de Sistema Operacional
 .DS_Store
 Thumbs.db
