@@ -67,12 +67,61 @@ TO authenticated, service_role
 USING (bucket_id = 'instagram-images');
 ```
 
-### 5. Verificação
+### 5. Verificação e Teste
 
-Após criar o bucket, você pode testar:
+Após criar o bucket, você pode testar com o script automático:
 
 ```bash
 # No terminal do projeto
+npm run test:bucket
+```
+
+O script irá verificar:
+- ✅ Cliente Supabase configurado
+- ✅ Bucket existe e é público
+- ✅ Upload funciona
+- ✅ URL pública acessível
+- ✅ Delete funciona
+- ✅ Listagem de arquivos
+
+**Exemplo de saída esperada:**
+```
+🧪 Testando Bucket Instagram do Supabase...
+
+1️⃣ Verificando cliente Supabase...
+✅ Cliente Supabase configurado
+
+2️⃣ Listando buckets existentes...
+📦 Total de buckets: 2
+   - blog-images (público)
+   - instagram-images (público)
+
+3️⃣ Verificando bucket instagram-images...
+✅ Bucket instagram-images encontrado
+   - Público: Sim ✅
+
+4️⃣ Testando upload de arquivo...
+✅ Upload realizado com sucesso!
+
+5️⃣ Testando URL pública...
+✅ URL pública gerada
+
+6️⃣ Testando acesso público...
+✅ Acesso público funcionando!
+
+7️⃣ Testando delete (limpeza)...
+✅ Delete funcionando!
+
+8️⃣ Listando arquivos no bucket...
+📁 Total de arquivos: 0
+
+🎉 TUDO FUNCIONANDO PERFEITAMENTE!
+```
+
+Você também pode testar manualmente:
+
+```bash
+# Testar geração de posts (cria imagens no bucket automaticamente)
 curl http://localhost:3000/api/instagram/generate-batch \
   -X POST \
   -H "x-admin-key: seu-admin-key"
@@ -103,6 +152,18 @@ SELECT * FROM pg_policies
 WHERE tablename = 'objects';
 ```
 
+### Ver tamanho total do bucket:
+```sql
+SELECT 
+  bucket_id,
+  COUNT(*) as total_files,
+  SUM((metadata->>'size')::bigint) as total_bytes,
+  pg_size_pretty(SUM((metadata->>'size')::bigint)) as total_size
+FROM storage.objects 
+WHERE bucket_id = 'instagram-images'
+GROUP BY bucket_id;
+```
+
 ---
 
 ## ⚠️ Importante
@@ -111,6 +172,7 @@ WHERE tablename = 'objects';
 - As políticas de acesso devem ser configuradas manualmente
 - Mantenha o bucket como **público** para que as URLs funcionem no Instagram
 - O sistema limpa automaticamente imagens de posts rejeitados
+- Execute `npm run test:bucket` após qualquer alteração para verificar
 
 ---
 
@@ -124,3 +186,36 @@ instagram-images/
 ```
 
 Cada arquivo é nomeado com o ID do post + timestamp para evitar conflitos.
+
+---
+
+## 🐛 Troubleshooting
+
+### Erro: "supabaseUrl is required"
+- Verifique se `.env.local` existe
+- Confirme as variáveis: `NEXT_PUBLIC_SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`
+
+### Erro no upload
+- Verifique a política "Allow authenticated uploads"
+- Confirme que o bucket existe
+- Teste com `npm run test:bucket`
+
+### URL pública não funciona (403)
+- Configure a política "Allow public read access"
+- Certifique-se que o bucket está marcado como público
+
+### Erro ao deletar
+- Configure a política "Allow authenticated deletes"
+- Verifique as permissões do service role key
+
+---
+
+## ✅ Checklist Final
+
+- [ ] Bucket `instagram-images` criado no Supabase
+- [ ] Bucket configurado como **público**
+- [ ] Política "Allow public read access" configurada
+- [ ] Política "Allow authenticated uploads" configurada  
+- [ ] Política "Allow authenticated deletes" configurada
+- [ ] Teste executado: `npm run test:bucket` ✅
+- [ ] Todos os testes passaram com sucesso 🎉
