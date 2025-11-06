@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, Eye, CheckSquare, Square, Trash2 } from 'lucide-react'
+import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, Eye, CheckSquare, Square, Trash2, Edit } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
+import { InstagramEditModal } from '@/components/instagram/instagram-edit-modal'
 
 interface InstagramPost {
   id: string
@@ -43,6 +44,7 @@ export default function InstagramAdminPage() {
   const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set())
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [bulkMode, setBulkMode] = useState(false)
+  const [editingPost, setEditingPost] = useState<InstagramPost | null>(null)
 
   useEffect(() => {
     loadData()
@@ -179,6 +181,33 @@ export default function InstagramAdminPage() {
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Erro ao rejeitar post' })
+    }
+  }
+
+  const handleSaveEdit = async (updatedPost: InstagramPost) => {
+    try {
+      const response = await fetch(`/api/instagram/posts/${updatedPost.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          titulo: updatedPost.titulo,
+          texto_imagem: updatedPost.texto_imagem,
+          caption: updatedPost.caption
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setMessage({ type: 'success', text: 'Post atualizado com sucesso!' })
+        setEditingPost(null)
+        await loadData()
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erro ao atualizar post' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Erro ao salvar alterações' })
+      throw error
     }
   }
 
@@ -497,6 +526,18 @@ export default function InstagramAdminPage() {
                       <div className="mt-3 flex gap-2">
                         <Button
                           size="sm"
+                          variant="outline"
+                          className="gap-1"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setEditingPost(post)
+                          }}
+                          title="Editar conteúdo"
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
                           variant="default"
                           className="flex-1 gap-1"
                           onClick={(e) => {
@@ -510,14 +551,13 @@ export default function InstagramAdminPage() {
                         <Button
                           size="sm"
                           variant="destructive"
-                          className="flex-1 gap-1"
+                          className="gap-1"
                           onClick={(e) => {
                             e.stopPropagation()
                             handleReject(post.id)
                           }}
                         >
                           <XCircle className="h-3 w-3" />
-                          Rejeitar
                         </Button>
                       </div>
                     )}
@@ -599,6 +639,16 @@ export default function InstagramAdminPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de Edição */}
+      {editingPost && (
+        <InstagramEditModal
+          post={editingPost}
+          isOpen={!!editingPost}
+          onClose={() => setEditingPost(null)}
+          onSave={handleSaveEdit}
+        />
       )}
       </div>
     </AdminLayoutWrapper>
