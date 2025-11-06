@@ -265,7 +265,7 @@ export default function DashboardPage() {
                   <span className="text-sm text-muted-foreground">Hoje às 13:00</span>
                 </div>
                 <div className="pt-2">
-                  <Button variant="outline" className="w-full" onClick={() => window.open('/admin/blog', '_self')}>
+                  <Button variant="outline" className="w-full" onClick={() => window.open('/pt-BR/admin/blog', '_self')}>
                     Gerenciar Blog
                   </Button>
                 </div>
@@ -297,7 +297,7 @@ export default function DashboardPage() {
                   <span className="text-sm text-muted-foreground">Hoje às 13:00</span>
                 </div>
                 <div className="pt-2">
-                  <Button variant="outline" className="w-full" onClick={() => window.open('/admin/instagram', '_self')}>
+                  <Button variant="outline" className="w-full" onClick={() => window.open('/pt-BR/admin/instagram', '_self')}>
                     Gerenciar Instagram
                   </Button>
                 </div>
@@ -388,6 +388,14 @@ export default function DashboardPage() {
                 >
                   <TrendingUp className="h-6 w-6" />
                   Analytics
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="h-24 flex-col gap-2"
+                  onClick={() => window.open('/admin/email-preview', '_self')}
+                >
+                  <Mail className="h-6 w-6" />
+                  Email Preview
                 </Button>
                 <Button 
                   variant="outline" 
