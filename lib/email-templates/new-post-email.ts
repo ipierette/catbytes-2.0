@@ -56,7 +56,7 @@ export function getNewPostEmailHTML(
                 <!-- Header -->
                 <tr>
                   <td align="center" style="padding: 40px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <img src="${baseUrl}/images/catbytes-logo.webp" alt="CatBytes" style="height: 140px; width: 200; margin-bottom: 10px;">
+                    <img src="${baseUrl}/images/catbytes-logo.webp" alt="CatBytes" style="width: 200px; height: auto; margin-bottom: 10px;">
                     <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">${t.newPost}</h1>
                   </td>
                 </tr>
