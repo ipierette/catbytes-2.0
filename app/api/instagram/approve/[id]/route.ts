@@ -4,8 +4,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { instagramDB } from '@/lib/instagram-db'
+import { instagramDB, supabaseAdmin } from '@/lib/instagram-db'
 import { verifyAdmin } from '@/lib/api-security'
+import { saveInstagramImageToStorage } from '@/lib/instagram-image-storage'
 
 /**
  * POST /api/instagram/approve/[id]
@@ -20,6 +21,32 @@ export async function POST(
     const { id } = await params
 
     console.log(`Approving post: ${id}`)
+
+    // Busca o post atual para verificar a imagem
+    const { data: currentPost } = await supabaseAdmin
+      .from('instagram_posts')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (!currentPost) {
+      return NextResponse.json(
+        { success: false, error: 'Post not found' },
+        { status: 404 }
+      )
+    }
+
+    // Se a imagem ainda não está no bucket permanente, salva agora
+    let finalImageUrl = currentPost.image_url
+    if (currentPost.image_url && !currentPost.image_url.includes('instagram-images')) {
+      console.log('Saving image to permanent storage...')
+      const permanentUrl = await saveInstagramImageToStorage(currentPost.image_url, id)
+      if (permanentUrl) {
+        finalImageUrl = permanentUrl
+        await instagramDB.updatePost(id, { image_url: permanentUrl })
+        console.log('Image saved to permanent storage')
+      }
+    }
 
     // Busca próxima data disponível
     const scheduledFor = await instagramDB.getNextAvailableSlot()

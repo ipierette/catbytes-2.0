@@ -9,7 +9,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { instagramDB } from '@/lib/instagram-db'
 import { instagramSettings } from '@/lib/instagram-settings'
 import { generatePostContent } from '@/lib/content-generator'
-import { generateImage, generateImageWithTextOverlay, optimizePromptWithText } from '@/lib/image-generator'
+import { generateImage, optimizePromptWithText } from '@/lib/image-generator'
+import { saveInstagramImageToStorage } from '@/lib/instagram-image-storage'
 import type { Niche } from '@/lib/instagram-automation'
 
 export const maxDuration = 300 // 5 minutos para gerar 10 posts
@@ -76,23 +77,33 @@ export async function POST(request: NextRequest) {
         const content = await generatePostContent(nicho)
         console.log(`  ✓ Content generated: ${content.titulo}`)
 
-        // Gera imagem com texto sobreposto (novo sistema)
-        const imageUrl = await generateImageWithTextOverlay(
-          content.imagePrompt, 
-          content.textoImagem,
-          nicho as any // Mapeia nicho para tema do overlay
-        )
-        console.log(`  ✓ Image with text overlay generated`)
+        // Gera imagem com DALL-E (sem overlay canvas)
+        const imagePrompt = optimizePromptWithText(content.imagePrompt, content.textoImagem)
+        const tempImageUrl = await generateImage(imagePrompt)
+        console.log(`  ✓ Image generated with DALL-E`)
 
-        // Salva como pending
+        // Salva como pending primeiro para ter o ID
         const dbRecord = await instagramDB.savePost({
           nicho,
           titulo: content.titulo,
           texto_imagem: content.textoImagem,
           caption: content.caption,
-          image_url: imageUrl,
+          image_url: tempImageUrl, // URL temporária primeiro
           status: 'pending'
         })
+
+        // Salva imagem no bucket permanente
+        if (dbRecord.id) {
+          const permanentImageUrl = await saveInstagramImageToStorage(tempImageUrl, dbRecord.id)
+          
+          if (permanentImageUrl) {
+            // Atualiza com URL permanente
+            await instagramDB.updatePost(dbRecord.id, { image_url: permanentImageUrl })
+            console.log(`  ✓ Image saved to permanent storage`)
+          } else {
+            console.log(`  ⚠ Failed to save to storage, keeping temporary URL`)
+          }
+        }
 
         generated.push({
           id: dbRecord.id,

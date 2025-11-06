@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, Eye } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, Eye, CheckSquare, Square, Trash2 } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
@@ -39,7 +40,9 @@ export default function InstagramAdminPage() {
   const [loading, setLoading] = useState(true)
   const [autoGenEnabled, setAutoGenEnabled] = useState(true)
   const [selectedPost, setSelectedPost] = useState<InstagramPost | null>(null)
+  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set())
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [bulkMode, setBulkMode] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -176,6 +179,59 @@ export default function InstagramAdminPage() {
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Erro ao rejeitar post' })
+    }
+  }
+
+  const handleSelectPost = (postId: string) => {
+    const newSelected = new Set(selectedPosts)
+    if (newSelected.has(postId)) {
+      newSelected.delete(postId)
+    } else {
+      newSelected.add(postId)
+    }
+    setSelectedPosts(newSelected)
+  }
+
+  const handleSelectAll = () => {
+    if (selectedPosts.size === pendingPosts.length) {
+      setSelectedPosts(new Set())
+    } else {
+      setSelectedPosts(new Set(pendingPosts.map(p => p.id)))
+    }
+  }
+
+  const handleBulkReject = async () => {
+    if (selectedPosts.size === 0) return
+
+    const confirmed = confirm(`Deseja realmente rejeitar ${selectedPosts.size} posts selecionados?`)
+    if (!confirmed) return
+
+    try {
+      setMessage({ type: 'success', text: 'Rejeitando posts em lote...' })
+      
+      const promises = Array.from(selectedPosts).map(postId =>
+        fetch(`/api/instagram/reject/${postId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: 'Rejeição em lote via admin' })
+        })
+      )
+
+      const results = await Promise.allSettled(promises)
+      const successful = results.filter(r => r.status === 'fulfilled').length
+      const failed = results.length - successful
+
+      if (successful > 0) {
+        setMessage({ 
+          type: 'success', 
+          text: `${successful} posts rejeitados com sucesso${failed > 0 ? `, ${failed} falharam` : ''}` 
+        })
+        setSelectedPosts(new Set())
+        setBulkMode(false)
+        await loadData()
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Erro ao rejeitar posts em lote' })
     }
   }
 
@@ -349,10 +405,52 @@ export default function InstagramAdminPage() {
       {/* Posts Pendentes */}
       <Card>
         <CardHeader>
-          <CardTitle>Posts Aguardando Aprovação</CardTitle>
-          <CardDescription>
-            Clique em um post para visualizar em tela cheia
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Posts Aguardando Aprovação</CardTitle>
+              <CardDescription>
+                {bulkMode ? 'Selecione posts para rejeitar em lote' : 'Clique em um post para visualizar em tela cheia'}
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-3">
+              {pendingPosts.length > 0 && (
+                <Button
+                  variant={bulkMode ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => {
+                    setBulkMode(!bulkMode)
+                    setSelectedPosts(new Set())
+                  }}
+                  className="gap-2"
+                >
+                  {bulkMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+                  {bulkMode ? 'Cancelar Seleção' : 'Selecionar Múltiplos'}
+                </Button>
+              )}
+              {bulkMode && selectedPosts.size > 0 && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkReject}
+                  className="gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Rejeitar {selectedPosts.size} Selecionados
+                </Button>
+              )}
+            </div>
+          </div>
+          {bulkMode && pendingPosts.length > 0 && (
+            <div className="flex items-center gap-2 pt-2">
+              <Checkbox
+                checked={selectedPosts.size === pendingPosts.length}
+                onCheckedChange={handleSelectAll}
+              />
+              <span className="text-sm text-muted-foreground">
+                Selecionar todos ({selectedPosts.size}/{pendingPosts.length} selecionados)
+              </span>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           {pendingPosts.length === 0 ? (
@@ -364,8 +462,12 @@ export default function InstagramAdminPage() {
               {pendingPosts.map(post => (
                 <div
                   key={post.id}
-                  className="border rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => setSelectedPost(post)}
+                  className={`border rounded-lg overflow-hidden transition-all ${
+                    bulkMode 
+                      ? `cursor-pointer ${selectedPosts.has(post.id) ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-muted/30'}` 
+                      : 'cursor-pointer hover:shadow-lg'
+                  }`}
+                  onClick={() => bulkMode ? handleSelectPost(post.id) : setSelectedPost(post)}
                 >
                   <div className="relative aspect-square bg-gray-100">
                     <img
@@ -378,36 +480,54 @@ export default function InstagramAdminPage() {
                         {nicheNames[post.nicho]}
                       </span>
                     </div>
+                    {bulkMode && (
+                      <div className="absolute top-2 left-2">
+                        <Checkbox
+                          checked={selectedPosts.has(post.id)}
+                          onCheckedChange={() => handleSelectPost(post.id)}
+                          className="bg-white/90 border-2"
+                        />
+                      </div>
+                    )}
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold text-sm mb-1 line-clamp-2">{post.titulo}</h3>
                     <p className="text-xs text-muted-foreground line-clamp-2">{post.texto_imagem}</p>
-                    <div className="mt-3 flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="default"
-                        className="flex-1 gap-1"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleApprove(post.id)
-                        }}
-                      >
-                        <CheckCircle className="h-3 w-3" />
-                        Aprovar
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="flex-1 gap-1"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleReject(post.id)
-                        }}
-                      >
-                        <XCircle className="h-3 w-3" />
-                        Rejeitar
-                      </Button>
-                    </div>
+                    {!bulkMode && (
+                      <div className="mt-3 flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="default"
+                          className="flex-1 gap-1"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleApprove(post.id)
+                          }}
+                        >
+                          <CheckCircle className="h-3 w-3" />
+                          Aprovar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="flex-1 gap-1"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleReject(post.id)
+                          }}
+                        >
+                          <XCircle className="h-3 w-3" />
+                          Rejeitar
+                        </Button>
+                      </div>
+                    )}
+                    {bulkMode && (
+                      <div className="mt-3 text-center">
+                        <span className="text-xs text-muted-foreground">
+                          {selectedPosts.has(post.id) ? '✓ Selecionado' : 'Clique para selecionar'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

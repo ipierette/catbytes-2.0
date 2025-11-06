@@ -27,6 +27,25 @@ export const instagramDB = {
   },
 
   /**
+   * Atualiza um post existente
+   */
+  async updatePost(id: string, updates: Partial<InstagramPost>): Promise<InstagramPost> {
+    const { data, error } = await supabaseAdmin
+      .from('instagram_posts')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating Instagram post:', error)
+      throw error
+    }
+
+    return data
+  },
+
+  /**
    * Busca posts pendentes de aprovação
    */
   async getPendingPosts(): Promise<InstagramPost[]> {

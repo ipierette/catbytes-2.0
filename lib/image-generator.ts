@@ -56,11 +56,19 @@ Clean composition with balanced visual weight.`
 }
 
 /**
- * Função legada - mantida para compatibilidade
- * @deprecated Use generateImageWithTextOverlay instead
+ * Gera prompt otimizado COM texto integrado para DALL-E (Instagram)
+ * Usado para Instagram onde o texto faz parte da imagem
  */
 export function optimizePromptWithText(basePrompt: string, overlayText: string): string {
-  return optimizePromptWithoutText(basePrompt)
+  return `${basePrompt}
+
+Include the text "${overlayText}" prominently displayed in the image.
+Make the text clear, readable, and well-integrated into the composition.
+Use professional typography that complements the visual style.
+Ensure good contrast and readability.
+The text should be the main focus element of the image.
+High quality, professional design with clean typography.
+Portuguese text should be displayed correctly without spelling errors.`
 }
 
 /**

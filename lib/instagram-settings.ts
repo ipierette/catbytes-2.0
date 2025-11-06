@@ -38,8 +38,8 @@ export const instagramSettings = {
     try {
       const { data, error } = await supabase
         .from('instagram_settings')
-        .select('setting_value')
-        .eq('setting_key', 'auto_generation_enabled')
+        .select('value')
+        .eq('key', 'auto_generation_enabled')
         .single()
 
       if (error) {
@@ -47,7 +47,7 @@ export const instagramSettings = {
         return true // Default: habilitado
       }
 
-      return data.setting_value === 'true'
+      return data.value === 'true'
     } catch (error) {
       console.error('Error checking auto generation:', error)
       return true
@@ -61,8 +61,8 @@ export const instagramSettings = {
     const { error } = await supabase
       .from('instagram_settings')
       .upsert({
-        setting_key: 'auto_generation_enabled',
-        setting_value: enabled ? 'true' : 'false',
+        key: 'auto_generation_enabled',
+        value: enabled ? 'true' : 'false',
         updated_at: new Date().toISOString()
       })
 
@@ -88,11 +88,11 @@ export const instagramSettings = {
 
     if (data) {
       data.forEach(item => {
-        if (item.setting_key === 'auto_generation_enabled') {
-          settings.autoGenerationEnabled = item.setting_value === 'true'
+        if (item.key === 'auto_generation_enabled') {
+          settings.autoGenerationEnabled = item.value === 'true'
         }
-        if (item.setting_key === 'last_generation_date') {
-          settings.lastGenerationDate = item.setting_value
+        if (item.key === 'last_generation_date') {
+          settings.lastGenerationDate = item.value
         }
       })
     }
@@ -107,8 +107,8 @@ export const instagramSettings = {
     await supabase
       .from('instagram_settings')
       .upsert({
-        setting_key: 'last_generation_date',
-        setting_value: new Date().toISOString(),
+        key: 'last_generation_date',
+        value: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
   }
