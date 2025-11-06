@@ -10,6 +10,7 @@ import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { InstagramEditModal } from '@/components/instagram/instagram-edit-modal'
 import { DALLEConfigModal } from '@/components/instagram/dalle-config-modal'
+import { TextOnlyModal } from '@/components/instagram/text-only-modal'
 
 interface InstagramPost {
   id: string
@@ -52,6 +53,7 @@ export default function InstagramAdminPage() {
   // Novos estados
   const [showDALLEModal, setShowDALLEModal] = useState(false)
   const [showStabilityModal, setShowStabilityModal] = useState(false)
+  const [showTextOnlyModal, setShowTextOnlyModal] = useState(false)
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'published' | 'failed'>('all')
   
   // Posts filtrados
@@ -596,7 +598,7 @@ export default function InstagramAdminPage() {
             {pendingPosts.length} post{pendingPosts.length !== 1 ? 's' : ''} aguardando aprovação
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-2">
           <Button 
             onClick={handleToggleAutoGen}
             variant={autoGenEnabled ? 'default' : 'outline'}
@@ -614,7 +616,7 @@ export default function InstagramAdminPage() {
             disabled={loading}
           >
             <Play className="h-4 w-4" />
-            {loading ? 'Gerando...' : '🤖 Gerar com IA (Tradicional)'}
+            {loading ? 'Gerando...' : '🤖 IA Tradicional'}
           </Button>
           <Button 
             onClick={handleGenerateWithDALLE}
@@ -627,7 +629,7 @@ export default function InstagramAdminPage() {
               <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" opacity="0.5"/>
               <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z" fill="currentColor"/>
             </svg>
-            {loading ? 'Gerando...' : '✨ DALL-E 3 (Debug)'}
+            {loading ? 'Gerando...' : '✨ DALL-E 3'}
           </Button>
           <Button 
             onClick={handleGenerateWithStability}
@@ -639,7 +641,20 @@ export default function InstagramAdminPage() {
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
             </svg>
-            {loading ? 'Gerando...' : '⚡ Stability AI (Debug)'}
+            {loading ? 'Gerando...' : '⚡ Stability AI'}
+          </Button>
+          <Button 
+            onClick={() => setShowTextOnlyModal(true)}
+            variant="default"
+            size="lg" 
+            className="gap-2 bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
+            disabled={loading}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="currentColor" opacity="0.5"/>
+              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            🎨 Texto IA + IMG
           </Button>
         </div>
         
@@ -1088,6 +1103,13 @@ export default function InstagramAdminPage() {
         onClose={() => setShowStabilityModal(false)}
         onGenerate={handleStabilityGenerate}
         mode="stability"
+      />
+      
+      {/* Modal Texto IA + IMG Manual */}
+      <TextOnlyModal
+        open={showTextOnlyModal}
+        onOpenChange={setShowTextOnlyModal}
+        onSuccess={loadData}
       />
       </div>
     </AdminLayoutWrapper>
