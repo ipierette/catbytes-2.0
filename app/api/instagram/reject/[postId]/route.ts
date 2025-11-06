@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { instagramDB, supabaseAdmin } from '@/lib/instagram-db'
 
 export async function POST(
   request: NextRequest,
@@ -16,31 +11,14 @@ export async function POST(
     const reason = body.reason || 'Qualidade não aprovada'
 
     // Buscar post para enviar notificação
-    const { data: post } = await supabase
+    const { data: post } = await supabaseAdmin
       .from('instagram_posts')
       .select('caption')
       .eq('id', postId)
       .single()
 
-    // Atualizar status do post para rejected
-    const { data: updatedPost, error: updateError } = await supabase
-      .from('instagram_posts')
-      .update({
-        status: 'rejected',
-        error_message: reason,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', postId)
-      .select()
-      .single()
-
-    if (updateError) {
-      console.error('Error rejecting post:', updateError)
-      return NextResponse.json({
-        success: false,
-        error: 'Erro ao rejeitar post'
-      }, { status: 500 })
-    }
+    // ✅ USAR método rejectPost (vamos atualizar ele para usar rejection_reason)
+    const updatedPost = await instagramDB.rejectPost(postId, reason)
 
     // Enviar notificação por email
     try {

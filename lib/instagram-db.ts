@@ -109,14 +109,17 @@ export const instagramDB = {
   },
 
   /**
-   * Rejeita um post
+   * Rejeita um post (rejeição manual do admin)
+   * Usa rejection_reason para rejeições manuais
+   * Usa error_message apenas para erros técnicos
    */
   async rejectPost(id: string, reason?: string): Promise<InstagramPost> {
     const { data, error } = await supabaseAdmin
       .from('instagram_posts')
       .update({
         status: 'rejected',
-        error_message: reason || 'Rejeitado pelo admin'
+        rejection_reason: reason || 'Rejeitado pelo admin',
+        error_message: null // Limpa erros técnicos ao rejeitar manualmente
       })
       .eq('id', id)
       .select()

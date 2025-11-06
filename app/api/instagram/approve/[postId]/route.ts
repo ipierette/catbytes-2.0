@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { instagramDB, supabaseAdmin } from '@/lib/instagram-db'
 
 export async function POST(
   request: NextRequest,
@@ -13,8 +8,8 @@ export async function POST(
   try {
     const { postId } = params
 
-    // Buscar o post
-    const { data: post, error: fetchError } = await supabase
+    // Buscar o post usando supabaseAdmin
+    const { data: post, error: fetchError } = await supabaseAdmin
       .from('instagram_posts')
       .select('*')
       .eq('id', postId)
@@ -28,30 +23,15 @@ export async function POST(
     }
 
     // Calcular próxima data de publicação
-    // Posts aprovados hoje serão publicados no próximo dia de publicação (seg, qua, sex, dom às 13:00)
-    const now = new Date()
-    const scheduledDate = calculateNextPublicationDate(now)
+    const scheduledDate = calculateNextPublicationDate(new Date())
 
-    // Atualizar status do post
-    const { data: updatedPost, error: updateError } = await supabase
-      .from('instagram_posts')
-      .update({
-        status: 'approved',
-        approved_at: now.toISOString(),
-        scheduled_for: scheduledDate.toISOString(),
-        updated_at: now.toISOString()
-      })
-      .eq('id', postId)
-      .select()
-      .single()
-
-    if (updateError) {
-      console.error('Error updating post:', updateError)
-      return NextResponse.json({
-        success: false,
-        error: 'Erro ao aprovar post'
-      }, { status: 500 })
-    }
+    // ✅ USAR método approvePost que já salva approved_by
+    // Futuramente: extrair email do token de autenticação
+    const updatedPost = await instagramDB.approvePost(
+      postId,
+      scheduledDate,
+      'admin@catbytes.com'
+    )
 
     // Enviar notificação por email
     try {
