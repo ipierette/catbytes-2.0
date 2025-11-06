@@ -13,7 +13,74 @@ import { generateImage, optimizePromptWithText } from '@/lib/image-generator'
 import { saveInstagramImageToStorage } from '@/lib/instagram-image-storage'
 import type { Niche } from '@/lib/instagram-automation'
 
-export const maxDuration = 300 // 5 minutos para gerar 10 posts
+export const maxDuration = 60 // 1 minuto (limite do Vercel free tier)
+
+/**
+ * Função auxiliar para gerar posts em background
+ */
+async function generatePostsInBackground(batchSize: number) {
+  const nichos: Niche[] = ['advogados', 'medicos', 'terapeutas', 'nutricionistas']
+  const generated: any[] = []
+  const errors: any[] = []
+
+  for (let i = 0; i < batchSize; i++) {
+    try {
+      const nicho = nichos[i % nichos.length]
+      console.log(`\n[${i + 1}/${batchSize}] Generating post for: ${nicho}`)
+
+      const content = await generatePostContent(nicho)
+      console.log(`  ✓ Content generated: ${content.titulo}`)
+
+      const imagePrompt = optimizePromptWithText(content.imagePrompt, content.textoImagem)
+      const tempImageUrl = await generateImage(imagePrompt)
+      console.log(`  ✓ Image generated with DALL-E`)
+
+      const dbRecord = await instagramDB.savePost({
+        nicho,
+        titulo: content.titulo,
+        texto_imagem: content.textoImagem,
+        caption: content.caption,
+        image_url: tempImageUrl,
+        status: 'pending'
+      })
+
+      if (dbRecord.id) {
+        const permanentImageUrl = await saveInstagramImageToStorage(tempImageUrl, dbRecord.id)
+        if (permanentImageUrl) {
+          await instagramDB.updatePost(dbRecord.id, { image_url: permanentImageUrl })
+          console.log(`  ✓ Image saved to permanent storage`)
+        }
+      }
+
+      generated.push({
+        id: dbRecord.id,
+        nicho,
+        titulo: content.titulo
+      })
+
+      console.log(`  ✓ Saved as pending (ID: ${dbRecord.id})`)
+
+      if (i < batchSize - 1) {
+        await new Promise(resolve => setTimeout(resolve, 2000))
+      }
+
+    } catch (error) {
+      console.error(`  ✗ Error generating post ${i + 1}:`, error)
+      errors.push({
+        index: i + 1,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
+    }
+  }
+
+  await instagramSettings.updateLastGenerationDate()
+
+  console.log(`\n=== Batch Generation Complete ===`)
+  console.log(`Generated: ${generated.length}/${batchSize}`)
+  console.log(`Errors: ${errors.length}`)
+
+  return { generated, errors }
+}
 
 /**
  * POST: Gera múltiplos posts pendentes
@@ -24,11 +91,9 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization')
     const isCronJob = authHeader === `Bearer ${process.env.CRON_SECRET}`
     
-    // Também verifica se é um admin logado via cookie/session
     const adminApiKey = request.headers.get('x-admin-key')
     const isAdmin = adminApiKey === process.env.ADMIN_API_KEY
     
-    // Permite acesso via cron OU via admin
     if (!isCronJob && !isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -50,7 +115,6 @@ export async function POST(request: NextRequest) {
     const pendingPosts = await instagramDB.getPendingPosts()
     console.log(`Current pending posts: ${pendingPosts.length}`)
 
-    // Se já tem muitos pendentes, não gera mais
     if (pendingPosts.length >= 20) {
       console.log('Too many pending posts - skipping generation')
       return NextResponse.json({
@@ -60,79 +124,26 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Gera 10 posts (distribuídos entre os nichos)
     const batchSize = 10
-    const nichos: Niche[] = ['advogados', 'medicos', 'terapeutas', 'nutricionistas']
-    const generated: any[] = []
-    const errors: any[] = []
 
-    for (let i = 0; i < batchSize; i++) {
-      try {
-        // Rotaciona entre os nichos
-        const nicho = nichos[i % nichos.length]
-        
-        console.log(`\n[${i + 1}/${batchSize}] Generating post for: ${nicho}`)
+    // Se for chamada manual (admin), gera em background e retorna imediatamente
+    if (isAdmin && !isCronJob) {
+      // Inicia geração em background (não aguarda)
+      generatePostsInBackground(batchSize).catch(error => {
+        console.error('Background generation error:', error)
+      })
 
-        // Gera conteúdo
-        const content = await generatePostContent(nicho)
-        console.log(`  ✓ Content generated: ${content.titulo}`)
-
-        // Gera imagem com DALL-E (sem overlay canvas)
-        const imagePrompt = optimizePromptWithText(content.imagePrompt, content.textoImagem)
-        const tempImageUrl = await generateImage(imagePrompt)
-        console.log(`  ✓ Image generated with DALL-E`)
-
-        // Salva como pending primeiro para ter o ID
-        const dbRecord = await instagramDB.savePost({
-          nicho,
-          titulo: content.titulo,
-          texto_imagem: content.textoImagem,
-          caption: content.caption,
-          image_url: tempImageUrl, // URL temporária primeiro
-          status: 'pending'
-        })
-
-        // Salva imagem no bucket permanente
-        if (dbRecord.id) {
-          const permanentImageUrl = await saveInstagramImageToStorage(tempImageUrl, dbRecord.id)
-          
-          if (permanentImageUrl) {
-            // Atualiza com URL permanente
-            await instagramDB.updatePost(dbRecord.id, { image_url: permanentImageUrl })
-            console.log(`  ✓ Image saved to permanent storage`)
-          } else {
-            console.log(`  ⚠ Failed to save to storage, keeping temporary URL`)
-          }
-        }
-
-        generated.push({
-          id: dbRecord.id,
-          nicho,
-          titulo: content.titulo
-        })
-
-        console.log(`  ✓ Saved as pending (ID: ${dbRecord.id})`)
-
-        // Aguarda 2s entre gerações para não sobrecarregar APIs
-        if (i < batchSize - 1) {
-          await new Promise(resolve => setTimeout(resolve, 2000))
-        }
-
-      } catch (error) {
-        console.error(`  ✗ Error generating post ${i + 1}:`, error)
-        errors.push({
-          index: i + 1,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        })
-      }
+      // Retorna imediatamente para evitar timeout
+      return NextResponse.json({
+        success: true,
+        message: 'Geração iniciada em background. Os posts aparecerão em alguns minutos.',
+        postsGenerated: batchSize,
+        status: 'processing'
+      })
     }
 
-    // Atualiza última data de geração
-    await instagramSettings.updateLastGenerationDate()
-
-    console.log(`\n=== Batch Generation Complete ===`)
-    console.log(`Generated: ${generated.length}/${batchSize}`)
-    console.log(`Errors: ${errors.length}`)
+    // Se for cron job, executa normalmente (servidor aguarda)
+    const { generated, errors } = await generatePostsInBackground(batchSize)
 
     return NextResponse.json({
       success: true,

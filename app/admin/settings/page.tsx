@@ -66,36 +66,18 @@ export default function SettingsPage() {
     try {
       setLoading(true)
       
-      // Simular carregamento de configurações
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Buscar configurações reais da API
+      const response = await fetch('/api/admin/settings')
       
-      setSettings({
-        automation: {
-          blogGeneration: true,
-          instagramGeneration: true,
-          autoPublishing: true,
-          batchSize: 10
-        },
-        api: {
-          openaiKey: 'sk-proj-*********************',
-          instagramToken: 'IGQWRP*********************',
-          emailService: true,
-          databaseUrl: 'postgresql://*********************'
-        },
-        content: {
-          blogLanguages: ['pt-BR', 'en-US'],
-          instagramNiches: ['advogados', 'medicos', 'terapeutas', 'nutricionistas'],
-          defaultAuthor: 'Izadora Cury Pierette',
-          contentTone: 'professional'
-        },
-        notifications: {
-          emailAlerts: true,
-          errorNotifications: true,
-          successNotifications: false,
-          dailyReports: true
+      if (response.ok) {
+        const data = await response.json()
+        
+        if (data.success) {
+          setSettings(data.settings)
         }
-      })
+      }
     } catch (error) {
+      console.error('Erro ao carregar configurações:', error)
       setMessage({ type: 'error', text: 'Erro ao carregar configurações' })
     } finally {
       setLoading(false)
@@ -106,11 +88,24 @@ export default function SettingsPage() {
     try {
       setSaving(true)
       
-      // Simular salvamento
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // Salvar configurações reais na API
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(settings)
+      })
       
-      setMessage({ type: 'success', text: 'Configurações salvas com sucesso!' })
+      const data = await response.json()
+      
+      if (data.success) {
+        setMessage({ type: 'success', text: data.message || 'Configurações salvas com sucesso!' })
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erro ao salvar configurações' })
+      }
     } catch (error) {
+      console.error('Erro ao salvar:', error)
       setMessage({ type: 'error', text: 'Erro ao salvar configurações' })
     } finally {
       setSaving(false)

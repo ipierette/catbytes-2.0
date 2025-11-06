@@ -48,37 +48,50 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadStats()
+    
+    // Auto-refresh a cada 30 segundos
+    const interval = setInterval(() => {
+      loadStats()
+    }, 30000)
+    
+    return () => clearInterval(interval)
   }, [])
 
   const loadStats = async () => {
     try {
       setLoading(true)
       
-      // Simular carregamento de estatísticas
-      // Em uma implementação real, você faria chamadas para APIs
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Buscar estatísticas reais da API
+      const response = await fetch('/api/stats/overview')
       
-      setStats({
-        blog: {
-          totalPosts: 45,
-          publishedPosts: 42,
-          drafts: 3,
-          lastGenerated: new Date().toISOString()
-        },
-        instagram: {
-          totalPosts: 128,
-          pendingPosts: 8,
-          publishedPosts: 120,
-          lastGenerated: new Date().toISOString()
-        },
-        automation: {
-          status: 'active',
-          nextRun: '2025-11-06T13:00:00Z',
-          lastRun: '2025-11-05T13:00:00Z',
-          cronJobs: 2
+      if (response.ok) {
+        const data = await response.json()
+        
+        if (data.success) {
+          setStats({
+            blog: {
+              totalPosts: data.data.blog.total,
+              publishedPosts: data.data.blog.published,
+              drafts: data.data.blog.drafts,
+              lastGenerated: data.data.automation.lastRun
+            },
+            instagram: {
+              totalPosts: data.data.instagram.total,
+              pendingPosts: data.data.instagram.pending,
+              publishedPosts: data.data.instagram.published,
+              lastGenerated: data.data.automation.lastRun
+            },
+            automation: {
+              status: data.data.automation.status as 'active' | 'paused',
+              nextRun: data.data.automation.nextGeneration,
+              lastRun: data.data.automation.lastRun,
+              cronJobs: data.data.automation.cronJobs
+            }
+          })
         }
-      })
+      }
     } catch (error) {
+      console.error('Erro ao carregar estatísticas:', error)
       setMessage({ type: 'error', text: 'Erro ao carregar estatísticas' })
     } finally {
       setLoading(false)

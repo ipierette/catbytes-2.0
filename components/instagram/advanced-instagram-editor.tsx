@@ -60,7 +60,7 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
   const [textLayers, setTextLayers] = useState<TextLayer[]>([])
   const [selectedLayer, setSelectedLayer] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [isSaving, setIsSaving] = useState(false)
   const [isGeneratingAI, setIsGeneratingAI] = useState(false)
   const [activeTab, setActiveTab] = useState('content')
@@ -68,6 +68,7 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
   
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageContainerRef = useRef<HTMLDivElement>(null)
+  const animationFrameRef = useRef<number | null>(null)
 
   // Inicializar com uma camada de texto se houver texto_imagem
   useEffect(() => {
@@ -106,33 +107,69 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
     }
   }
 
-  const handleMouseDown = (e: React.MouseEvent, layerId: string) => {
+  const handleMouseDown = (e: React.MouseEvent | React.PointerEvent, layerId: string) => {
     e.preventDefault()
+    e.stopPropagation()
+    
+    const layer = textLayers.find(l => l.id === layerId)
+    if (!layer || !imageContainerRef.current) return
+    
     setSelectedLayer(layerId)
     setIsDragging(true)
     
-    const layer = textLayers.find(l => l.id === layerId)
-    if (layer) {
-      setDragOffset({
-        x: e.clientX - layer.x,
-        y: e.clientY - layer.y
-      })
-    }
+    // Calcular posição inicial relativa ao container
+    const rect = imageContainerRef.current.getBoundingClientRect()
+    setDragStart({
+      x: e.clientX - rect.left - layer.x,
+      y: e.clientY - rect.top - layer.y
+    })
   }
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging && selectedLayer && imageContainerRef.current) {
-      const rect = imageContainerRef.current.getBoundingClientRect()
-      const x = Math.max(0, Math.min(e.clientX - rect.left - dragOffset.x, rect.width - 50))
-      const y = Math.max(0, Math.min(e.clientY - rect.top - dragOffset.y, rect.height - 30))
-      
-      updateLayer(selectedLayer, { x, y })
+  const handleMouseMove = (e: React.MouseEvent | React.PointerEvent) => {
+    if (!isDragging || !selectedLayer || !imageContainerRef.current) return
+    
+    e.preventDefault()
+    e.stopPropagation()
+    
+    // Usar requestAnimationFrame para movimento suave
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
     }
+    
+    animationFrameRef.current = requestAnimationFrame(() => {
+      const rect = imageContainerRef.current!.getBoundingClientRect()
+      
+      // Calcular nova posição
+      const newX = e.clientX - rect.left - dragStart.x
+      const newY = e.clientY - rect.top - dragStart.y
+      
+      // Limitar aos bounds do container
+      const maxX = rect.width - 100
+      const maxY = rect.height - 50
+      
+      const boundedX = Math.max(0, Math.min(newX, maxX))
+      const boundedY = Math.max(0, Math.min(newY, maxY))
+      
+      updateLayer(selectedLayer, { x: boundedX, y: boundedY })
+    })
   }
 
   const handleMouseUp = () => {
     setIsDragging(false)
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
   }
+  
+  // Limpar RAF ao desmontar
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [])
 
   const generateAISuggestion = async () => {
     try {
@@ -512,11 +549,13 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
                 
                 <div
                   ref={imageContainerRef}
-                  className="relative bg-black rounded-lg overflow-hidden"
-                  style={{ aspectRatio: '1/1' }}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
+                  className="relative bg-black rounded-lg overflow-hidden select-none"
+                  style={{ aspectRatio: '1/1', touchAction: 'none' }}
+                  onPointerMove={handleMouseMove}
+                  onPointerUp={handleMouseUp}
+                  onPointerLeave={handleMouseUp}
+                  role="application"
+                  aria-label="Editor de imagem com textos arrastáveis"
                 >
                   <Image
                     src={post.image_url}
@@ -543,9 +582,19 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
                         transform: `rotate(${layer.rotation}deg)`,
                         textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
                         whiteSpace: 'pre-wrap',
-                        maxWidth: '80%'
+                        maxWidth: '80%',
+                        touchAction: 'none',
+                        userSelect: 'none'
                       }}
-                      onMouseDown={(e) => handleMouseDown(e, layer.id)}
+                      onPointerDown={(e) => handleMouseDown(e, layer.id)}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Camada de texto: ${layer.text}`}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          setSelectedLayer(layer.id)
+                        }
+                      }}
                     >
                       {layer.text}
                     </div>

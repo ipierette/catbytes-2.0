@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, Eye, CheckSquare, Square, Trash2, Edit } from 'lucide-react'
+import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, CheckSquare, Square, Trash2, Edit, Send } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
@@ -45,6 +45,7 @@ export default function InstagramAdminPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [bulkMode, setBulkMode] = useState(false)
   const [editingPost, setEditingPost] = useState<InstagramPost | null>(null)
+  const [publishingPostId, setPublishingPostId] = useState<string | null>(null)
 
   useEffect(() => {
     loadData()
@@ -107,7 +108,7 @@ export default function InstagramAdminPage() {
       setLoading(true)
       setMessage({ 
         type: 'success', 
-        text: 'Gerando lote de posts do Instagram... Isso pode demorar alguns minutos.' 
+        text: '🎨 Iniciando geração de posts... A geração está rodando em background e os posts aparecerão em alguns minutos. Você pode continuar usando o painel.' 
       })
 
       const response = await fetch('/api/instagram/generate-batch', {
@@ -121,11 +122,29 @@ export default function InstagramAdminPage() {
       const data = await response.json()
 
       if (data.success) {
-        setMessage({ 
-          type: 'success', 
-          text: `Lote gerado com sucesso! ${data.postsGenerated || 10} posts criados e aguardando aprovação.` 
-        })
-        await loadData() // Recarrega os dados para mostrar os novos posts
+        if (data.status === 'processing') {
+          // Geração em background
+          setMessage({ 
+            type: 'success', 
+            text: `✅ ${data.message} Atualize a página em alguns minutos para ver os novos posts.` 
+          })
+          
+          // Agenda reload automático após 3 minutos
+          setTimeout(() => {
+            loadData()
+            setMessage({ 
+              type: 'success', 
+              text: '🔄 Página atualizada! Verifique se os posts foram gerados.' 
+            })
+          }, 180000) // 3 minutos
+        } else {
+          // Geração completa (cron job)
+          setMessage({ 
+            type: 'success', 
+            text: `✅ Lote gerado com sucesso! ${data.generated || data.postsGenerated || 10} posts criados e aguardando aprovação.` 
+          })
+          await loadData()
+        }
       } else {
         setMessage({ 
           type: 'error', 
@@ -135,7 +154,7 @@ export default function InstagramAdminPage() {
     } catch (error) {
       setMessage({ 
         type: 'error', 
-        text: 'Erro ao conectar com o servidor' 
+        text: 'Erro ao conectar com o servidor. Tente novamente.' 
       })
     } finally {
       setLoading(false)
@@ -144,6 +163,19 @@ export default function InstagramAdminPage() {
 
   const handleApprove = async (postId: string) => {
     try {
+      // Feedback visual IMEDIATO - Optimistic Update
+      setMessage({ type: 'success', text: '⏳ Aprovando post...' })
+      
+      // Remover da lista de pendentes IMEDIATAMENTE
+      setPendingPosts(prev => prev.filter(p => p.id !== postId))
+      
+      // Atualizar contador de pendentes
+      setStats(prevStats => prevStats ? {
+        ...prevStats,
+        pending: Math.max(0, prevStats.pending - 1),
+        approved: prevStats.approved + 1
+      } : null)
+
       const response = await fetch(`/api/instagram/approve/${postId}`, {
         method: 'POST'
       })
@@ -151,14 +183,24 @@ export default function InstagramAdminPage() {
       const data = await response.json()
 
       if (data.success) {
-        setMessage({ type: 'success', text: data.message })
+        // Sucesso - Mostrar mensagem com data de agendamento
+        setMessage({ 
+          type: 'success', 
+          text: data.message || 'Post aprovado e agendado com sucesso!' 
+        })
         setSelectedPost(null)
-        await loadData()
+        
+        // Recarregar dados para garantir sincronia
+        setTimeout(() => loadData(), 1000)
       } else {
-        setMessage({ type: 'error', text: data.error })
+        // Erro - Reverter mudanças otimistas
+        setMessage({ type: 'error', text: data.error || 'Erro ao aprovar post' })
+        await loadData() // Recarregar estado real
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Erro ao aprovar post' })
+      console.error('Error approving post:', error)
+      setMessage({ type: 'error', text: 'Erro ao aprovar post. Tente novamente.' })
+      await loadData() // Recarregar estado real
     }
   }
 
@@ -180,7 +222,42 @@ export default function InstagramAdminPage() {
         await loadData()
       }
     } catch (error) {
+      console.error('Erro ao rejeitar:', error)
       setMessage({ type: 'error', text: 'Erro ao rejeitar post' })
+    }
+  }
+
+  const handlePublishNow = async (postId: string) => {
+    if (!confirm('🚀 Deseja publicar este post AGORA no Instagram?\n\nEsta ação é irreversível e o post será publicado imediatamente.')) return
+
+    try {
+      setPublishingPostId(postId)
+      setMessage({ type: 'success', text: '📤 Publicando no Instagram... Aguarde.' })
+
+      const response = await fetch(`/api/instagram/publish-now/${postId}`, {
+        method: 'POST'
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setMessage({ 
+          type: 'success', 
+          text: `✅ Post publicado com sucesso! Ver no Instagram: ${data.instagramUrl || ''}` 
+        })
+        setSelectedPost(null)
+        await loadData()
+      } else {
+        setMessage({ 
+          type: 'error', 
+          text: data.error || 'Erro ao publicar no Instagram' 
+        })
+      }
+    } catch (error) {
+      console.error('Erro ao publicar:', error)
+      setMessage({ type: 'error', text: 'Erro ao publicar post. Verifique sua conexão.' })
+    } finally {
+      setPublishingPostId(null)
     }
   }
 
@@ -621,6 +698,15 @@ export default function InstagramAdminPage() {
 
               <div className="p-4 border-t flex gap-3">
                 <Button
+                  variant="secondary"
+                  className="gap-2"
+                  onClick={() => handlePublishNow(selectedPost.id)}
+                  disabled={publishingPostId === selectedPost.id}
+                >
+                  <Send className="h-4 w-4" />
+                  {publishingPostId === selectedPost.id ? 'Publicando...' : '🚀 Publicar Agora'}
+                </Button>
+                <Button
                   className="flex-1 gap-2"
                   onClick={() => handleApprove(selectedPost.id)}
                 >
@@ -629,7 +715,7 @@ export default function InstagramAdminPage() {
                 </Button>
                 <Button
                   variant="destructive"
-                  className="flex-1 gap-2"
+                  className="gap-2"
                   onClick={() => handleReject(selectedPost.id)}
                 >
                   <XCircle className="h-4 w-4" />
