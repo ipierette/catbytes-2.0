@@ -12,7 +12,10 @@ export interface BlogPost {
   keywords: string[]
   seo_title: string | null
   seo_description: string | null
+  meta_description: string | null // SEO meta description (50-160 chars)
+  canonical_url: string | null // Canonical URL for SEO
   published: boolean
+  status: 'draft' | 'published' | 'scheduled' | 'archived' // Post status
   created_at: string
   updated_at: string
   views: number
@@ -23,6 +26,8 @@ export interface BlogPost {
   generation_prompt: string | null
   locale?: string // 'pt-BR' or 'en-US'
   translated_from?: string | null // ID of the original post if this is a translation
+  deleted_at?: string | null // Soft delete timestamp
+  scheduled_at?: string | null // Scheduled publication date
 }
 
 export interface BlogPostInsert {
@@ -34,7 +39,10 @@ export interface BlogPostInsert {
   keywords: string[]
   seo_title?: string
   seo_description?: string
+  meta_description?: string
+  canonical_url?: string
   published?: boolean
+  status?: 'draft' | 'published' | 'scheduled' | 'archived'
   author?: string
   category?: string
   tags?: string[]
@@ -42,6 +50,7 @@ export interface BlogPostInsert {
   generation_prompt?: string
   locale?: string // 'pt-BR' or 'en-US'
   translated_from?: string | null // ID of the original post if this is a translation
+  scheduled_at?: string | null
 }
 
 export interface BlogPostUpdate {
@@ -53,9 +62,13 @@ export interface BlogPostUpdate {
   keywords?: string[]
   seo_title?: string
   seo_description?: string
+  meta_description?: string
+  canonical_url?: string
   published?: boolean
+  status?: 'draft' | 'published' | 'scheduled' | 'archived'
   category?: string
   tags?: string[]
+  scheduled_at?: string | null
 }
 
 export interface BlogGenerationLog {

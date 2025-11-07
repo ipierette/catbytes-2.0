@@ -16,9 +16,10 @@ interface PostCardProps {
   index?: number
   onDelete?: () => void
   onTranslate?: () => void
+  onEdit?: () => void // Nova prop para edição
 }
 
-export function PostCard({ post, onClick, index = 0, onDelete, onTranslate }: PostCardProps) {
+export function PostCard({ post, onClick, index = 0, onDelete, onTranslate, onEdit }: PostCardProps) {
   const [imageError, setImageError] = useState(false)
   const { isAdmin } = useAdmin()
   const { showToast } = useToast()
@@ -161,6 +162,19 @@ export function PostCard({ post, onClick, index = 0, onDelete, onTranslate }: Po
         {/* Admin buttons */}
         {isAdmin && (
           <div className="flex gap-2 mt-3">
+            {onEdit && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit()
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors"
+                title="Editar post"
+              >
+                <Eye className="w-4 h-4" />
+                Editar
+              </button>
+            )}
             {post.locale === 'pt-BR' && (
               <button
                 onClick={handleTranslate}
