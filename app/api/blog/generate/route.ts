@@ -241,6 +241,8 @@ Responda APENAS com JSON válido.`
     console.log('[Generate] Translation skipped - generating Portuguese only')
 
     // ====== STEP 4: Send to newsletter subscribers ======
+    console.log('[Generate] Newsletter sending step - Resend configured:', !!resend)
+    
     if (resend) {
       try {
         console.log('[Generate] Fetching verified newsletter subscribers...')
@@ -251,10 +253,20 @@ Responda APENAS com JSON válido.`
           .eq('verified', true)
           .eq('subscribed', true)
 
+        console.log('[Generate] Subscribers query result:', { 
+          count: subscribers?.length || 0, 
+          hasError: !!subError,
+          errorDetails: subError 
+        })
+
         if (subError) {
           console.error('[Generate] Error fetching subscribers:', subError)
         } else if (subscribers && subscribers.length > 0) {
-          console.log(`[Generate] Sending new post notification to ${subscribers.length} subscribers...`)
+          console.log(`[Generate] ✅ Sending new post notification to ${subscribers.length} subscribers...`)
+          console.log('[Generate] Post details:', { 
+            title: createdPost.title, 
+            slug: createdPost.slug 
+          })
           
           const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
           
@@ -291,17 +303,19 @@ Responda APENAS com JSON válido.`
             })
             
             await Promise.allSettled(emailPromises)
-            console.log(`[Generate] Sent batch ${Math.floor(i / batchSize) + 1}`)
+            console.log(`[Generate] ✅ Sent batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(subscribers.length / batchSize)}`)
           }
           
-          console.log('[Generate] Newsletter emails sent successfully!')
+          console.log('[Generate] ✅✅✅ Newsletter emails sent successfully!')
         } else {
-          console.log('[Generate] No verified subscribers to notify')
+          console.log('[Generate] ⚠️ No verified subscribers to notify')
         }
       } catch (emailError) {
-        console.error('[Generate] Error sending newsletter emails:', emailError)
+        console.error('[Generate] ❌ Error sending newsletter emails:', emailError)
         // Don't fail post creation if email fails
       }
+    } else {
+      console.log('[Generate] ⚠️ Resend not configured - skipping newsletter')
     }
 
     // ====== STEP 5: Log generation ======
