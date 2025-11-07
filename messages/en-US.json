@@ -299,9 +299,9 @@
     "newsletterDescriptionHighlight": "directly in your email",
     "close": "Close",
     "modal": {
-      "share": "Share:",
-      "shareFacebook": "Share on Facebook",
-      "shareTwitter": "Share on Twitter",
+      "share": "Share",
+      "shareInstagram": "Share on Instagram",
+      "shareTwitter": "Share on Twitter (X)",
       "shareLinkedIn": "Share on LinkedIn",
       "shareWhatsApp": "Share on WhatsApp",
       "cta": {

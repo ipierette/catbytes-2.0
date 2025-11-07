@@ -72,6 +72,11 @@ export function getNewPostEmailHTML(
               <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:${c.textLight};text-align:center;"><strong style="color:${c.text};">${t.signature}</strong></p>
             </td></tr>
           <tr><td style="background-color:${c.bg};padding:30px;text-align:center;border-top:1px solid ${c.border};border-radius:0 0 16px 16px;">
+              <div style="margin-bottom:20px;">
+                <a href="https://www.linkedin.com/in/izadora-cury-pierette-7a7754253/" target="_blank" style="display:inline-block;margin:0 8px;"><img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn" width="32" height="32" style="width:32px;height:32px;"></a>
+                <a href="https://github.com/ipierette" target="_blank" style="display:inline-block;margin:0 8px;"><img src="https://cdn-icons-png.flaticon.com/512/733/733553.png" alt="GitHub" width="32" height="32" style="width:32px;height:32px;"></a>
+                <a href="https://www.instagram.com/catbytes_izadora_pierette/" target="_blank" style="display:inline-block;margin:0 8px;"><img src="https://cdn-icons-png.flaticon.com/512/174/174855.png" alt="Instagram" width="32" height="32" style="width:32px;height:32px;"></a>
+              </div>
               <p style="margin:0 0 10px;font-size:12px;color:${c.textLight};">${t.footer}</p>
               <p style="margin:0 0 10px;font-size:12px;color:${c.textLight};">${t.copyright}</p>
               <p style="margin:0;font-size:11px;"><a href="${baseUrl}/${locale}/newsletter/unsubscribe" style="color:${c.primary};text-decoration:none;font-weight:600;">${t.unsubscribe}</a></p>
