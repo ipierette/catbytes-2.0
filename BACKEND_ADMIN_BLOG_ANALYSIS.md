@@ -67,28 +67,99 @@
 
 ---
 
-### ❌ **3. Edição de Posts** - `/api/blog/edit` 
-**Status:** ❌ **NÃO EXISTE**
+### ✅ **3. SEO Avançado** - Campos e Schemas
+**Status:** ✅ **IMPLEMENTADO** (07/11/2025)
 
-**Necessário Criar:**
+**Funcionalidades Implementadas:**
+- ✅ `meta_description` (TEXT, 50-160 chars) - Meta description customizada
+- ✅ `canonical_url` (TEXT) - Canonical URLs para evitar conteúdo duplicado
+- ✅ Schema.org BlogPosting (já implementado anteriormente em `app/layout.tsx`)
+- ✅ Keywords específicas (já implementado)
+- ✅ Constraints de validação no banco
+- ✅ Campos editáveis via API `/api/blog/edit`
+
+**Implementado em:**
+- Migration: `supabase/migrations/20251107_add_advanced_seo_and_soft_delete.sql`
+- Types: `types/blog.ts`
+- API: `app/api/blog/edit/route.ts`
+
+**Melhorias SEO Futuras:**
+1. 🔧 **Sitemap Dinâmico Avançado**
+   - ✅ Já implementado: `app/sitemap.ts` busca posts do Supabase
+   - ⏳ Adicionar changefreq e priority personalizados
+
+2. 🔧 **Open Graph Avançado**
+   - ⏳ OG images customizadas por post
+   - ⏳ Twitter Cards otimizados
+
+3. 🔧 **JSON-LD Detalhado**
+   - ⏳ Breadcrumbs schema
+   - ⏳ FAQ schema (para posts de tutoriais)
+
+---
+
+### ✅ **4. Sistema de Status e Agendamento**
+**Status:** ✅ **IMPLEMENTADO** (07/11/2025)
+
+**Funcionalidades:**
+- ✅ Campo `status` (draft, published, scheduled, archived)
+- ✅ Campo `scheduled_at` para agendamento
+- ✅ View `blog_posts_published` filtra posts agendados
+- ✅ Índice para queries de agendamento
+- ✅ Editável via API `/api/blog/edit`
+
+**Implementado em:**
+- Migration: `supabase/migrations/20251107_add_advanced_seo_and_soft_delete.sql`
+- Types: `types/blog.ts`
+
+**Próximos Passos:**
+1. ⏳ **Cron Job de Publicação**
+   - Criar Vercel Cron para publicar posts agendados
+   - Verificar `scheduled_at` e mudar status para `published`
+
+2. ⏳ **Interface de Agendamento**
+   - DatePicker no modal de edição
+   - Preview de posts agendados no admin
+
+---
+
+### ✅ **3. Edição de Posts** - `/api/blog/edit` 
+**Status:** ✅ **IMPLEMENTADO** (07/11/2025)
+
+**Funcionalidades:**
 ```typescript
 // PUT /api/blog/edit
 {
-  postId: string
+  postId: string // REQUIRED
   title?: string
   content?: string
   excerpt?: string
   keywords?: string[]
   cover_image_url?: string
-  status?: 'published' | 'draft'
+  status?: 'draft' | 'published' | 'scheduled' | 'archived'
+  meta_description?: string
+  canonical_url?: string
+  scheduled_at?: string | null
 }
 ```
 
+**Implementado:**
+- ✅ Validação completa de campos
+- ✅ Geração automática de slug único
+- ✅ Autenticação via JWT cookie
+- ✅ Atualização parcial (todos campos opcionais)
+- ✅ Verificação de unicidade de slug
+- ✅ Respostas com tempo de execução
+
 **Casos de Uso:**
-- Corrigir erros no post
-- Atualizar conteúdo desatualizado
-- Mudar imagem de capa
-- Adicionar/remover tags
+- ✅ Corrigir erros no post
+- ✅ Atualizar conteúdo desatualizado
+- ✅ Mudar imagem de capa
+- ✅ Adicionar/remover tags
+- ✅ Otimizar SEO (meta description, canonical URL)
+- ✅ Mudar status (draft, published, scheduled, archived)
+
+**Arquivo:** `app/api/blog/edit/route.ts`
 
 ---
 
@@ -103,35 +174,58 @@
 **Status:** ✅ **FUNCIONAL**
 
 **Melhorias Sugeridas:**
-1. 🔧 **Soft Delete**
-   - Adicionar campo `deleted_at`
-   - Mover para "Lixeira" ao invés de deletar
-   - Restaurar posts deletados
+1. ✅ **Soft Delete** - **IMPLEMENTADO** (07/11/2025)
+   - ✅ Campo `deleted_at` adicionado
+   - ✅ View `blog_posts_active` criada
+   - ✅ Índice para performance
+   - ✅ Possibilidade de restaurar posts
+   - **Arquivo:** `supabase/migrations/20251107_add_advanced_seo_and_soft_delete.sql`
 
 2. 🔧 **Cascata**
-   - Deletar posts traduzidos automaticamente
-   - Ou perguntar se quer manter
+   - ⏳ Deletar posts traduzidos automaticamente
+   - ⏳ Ou perguntar se quer manter
 
 ---
 
-### ❌ **5. Upload de Imagens** - `/api/blog/upload-image`
-**Status:** ❌ **NÃO EXISTE** (usa geração automática)
+### ✅ **5. Upload de Imagens** - `/api/blog/upload-image`
+**Status:** ✅ **IMPLEMENTADO** (07/11/2025)
 
-**Necessário Criar:**
+**Funcionalidades:**
 ```typescript
 // POST /api/blog/upload-image
-FormData: { image: File }
+FormData: { 
+  image: File // REQUIRED
+  postId?: string // OPTIONAL - atualiza post automaticamente
+  fileName?: string // OPTIONAL - nome personalizado
+}
 
 Response: {
   success: boolean
-  imageUrl: string
+  imageUrl: string // URL pública no Supabase Storage
+  fileName: string
+  fileSize: number
+  executionTime: number
 }
 ```
 
+**Implementado:**
+- ✅ Upload para Supabase Storage (bucket: blog-images)
+- ✅ Validação de tipo (JPEG, PNG, WEBP, JPG)
+- ✅ Validação de tamanho (máximo 5MB)
+- ✅ Nome de arquivo único com timestamp
+- ✅ Autenticação via JWT cookie
+- ✅ Atualização automática de post (se postId fornecido)
+- ✅ Retorna URL pública da imagem
+
 **Casos de Uso:**
-- Upload manual de imagem de capa
-- Substituir imagem gerada por IA
-- Usar screenshot/foto própria
+- ✅ Upload manual de imagem de capa
+- ✅ Substituir imagem gerada por IA
+- ✅ Usar screenshot/foto própria
+- ✅ Upload de imagens personalizadas
+
+**Arquivo:** `app/api/blog/upload-image/route.ts`
+
+---
 
 ---
 
@@ -257,70 +351,86 @@ Response: {
 
 ## 📊 **Resumo de Gaps**
 
-| Feature | Status | Prioridade |
-|---------|--------|------------|
-| Edição de Posts | ❌ Não existe | 🔴 ALTA |
-| Upload Manual de Imagens | ❌ Não existe | 🟡 MÉDIA |
-| Listagem Admin (server-side) | ❌ Não existe | 🟡 MÉDIA |
-| Estatísticas/Dashboard | ❌ Não existe | 🟢 BAIXA |
-| Gestão de Newsletter | ❌ Não existe | 🟡 MÉDIA |
-| Agendamento de Posts | ❌ Não existe | 🟢 BAIXA |
-| Categorias/Tags | ❌ Não existe | 🟢 BAIXA |
-| Rascunhos | ❌ Não existe | 🟡 MÉDIA |
-| Soft Delete | ❌ Não existe | 🟢 BAIXA |
+| Feature | Status | Prioridade | Data |
+|---------|--------|------------|------|
+| Edição de Posts | ✅ Implementado | 🔴 ALTA | 07/11/2025 |
+| Upload Manual de Imagens | ✅ Implementado | 🟡 MÉDIA | 07/11/2025 |
+| Soft Delete | ✅ Implementado | 🟢 BAIXA | 07/11/2025 |
+| SEO Avançado | ✅ Implementado | 🔴 ALTA | 07/11/2025 |
+| Sistema de Status | ✅ Implementado | 🟡 MÉDIA | 07/11/2025 |
+| Agendamento de Posts | ✅ Parcial (falta cron) | 🟢 BAIXA | 07/11/2025 |
+| Listagem Admin (server-side) | ❌ Não existe | 🟡 MÉDIA | - |
+| Estatísticas/Dashboard | ❌ Não existe | 🟢 BAIXA | - |
+| Gestão de Newsletter | ❌ Não existe | 🟡 MÉDIA | - |
+| Categorias/Tags | ❌ Não existe | 🟢 BAIXA | - |
+| Cascata de Deleção | ❌ Não existe | 🟢 BAIXA | - |
 
 ---
 
 ## 🚀 **Roadmap de Implementação**
 
-### **Fase 1: Essencial (1-2 semanas)**
-1. ✅ **API de Edição de Posts**
+### **Fase 1: Essencial (1-2 semanas)** ✅ **COMPLETA** (07/11/2025)
+1. ✅ **API de Edição de Posts** - **IMPLEMENTADO**
    - Permitir editar título, conteúdo, excerpt
    - Atualizar imagem de capa
-   - Mudar status (published/draft)
+   - Mudar status (published/draft/scheduled/archived)
+   - **Arquivo:** `app/api/blog/edit/route.ts`
 
-2. ✅ **Upload Manual de Imagens**
+2. ✅ **Upload Manual de Imagens** - **IMPLEMENTADO**
    - Endpoint para upload
    - Integração com Supabase Storage
    - Validação de tipo/tamanho
+   - **Arquivo:** `app/api/blog/upload-image/route.ts`
 
-3. ✅ **Sistema de Rascunhos**
-   - Adicionar status `draft`
+3. ✅ **Sistema de Rascunhos e Status** - **IMPLEMENTADO**
+   - Adicionar status `draft`, `published`, `scheduled`, `archived`
    - Salvar sem publicar
    - Preview de rascunhos
+   - **Migration:** `supabase/migrations/20251107_add_advanced_seo_and_soft_delete.sql`
 
-### **Fase 2: Gestão (2-3 semanas)**
-4. ✅ **Listagem Admin Completa**
+4. ✅ **SEO Avançado** - **IMPLEMENTADO**
+   - Meta description customizada
+   - Canonical URLs
+   - Campos editáveis via API
+   - **Migration:** `supabase/migrations/20251107_add_advanced_seo_and_soft_delete.sql`
+
+5. ✅ **Soft Delete** - **IMPLEMENTADO**
+   - Campo `deleted_at`
+   - View `blog_posts_active`
+   - Possibilidade de restaurar
+   - **Migration:** `supabase/migrations/20251107_add_advanced_seo_and_soft_delete.sql`
+
+### **Fase 2: Gestão (2-3 semanas)** ⏳ **PENDENTE**
+4. ⏳ **Listagem Admin Completa**
    - Paginação server-side
    - Filtros (status, idioma, data)
    - Busca por texto
 
-5. ✅ **Gestão de Newsletter**
+5. ⏳ **Gestão de Newsletter**
    - Listar subscribers
    - Exportar CSV
    - Métricas básicas
 
-### **Fase 3: Analytics (1-2 semanas)**
-6. ✅ **Dashboard de Estatísticas**
+### **Fase 3: Analytics (1-2 semanas)** ⏳ **PENDENTE**
+6. ⏳ **Dashboard de Estatísticas**
    - Total de posts
    - Posts mais visualizados
    - Gráficos de crescimento
 
-### **Fase 4: Features Avançadas (3-4 semanas)**
-7. ✅ **Sistema de Categorias**
+### **Fase 4: Features Avançadas (3-4 semanas)** ⏳ **PENDENTE**
+7. ⏳ **Sistema de Categorias**
    - Tabelas no banco
    - Endpoints CRUD
    - Interface admin
 
-8. ✅ **Agendamento de Posts**
-   - Campo scheduled_at
-   - Cron job
-   - Interface de agendamento
+8. ⏳ **Agendamento de Posts (Cron Job)**
+   - Campo scheduled_at (✅ já implementado)
+   - Cron job (⏳ pendente)
+   - Interface de agendamento (⏳ pendente)
 
-9. ✅ **SEO Avançado**
-   - Meta description
-   - Keywords customizadas
-   - Schema.org markup
+9. ⏳ **SEO Avançado Fase 2**
+   - Open Graph customizado
+   - JSON-LD detalhado (Breadcrumbs, FAQ)
 
 ---
 
@@ -441,37 +551,76 @@ CREATE TABLE admin_logs (
 
 ## 🎯 **Conclusão**
 
-### **Estado Atual:** 
+### **Estado Atual (Atualizado em 07/11/2025):** 
 - ✅ Geração automática de posts funcional
 - ✅ Sistema de newsletter integrado
 - ✅ Tradução automática PT ↔ EN
-- ⚠️ Falta edição manual de posts
-- ⚠️ Falta gestão completa de subscribers
+- ✅ **NOVO:** API de edição de posts completa
+- ✅ **NOVO:** Upload manual de imagens
+- ✅ **NOVO:** Soft delete (sistema de lixeira)
+- ✅ **NOVO:** SEO avançado (meta description, canonical URL)
+- ✅ **NOVO:** Sistema de status (draft, published, scheduled, archived)
+- ✅ **NOVO:** Agendamento de posts (estrutura pronta, falta cron job)
 - ⚠️ Falta dashboard de analytics
+- ⚠️ Falta gestão completa de subscribers (lista, export, métricas)
+
+### **Implementações Recentes (07/11/2025):**
+1. ✅ **Migration SQL** - `supabase/migrations/20251107_add_advanced_seo_and_soft_delete.sql`
+   - 5 novos campos no banco
+   - 3 novos índices
+   - 2 novas views
+   - 4 novos constraints
+   - 1 novo trigger
+
+2. ✅ **API de Edição** - `app/api/blog/edit/route.ts`
+   - 224 linhas de código
+   - Validação completa
+   - Autenticação JWT
+
+3. ✅ **API de Upload** - `app/api/blog/upload-image/route.ts`
+   - 203 linhas de código
+   - Upload para Supabase Storage
+   - Validação de tipo e tamanho
+
+4. ✅ **Types Atualizados** - `types/blog.ts`
+   - BlogPost, BlogPostInsert, BlogPostUpdate
+
+5. ✅ **Botão de Edição** - `components/blog/post-card.tsx`
+   - Prop `onEdit` adicionada
+   - Botão purple-600 com ícone Eye
 
 ### **Próximos Passos Imediatos:**
-1. Criar API de edição (`PUT /api/blog/edit`)
-2. Implementar upload manual de imagens
-3. Adicionar sistema de rascunhos
-4. Criar dashboard básico de estatísticas
+1. ⏳ Aplicar migration no Supabase (ver `QUICK_START_GUIDE.md`)
+2. ⏳ Testar APIs de edição e upload
+3. ⏳ Integrar botão "Editar" com modal de edição
+4. ⏳ Criar cron job para publicar posts agendados
+5. ⏳ Implementar Fase 2: Listagem Admin (GET /api/admin/posts)
+6. ⏳ Implementar Fase 3: Dashboard de Analytics
 
-### **Arquitetura Recomendada:**
+### **Arquivos de Documentação:**
+- 📄 `BACKEND_ADMIN_BLOG_ANALYSIS.md` - Este arquivo (análise completa)
+- 📄 `BLOG_IMPROVEMENTS_IMPLEMENTATION.md` - Detalhes técnicos da implementação
+- 📄 `QUICK_START_GUIDE.md` - Guia rápido de uso
+
+### **Arquitetura Recomendada (Atualizada):**
 ```
 /app/api/admin/
   ├── blog/
-  │   ├── posts/route.ts (GET - listar)
-  │   ├── posts/[id]/route.ts (GET, PUT, DELETE)
-  │   ├── stats/route.ts (GET - estatísticas)
-  │   └── upload/route.ts (POST - upload imagem)
+  │   ├── edit/route.ts ✅ IMPLEMENTADO
+  │   ├── upload-image/route.ts ✅ IMPLEMENTADO
+  │   ├── posts/route.ts ⏳ PENDENTE (GET - listar com filtros)
+  │   ├── posts/[id]/route.ts ✅ IMPLEMENTADO (GET, DELETE)
+  │   └── stats/route.ts ⏳ PENDENTE (GET - estatísticas)
   ├── newsletter/
-  │   ├── subscribers/route.ts (GET - listar)
-  │   ├── export/route.ts (GET - exportar CSV)
-  │   ├── send/route.ts (POST - enviar manual)
-  │   └── metrics/route.ts (GET - métricas)
-  └── logs/route.ts (GET - auditoria)
+  │   ├── subscribers/route.ts ⏳ PENDENTE (GET - listar)
+  │   ├── export/route.ts ⏳ PENDENTE (GET - exportar CSV)
+  │   ├── send/route.ts ⏳ PENDENTE (POST - enviar manual)
+  │   └── metrics/route.ts ⏳ PENDENTE (GET - métricas)
+  └── logs/route.ts ⏳ PENDENTE (GET - auditoria)
 ```
 
 ---
 
 **Documento gerado automaticamente por GitHub Copilot**  
-**Última atualização:** 07/11/2025
+**Última atualização:** 07/11/2025 23:55
+**Versão:** 2.0 (Atualizado com implementações recentes)
