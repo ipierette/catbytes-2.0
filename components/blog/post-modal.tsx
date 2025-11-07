@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
-import { X, Calendar, Eye, Tag, Share2, ImageOff, Twitter } from 'lucide-react'
+import { X, Calendar, Eye, Tag, Share2, ImageOff, Twitter, Linkedin, Instagram } from 'lucide-react'
 import type { BlogPost } from '@/types/blog'
 import { format } from 'date-fns'
 import { ptBR, enUS } from 'date-fns/locale'
