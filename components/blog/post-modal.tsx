@@ -282,9 +282,8 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
                     prose-blockquote:border-l-catbytes-purple dark:prose-blockquote:border-l-catbytes-pink
                     prose-ul:text-gray-700 dark:prose-ul:text-gray-300
                     prose-ol:text-gray-700 dark:prose-ol:text-gray-300
-                    prose-li:my-2"
-                    prose-img:rounded-xl prose-img:shadow-lg
-                    "
+                    prose-li:my-2
+                    prose-img:rounded-xl prose-img:shadow-lg"
                     dangerouslySetInnerHTML={{ __html: formatMarkdown(postContent) }}
                   />
 
