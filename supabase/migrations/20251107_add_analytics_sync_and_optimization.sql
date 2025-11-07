@@ -67,11 +67,9 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_views ON blog_posts(views DESC);
 -- PART 3: Materialized Views for Performance
 -- =====================================================
 
--- Drop existing tables if they are regular tables (not materialized views)
-DROP TABLE IF EXISTS analytics_daily_summary CASCADE;
-DROP TABLE IF EXISTS analytics_blog_summary CASCADE;
+DROP VIEW IF EXISTS analytics_daily_summary CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS analytics_blog_summary CASCADE;
 
--- Materialized view for daily page view statistics
 CREATE MATERIALIZED VIEW IF NOT EXISTS analytics_daily_summary AS
 SELECT 
   DATE(timestamp) as date,
@@ -82,8 +80,8 @@ FROM analytics_page_views
 GROUP BY DATE(timestamp)
 ORDER BY date DESC;
 
--- Index for materialized view
-CREATE UNIQUE INDEX IF NOT EXISTS idx_analytics_daily_summary_date ON analytics_daily_summary(date);
+-- Após criar a materialized view, execute separadamente:
+-- CREATE UNIQUE INDEX IF NOT EXISTS idx_analytics_daily_summary_date ON analytics_daily_summary(date);
 
 -- Materialized view for daily blog statistics
 CREATE MATERIALIZED VIEW IF NOT EXISTS analytics_blog_summary AS
@@ -101,9 +99,10 @@ FROM analytics_blog_views
 GROUP BY DATE(timestamp), post_slug, post_title
 ORDER BY date DESC, views DESC;
 
--- Indexes for materialized view
-CREATE UNIQUE INDEX IF NOT EXISTS idx_analytics_blog_summary_date_slug ON analytics_blog_summary(date, post_slug);
-CREATE INDEX IF NOT EXISTS idx_analytics_blog_summary_views ON analytics_blog_summary(views DESC);
+-- Indexes for materialized view (crie após a view existir)
+-- Execute estes comandos separadamente após a criação da materialized view:
+-- CREATE UNIQUE INDEX IF NOT EXISTS idx_analytics_blog_summary_date_slug ON analytics_blog_summary(date, post_slug);
+-- CREATE INDEX IF NOT EXISTS idx_analytics_blog_summary_views ON analytics_blog_summary(views);
 
 -- =====================================================
 -- PART 4: Refresh Functions for Materialized Views

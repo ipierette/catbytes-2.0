@@ -102,7 +102,8 @@ export async function GET(request: NextRequest) {
 
     // Order by
     const ascending = query.orderDirection === 'asc'
-    supabaseQuery = supabaseQuery.order(query.orderBy, { ascending })
+    const orderBy = query.orderBy || 'created_at'
+    supabaseQuery = supabaseQuery.order(orderBy, { ascending })
 
     // Pagination
     supabaseQuery = supabaseQuery.range(from, to)
