@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://catbytes.site'),
   verification: {
     google: 'x6dGmR7woC-z7VVaZottGIYO-gmCCEkNBzv9b9qWmgw',
+    other: {
+      'google-site-verification': ['5fc8fb7600af5494'],
+    },
   },
   title: {
     default: 'Izadora Cury Pierette | CatBytes — Portfólio Criativo',

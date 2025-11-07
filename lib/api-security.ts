@@ -6,10 +6,51 @@
 import { NextResponse } from 'next/server'
 
 /**
+ * Allowed origins for CORS
+ */
+const ALLOWED_ORIGINS = [
+  'https://catbytes.site',
+  'https://www.catbytes.site',
+  'https://catbytes-2-0.vercel.app',
+  process.env.NEXT_PUBLIC_APP_URL,
+  process.env.NEXT_PUBLIC_SITE_URL,
+].filter(Boolean) as string[]
+
+/**
+ * Get appropriate CORS origin based on request
+ */
+function getCorsOrigin(request?: Request): string {
+  if (!request) return ALLOWED_ORIGINS[0]
+  
+  const origin = request.headers.get('origin')
+  
+  // Allow if origin is in whitelist
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    return origin
+  }
+  
+  // Default to main site
+  return 'https://catbytes.site'
+}
+
+/**
  * CORS headers for API routes
  */
+export function getCorsHeaders(request?: Request) {
+  return {
+    'Access-Control-Allow-Origin': getCorsOrigin(request),
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Max-Age': '86400',
+  }
+}
+
+/**
+ * Legacy CORS headers (for backward compatibility)
+ * @deprecated Use getCorsHeaders() instead
+ */
 export const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || '*',
+  'Access-Control-Allow-Origin': 'https://catbytes.site',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Max-Age': '86400',
@@ -86,12 +127,13 @@ export function validateContentLength(
 export function secureAPIResponse(
   data: any,
   status: number = 200,
-  additionalHeaders?: Record<string, string>
+  additionalHeaders?: Record<string, string>,
+  request?: Request
 ): NextResponse {
   return NextResponse.json(data, {
     status,
     headers: {
-      ...CORS_HEADERS,
+      ...getCorsHeaders(request),
       ...SECURITY_HEADERS,
       ...additionalHeaders,
     },

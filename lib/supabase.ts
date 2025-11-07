@@ -38,11 +38,15 @@ export const db = {
       .from('blog_posts')
       .select('*', { count: 'exact' })
       .eq('published', true)
-      .eq('locale', locale) // Filter by locale
+      .eq('locale', locale)
+      .is('deleted_at', null) // Exclude soft-deleted posts
       .order('created_at', { ascending: false })
       .range(from, to)
 
-    if (error) throw error
+    if (error) {
+      console.error('[Supabase] Error fetching posts:', error)
+      throw error
+    }
 
     return {
       posts: data as BlogPost[],
