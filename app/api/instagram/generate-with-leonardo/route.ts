@@ -1,10 +1,10 @@
 /**
- * API para gerar posts do Instagram usando Leonardo AI
- * Alta qualidade, texto perfeito em português
+ * API para gerar posts do Instagram usando DALL-E 3
+ * (Antigo: Leonardo AI - nome da rota mantido para compatibilidade)
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { generatePostWithLeonardo } from '@/lib/dalle-canvas-post-generator'
+import { generatePostWithDALLE } from '@/lib/dalle-canvas-post-generator'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdminCookie } from '@/lib/api-security'
 
@@ -35,13 +35,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Verificar API Key
-    if (!process.env.LEONARDO_API_KEY) {
-      console.error('🎨 [DEBUG LEONARDO] ❌ LEONARDO_API_KEY não encontrada')
+    // Verificar API Key (DALL-E usa OPENAI_API_KEY)
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('🎨 [DEBUG DALL-E] ❌ OPENAI_API_KEY não encontrada')
       return NextResponse.json({
         success: false,
-        error: 'LEONARDO_API_KEY não configurada',
-        sugestao: 'Adicione LEONARDO_API_KEY no arquivo .env.local'
+        error: 'OPENAI_API_KEY não configurada',
+        sugestao: 'Adicione OPENAI_API_KEY no arquivo .env.local'
       }, { status: 500 })
     }
 
@@ -50,33 +50,33 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < quantidade; i++) {
       try {
-        console.log(`🎨 [DEBUG LEONARDO] === POST ${i + 1}/${quantidade} ===`)
+        console.log(`🎨 [DEBUG DALL-E] === POST ${i + 1}/${quantidade} ===`)
         
-        // 1. Gerar com Leonardo AI
-        console.log('🎨 [DEBUG LEONARDO] Chamando generatePostWithLeonardo...')
-        const post = await generatePostWithLeonardo({
+        // 1. Gerar com DALL-E 3
+        console.log('🎨 [DEBUG DALL-E] Chamando generatePostWithDALLE...')
+        const post = await generatePostWithDALLE({
           nicho,
           tema: quantidade > 1 ? `${tema} - Variação ${i + 1}` : tema,
           palavrasChave: palavrasChave || [],
           estilo: estilo || 'moderno',
         })
         
-        console.log('🎨 [DEBUG LEONARDO] ✓ Post gerado:', {
+        console.log('🎨 [DEBUG DALL-E] ✓ Post gerado:', {
           titulo: post.titulo,
           textoImagem: post.textoImagem?.substring(0, 50) + '...',
           imageData: post.imageBase64 ? `Base64 (${post.imageBase64.length} chars)` : 'FALHOU'
         })
 
         if (!post.imageBase64) {
-          console.error('🎨 [DEBUG LEONARDO] ❌ Imagem não foi gerada')
+          console.error('🎨 [DEBUG DALL-E] ❌ Imagem não foi gerada')
           errors.push(`Post ${i + 1}: Imagem não foi gerada`)
           continue
         }
 
         // 2. Fazer upload da imagem para Supabase Storage
-        console.log('🎨 [DEBUG LEONARDO] Fazendo upload da imagem...')
+        console.log('🎨 [DEBUG DALL-E] Fazendo upload da imagem...')
         const imageBuffer = Buffer.from(post.imageBase64, 'base64')
-        const fileName = `generated/leonardo-${Date.now()}-${i}.png`
+        const fileName = `generated/dalle-${Date.now()}-${i}.png`
         
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('instagram-images')
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
           caption: post.caption,
           image_url: imageUrl,
           status: 'pending' as const,
-          generation_method: 'leonardo-ai'
+          generation_method: 'dalle-3'
         }
         
         const { data: dbPost, error: insertError } = await supabase
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
       posts: generatedPosts,
       generated: generatedPosts.length,
       errors: errors.length > 0 ? errors : undefined,
-      message: `${generatedPosts.length} post(s) gerado(s) com Leonardo AI!`
+      message: `${generatedPosts.length} post(s) gerado(s) com DALL-E 3!`
     })
 
   } catch (error) {

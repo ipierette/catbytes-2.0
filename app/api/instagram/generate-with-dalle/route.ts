@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { generatePostWithLeonardo } from '@/lib/dalle-canvas-post-generator'
+import { generatePostWithDALLE } from '@/lib/dalle-canvas-post-generator'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdminCookie } from '@/lib/api-security'
 
@@ -61,8 +61,8 @@ export async function POST(request: NextRequest) {
         console.log(`🟣 [DEBUG DALL-E] === POST ${i + 1}/${quantidade} ===`)
         
         // 1. Gerar com DALL-E 3
-        console.log('🟣 [DEBUG DALL-E] Chamando generatePostWithLeonardo...')
-        const post = await generatePostWithLeonardo({
+        console.log('🟣 [DEBUG DALL-E] Chamando generatePostWithDALLE...')
+        const post = await generatePostWithDALLE({
           nicho,
           tema: quantidade > 1 ? `${tema} - Variação ${i + 1}` : tema,
           palavrasChave: palavrasChave || [],

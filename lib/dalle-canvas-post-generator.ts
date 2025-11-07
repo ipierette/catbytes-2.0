@@ -77,7 +77,7 @@ function determinarTipoConteudo(nicho: string, tema: string): { tipo: 'COMERCIAL
   }
 }
 
-export async function generatePostWithLeonardo(request: DallEGenerationRequest) {
+export async function generatePostWithDALLE(request: DallEGenerationRequest) {
   console.log('🎨 [DALLE-LIB] === INICIANDO GERAÇÃO COM DALL-E 3 ===')
   console.log('🎨 [DALLE-LIB] Request:', request)
   
