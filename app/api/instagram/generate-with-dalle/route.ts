@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { generateInstagramPostWithDALLE, downloadAndSaveDALLEImage, NICHE_TEMPLATES } from '@/lib/dalle-post-generator'
+import { generateInstagramPostWithDALLE, downloadAndSaveDALLEImage, NICHE_TEMPLATES } from '@/lib/dalle-canvas-post-generator'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdminCookie } from '@/lib/api-security'
 
