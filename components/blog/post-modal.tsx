@@ -8,19 +8,29 @@ import { format } from 'date-fns'
 import { ptBR, enUS } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 import { useBlogPostTracking } from '@/components/analytics/analytics-tracker'
+import { PostImageUploader } from '@/components/blog/post-image-uploader'
 
 interface PostModalProps {
   post: BlogPost | null
   isOpen: boolean
   onClose: () => void
+  adminMode?: boolean // Show upload controls for admin
 }
 
-export function PostModal({ post, isOpen, onClose }: PostModalProps) {
+export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModalProps) {
   const [imageError, setImageError] = useState(false)
   const [viewsIncremented, setViewsIncremented] = useState(false)
+  const [coverImageUrl, setCoverImageUrl] = useState(post?.cover_image_url || '')
   // Use pt-BR as default since this is admin context
   const locale = 'pt-BR'
   const dateLocale = ptBR
+
+  // Update cover URL when post changes
+  useEffect(() => {
+    if (post?.cover_image_url) {
+      setCoverImageUrl(post.cover_image_url)
+    }
+  }, [post?.cover_image_url])
 
   // Track blog post views when modal is open
   // Hook must be called at the top level - conditionally enable/disable tracking
@@ -130,7 +140,7 @@ export function PostModal({ post, isOpen, onClose }: PostModalProps) {
                 <div className="relative w-full h-64 md:h-96 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">
                   {!imageError && (
                     <Image
-                      src={post.cover_image_url}
+                      src={coverImageUrl}
                       alt={post.title}
                       fill
                       className="object-cover"
@@ -158,6 +168,20 @@ export function PostModal({ post, isOpen, onClose }: PostModalProps) {
 
                 {/* Content */}
                 <div className="p-6 md:p-10 max-h-[60vh] overflow-y-auto">
+                  {/* Admin Image Uploader */}
+                  {adminMode && post && (
+                    <div className="mb-8">
+                      <PostImageUploader
+                        postSlug={post.slug}
+                        currentCoverUrl={coverImageUrl}
+                        onCoverUpdated={(newUrl) => {
+                          setCoverImageUrl(newUrl)
+                          setImageError(false)
+                        }}
+                      />
+                    </div>
+                  )}
+
                   {/* Meta */}
                   <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center gap-2">

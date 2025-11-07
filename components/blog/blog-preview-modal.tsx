@@ -36,6 +36,8 @@ interface BlogPost {
   cover_image_url?: string
   category: string
   tags: string[]
+  imagePrompt?: string | null
+  textOnly?: boolean
 }
 
 interface BlogPreviewModalProps {
@@ -213,6 +215,39 @@ export function BlogPreviewModal({
 
           {/* Tab: Conteúdo do Post */}
           <TabsContent value="content" className="space-y-4">
+            {/* Prompt de Imagem (Text-Only Mode) */}
+            {post.textOnly && post.imagePrompt && (
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-6 rounded-lg border-2 border-amber-300 dark:border-amber-700">
+                <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2">
+                  🎨 Prompt de Imagem (Gere em qualquer IA)
+                </h3>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-amber-200 dark:border-amber-600 mb-3">
+                  <code className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                    {post.imagePrompt}
+                  </code>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(post.imagePrompt!)
+                      // TODO: Adicionar toast de sucesso
+                    } catch (err) {
+                      console.error('Erro ao copiar:', err)
+                    }
+                  }}
+                  className="gap-2"
+                >
+                  📋 Copiar Prompt
+                </Button>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-3">
+                  💡 Use este prompt no DALL-E, Midjourney, Stable Diffusion ou qualquer IA de imagens. 
+                  Depois faça upload da imagem usando o modal de preview do post.
+                </p>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-4">
                 <div>

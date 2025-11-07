@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
 import { FileText, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Plus, Edit, Trash2, Eye, Clock, ChevronDown } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
@@ -51,6 +53,7 @@ export default function BlogAdminPage() {
   const [previewTheme, setPreviewTheme] = useState('')
   const [generatedPost, setGeneratedPost] = useState<any>(null)
   const [previewPost, setPreviewPost] = useState<BlogPostType | null>(null)
+  const [textOnlyMode, setTextOnlyMode] = useState(false)
 
   useEffect(() => {
     loadData()
@@ -92,13 +95,18 @@ export default function BlogAdminPage() {
 
   const handleGeneratePost = async (theme?: string) => {
     try {
+      const modeText = textOnlyMode ? ' (Texto + Prompt)' : ''
       const themeText = theme ? ` (${theme})` : ''
-      setMessage({ type: 'success', text: `Gerando rascunho do artigo${themeText}... Prepare-se para personalizar!` })
+      setMessage({ type: 'success', text: `Gerando rascunho do artigo${themeText}${modeText}... Prepare-se para personalizar!` })
       
       const response = await fetch('/api/blog/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ theme, generateOnly: true }) // Só gera, não salva ainda
+        body: JSON.stringify({ 
+          theme, 
+          textOnly: textOnlyMode,
+          generateOnly: true 
+        })
       })
 
       const data = await response.json()
@@ -111,11 +119,21 @@ export default function BlogAdminPage() {
           content: data.post?.content || '',
           cover_image_url: data.post?.cover_image_url || '',
           category: theme || data.post?.category || '',
-          tags: data.post?.tags || []
+          tags: data.post?.tags || [],
+          imagePrompt: data.imagePrompt || null,
+          textOnly: data.textOnly || false
         })
         setPreviewTheme(theme || data.metadata?.theme || 'Automação e Negócios')
         setPreviewModalOpen(true)
-        setMessage({ type: 'success', text: 'Rascunho gerado! Agora você pode personalizar antes de publicar.' })
+        
+        if (textOnlyMode && data.imagePrompt) {
+          setMessage({ 
+            type: 'success', 
+            text: '✅ Rascunho gerado! Use o modal para fazer upload da imagem de capa e imagens do conteúdo.' 
+          })
+        } else {
+          setMessage({ type: 'success', text: 'Rascunho gerado! Agora você pode personalizar antes de publicar.' })
+        }
       } else {
         setMessage({ type: 'error', text: data.error || 'Erro ao gerar artigo' })
       }
@@ -265,6 +283,20 @@ export default function BlogAdminPage() {
             </p>
           </div>
           <div className="flex gap-3">
+            <div className="flex items-center gap-2 mr-4 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+              <Checkbox
+                id="textOnlyMode"
+                checked={textOnlyMode}
+                onCheckedChange={(checked) => setTextOnlyMode(checked as boolean)}
+              />
+              <Label
+                htmlFor="textOnlyMode"
+                className="text-sm font-medium cursor-pointer flex items-center gap-2"
+              >
+                <span>🎨 Modo Texto + Upload Manual</span>
+              </Label>
+            </div>
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="lg" className="gap-2">
@@ -571,6 +603,7 @@ export default function BlogAdminPage() {
         post={previewPost} 
         isOpen={!!previewPost} 
         onClose={() => setPreviewPost(null)} 
+        adminMode={true}
       />
     </AdminLayoutWrapper>
     </AdminGuard>

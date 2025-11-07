@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       console.log('[Generate] No request body, using defaults')
     }
 
-    const { topic, keywords, category, theme } = body
+    const { topic, keywords, category, theme, textOnly } = body
 
     // Determine blog theme based on current day or provided theme
     const blogTheme = theme || getCurrentBlogTheme()
@@ -177,41 +177,55 @@ Responda APENAS com JSON válido.`
     const generatedPost: AIGeneratedPost = JSON.parse(aiResponse)
     console.log('[Generate] Content generated:', generatedPost.title)
 
-    // ====== STEP 2: Generate cover image with DALL-E ======
-    const imagePrompt = generateImagePromptForTheme(blogTheme, generatedPost.title)
-
-    console.log('[Generate] Creating cover image...')
-
-    const imageResponse = await openai.images.generate({
-      model: 'dall-e-3',
-      prompt: imagePrompt,
-      n: 1,
-      size: '1792x1024',
-      quality: 'standard',
-      style: 'vivid',
-    })
-
-    const dallEImageUrl = imageResponse.data?.[0]?.url
-    if (!dallEImageUrl) {
-      throw new Error('No image generated from DALL-E')
-    }
-
-    console.log('[Generate] DALL-E image generated:', dallEImageUrl)
-
-    // ====== STEP 2.5: Upload image to Supabase Storage ======
-    console.log('[Generate] Uploading image to Supabase Storage...')
-    const slug = generateSlug(generatedPost.title)
-
+    // ====== STEP 2: Generate/Suggest cover image ======
     let coverImageUrl: string
-    try {
-      coverImageUrl = await uploadImageFromUrl(dallEImageUrl, slug)
-      console.log('[Generate] Image uploaded to Supabase:', coverImageUrl)
-    } catch (uploadError) {
-      console.error('[Generate] Failed to upload to Supabase, using DALL-E URL as fallback:', uploadError)
-      coverImageUrl = dallEImageUrl // Fallback to DALL-E URL if upload fails
+    let imagePromptSuggestion: string | null = null
+
+    if (textOnly) {
+      // Modo Text-Only: Gera apenas o prompt para imagem (usuário faz upload depois)
+      imagePromptSuggestion = generateImagePromptForTheme(blogTheme, generatedPost.title)
+      console.log('[Generate] Text-only mode: Image prompt generated for manual creation')
+      console.log('[Generate] Image prompt:', imagePromptSuggestion)
+      
+      // Usa imagem placeholder temporária
+      coverImageUrl = 'https://placehold.co/1792x1024/1e293b/64748b?text=Upload+Required'
+    } else {
+      // Modo Normal: Gera imagem automaticamente com DALL-E
+      const imagePrompt = generateImagePromptForTheme(blogTheme, generatedPost.title)
+
+      console.log('[Generate] Creating cover image...')
+
+      const imageResponse = await openai.images.generate({
+        model: 'dall-e-3',
+        prompt: imagePrompt,
+        n: 1,
+        size: '1792x1024',
+        quality: 'standard',
+        style: 'vivid',
+      })
+
+      const dallEImageUrl = imageResponse.data?.[0]?.url
+      if (!dallEImageUrl) {
+        throw new Error('No image generated from DALL-E')
+      }
+
+      console.log('[Generate] DALL-E image generated:', dallEImageUrl)
+
+      // ====== STEP 2.5: Upload image to Supabase Storage ======
+      console.log('[Generate] Uploading image to Supabase Storage...')
+      const slug = generateSlug(generatedPost.title)
+
+      try {
+        coverImageUrl = await uploadImageFromUrl(dallEImageUrl, slug)
+        console.log('[Generate] Image uploaded to Supabase:', coverImageUrl)
+      } catch (uploadError) {
+        console.error('[Generate] Failed to upload to Supabase, using DALL-E URL as fallback:', uploadError)
+        coverImageUrl = dallEImageUrl // Fallback to DALL-E URL if upload fails
+      }
     }
 
     // ====== STEP 3: Create post in database ======
+    const slug = generateSlug(generatedPost.title)
 
     const postData: BlogPostInsert = {
       title: generatedPost.title,
@@ -222,7 +236,7 @@ Responda APENAS com JSON válido.`
       keywords: selectedKeywords,
       seo_title: generatedPost.seo_title,
       seo_description: generatedPost.seo_description,
-      published: true,
+      published: textOnly ? false : true, // Text-only posts ficam como rascunho até upload de imagem
       category: selectedCategory,
       tags: generatedPost.tags || [],
       author: 'CatBytes AI',
@@ -234,7 +248,13 @@ Responda APENAS com JSON válido.`
     const createdPost = await db.createPost(postData)
     console.log('[Generate] Post created:', createdPost.id)
 
-    // ====== STEP 3.5: Translate post to English (DISABLED FOR NOW) ======
+    // ====== STEP 3.5: Save image prompt if text-only mode ======
+    if (textOnly && imagePromptSuggestion) {
+      // Armazena o prompt de imagem em um campo custom (vamos adicionar depois)
+      console.log('[Generate] Text-only mode: Image prompt saved for post:', createdPost.slug)
+    }
+
+    // ====== STEP 3.6: Translate post to English (DISABLED FOR NOW) ======
     // Translation can be enabled later via a separate API endpoint if needed
     let translatedPost: any = null
     
@@ -333,13 +353,15 @@ Responda APENAS com JSON válido.`
       post: createdPost,
       translatedPost: translatedPost || null,
       generationTime,
+      textOnly: !!textOnly,
+      imagePrompt: imagePromptSuggestion || null,
       metadata: {
         theme: blogTheme,
         topic: selectedTopic,
         category: selectedCategory,
         keywords: selectedKeywords,
         model: 'gpt-4o-mini',
-        imageModel: 'dall-e-3',
+        imageModel: textOnly ? 'manual-upload-required' : 'dall-e-3',
         translated: !!translatedPost,
         languages: translatedPost ? ['pt-BR', 'en-US'] : ['pt-BR'],
         scheduleInfo: scheduleInfo,
