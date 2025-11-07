@@ -8,6 +8,7 @@ import { format } from 'date-fns'
 import { ptBR, enUS } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
+import { useBlogPostTracking } from '@/components/analytics/analytics-tracker'
 
 interface PostModalProps {
   post: BlogPost | null
@@ -20,6 +21,14 @@ export function PostModal({ post, isOpen, onClose }: PostModalProps) {
   const t = useTranslations('blog.modal')
   const locale = useLocale()
   const dateLocale = locale === 'pt-BR' ? ptBR : enUS
+
+  // Track blog post views when modal is open
+  useEffect(() => {
+    if (isOpen && post) {
+      // Start tracking when modal opens
+      useBlogPostTracking(post.id, post.slug, post.title)
+    }
+  }, [isOpen, post])
 
   // Reset image error when modal opens with new post
   useEffect(() => {
