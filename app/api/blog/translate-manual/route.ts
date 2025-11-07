@@ -154,6 +154,9 @@ async function sendTranslatedNewsletter(post: any) {
 
   console.log(`📧 Enviando newsletter para ${subscribers.length} assinantes em inglês`)
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
+  const postUrl = `${baseUrl}/en-US/blog/${post.slug}`
+
   // Enviar email via Resend
   const response = await fetch('https://api.resend.com/emails/batch', {
     method: 'POST',
@@ -163,7 +166,7 @@ async function sendTranslatedNewsletter(post: any) {
     },
     body: JSON.stringify(
       subscribers.map(sub => ({
-        from: 'CATBytes <blog@catbytes.site>',
+        from: 'CatBytes <blog@catbytes.site>',
         to: sub.email,
         subject: `📝 New Post: ${post.title}`,
         html: `
@@ -171,14 +174,14 @@ async function sendTranslatedNewsletter(post: any) {
             <h1 style="color: #333;">🎉 New Blog Post!</h1>
             <h2 style="color: #0066cc;">${post.title}</h2>
             <p style="color: #666; line-height: 1.6;">${post.excerpt}</p>
-            <a href="https://catbytes.site/en-US/blog/${post.slug}" 
+            <a href="${postUrl}" 
                style="display: inline-block; background: #0066cc; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin-top: 20px;">
               Read More
             </a>
             <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
             <p style="font-size: 12px; color: #999;">
               You're receiving this because you subscribed to CATBytes newsletter (English version).<br>
-              <a href="https://catbytes.site/en-US/newsletter/unsubscribe?email=${sub.email}">Unsubscribe</a>
+              <a href="${baseUrl}/en-US/newsletter/unsubscribe?email=${sub.email}">Unsubscribe</a>
             </p>
           </div>
         `

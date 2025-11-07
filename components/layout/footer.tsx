@@ -16,7 +16,7 @@ export function Footer() {
   const params = useParams()
   const locale = params.locale as string
   const router = useRouter()
-  const { login, isAdmin } = useAdmin()
+  const { login, logout, isAdmin } = useAdmin()
   
   const [showAdminModal, setShowAdminModal] = useState(false)
   const [password, setPassword] = useState('')
@@ -34,6 +34,7 @@ export function Footer() {
     setIsLoading(true)
 
     try {
+      // Login com senha apenas (email padrão será usado)
       const success = await login(password)
       if (success) {
         setShowAdminModal(false)
@@ -47,6 +48,12 @@ export function Footer() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleLogout = () => {
+    logout()
+    setShowAdminModal(false)
+    router.push('/')
   }
 
   return (
@@ -254,7 +261,13 @@ export function Footer() {
               </button>
             </form>
           ) : (
-            <div className="text-center">
+            <div className="space-y-3">
+              <div className="text-center text-green-600 dark:text-green-400 mb-4 flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Autenticado como admin
+              </div>
               <button
                 onClick={() => {
                   setShowAdminModal(false)
@@ -262,7 +275,19 @@ export function Footer() {
                 }}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
               >
-                Ir para Admin
+                📊 Ir para Dashboard
+              </button>
+              <button
+                onClick={handleLogout}
+                className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                🚪 Sair (Logout)
+              </button>
+              <button
+                onClick={() => setShowAdminModal(false)}
+                className="w-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-medium py-2 px-4 rounded-lg transition-colors"
+              >
+                Fechar
               </button>
             </div>
           )}

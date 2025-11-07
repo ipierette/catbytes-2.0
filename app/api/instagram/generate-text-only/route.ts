@@ -116,7 +116,13 @@ Palavras-chave: ${palavrasChave || 'Tecnologia, IA, Automação'}
 Gere um post completo para Instagram com:
 
 1. **titulo**: Um título chamativo e direto (máx 60 caracteres)
-2. **imagePrompt**: Um prompt DETALHADO para geração de imagem (DALL-E, Midjourney, Stable Diffusion, etc). O prompt deve ser em inglês, descritivo, com estilo visual específico, cores, composição, iluminação. Exemplo: "Professional minimalist infographic showing before/after automation workflow, split screen design, blue and purple gradient background, clean modern UI elements, 3D floating icons, soft shadows, bright lighting, 1:1 aspect ratio"
+
+2. **imagePrompt**: Um prompt DETALHADO EM PORTUGUÊS para geração de imagem (DALL-E, Midjourney, Sora, Stable Diffusion, etc).
+   - Descreva o estilo visual, cores, composição, iluminação
+   - INCLUA o texto que deve aparecer NA IMAGEM (curto e impactante, entre aspas)
+   - Sora e outras IAs entendem PERFEITAMENTE português!
+   - Exemplo: "Design moderno para post do Instagram, fundo gradiente azul e roxo vibrante, formas geométricas limpas, elementos tech abstratos, elementos 3D flutuantes, sombras suaves, iluminação brilhante, com o texto 'Automatize em 24h' em destaque, tipografia profissional, formato quadrado 1:1, alta qualidade"
+
 3. **caption**: Legenda completa com:
    - Hook inicial envolvente
    - Desenvolvimento do conteúdo (3-5 parágrafos curtos)
@@ -125,10 +131,11 @@ Gere um post completo para Instagram com:
    - Máx 2000 caracteres
 
 REGRAS IMPORTANTES:
-- O imagePrompt DEVE ser detalhado e em inglês
-- Incluir estilo visual, cores, composição, iluminação
+- TUDO deve ser em PORTUGUÊS BRASILEIRO
+- O imagePrompt deve incluir o texto que aparece na imagem (entre aspas)
+- Texto da imagem: curto, impactante, máx 50 caracteres
 - A legenda deve ser conversacional e engajante
-- Hashtags devem misturar: nicho específico + alcance médio + viral
+- Hashtags: misture nicho específico + alcance médio + viral
 - Foco em ${nicho}
 
 Retorne APENAS um objeto JSON válido:

@@ -4,13 +4,11 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Power, PowerOff, Clock, CheckSquare, Square, Trash2, Edit, Send, RefreshCw, Image as ImageIcon } from 'lucide-react'
+import { Instagram, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Play, Power, PowerOff, Clock, CheckSquare, Square, Trash2, Edit, Send } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { InstagramEditModal } from '@/components/instagram/instagram-edit-modal'
-import { DALLEConfigModal } from '@/components/instagram/dalle-config-modal'
-import { TextOnlyModal } from '@/components/instagram/text-only-modal'
 
 interface InstagramPost {
   id: string
@@ -38,7 +36,6 @@ interface Stats {
 }
 
 export default function InstagramAdminPage() {
-  const [allPosts, setAllPosts] = useState<InstagramPost[]>([])
   const [pendingPosts, setPendingPosts] = useState<InstagramPost[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
@@ -49,16 +46,6 @@ export default function InstagramAdminPage() {
   const [bulkMode, setBulkMode] = useState(false)
   const [editingPost, setEditingPost] = useState<InstagramPost | null>(null)
   const [publishingPostId, setPublishingPostId] = useState<string | null>(null)
-  
-  // Novos estados
-  const [showDALLEModal, setShowDALLEModal] = useState(false)
-  const [showTextOnlyModal, setShowTextOnlyModal] = useState(false)
-  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'published' | 'failed'>('all')
-  
-  // Posts filtrados
-  const filteredPosts = filterStatus === 'all' 
-    ? allPosts 
-    : allPosts.filter(p => p.status === filterStatus)
 
   useEffect(() => {
     loadData()
@@ -68,20 +55,18 @@ export default function InstagramAdminPage() {
     try {
       setLoading(true)
       
-      // Busca TODOS os posts
-      const postsRes = await fetch('/api/instagram/posts')
+      // Busca posts pendentes
+      const postsRes = await fetch('/api/instagram/posts?status=pending')
       if (postsRes.ok) {
         const data = await postsRes.json()
-        const posts = data.posts || []
-        setAllPosts(posts)
-        setPendingPosts(posts.filter((p: InstagramPost) => p.status === 'pending'))
+        setPendingPosts(data.posts || [])
       }
 
       // Busca estatísticas
-      const statsRes = await fetch('/api/instagram/stats')
+      const statsRes = await fetch('/api/instagram/post')
       if (statsRes.ok) {
         const data = await statsRes.json()
-        setStats(data.stats)
+        setStats(data.data?.stats)
       }
 
       // Busca configurações
@@ -176,58 +161,6 @@ export default function InstagramAdminPage() {
     }
   }
 
-  const handleGenerateWithLeonardo = async () => {
-    setShowDALLEModal(true)
-  }
-
-  const handleDALLEGenerate = async (config: {
-    nicho: string
-    tema: string
-    quantidade: number
-    estilo: string
-    palavrasChave?: string[]
-  }) => {
-    try {
-      setLoading(true)
-      setShowDALLEModal(false)
-      setMessage({ 
-        type: 'success', 
-        text: '🎨 Gerando posts com DALL-E 3... Isso pode levar alguns minutos.' 
-      })
-
-      const response = await fetch('/api/instagram/generate-with-leonardo', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
-        },
-        body: JSON.stringify(config)
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        setMessage({ 
-          type: 'success', 
-          text: `✅ ${data.posts.length} posts gerados com DALL-E 3! Você pode editá-los manualmente antes de publicar.` 
-        })
-        await loadData()
-      } else {
-        setMessage({ 
-          type: 'error', 
-          text: data.error || 'Erro ao gerar posts com DALL-E 3' 
-        })
-      }
-    } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: 'Erro ao gerar posts com DALL-E 3' 
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleApprove = async (postId: string) => {
     try {
       // Feedback visual IMEDIATO - Optimistic Update
@@ -268,76 +201,6 @@ export default function InstagramAdminPage() {
       console.error('Error approving post:', error)
       setMessage({ type: 'error', text: 'Erro ao aprovar post. Tente novamente.' })
       await loadData() // Recarregar estado real
-    }
-  }
-
-  const handleBulkApprove = async () => {
-    if (selectedPosts.size === 0) {
-      setMessage({ type: 'error', text: '❌ Nenhum post selecionado' })
-      return
-    }
-
-    if (!confirm(`Deseja aprovar ${selectedPosts.size} post(s)?`)) return
-
-    try {
-      setLoading(true)
-      setMessage({ type: 'success', text: `⏳ Aprovando ${selectedPosts.size} posts...` })
-
-      let successCount = 0
-      let errorCount = 0
-      const errors: string[] = []
-
-      for (const postId of Array.from(selectedPosts)) {
-        try {
-          const response = await fetch(`/api/instagram/approve/${postId}`, {
-            method: 'POST'
-          })
-
-          const data = await response.json()
-
-          if (data.success) {
-            successCount++
-          } else {
-            errorCount++
-            errors.push(`Post ${postId}: ${data.error}`)
-          }
-        } catch (error) {
-          errorCount++
-          errors.push(`Post ${postId}: Erro de conexão`)
-        }
-      }
-
-      // Limpar seleção
-      setSelectedPosts(new Set())
-      setBulkMode(false)
-
-      // Mostrar resultado
-      if (successCount > 0 && errorCount === 0) {
-        setMessage({ 
-          type: 'success', 
-          text: `✅ ${successCount} post(s) aprovado(s) com sucesso!` 
-        })
-      } else if (successCount > 0 && errorCount > 0) {
-        setMessage({ 
-          type: 'error', 
-          text: `⚠️ ${successCount} aprovado(s), ${errorCount} falhou(ram). Verifique os logs.` 
-        })
-        console.error('Erros na aprovação em lote:', errors)
-      } else {
-        setMessage({ 
-          type: 'error', 
-          text: `❌ Nenhum post foi aprovado. Verifique os logs.` 
-        })
-        console.error('Erros na aprovação em lote:', errors)
-      }
-
-      // Recarregar dados
-      await loadData()
-    } catch (error) {
-      console.error('Erro na aprovação em lote:', error)
-      setMessage({ type: 'error', text: '❌ Erro na aprovação em lote' })
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -382,26 +245,13 @@ export default function InstagramAdminPage() {
           type: 'success', 
           text: `✅ Post publicado com sucesso! Ver no Instagram: ${data.instagramUrl || ''}` 
         })
-        
-        // Remover dos pendentes e atualizar estatísticas IMEDIATAMENTE
-        setPendingPosts(prev => prev.filter(p => p.id !== postId))
-        setStats(prevStats => prevStats ? {
-          ...prevStats,
-          pending: Math.max(0, prevStats.pending - 1),
-          published: prevStats.published + 1
-        } : null)
-        
         setSelectedPost(null)
-        
-        // Recarregar dados completos após 1 segundo
-        setTimeout(() => loadData(), 1000)
+        await loadData()
       } else {
         setMessage({ 
           type: 'error', 
           text: data.error || 'Erro ao publicar no Instagram' 
         })
-        // Recarregar em caso de erro para sincronizar
-        await loadData()
       }
     } catch (error) {
       console.error('Erro ao publicar:', error)
@@ -411,25 +261,22 @@ export default function InstagramAdminPage() {
     }
   }
 
-  const handleSaveEdit = async (updatedPost: InstagramPost, finalImageUrl?: string) => {
+  const handleSaveEdit = async (updatedPost: InstagramPost) => {
     try {
-      setMessage({ type: 'success', text: '💾 Salvando alterações...' })
-
       const response = await fetch(`/api/instagram/posts/${updatedPost.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           titulo: updatedPost.titulo,
           texto_imagem: updatedPost.texto_imagem,
-          caption: updatedPost.caption,
-          image_url: finalImageUrl || updatedPost.image_url
+          caption: updatedPost.caption
         })
       })
 
       const data = await response.json()
 
       if (data.success) {
-        setMessage({ type: 'success', text: '✅ Post atualizado com sucesso!' })
+        setMessage({ type: 'success', text: 'Post atualizado com sucesso!' })
         setEditingPost(null)
         await loadData()
       } else {
@@ -536,7 +383,7 @@ export default function InstagramAdminPage() {
             {pendingPosts.length} post{pendingPosts.length !== 1 ? 's' : ''} aguardando aprovação
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-3">
           <Button 
             onClick={handleToggleAutoGen}
             variant={autoGenEnabled ? 'default' : 'outline'}
@@ -547,72 +394,15 @@ export default function InstagramAdminPage() {
             {autoGenEnabled ? 'Geração Ativa' : 'Geração Pausada'}
           </Button>
           <Button 
-            onClick={handleGenerateWithLeonardo}
-            variant="default"
+            onClick={handleGenerateBatch}
+            variant="secondary"
             size="lg" 
-            className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-            disabled={loading}
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" opacity="0.5"/>
-              <path d="M2 17L12 22L22 17V12L12 17L2 12V17Z" fill="currentColor"/>
-            </svg>
-            {loading ? 'Gerando...' : 'DALL-E 3'}
-          </Button>
-          <Button 
-            onClick={() => setShowTextOnlyModal(true)}
-            variant="default"
-            size="lg" 
-            className="gap-2 bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
-            disabled={loading}
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="currentColor" opacity="0.5"/>
-              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            🎨 Texto IA + IMG
-          </Button>
-        </div>
-        
-        {/* Botões de Ações em Lote */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            onClick={() => {
-              setBulkMode(!bulkMode)
-              setSelectedPosts(new Set())
-            }}
-            variant={bulkMode ? 'default' : 'outline'}
-            size="lg"
             className="gap-2"
+            disabled={loading}
           >
-            {bulkMode ? '✓ Modo Seleção Ativo' : '☑️ Modo Seleção'}
+            <Play className="h-4 w-4" />
+            {loading ? 'Gerando...' : 'Gerar Lote Agora'}
           </Button>
-          
-          {bulkMode && selectedPosts.size > 0 && (
-            <>
-              <Button
-                onClick={handleBulkApprove}
-                variant="default"
-                size="lg"
-                className="gap-2 bg-green-600 hover:bg-green-700"
-                disabled={loading}
-              >
-                <CheckCircle className="h-4 w-4" />
-                Aprovar {selectedPosts.size} post(s)
-              </Button>
-              <Button
-                onClick={() => {
-                  setSelectedPosts(new Set())
-                  setBulkMode(false)
-                }}
-                variant="outline"
-                size="lg"
-                className="gap-2"
-              >
-                Cancelar
-              </Button>
-            </>
-          )}
         </div>
       </div>
 
@@ -629,103 +419,59 @@ export default function InstagramAdminPage() {
       )}
 
       {/* Stats Cards */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">📊 Estatísticas</h2>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={loadData}
-            disabled={loading}
-            className="gap-2"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Atualizar
-          </Button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          <Card 
-            className="cursor-pointer hover:border-yellow-600 hover:shadow-lg transition-all"
-            onClick={() => setFilterStatus(filterStatus === 'pending' ? 'all' : 'pending')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
-              <Clock className="h-4 w-4 text-yellow-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">{stats?.pending || 0}</div>
-              {filterStatus === 'pending' && (
-                <p className="text-xs text-yellow-600 mt-1">✓ Filtro ativo</p>
-              )}
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
+            <Clock className="h-4 w-4 text-yellow-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">{stats?.pending || 0}</div>
+          </CardContent>
+        </Card>
 
-          <Card 
-            className="cursor-pointer hover:border-blue-600 hover:shadow-lg transition-all"
-            onClick={() => setFilterStatus(filterStatus === 'approved' ? 'all' : 'approved')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Agendados</CardTitle>
-              <Calendar className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats?.approved || 0}</div>
-              {filterStatus === 'approved' && (
-                <p className="text-xs text-blue-600 mt-1">✓ Filtro ativo</p>
-              )}
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Agendados</CardTitle>
+            <Calendar className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{stats?.approved || 0}</div>
+          </CardContent>
+        </Card>
 
-          <Card 
-            className="cursor-pointer hover:border-green-600 hover:shadow-lg transition-all"
-            onClick={() => setFilterStatus(filterStatus === 'published' ? 'all' : 'published')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Publicados</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats?.published || 0}</div>
-              {filterStatus === 'published' && (
-                <p className="text-xs text-green-600 mt-1">✓ Filtro ativo</p>
-              )}
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Publicados</CardTitle>
+            <CheckCircle className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{stats?.published || 0}</div>
+          </CardContent>
+        </Card>
 
-          <Card 
-            className="cursor-pointer hover:border-red-600 hover:shadow-lg transition-all"
-            onClick={() => setFilterStatus(filterStatus === 'failed' ? 'all' : 'failed')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Falhas</CardTitle>
-              <XCircle className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats?.failed || 0}</div>
-              {filterStatus === 'failed' && (
-                <p className="text-xs text-red-600 mt-1">✓ Filtro ativo</p>
-              )}
-            </CardContent>
-          </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Falhas</CardTitle>
+            <XCircle className="h-4 w-4 text-red-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">{stats?.failed || 0}</div>
+          </CardContent>
+        </Card>
 
-          <Card 
-            className="cursor-pointer hover:border-gray-600 hover:shadow-lg transition-all"
-            onClick={() => setFilterStatus('all')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats?.total || 0}</div>
-              {filterStatus === 'all' && (
-                <p className="text-xs text-muted-foreground mt-1">✓ Todos</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>      {/* Schedule Info */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.total || 0}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Schedule Info */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -739,19 +485,14 @@ export default function InstagramAdminPage() {
         <CardContent>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h4 className="font-semibold mb-2">🤖 Geração de Posts</h4>
-                            <p className="text-sm text-muted-foreground mb-3">
-                <strong>DALL-E 3:</strong><br/>
-                • Gera imagem com texto integrado<br/>
-                • Mais rápido e profissional<br/>
-                • Você pode editar manualmente depois<br/>
-              </p>
-              <p className="text-sm text-muted-foreground">
-                <strong>Automático:</strong> Cron jobs geram posts automaticamente (segunda, terça, quinta e sábado às 13:00)<br/>
-                <strong>Manual:</strong> Use os botões de geração a qualquer momento<br/>
+              <h4 className="font-semibold mb-2">🤖 Geração Automática</h4>
+              <p className="text-sm text-muted-foreground mb-2">
+                <strong>Cron Jobs:</strong> Segunda, Terça, Quinta e Sábado às 13:00<br/>
+                <strong>Quantidade:</strong> 10 posts por execução<br/>
                 <strong>Status:</strong> <span className={autoGenEnabled ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
                   {autoGenEnabled ? 'ATIVA' : 'PAUSADA'}
-                </span>
+                </span><br/>
+                <strong>Manual:</strong> Use o botão "Gerar Lote Agora" para criar posts a qualquer momento
               </p>
             </div>
             <div>
@@ -818,16 +559,13 @@ export default function InstagramAdminPage() {
           )}
         </CardHeader>
         <CardContent>
-          {filteredPosts.length === 0 ? (
+          {pendingPosts.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">
-              {filterStatus === 'all' 
-                ? 'Nenhum post encontrado. Gere novos posts usando os botões acima!' 
-                : `Nenhum post ${filterStatus === 'pending' ? 'pendente' : filterStatus === 'approved' ? 'agendado' : filterStatus === 'published' ? 'publicado' : 'com falha'}.`
-              }
+              Nenhum post pendente. A próxima geração será em breve!
             </p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPosts.map(post => (
+              {pendingPosts.map(post => (
                 <div
                   key={post.id}
                   className={`border rounded-lg overflow-hidden transition-all ${
@@ -927,23 +665,11 @@ export default function InstagramAdminPage() {
           >
             {/* Imagem */}
             <div className="md:w-3/5 bg-black flex items-center justify-center">
-              {selectedPost.image_url ? (
-                <img
-                  src={selectedPost.image_url}
-                  alt={selectedPost.titulo}
-                  className="w-full h-auto max-h-[90vh] object-contain"
-                  onError={(e) => {
-                    console.error('Erro ao carregar imagem:', selectedPost.image_url)
-                    e.currentTarget.src = '/images/placeholder-instagram.png'
-                    e.currentTarget.alt = 'Imagem não disponível'
-                  }}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-white p-8">
-                  <ImageIcon className="h-16 w-16 mb-4 opacity-50" />
-                  <p className="text-sm opacity-75">Imagem não disponível</p>
-                </div>
-              )}
+              <img
+                src={selectedPost.image_url}
+                alt={selectedPost.titulo}
+                className="w-full h-auto max-h-[90vh] object-contain"
+              />
             </div>
 
             {/* Caption e ações */}
@@ -970,26 +696,26 @@ export default function InstagramAdminPage() {
                 </div>
               </div>
 
-              <div className="p-4 border-t flex flex-wrap gap-3">
+              <div className="p-4 border-t flex gap-3">
                 <Button
                   variant="secondary"
-                  className="gap-2 flex-1 min-w-[140px]"
+                  className="gap-2"
                   onClick={() => handlePublishNow(selectedPost.id)}
                   disabled={publishingPostId === selectedPost.id}
                 >
                   <Send className="h-4 w-4" />
-                  {publishingPostId === selectedPost.id ? 'Publicando...' : '🚀 Publicar'}
+                  {publishingPostId === selectedPost.id ? 'Publicando...' : '🚀 Publicar Agora'}
                 </Button>
                 <Button
-                  className="flex-1 gap-2 min-w-[140px]"
+                  className="flex-1 gap-2"
                   onClick={() => handleApprove(selectedPost.id)}
                 >
                   <CheckCircle className="h-4 w-4" />
-                  Aprovar
+                  Aprovar e Agendar
                 </Button>
                 <Button
                   variant="destructive"
-                  className="gap-2 min-w-[120px]"
+                  className="gap-2"
                   onClick={() => handleReject(selectedPost.id)}
                 >
                   <XCircle className="h-4 w-4" />
@@ -1010,21 +736,6 @@ export default function InstagramAdminPage() {
           onSave={handleSaveEdit}
         />
       )}
-      
-      {/* Modal de Configuração DALL-E 3 (ex-Leonardo) */}
-      <DALLEConfigModal
-        open={showDALLEModal}
-        onClose={() => setShowDALLEModal(false)}
-        onGenerate={handleDALLEGenerate}
-        mode="dalle"
-      />
-      
-      {/* Modal Texto IA + IMG Manual */}
-      <TextOnlyModal
-        open={showTextOnlyModal}
-        onOpenChange={setShowTextOnlyModal}
-        onSuccess={loadData}
-      />
       </div>
     </AdminLayoutWrapper>
     </AdminGuard>

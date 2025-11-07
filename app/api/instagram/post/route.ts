@@ -12,7 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { instagramDB } from '@/lib/instagram-db'
 import { generatePostContent, validatePostContent } from '@/lib/content-generator'
 import { generateImage, optimizePromptWithText } from '@/lib/image-generator'
-import { verifyAdmin } from '@/lib/api-security'
+import { verifyAdminCookie } from '@/lib/api-security'
 
 export const maxDuration = 60 // Vercel timeout: 60s
 
@@ -27,7 +27,10 @@ export async function POST(request: NextRequest) {
     
     if (!isCronJob) {
       // Se não for cron, verifica se é admin
-      await verifyAdmin(request)
+      const authCheck = await verifyAdminCookie(request)
+      if (!authCheck.valid) {
+        return authCheck.error!
+      }
     }
 
     console.log('=== Generating Instagram Post for Approval ===')
@@ -108,7 +111,10 @@ export async function POST(request: NextRequest) {
 // GET para verificar status e próxima postagem
 export async function GET(request: NextRequest) {
   try {
-    await verifyAdmin(request)
+    const authCheck = await verifyAdminCookie(request)
+    if (!authCheck.valid) {
+      return authCheck.error!
+    }
 
     const nextNiche = await instagramDB.getNextNiche()
     const lastPost = await instagramDB.getLastPost()

@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAdmin } from '@/hooks/use-admin'
 
 export default function AdminLoginPage() {
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -22,7 +23,9 @@ export default function AdminLoginPage() {
     setLoading(true)
 
     try {
-      const success = await login(password)
+      // Se email não foi preenchido, usa o padrão
+      const emailToUse = email.trim() || undefined
+      const success = await login(password, emailToUse)
       
       if (success) {
         router.push('/admin/dashboard')
@@ -61,6 +64,20 @@ export default function AdminLoginPage() {
             
             <div className="space-y-2">
               <Input
+                type="email"
+                placeholder="Email (opcional - padrão: ipierette2@gmail.com)"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                className="text-center"
+              />
+              <p className="text-xs text-muted-foreground text-center">
+                Deixe em branco para usar o email padrão
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Input
                 type="password"
                 placeholder="Senha de administrador"
                 value={password}
@@ -68,6 +85,7 @@ export default function AdminLoginPage() {
                 disabled={loading}
                 className="text-center"
                 autoFocus
+                required
               />
             </div>
 

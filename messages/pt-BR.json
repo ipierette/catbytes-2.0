@@ -297,7 +297,19 @@
     "newsletterTitle": "Newsletter CatBytes",
     "newsletterDescription": "Receba artigos exclusivos sobre tecnologia, IA e automação",
     "newsletterDescriptionHighlight": "diretamente no seu email",
-    "close": "Fechar"
+    "close": "Fechar",
+    "modal": {
+      "share": "Compartilhar:",
+      "shareFacebook": "Compartilhar no Facebook",
+      "shareTwitter": "Compartilhar no Twitter",
+      "shareLinkedIn": "Compartilhar no LinkedIn",
+      "shareWhatsApp": "Compartilhar no WhatsApp",
+      "cta": {
+        "title": "Gostou do que leu?",
+        "description": "Transforme suas ideias em realidade com soluções digitais personalizadas. Entre em contato e vamos criar algo incrível juntos!",
+        "button": "Fale Conosco"
+      }
+    }
   },
   "newsletter": {
     "spamWarning": "📧 Para não cair no spam:",

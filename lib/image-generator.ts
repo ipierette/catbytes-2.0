@@ -1,5 +1,6 @@
 /**
- * Image Generator - Gera imagens com DALL-E e adiciona texto via Canvas
+ * Image Generator - Usa DALL-E 3 (OpenAI) exclusivamente
+ * Melhor qualidade e confiabilidade para texto em português
  */
 
 import OpenAI from 'openai'
@@ -10,21 +11,20 @@ const openai = new OpenAI({
 })
 
 /**
- * Gera imagem com DALL-E
- * Retorna URL temporária (válida por ~2h, suficiente para Instagram baixar)
+ * Gera imagem com DALL-E 3
+ * Retorna URL da imagem gerada
  */
 export async function generateImage(prompt: string): Promise<string> {
   try {
-    console.log('Generating image with DALL-E...', { prompt })
+    console.log('🎨 Gerando imagem com DALL-E 3...', { prompt })
 
-    // Gera imagem com DALL-E
     const response = await openai.images.generate({
       model: 'dall-e-3',
       prompt,
       n: 1,
       size: '1024x1024',
-      quality: 'standard',
-      style: 'natural' // Estilo mais realista
+      quality: 'hd',
+      style: 'vivid'
     })
 
     const imageUrl = response.data?.[0]?.url
@@ -32,10 +32,10 @@ export async function generateImage(prompt: string): Promise<string> {
       throw new Error('No image URL returned from DALL-E')
     }
 
-    console.log('Image generated successfully', { imageUrl })
+    console.log('✅ Imagem gerada com DALL-E 3 com sucesso!')
     return imageUrl
   } catch (error) {
-    console.error('Error generating image:', error)
+    console.error('❌ Erro ao gerar imagem:', error)
     throw error
   }
 }

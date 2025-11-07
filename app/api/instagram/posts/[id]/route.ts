@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { instagramDB } from '@/lib/instagram-db'
-import { verifyAdmin } from '@/lib/api-security'
+import { verifyAdminCookie } from '@/lib/api-security'
 
 /**
  * PATCH /api/instagram/posts/[id]
@@ -16,7 +16,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await verifyAdmin(request)
+    const authCheck = await verifyAdminCookie(request)
+    if (!authCheck.valid) {
+      return authCheck.error!
+    }
+    
     const { id } = await params
 
     const body = await request.json()

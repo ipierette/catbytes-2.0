@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { getSuggestions, hasCachedSuggestions } from '@/lib/instagram-suggestions-cache'
 
 interface DALLEConfigModalProps {
   open: boolean
@@ -17,7 +18,7 @@ interface DALLEConfigModalProps {
     estilo: string
     palavrasChave?: string[]
   }) => void
-  mode?: 'dalle' | 'stability' // Novo: tipo de geração
+  mode?: 'dalle' | 'stability' | 'nano' // Novo: tipo de geração incluindo nano
 }
 
 const NICHOS = [
@@ -45,33 +46,45 @@ export function DALLEConfigModal({ open, onClose, onGenerate, mode = 'dalle' }: 
   const [loadingSuggestion, setLoadingSuggestion] = useState(false)
 
   const isDALLE = mode === 'dalle'
-  const title = isDALLE ? '✨ Gerar com DALL-E 3 (Debug)' : '⚡ Gerar com Stability AI (Debug)'
-  const description = isDALLE 
-    ? 'Configure os parâmetros para gerar posts com DALL-E 3. Logs detalhados no console.' 
-    : 'Configure os parâmetros para gerar posts com Stability AI. 10x mais barato que DALL-E. Logs detalhados no console.'
+  const isNano = mode === 'nano'
+  const isLeonardo = !isDALLE && !isNano // Para compatibilidade com nome antigo
+  
+  const title = isNano 
+    ? '🤖 Gerar com Gemini 2.0 Flash' 
+    : isLeonardo 
+    ? '🎨 Gerar com DALL-E 3 (Alta Qualidade)' 
+    : '🎨 Configurar Geração de Posts'
+  
+  const description = isNano
+    ? 'Configure os parâmetros para gerar posts com Gemini 2.0 Flash. Rápido e otimizado!'
+    : isLeonardo 
+    ? 'Configure os parâmetros para gerar posts com DALL-E 3. Melhor IA para texto em português!' 
+    : 'Preencha os detalhes para gerar posts automaticamente'
+  useEffect(() => {
+    if (open && !nicho && !tema) {
+      handleGetSuggestion()
+    }
+  }, [open])
 
-  const handleGetSuggestion = async () => {
+  const handleGetSuggestion = async (forceNew = false) => {
     setLoadingSuggestion(true)
     try {
-      const response = await fetch('/api/instagram/suggest-theme', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentNicho: nicho || undefined })
-      })
-
-      if (!response.ok) {
-        throw new Error('Falha ao buscar sugestão')
-      }
-
-      const data = await response.json()
+      console.log('🎯 Buscando sugestões...', forceNew ? '(FORÇANDO NOVA)' : '')
+      
+      // Usa o sistema de cache compartilhado
+      const suggestion = await getSuggestions(forceNew)
+      
+      // Verifica se veio do cache
+      const fromCache = hasCachedSuggestions() && !forceNew
       
       // Preenche automaticamente os campos
-      if (data.nicho) setNicho(data.nicho)
-      if (data.tema) setTema(data.tema)
-      if (data.estilo) setEstilo(data.estilo)
-      if (data.palavrasChave) setPalavrasChave(data.palavrasChave)
+      setNicho(suggestion.nicho)
+      setTema(suggestion.tema)
+      setEstilo(suggestion.estilo)
+      setPalavrasChave(suggestion.palavrasChave.join(', '))
       
-      alert('✨ Sugestão aplicada! Você pode editar os campos antes de gerar.')
+      const cacheMsg = fromCache ? ' (♻️ do cache)' : ' (🆕 gerado agora)'
+      alert(`✨ Sugestão aplicada${cacheMsg}! Você pode editar os campos antes de gerar.`)
     } catch (error) {
       console.error('Erro ao buscar sugestão:', error)
       alert('❌ Erro ao buscar sugestão da IA')
@@ -111,16 +124,28 @@ export function DALLEConfigModal({ open, onClose, onGenerate, mode = 'dalle' }: 
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          {/* Botão de Sugestão da IA */}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleGetSuggestion}
-            disabled={loadingSuggestion}
-            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
-          >
-            {loadingSuggestion ? '🤔 Pensando...' : '✨ Sugestão da IA (Auto-preencher)'}
-          </Button>
+          {/* Botões de Sugestão da IA */}
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleGetSuggestion(false)}
+              disabled={loadingSuggestion}
+              className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+            >
+              {loadingSuggestion ? '🤔 Pensando...' : '✨ Sugestão da IA'}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleGetSuggestion(true)}
+              disabled={loadingSuggestion}
+              className="bg-green-600 text-white hover:bg-green-700"
+              title="Gerar nova sugestão (ignora cache)"
+            >
+              🔄 Nova
+            </Button>
+          </div>
 
           {/* Nicho */}
           <div className="grid gap-2">

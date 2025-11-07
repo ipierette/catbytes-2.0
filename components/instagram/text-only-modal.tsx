@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,10 +8,11 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Copy, Upload, Image as ImageIcon, CheckCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { getSuggestions, hasCachedSuggestions } from '@/lib/instagram-suggestions-cache'
 
 interface GeneratedContent {
   titulo: string
-  imagePrompt: string
+  imagePrompt: string  // Prompt completo em português (com texto incluído)
   caption: string
   nicho: string
   tema: string
@@ -46,6 +47,29 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
   
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  // Auto-carregar sugestões quando modal abre
+  useEffect(() => {
+    if (open && !nicho && !tema) {
+      handleLoadSuggestions()
+    }
+  }, [open])
+
+  const handleLoadSuggestions = async (forceNew = false) => {
+    try {
+      const suggestion = await getSuggestions(forceNew)
+      
+      setNicho(suggestion.nicho)
+      setTema(suggestion.tema)
+      setEstilo(suggestion.estilo)
+      setPalavrasChave(suggestion.palavrasChave.join(', '))
+      
+      const fromCache = hasCachedSuggestions() && !forceNew
+      console.log(`✨ Sugestões carregadas${fromCache ? ' (do cache)' : ' (novas)'}`)
+    } catch (error) {
+      console.error('Erro ao carregar sugestões:', error)
+    }
+  }
 
   const handleGenerate = async () => {
     if (!nicho || !tema) {
@@ -88,39 +112,29 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
     }
   }
 
-  const handleGenerateSuggestedPost = async () => {
+  const handleGenerateSuggestedPost = async (forceNew = false) => {
     setGeneratingSuggestion(true)
     setMessage(null)
 
     try {
-      // Passo 1: Obter sugestão de tema
-      const suggestionResponse = await fetch('/api/instagram/suggest-theme', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-      })
-
-      const suggestionData = await suggestionResponse.json()
-
-      if (!suggestionResponse.ok) {
-        throw new Error(suggestionData.error || 'Erro ao gerar sugestão')
-      }
+      // Usa o sistema de cache compartilhado
+      const suggestion = await getSuggestions(forceNew)
 
       // Preencher os campos com a sugestão
-      setNicho(suggestionData.nicho)
-      setTema(suggestionData.tema)
-      setEstilo(suggestionData.estilo)
-      setPalavrasChave(suggestionData.palavrasChave)
+      setNicho(suggestion.nicho)
+      setTema(suggestion.tema)
+      setEstilo(suggestion.estilo)
+      setPalavrasChave(suggestion.palavrasChave.join(', '))
 
-      // Passo 2: Gerar conteúdo completo automaticamente
+      // Gerar conteúdo completo automaticamente
       const contentResponse = await fetch('/api/instagram/generate-text-only', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nicho: suggestionData.nicho,
-          tema: suggestionData.tema,
-          estilo: suggestionData.estilo,
-          palavrasChave: suggestionData.palavrasChave,
+          nicho: suggestion.nicho,
+          tema: suggestion.tema,
+          estilo: suggestion.estilo,
+          palavrasChave: suggestion.palavrasChave.join(', '),
           quantidade: 1
         })
       })
@@ -135,7 +149,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
         setGeneratedContent(contentData.posts[0])
         setMessage({ 
           type: 'success', 
-          text: '✨ Post sugerido gerado! Tema: ' + suggestionData.categoria + '. Copie o prompt e faça upload da imagem.' 
+          text: `✨ Post sugerido gerado! Tema: ${suggestion.tema}. Copie o prompt e faça upload da imagem.` 
         })
       }
 
@@ -147,10 +161,59 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
     }
   }
 
-  const handleCopyPrompt = () => {
-    if (generatedContent?.imagePrompt) {
-      navigator.clipboard.writeText(generatedContent.imagePrompt)
-      setMessage({ type: 'success', text: 'Prompt copiado! 📋' })
+  const handleCopyPrompt = async () => {
+    if (!generatedContent?.imagePrompt) {
+      setMessage({ type: 'error', text: 'Nenhum prompt para copiar' })
+      return
+    }
+
+    const textToCopy = generatedContent.imagePrompt
+    console.log('📋 [COPY] Tentando copiar:', textToCopy.substring(0, 100))
+
+    try {
+      // Método moderno - funciona na maioria dos navegadores
+      await navigator.clipboard.writeText(textToCopy)
+      console.log('✅ [COPY] Copiado com sucesso via Clipboard API')
+      setMessage({ type: 'success', text: '✅ Prompt copiado para área de transferência!' })
+      setTimeout(() => setMessage(null), 3000)
+    } catch (err) {
+      console.error('❌ [COPY] Erro:', err)
+      
+      // Fallback: Mostrar em um textarea selecionável
+      const textarea = document.createElement('textarea')
+      textarea.value = textToCopy
+      textarea.style.position = 'fixed'
+      textarea.style.top = '0'
+      textarea.style.left = '0'
+      textarea.style.width = '100%'
+      textarea.style.height = '100%'
+      textarea.style.padding = '20px'
+      textarea.style.fontSize = '14px'
+      textarea.style.zIndex = '9999'
+      textarea.style.backgroundColor = 'white'
+      textarea.style.color = 'black'
+      textarea.readOnly = true
+      
+      document.body.appendChild(textarea)
+      textarea.select()
+      textarea.setSelectionRange(0, textToCopy.length)
+      
+      // Tentar copiar com execCommand
+      try {
+        const success = document.execCommand('copy')
+        if (success) {
+          console.log('✅ [COPY] Copiado via execCommand')
+          setMessage({ type: 'success', text: '✅ Prompt copiado!' })
+          setTimeout(() => setMessage(null), 3000)
+        }
+      } catch (e) {
+        console.error('❌ [COPY] execCommand falhou:', e)
+      }
+      
+      // Aguardar um pouco antes de remover
+      setTimeout(() => {
+        document.body.removeChild(textarea)
+      }, 100)
     }
   }
 
@@ -176,35 +239,37 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
     setMessage(null)
 
     try {
-      // Upload para Supabase Storage
-      const fileExt = selectedFile.name.split('.').pop()
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-      const filePath = `instagram/${fileName}`
+      console.log('📤 Iniciando upload via API...')
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('instagram-images')
-        .upload(filePath, selectedFile, {
-          cacheControl: '3600',
-          upsert: false
-        })
+      // Criar FormData
+      const formData = new FormData()
+      formData.append('file', selectedFile)
 
-      if (uploadError) {
-        throw uploadError
+      // Upload via API (usa SERVICE_ROLE_KEY para bypass de RLS)
+      const uploadResponse = await fetch('/api/instagram/upload-image', {
+        method: 'POST',
+        body: formData
+      })
+
+      const uploadResult = await uploadResponse.json()
+
+      if (!uploadResponse.ok || !uploadResult.success) {
+        console.error('❌ Erro no upload:', uploadResult)
+        throw new Error(uploadResult.error || 'Erro ao fazer upload')
       }
 
-      // Obter URL pública
-      const { data: urlData } = supabase.storage
-        .from('instagram-images')
-        .getPublicUrl(filePath)
-
-      const publicUrl = urlData.publicUrl
+      const publicUrl = uploadResult.publicUrl
+      console.log('✅ Upload bem-sucedido! URL:', publicUrl)
 
       setUploadedImageUrl(publicUrl)
-      setMessage({ type: 'success', text: 'Imagem enviada! ✅ Agora você pode aprovar ou postar.' })
+      setMessage({ type: 'success', text: '✅ Imagem enviada! Agora você pode aprovar o post.' })
 
     } catch (error: any) {
-      console.error('Erro ao fazer upload:', error)
-      setMessage({ type: 'error', text: error.message })
+      console.error('❌ Erro ao fazer upload:', error)
+      setMessage({ 
+        type: 'error', 
+        text: `❌ ${error.message || 'Erro ao fazer upload'}` 
+      })
     } finally {
       setUploading(false)
     }
@@ -225,7 +290,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
         .insert({
           nicho: generatedContent.nicho,
           titulo: generatedContent.titulo,
-          texto_imagem: generatedContent.imagePrompt, // Salvamos o prompt como referência
+          texto_imagem: generatedContent.titulo.substring(0, 100), // Título truncado para max 100 chars
           caption: generatedContent.caption,
           image_url: uploadedImageUrl,
           status: 'pending',
@@ -267,7 +332,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
         .insert({
           nicho: generatedContent.nicho,
           titulo: generatedContent.titulo,
-          texto_imagem: generatedContent.imagePrompt,
+          texto_imagem: generatedContent.titulo.substring(0, 100), // Título truncado para max 100 chars
           caption: generatedContent.caption,
           image_url: uploadedImageUrl,
           status: 'published',
@@ -332,15 +397,27 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
                 <p className="text-sm text-gray-700 mb-3">
                   <strong>💡 Dica:</strong> Deixe a IA sugerir um post completo com tema estratégico e conteúdo pronto!
                 </p>
-                <Button
-                  onClick={handleGenerateSuggestedPost}
-                  disabled={generatingSuggestion}
-                  variant="default"
-                  className="w-full gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                  size="lg"
-                >
-                  {generatingSuggestion ? '🤖 Gerando sugestão...' : '✨ Gerar Post Sugerido por IA (Tudo Automático)'}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => handleGenerateSuggestedPost(false)}
+                    disabled={generatingSuggestion}
+                    variant="default"
+                    className="flex-1 gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                    size="lg"
+                  >
+                    {generatingSuggestion ? '🤖 Gerando...' : '✨ Post Sugerido por IA'}
+                  </Button>
+                  <Button
+                    onClick={() => handleGenerateSuggestedPost(true)}
+                    disabled={generatingSuggestion}
+                    variant="outline"
+                    className="gap-2 bg-green-600 text-white hover:bg-green-700"
+                    size="lg"
+                    title="Gerar nova sugestão (ignora cache)"
+                  >
+                    🔄
+                  </Button>
+                </div>
               </div>
 
               <div className="relative">
@@ -425,10 +502,11 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
                 <Textarea
                   value={generatedContent.imagePrompt}
                   readOnly
-                  className="bg-gray-50 min-h-[100px]"
+                  className="bg-gray-50 min-h-[120px]"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Use este prompt no DALL-E, Midjourney, Stable Diffusion, Sora, ou qualquer ferramenta de IA
+                  ✨ Use este prompt no DALL-E, Midjourney, Sora, Stable Diffusion, ou qualquer ferramenta de IA.
+                  O prompt já inclui o texto em português que deve aparecer na imagem!
                 </p>
               </div>
 

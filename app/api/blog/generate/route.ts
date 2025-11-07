@@ -265,19 +265,24 @@ Responda APENAS com JSON válido.`
             
             const emailPromises = batch.map(subscriber => {
               const locale = subscriber.locale || 'pt-BR'
-              const postUrl = `${baseUrl}/${locale}/blog`
+              const isEnglish = locale === 'en-US'
+              
+              // Use translated post for English subscribers if available
+              const postData = (isEnglish && translatedPost) ? translatedPost : createdPost
+              const postSlug = postData.slug
+              const postUrl = `${baseUrl}/${locale}/blog/${postSlug}`
               
               return resend.emails.send({
                 from: 'CatBytes <contato@catbytes.site>',
                 to: subscriber.email,
-                subject: locale === 'pt-BR' 
-                  ? `🚀 Novo Artigo: ${createdPost.title}`
-                  : `🚀 New Article: ${createdPost.title}`,
+                subject: isEnglish 
+                  ? `🚀 New Article: ${postData.title}`
+                  : `🚀 Novo Artigo: ${postData.title}`,
                 html: getNewPostEmailHTML(
-                  subscriber.name || 'Amigo',
-                  createdPost.title,
-                  createdPost.excerpt,
-                  createdPost.cover_image_url,
+                  subscriber.name || (isEnglish ? 'Friend' : 'Amigo'),
+                  postData.title,
+                  postData.excerpt,
+                  postData.cover_image_url,
                   postUrl,
                   locale,
                   baseUrl

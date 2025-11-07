@@ -18,7 +18,10 @@ const comfortaa = Comfortaa({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://catbytes.com'),
+  metadataBase: new URL('https://catbytes.site'),
+  verification: {
+    google: 'x6dGmR7woC-z7VVaZottGIYO-gmCCEkNBzv9b9qWmgw',
+  },
   title: {
     default: 'Izadora Cury Pierette | CatBytes — Portfólio Criativo',
     template: '%s | CatBytes'
@@ -99,15 +102,31 @@ export default async function RootLayout({
   // Await params if they exist (Next.js 15)
   const resolvedParams = params ? await params : undefined
 
+  // JSON-LD Structured Data for SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Izadora Cury Pierette',
+    jobTitle: 'Full Stack Developer & Designer',
+    url: 'https://catbytes.site',
+    image: 'https://catbytes.site/images/og-1200x630-safe.webp',
+    sameAs: [
+      'https://github.com/izadoracury',
+      'https://www.linkedin.com/in/izadoracury',
+    ],
+    knowsAbout: ['Web Development', 'React', 'Next.js', 'AI Automation', 'UX/UI Design'],
+    description: 'Desenvolvedora Full Stack especializada em React, Next.js e soluções com inteligência artificial',
+  }
+
   return (
-    <html
-      lang={resolvedParams?.locale || 'pt-BR'}
-      className={`${inter.variable} ${comfortaa.variable}`}
-      suppressHydrationWarning
-    >
-      <body className="font-inter antialiased">
-        {children}
-      </body>
+    <html lang={resolvedParams?.locale || 'pt-BR'} className={`${inter.variable} ${comfortaa.variable}`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className="bg-background text-foreground">{children}</body>
     </html>
   )
 }

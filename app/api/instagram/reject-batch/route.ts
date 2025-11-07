@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { instagramDB, supabaseAdmin } from '@/lib/instagram-db'
-import { verifyAdmin } from '@/lib/api-security'
+import { verifyAdminCookie } from '@/lib/api-security'
 import { deleteInstagramImageFromStorage } from '@/lib/instagram-image-storage'
 
 /**
@@ -14,7 +14,10 @@ import { deleteInstagramImageFromStorage } from '@/lib/instagram-image-storage'
  */
 export async function POST(request: NextRequest) {
   try {
-    await verifyAdmin(request)
+    const authCheck = await verifyAdminCookie(request)
+    if (!authCheck.valid) {
+      return authCheck.error!
+    }
 
     const body = await request.json()
     const { postIds, reason } = body

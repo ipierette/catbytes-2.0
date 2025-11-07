@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateInstagramPostWithDALLE, downloadAndSaveDALLEImage, NICHE_TEMPLATES } from '@/lib/dalle-post-generator'
 import { createClient } from '@supabase/supabase-js'
-import { verifyAdmin } from '@/lib/api-security'
+import { verifyAdminCookie } from '@/lib/api-security'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,8 +21,11 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🟣 [DEBUG DALL-E] === INICIANDO GERAÇÃO ===')
     
-    await verifyAdmin(request)
-    console.log('🟣 [DEBUG DALL-E] ✓ Admin verificado')
+    const authCheck = await verifyAdminCookie(request)
+    if (!authCheck.valid) {
+      return authCheck.error!
+    }
+    console.log('🟣 [DEBUG DALL-E] ✓ Admin verificado via cookie')
 
     const { nicho, tema, palavrasChave, estilo, quantidade = 1 } = await request.json()
 
@@ -116,9 +119,7 @@ export async function POST(request: NextRequest) {
         const { error: updateError } = await supabase
           .from('instagram_posts')
           .update({
-            image_url: permanentUrl,
-            dalle_prompt: post.prompt,
-            dalle_revised_prompt: post.revisedPrompt
+            image_url: permanentUrl
           })
           .eq('id', tempPost.id)
 

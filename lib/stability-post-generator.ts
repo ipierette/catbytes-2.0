@@ -77,54 +77,47 @@ Estilo: ${request.estilo || 'moderno'}
   console.log('🔷 [STABILITY-LIB] Prompt:', imagePrompt.substring(0, 150) + '...')
 
   console.log('🔷 [STABILITY-LIB] Chamando Stability AI API...')
+  
+  // SD 3.5 usa FormData (multipart/form-data)
+  const formData = new FormData()
+  formData.append('prompt', imagePrompt)
+  formData.append('negative_prompt', 'blurry, bad quality, distorted, ugly, watermark, text errors, misspelled words, garbled text, unreadable text')
+  formData.append('mode', 'text-to-image')
+  formData.append('model', 'sd3.5-large')
+  formData.append('aspect_ratio', '1:1')
+  formData.append('output_format', 'png')
+  formData.append('seed', '0')
+
   const stabilityResponse = await fetch(
-    'https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image',
+    'https://api.stability.ai/v2beta/stable-image/generate/sd3',
     {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${stabilityKey}`,
         Accept: 'application/json'
       },
-      body: JSON.stringify({
-        text_prompts: [
-          {
-            text: imagePrompt,
-            weight: 1
-          },
-          {
-            text: 'blurry, bad quality, distorted, ugly, watermark',
-            weight: -1
-          }
-        ],
-        cfg_scale: 7,
-        height: 1024,
-        width: 1024,
-        samples: 1,
-        steps: 30,
-        style_preset: getStylePreset(request.estilo)
-      })
+      body: formData
     }
   )
 
   console.log('🔷 [STABILITY-LIB] Response status:', stabilityResponse.status)
   
   if (!stabilityResponse.ok) {
-    const error = await stabilityResponse.json()
-    console.error('🔷 [STABILITY-LIB] ❌ Erro da API:', error)
-    throw new Error(`Stability AI error: ${error.message || stabilityResponse.statusText}`)
+    const errorText = await stabilityResponse.text()
+    console.error('🔷 [STABILITY-LIB] ❌ Erro da API:', errorText)
+    throw new Error(`Stability AI error: ${errorText || stabilityResponse.statusText}`)
   }
 
   const stabilityData = await stabilityResponse.json()
-  console.log('🔷 [STABILITY-LIB] ✓ Resposta recebida, artifacts:', stabilityData.artifacts?.length || 0)
+  console.log('🔷 [STABILITY-LIB] ✓ Resposta recebida')
   
-  if (!stabilityData.artifacts || stabilityData.artifacts.length === 0) {
+  if (!stabilityData.image) {
     console.error('🔷 [STABILITY-LIB] ❌ Nenhuma imagem foi gerada')
     throw new Error('Stability AI não retornou nenhuma imagem')
   }
   
-  // Imagem vem em base64
-  const imageBase64 = stabilityData.artifacts[0].base64
+  // SD 3.5 retorna base64 diretamente no campo 'image'
+  const imageBase64 = stabilityData.image
   const imageUrl = `data:image/png;base64,${imageBase64}`
   
   console.log('🔷 [STABILITY-LIB] ✓ Imagem gerada:', {
@@ -152,10 +145,11 @@ function buildStabilityPrompt(
   const cores = request.coresPrincipais?.join(', ') || 'vibrant colors'
   const estilo = request.estilo || 'modern'
 
-  return `Professional Instagram post design, ${estilo} style, "${content.textoImagem}" text overlay, 
-    ${cores} color scheme, minimalist layout, high quality, sharp focus, 
-    ${request.tema} theme, social media marketing, 1024x1024 square format,
-    clean typography, professional branding, trending on instagram`
+  // SD 3.5 é EXCELENTE com texto! Prompt mais específico
+  return `Instagram post graphic design, ${estilo} style, clear readable text that says exactly "${content.textoImagem}", 
+    ${cores} color palette, clean modern layout, professional typography, 
+    ${request.tema} theme, social media format, square 1:1 ratio,
+    minimalist design, sharp focus, high quality, perfect text rendering, no text errors`
 }
 
 function getStylePreset(estilo?: string): string {

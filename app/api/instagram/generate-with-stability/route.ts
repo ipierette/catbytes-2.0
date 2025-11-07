@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generatePostWithStability } from '@/lib/stability-post-generator'
 import { createClient } from '@supabase/supabase-js'
-import { verifyAdmin } from '@/lib/api-security'
+import { verifyAdminCookie } from '@/lib/api-security'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,8 +22,11 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔷 [DEBUG STABILITY] === INICIANDO GERAÇÃO ===')
     
-    await verifyAdmin(request)
-    console.log('🔷 [DEBUG STABILITY] ✓ Admin verificado')
+    const authCheck = await verifyAdminCookie(request)
+    if (!authCheck.valid) {
+      return authCheck.error!
+    }
+    console.log('🔷 [DEBUG STABILITY] ✓ Admin verificado via cookie')
 
     const { nicho, tema, palavrasChave, estilo, quantidade = 1 } = await request.json()
 

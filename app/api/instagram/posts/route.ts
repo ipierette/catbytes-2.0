@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { instagramDB } from '@/lib/instagram-db'
-import { verifyAdmin } from '@/lib/api-security'
+import { verifyAdminCookie } from '@/lib/api-security'
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
@@ -10,7 +10,10 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
-    await verifyAdmin(request)
+    const authCheck = await verifyAdminCookie(request)
+    if (!authCheck.valid) {
+      return authCheck.error!
+    }
 
     const searchParams = request.nextUrl.searchParams
     const page = parseInt(searchParams.get('page') || '1')

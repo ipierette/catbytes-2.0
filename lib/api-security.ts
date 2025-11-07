@@ -199,7 +199,40 @@ export function getClientIP(request: Request): string {
 }
 
 /**
- * Verify admin access for protected routes
+ * Verify admin access using JWT cookie (MÉTODO PRINCIPAL)
+ * Este é o método que TODAS as rotas devem usar
+ */
+export async function verifyAdminCookie(request: Request): Promise<{ valid: boolean; error?: NextResponse }> {
+  try {
+    const { jwtVerify } = await import('jose')
+    const { cookies } = await import('next/headers')
+    
+    const cookieStore = await cookies()
+    const token = cookieStore.get('admin_token')?.value
+
+    if (!token) {
+      return {
+        valid: false,
+        error: apiError('Não autenticado - cookie ausente', 401)
+      }
+    }
+
+    // Verificar JWT
+    const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key-change-this')
+    await jwtVerify(token, JWT_SECRET)
+
+    return { valid: true }
+  } catch (error) {
+    return {
+      valid: false,
+      error: apiError('Token inválido ou expirado', 401)
+    }
+  }
+}
+
+/**
+ * Verify admin access for protected routes (MÉTODO LEGADO - NÃO USAR)
+ * @deprecated Use verifyAdminCookie() instead
  */
 export function verifyAdmin(request: Request): { valid: boolean; error?: NextResponse } {
   // Simple admin verification - in production, use proper JWT tokens
