@@ -229,33 +229,41 @@ Response: {
 
 ---
 
-### ❌ **6. Listagem de Posts (Admin)** - `/api/admin/posts`
-**Status:** ❌ **NÃO EXISTE** (usa Supabase direto)
+### ✅ **6. Listagem de Posts (Admin)** - `/api/admin/posts`
+**Status:** ✅ **IMPLEMENTADO** (07/11/2025)
 
-**Necessário Criar:**
+**Funcionalidades:**
 ```typescript
-// GET /api/admin/posts?page=1&limit=10&status=published&language=pt-BR
+// GET /api/admin/posts?page=1&limit=10&status=published&language=pt-BR&search=keyword
 
 Response: {
   posts: BlogPost[]
   total: number
   page: number
+  limit: number
   totalPages: number
+  executionTime: number
 }
 ```
 
-**Benefícios:**
-- Paginação server-side
-- Filtros (status, idioma, data)
-- Busca por texto
-- Ordenação customizada
+**Recursos Implementados:**
+- ✅ Paginação server-side (page, limit)
+- ✅ Filtros: status (draft, published, scheduled, archived)
+- ✅ Filtro de idioma (pt-BR, en-US)
+- ✅ Busca por texto (título, conteúdo)
+- ✅ Ordenação customizada (created_at, views, title)
+- ✅ Opção includeDeleted para mostrar posts deletados
+- ✅ Autenticação via JWT cookie
+- ✅ 182 lines com validação completa
+
+**Arquivo:** `app/api/admin/posts/route.ts`
 
 ---
 
-### ❌ **7. Estatísticas** - `/api/admin/blog-stats`
-**Status:** ❌ **NÃO EXISTE**
+### ✅ **7. Estatísticas** - `/api/admin/blog-stats`
+**Status:** ✅ **IMPLEMENTADO** (07/11/2025)
 
-**Necessário Criar:**
+**Funcionalidades:**
 ```typescript
 // GET /api/admin/blog-stats
 
@@ -273,68 +281,174 @@ Response: {
     month: string
     views: number
   }>
+  postsByStatus: Record<string, number>
+  postsByLanguage: Record<string, number>
+  executionTime: number
 }
 ```
+
+**Recursos Implementados:**
+- ✅ Total de posts publicados
+- ✅ Total de visualizações
+- ✅ Posts publicados este mês
+- ✅ Top 10 posts mais visualizados
+- ✅ Visualizações por mês (últimos 6 meses)
+- ✅ Posts por status (draft, published, scheduled, archived)
+- ✅ Posts por idioma (pt-BR, en-US)
+- ✅ Autenticação via JWT cookie
+- ✅ 199 lines com métricas calculadas
 
 **Dashboard Admin:**
 - Total de posts publicados
 - Posts mais visualizados
 - Crescimento de visualizações
 - Posts por idioma
+- Posts por status
+
+**Arquivo:** `app/api/admin/blog-stats/route.ts`
 
 ---
 
-### ❌ **8. Gestão de Newsletter** - `/api/admin/newsletter`
-**Status:** ❌ **NÃO EXISTE**
+### ✅ **8. Gestão de Newsletter** - `/api/admin/newsletter`
+**Status:** ✅ **IMPLEMENTADO** (07/11/2025)
 
-**Necessário Criar:**
-
-**8.1. Listar Subscribers**
+**8.1. Listar Subscribers** - ✅ **IMPLEMENTADO**
 ```typescript
-// GET /api/admin/newsletter/subscribers?page=1&verified=true
+// GET /api/admin/newsletter/subscribers?page=1&verified=true&subscribed=true&language=pt-BR&search=email@example.com
 
 Response: {
   subscribers: Array<{
     email: string
     language: string
     verified: boolean
+    subscribed: boolean
     created_at: string
+    name?: string
   }>
   total: number
+  page: number
+  limit: number
+  totalPages: number
+  executionTime: number
 }
 ```
 
-**8.2. Exportar Subscribers**
-```typescript
-// GET /api/admin/newsletter/export
+**Recursos Implementados:**
+- ✅ Paginação server-side (page, limit)
+- ✅ Filtro por verificado (verified)
+- ✅ Filtro por inscrito (subscribed)
+- ✅ Filtro por idioma (pt-BR, en-US)
+- ✅ Busca por email ou nome
+- ✅ Ordenação por data de inscrição
+- ✅ Autenticação via JWT cookie
+- ✅ 181 lines com validação completa
 
-Response: CSV file
+**Arquivo:** `app/api/admin/newsletter/subscribers/route.ts`
+
+---
+
+**8.2. Exportar Subscribers** - ✅ **IMPLEMENTADO**
+```typescript
+// GET /api/admin/newsletter/export?verified=true&subscribed=true&language=pt-BR
+
+Response: CSV file with BOM for Excel
+Headers: Email,Nome,Idioma,Verificado,Inscrito,Data de Inscrição
 ```
 
-**8.3. Enviar Newsletter Manual**
+**Recursos Implementados:**
+- ✅ Exportação em formato CSV
+- ✅ BOM (Byte Order Mark) para Excel UTF-8
+- ✅ Filtros opcionais (verified, subscribed, language)
+- ✅ Todos os dados do subscriber
+- ✅ Nome do arquivo com timestamp
+- ✅ Compatível com Excel
+- ✅ 143 lines
+
+**Arquivo:** `app/api/admin/newsletter/export/route.ts`
+
+---
+
+**8.3. Enviar Newsletter Manual** - ✅ **IMPLEMENTADO**
 ```typescript
 // POST /api/admin/newsletter/send
 {
   subject: string
   content: string
-  language?: 'pt-BR' | 'en-US'
+  language?: 'pt-BR' | 'en-US' | 'all'
+  testMode?: boolean
+}
+
+Response: {
+  success: boolean
+  sentCount: number
+  failedCount: number
+  totalSubscribers: number
+  errors?: string[]
+  executionTime: number
+  sentAt: string
 }
 ```
 
-**8.4. Métricas**
+**Recursos Implementados:**
+- ✅ Envio em lote (batch) - 50 emails por vez (limite Resend)
+- ✅ Modo de teste (envia apenas para admin)
+- ✅ Filtro por idioma (pt-BR, en-US, all)
+- ✅ Validação de campos (subject 5-100 chars, content min 50 chars)
+- ✅ Atualização de estatísticas (last_email_sent_at)
+- ✅ Tratamento de erros por batch
+- ✅ Usa Resend API
+- ✅ 264 lines - Refatorado para baixa complexidade cognitiva
+
+**Arquivo:** `app/api/admin/newsletter/send/route.ts`
+
+---
+
+**8.4. Métricas** - ✅ **IMPLEMENTADO**
 ```typescript
 // GET /api/admin/newsletter/metrics
 
 Response: {
   totalSubscribers: number
+  verifiedSubscribers: number
+  activeSubscribers: number
+  unsubscribedCount: number
   subscribersByLanguage: {
     'pt-BR': number
     'en-US': number
   }
-  recentSubscribers: Subscriber[]
+  recentSubscribers: Array<{
+    email: string
+    verified: boolean
+    subscribed_at: string
+    locale: string
+  }>
   growthRate: number
+  engagementMetrics: {
+    totalEmailsSent: number
+    totalEmailsOpened: number
+    totalEmailsClicked: number
+    averageOpenRate: number
+    averageClickRate: number
+  }
+  subscribersByMonth: Array<{
+    month: string
+    count: number
+  }>
+  executionTime: number
 }
 ```
+
+**Recursos Implementados:**
+- ✅ Total de subscribers (total, verificados, ativos)
+- ✅ Subscribers por idioma (pt-BR, en-US)
+- ✅ Últimos 10 subscribers
+- ✅ Taxa de crescimento (últimos 30 dias)
+- ✅ Métricas de engajamento (taxa de abertura, taxa de clique)
+- ✅ Subscribers por mês (últimos 6 meses)
+- ✅ Autenticação via JWT cookie
+- ✅ 197 lines com cálculos de engajamento
+
+**Arquivo:** `app/api/admin/newsletter/metrics/route.ts`
 
 ---
 
@@ -359,11 +473,15 @@ Response: {
 | SEO Avançado | ✅ Implementado | 🔴 ALTA | 07/11/2025 |
 | Sistema de Status | ✅ Implementado | 🟡 MÉDIA | 07/11/2025 |
 | Agendamento de Posts | ✅ Parcial (falta cron) | 🟢 BAIXA | 07/11/2025 |
-| Listagem Admin (server-side) | ❌ Não existe | 🟡 MÉDIA | - |
-| Estatísticas/Dashboard | ❌ Não existe | 🟢 BAIXA | - |
-| Gestão de Newsletter | ❌ Não existe | 🟡 MÉDIA | - |
+| Listagem Admin (server-side) | ✅ Implementado | 🟡 MÉDIA | 07/11/2025 |
+| Estatísticas do Blog | ✅ Implementado | 🟡 MÉDIA | 07/11/2025 |
+| Gestão de Newsletter (Lista) | ✅ Implementado | 🟡 MÉDIA | 07/11/2025 |
+| Exportar Subscribers (CSV) | ✅ Implementado | 🟢 BAIXA | 07/11/2025 |
+| Enviar Newsletter Manual | ✅ Implementado | 🔴 ALTA | 07/11/2025 |
+| Métricas de Newsletter | ✅ Implementado | 🟡 MÉDIA | 07/11/2025 |
 | Categorias/Tags | ❌ Não existe | 🟢 BAIXA | - |
 | Cascata de Deleção | ❌ Não existe | 🟢 BAIXA | - |
+| Comentários | ❌ Não existe | 🟢 BAIXA | - |
 
 ---
 
@@ -379,6 +497,54 @@ Response: {
 2. ✅ **Upload Manual de Imagens** - **IMPLEMENTADO**
    - Endpoint para upload
    - Integração com Supabase Storage
+
+3. ✅ **Soft Delete** - **IMPLEMENTADO**
+   - Campo `deleted_at`
+   - Possibilidade de restaurar
+   - View `blog_posts_active`
+   - **Arquivo:** `supabase/migrations/20251107_add_advanced_seo_and_soft_delete.sql`
+
+4. ✅ **SEO Avançado** - **IMPLEMENTADO**
+   - Meta description customizada
+   - Canonical URLs
+   - Constraints de validação
+   - **Arquivo:** `supabase/migrations/20251107_add_advanced_seo_and_soft_delete.sql`
+
+5. ✅ **Sistema de Status** - **IMPLEMENTADO**
+   - Draft, Published, Scheduled, Archived
+   - Enum com validação
+   - **Arquivo:** `supabase/migrations/20251107_add_advanced_seo_and_soft_delete.sql`
+
+---
+
+### **Fase 2: Admin Dashboard (2-3 semanas)** ✅ **COMPLETA** (07/11/2025)
+1. ✅ **Listagem de Posts (Admin)** - **IMPLEMENTADO**
+   - Paginação server-side
+   - Filtros (status, idioma, busca)
+   - Ordenação customizada
+   - **Arquivo:** `app/api/admin/posts/route.ts`
+
+2. ✅ **Estatísticas do Blog** - **IMPLEMENTADO**
+   - Total de posts e visualizações
+   - Posts mais visualizados
+   - Crescimento mensal
+   - Posts por status/idioma
+   - **Arquivo:** `app/api/admin/blog-stats/route.ts`
+
+3. ✅ **Gestão de Newsletter** - **IMPLEMENTADO**
+   - ✅ Listar subscribers com paginação
+   - ✅ Exportar para CSV
+   - ✅ Enviar newsletter manual
+   - ✅ Métricas de engajamento
+   - **Arquivos:**
+     * `app/api/admin/newsletter/subscribers/route.ts`
+     * `app/api/admin/newsletter/export/route.ts`
+     * `app/api/admin/newsletter/send/route.ts`
+     * `app/api/admin/newsletter/metrics/route.ts`
+
+---
+
+### **Fase 3: Analytics Avançado (3-4 semanas)** ⏳ **PENDENTE**
    - Validação de tipo/tamanho
    - **Arquivo:** `app/api/blog/upload-image/route.ts`
 
