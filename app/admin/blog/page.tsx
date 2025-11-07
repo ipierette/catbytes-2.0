@@ -57,8 +57,12 @@ export default function BlogAdminPage() {
     try {
       setLoading(true)
       
-      // Busca todos os posts do blog
-      const postsRes = await fetch('/api/blog/posts')
+      // Busca todos os posts do blog (incluindo não publicados)
+      // Precisa incluir credentials para passar o cookie de admin
+      const postsRes = await fetch('/api/admin/blog/posts', {
+        credentials: 'include'
+      })
+      
       if (postsRes.ok) {
         const data = await postsRes.json()
         setPosts(data.posts || [])
@@ -72,6 +76,8 @@ export default function BlogAdminPage() {
           scheduled: allPosts.filter((p: BlogPost) => p.status === 'scheduled').length
         }
         setStats(stats)
+      } else {
+        setMessage({ type: 'error', text: 'Erro ao carregar posts. Verifique se está autenticado.' })
       }
     } catch (error) {
       console.error('Error loading blog data:', error)
