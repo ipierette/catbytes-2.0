@@ -16,6 +16,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { BlogPreviewModal } from '@/components/blog/blog-preview-modal'
+import { PostModal } from '@/components/blog/post-modal'
+import type { BlogPost as BlogPostType } from '@/types/blog'
 
 interface BlogPost {
   id: string
@@ -48,6 +50,7 @@ export default function BlogAdminPage() {
   const [previewModalOpen, setPreviewModalOpen] = useState(false)
   const [previewTheme, setPreviewTheme] = useState('')
   const [generatedPost, setGeneratedPost] = useState<any>(null)
+  const [previewPost, setPreviewPost] = useState<BlogPostType | null>(null)
 
   useEffect(() => {
     loadData()
@@ -519,7 +522,7 @@ export default function BlogAdminPage() {
                           size="sm"
                           variant="outline"
                           className="gap-1"
-                          onClick={() => window.open(`/pt-BR/blog/${post.slug}`, '_blank')}
+                          onClick={() => setPreviewPost(post as unknown as BlogPostType)}
                         >
                           <Eye className="h-3 w-3" />
                           Ver
@@ -561,6 +564,13 @@ export default function BlogAdminPage() {
         onSave={handleSaveFromPreview}
         initialPost={generatedPost || {}}
         theme={previewTheme}
+      />
+      
+      {/* Modal de Preview de Post Publicado */}
+      <PostModal 
+        post={previewPost} 
+        isOpen={!!previewPost} 
+        onClose={() => setPreviewPost(null)} 
       />
     </AdminLayoutWrapper>
     </AdminGuard>

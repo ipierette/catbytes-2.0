@@ -18,6 +18,7 @@ interface PostModalProps {
 
 export function PostModal({ post, isOpen, onClose }: PostModalProps) {
   const [imageError, setImageError] = useState(false)
+  const [viewsIncremented, setViewsIncremented] = useState(false)
   const t = useTranslations('blog.modal')
   const locale = useLocale()
   const dateLocale = locale === 'pt-BR' ? ptBR : enUS
@@ -30,6 +31,21 @@ export function PostModal({ post, isOpen, onClose }: PostModalProps) {
     post?.title || '',
     isOpen && !!post // Only track when modal is open and post exists
   )
+
+  // Increment views on server when modal opens
+  useEffect(() => {
+    if (isOpen && post && !viewsIncremented) {
+      // Call the API endpoint to increment views
+      fetch(`/api/blog/posts/${post.slug}`)
+        .then(() => setViewsIncremented(true))
+        .catch(console.error)
+    }
+    
+    // Reset when modal closes
+    if (!isOpen) {
+      setViewsIncremented(false)
+    }
+  }, [isOpen, post, viewsIncremented])
 
   // Reset image error when modal opens with new post
   useEffect(() => {
