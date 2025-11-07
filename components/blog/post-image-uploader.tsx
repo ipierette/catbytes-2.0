@@ -1,18 +1,21 @@
 'use client'
 
 import { useState } from 'react'
-import { Upload, Image as ImageIcon, Check, X, Copy } from 'lucide-react'
+import { Upload, Image as ImageIcon, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 
 interface PostImageUploaderProps {
   postSlug: string
   currentCoverUrl?: string
+  currentContent?: string
   onCoverUpdated?: (newUrl: string) => void
+  onContentUpdated?: (newContent: string) => void
 }
 
-export function PostImageUploader({ postSlug, currentCoverUrl, onCoverUpdated }: PostImageUploaderProps) {
+export function PostImageUploader({ postSlug, currentCoverUrl, currentContent, onCoverUpdated, onContentUpdated }: PostImageUploaderProps) {
   const [uploadingCover, setUploadingCover] = useState(false)
   const [uploadingContent, setUploadingContent] = useState(false)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
@@ -20,6 +23,7 @@ export function PostImageUploader({ postSlug, currentCoverUrl, onCoverUpdated }:
   const [contentDescription, setContentDescription] = useState('')
   const [markdownSnippet, setMarkdownSnippet] = useState('')
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [editableContent, setEditableContent] = useState(currentContent || '')
 
   const handleCoverUpload = async (file: File) => {
     if (!file || !file.type.startsWith('image/')) {
@@ -134,9 +138,22 @@ export function PostImageUploader({ postSlug, currentCoverUrl, onCoverUpdated }:
         setMessage(null)
         setMarkdownSnippet('')
       }, 2000)
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Erro ao copiar' })
     }
+  }
+
+  const insertImageIntoContent = () => {
+    if (!markdownSnippet) return
+    
+    const cursorPosition = editableContent.length
+    const newContent = editableContent + '\n\n' + markdownSnippet + '\n\n'
+    setEditableContent(newContent)
+    onContentUpdated?.(newContent)
+    setMessage({ type: 'success', text: '✅ Imagem inserida no conteúdo!' })
+    setMarkdownSnippet('')
+    setContentPreview(null)
+    setContentDescription('')
   }
 
   return (
@@ -244,7 +261,7 @@ export function PostImageUploader({ postSlug, currentCoverUrl, onCoverUpdated }:
         {markdownSnippet && (
           <div className="space-y-2 bg-white dark:bg-gray-900 p-4 rounded-lg border border-green-300 dark:border-green-700">
             <Label className="text-sm font-semibold text-green-700 dark:text-green-400">
-              ✅ Código Markdown (cole no editor)
+              ✅ Imagem enviada!
             </Label>
             <div className="flex gap-2">
               <code className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded text-sm overflow-x-auto">
@@ -255,13 +272,50 @@ export function PostImageUploader({ postSlug, currentCoverUrl, onCoverUpdated }:
                 variant="outline"
                 size="sm"
                 className="gap-1"
+                title="Copiar markdown"
               >
                 <Copy className="w-4 h-4" />
+              </Button>
+              <Button
+                onClick={insertImageIntoContent}
+                variant="default"
+                size="sm"
+                className="gap-1 bg-green-600 hover:bg-green-700"
+              >
+                Inserir no Conteúdo
               </Button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Content Editor */}
+      {onContentUpdated && (
+        <div className="space-y-3 pt-6 border-t border-purple-200 dark:border-purple-700">
+          <Label className="text-base font-semibold">Editar Conteúdo do Post</Label>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Edite o conteúdo Markdown. As imagens já inseridas aparecerão como <code>![alt](url)</code>
+          </p>
+          
+          <Textarea
+            value={editableContent}
+            onChange={(e) => {
+              setEditableContent(e.target.value)
+              onContentUpdated(e.target.value)
+            }}
+            className="min-h-[300px] font-mono text-sm"
+            placeholder="# Título
+
+Seu conteúdo aqui...
+
+![Descrição da imagem](https://url-da-imagem.jpg)"
+          />
+          
+          <div className="text-xs text-gray-500">
+            💡 <strong>Dica:</strong> Use Markdown para formatar (**, *, ##, etc). Imagens enviadas acima podem ser inseridas automaticamente.
+          </div>
+        </div>
+      )}
     </div>
   )
 }

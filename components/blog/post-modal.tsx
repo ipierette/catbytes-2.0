@@ -21,6 +21,8 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
   const [imageError, setImageError] = useState(false)
   const [viewsIncremented, setViewsIncremented] = useState(false)
   const [coverImageUrl, setCoverImageUrl] = useState(post?.cover_image_url || '')
+  const [postContent, setPostContent] = useState(post?.content || '')
+  const [saving, setSaving] = useState(false)
   // Use pt-BR as default since this is admin context
   const locale = 'pt-BR'
   const dateLocale = ptBR
@@ -30,7 +32,10 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
     if (post?.cover_image_url) {
       setCoverImageUrl(post.cover_image_url)
     }
-  }, [post?.cover_image_url])
+    if (post?.content) {
+      setPostContent(post.content)
+    }
+  }, [post?.cover_image_url, post?.content])
 
   // Track blog post views when modal is open
   // Hook must be called at the top level - conditionally enable/disable tracking
@@ -174,11 +179,49 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
                       <PostImageUploader
                         postSlug={post.slug}
                         currentCoverUrl={coverImageUrl}
+                        currentContent={postContent}
                         onCoverUpdated={(newUrl) => {
                           setCoverImageUrl(newUrl)
                           setImageError(false)
                         }}
+                        onContentUpdated={(newContent) => {
+                          setPostContent(newContent)
+                        }}
                       />
+                      
+                      {/* Save Button */}
+                      <div className="mt-6 flex gap-3">
+                        <Button
+                          onClick={async () => {
+                            setSaving(true)
+                            try {
+                              const response = await fetch(`/api/admin/blog/posts/${post.slug}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                credentials: 'include',
+                                body: JSON.stringify({
+                                  content: postContent,
+                                  cover_image_url: coverImageUrl
+                                })
+                              })
+                              
+                              if (response.ok) {
+                                alert('✅ Post atualizado com sucesso!')
+                              } else {
+                                alert('❌ Erro ao salvar')
+                              }
+                            } catch (error) {
+                              alert('❌ Erro ao salvar')
+                            } finally {
+                              setSaving(false)
+                            }
+                          }}
+                          disabled={saving}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          {saving ? 'Salvando...' : '💾 Salvar Alterações'}
+                        </Button>
+                      </div>
                     </div>
                   )}
 
@@ -240,7 +283,9 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
                     prose-ul:text-gray-700 dark:prose-ul:text-gray-300
                     prose-ol:text-gray-700 dark:prose-ol:text-gray-300
                     prose-li:my-2"
-                    dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
+                    prose-img:rounded-xl prose-img:shadow-lg
+                    "
+                    dangerouslySetInnerHTML={{ __html: formatMarkdown(postContent) }}
                   />
 
                   {/* Share buttons */}

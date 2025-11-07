@@ -51,16 +51,16 @@ export function getRandomTopicForTheme(theme: BlogTheme): string {
  */
 export function generateImagePromptForTheme(theme: BlogTheme, title: string): string {
   const basePrompts = {
-    'Automação e Negócios': `Professional business office scene showcasing digital transformation. Modern workspace with laptop displaying automation dashboard, clean organized desk, bright natural lighting. Corporate aesthetic with technology elements (charts, graphs, digital interfaces). Colors: Blue, white, professional tones. Style: Clean, modern, business-focused. No people in frame.`,
+    'Automação e Negócios': `Cena de escritório empresarial profissional mostrando transformação digital. Espaço de trabalho moderno com laptop exibindo painel de automação, mesa limpa e organizada, iluminação natural brilhante. Estética corporativa com elementos de tecnologia (gráficos, interfaces digitais). Cores: Azul, branco, tons profissionais. Estilo: Limpo, moderno, focado em negócios. Sem pessoas na imagem.`,
     
-    'Programação e IA': `Friendly and approachable coding scene perfect for beginners. Modern laptop showing colorful code editor with HTML/CSS/JavaScript, helpful icons and illustrations around (like lightbulbs, checkmarks, beginner-friendly elements). Bright, inviting workspace with plants, coffee mug, and learning materials. Colors: Vibrant but not overwhelming - blue, green, purple accents. Style: Welcoming, educational, modern, accessible. No people in frame.`,
+    'Programação e IA': `Cena amigável e acessível de programação perfeita para iniciantes. Laptop moderno mostrando editor de código colorido com HTML/CSS/JavaScript, ícones úteis e ilustrações ao redor (como lâmpadas, marcações, elementos amigáveis para iniciantes). Espaço de trabalho convidativo com plantas, caneca de café e materiais de aprendizado. Cores: Vibrantes mas não excessivas - acentos azul, verde, roxo. Estilo: Acolhedor, educacional, moderno, acessível. Sem pessoas na imagem.`,
     
-    'Cuidados Felinos': `Cozy, warm scene with adorable kittens in a safe, comfortable environment. Soft natural lighting, plants, comfortable cat furniture, toys. Peaceful and heartwarming atmosphere. One or two cute kittens (different breeds) in focus, showing them happy and healthy. Colors: Warm tones, pastels, natural lighting. Style: Heartwarming, cozy, pet-friendly aesthetic.`,
+    'Cuidados Felinos': `Cena aconchegante e calorosa com gatinhos adoráveis em ambiente seguro e confortável. Iluminação natural suave, plantas, móveis confortáveis para gatos, brinquedos. Atmosfera pacífica e reconfortante. Um ou dois gatinhos fofos (raças diferentes) em foco, mostrando-os felizes e saudáveis. Cores: Tons quentes, pastéis, iluminação natural. Estilo: Reconfortante, acolhedor, estética pet-friendly.`,
     
-    'Novidades sobre IA': `Modern tech workspace with AI theme. Multiple monitors displaying AI models, neural networks, tech news websites, and futuristic interfaces. Sleek setup with ambient LED lighting (blue/purple glow). Tech gadgets, latest AI tools visualization, news headlines visible. Colors: Deep blue, purple, cyan, tech aesthetic. Style: Cutting-edge, news-focused, innovative, professional. No people in frame.`
+    'Novidades sobre IA': `Espaço de trabalho tech moderno com tema de IA. Múltiplos monitores exibindo modelos de IA, redes neurais, sites de notícias tech e interfaces futuristas. Setup elegante com iluminação LED ambiente (brilho azul/roxo). Gadgets tech, visualização de ferramentas de IA mais recentes, manchetes de notícias visíveis. Cores: Azul profundo, roxo, ciano, estética tech. Estilo: Vanguarda, focado em notícias, inovador, profissional. Sem pessoas na imagem.`
   }
   
-  return `${basePrompts[theme]} Professional blog header image for article about "${title}". High quality, web-ready. Aspect ratio: 16:9.`
+  return `${basePrompts[theme]} Imagem de cabeçalho de blog profissional para artigo sobre "${title}". Alta qualidade, pronta para web. Proporção: 16:9.`
 }
 
 /**
