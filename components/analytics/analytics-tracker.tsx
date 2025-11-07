@@ -91,8 +91,11 @@ export function AnalyticsTracker() {
 }
 
 // Hook para tracking de blog posts
-export function useBlogPostTracking(postId: string, postSlug: string, title: string) {
+export function useBlogPostTracking(postId: string, postSlug: string, title: string, isActive: boolean = true) {
   useEffect(() => {
+    // Only track if active (modal is open)
+    if (!isActive || !postId || !postSlug || !title) return
+
     let startTime = Date.now()
     let maxScroll = 0
 
@@ -146,7 +149,7 @@ export function useBlogPostTracking(postId: string, postSlug: string, title: str
       // Track final reading session
       trackBlogView()
     }
-  }, [postId, postSlug, title])
+  }, [postId, postSlug, title, isActive])
 }
 
 // Component para tracking de performance

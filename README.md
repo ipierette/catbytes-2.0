@@ -12,7 +12,7 @@
   </tr>
 </table>
 
-# CatBytes 2.0 — Portfólio Profissional Full Stack
+# CatBytes 2.0 — Plataforma Full Stack de Automação e Conteúdo
 
 ### 🇧🇷 Português | [🇺🇸 English](./README.en.md)
 
@@ -36,7 +36,8 @@
 - [🛠️ Stack Tecnológica](#️-stack-tecnológica)
 - [📦 Instalação e Uso](#-instalação-e-uso)
 - [🤖 Integrações com IA](#-integrações-com-ia)
-- [🗂️ Estrutura do Projeto](#️-estrutura-do-projeto)
+- [� Automação de Redes Sociais](#-automação-de-redes-sociais)
+- [�🗂️ Estrutura do Projeto](#️-estrutura-do-projeto)
 - [🎨 Design System](#-design-system)
 - [📊 Performance](#-performance)
 - [🔒 Segurança](#-segurança)
@@ -47,7 +48,14 @@
 
 ## 🎯 Sobre o Projeto
 
-**CatBytes** é um portfólio profissional full stack que demonstra a integração de tecnologias modernas para criar experiências web de alta qualidade. O projeto combina **Next.js 15**, **TypeScript** e **Inteligência Artificial** em uma aplicação bilíngue (PT-BR/EN-US) com recursos avançados.
+**CatBytes** evoluiu de um simples portfólio para uma **plataforma completa de automação de conteúdo e marketing digital**. O projeto combina **Next.js 15**, **TypeScript** e **Inteligência Artificial** para oferecer:
+
+- 🤖 **Automação de Blog** - Geração automática de artigos com IA
+- 📱 **Automação de Instagram** - Postagens automáticas com agenda
+- 📧 **Sistema de Newsletter** - Envio automatizado de conteúdo
+- 📊 **Analytics Avançado** - Google Analytics + Supabase
+- 🌐 **Bilíngue** - Conteúdo em PT-BR e EN-US
+- 🎨 **Design Moderno** - Glassmorphism + Animações
 
 ### 🎨 Filosofia do Design
 
@@ -63,40 +71,56 @@ O projeto incorpora uma identidade visual única inspirada no universo dos gatos
 
 ## ✨ O que há de Novo na 2.0
 
-### 🔄 Reescrita Completa
+### 🔄 Evolução de Portfólio para Plataforma
 
-A versão 2.0 representa uma **transformação completa** do projeto original:
+A versão 2.0 representa uma **transformação radical** do conceito original:
 
 | Aspecto | Versão 1.x | Versão 2.0 |
 |---------|-----------|-----------|
+| **Propósito** | Portfólio Pessoal | Plataforma de Automação |
 | **Framework** | HTML/CSS/JS Vanilla | Next.js 15 + TypeScript |
-| **Estilização** | CSS Modules | Tailwind CSS 3.4 |
-| **Animações** | ScrollReveal | Framer Motion |
-| **Roteamento** | Single Page | App Router + i18n |
-| **API** | Funções Serverless | Next.js API Routes (Edge) |
-| **Ícones** | Font Awesome | Lucide React |
-| **Deploy** | Vercel | Vercel (otimizado) |
+| **Backend** | Sem Backend | API Routes + Supabase |
+| **IA** | Sem IA | GPT-4 + DALL-E + Gemini |
+| **Automação** | Manual | Instagram + Blog + Newsletter |
+| **Analytics** | Google Analytics | GA4 + Search Console + Custom |
+| **Admin** | Sem Admin | Painel completo |
 
 ### 🎉 Novos Recursos Principais
 
-####  **Sistema de Blog com IA**
+#### 🤖 **Sistema de Blog com IA**
 - Geração automática de artigos com GPT-4o-mini
 - Criação de imagens de capa com DALL-E 3
 - Tradução automática PT-BR ↔ EN-US
-- Feed infinito com filtros de categoria
+- Publicação automática via CRON
 - SEO otimizado para cada post
+
+#### 📱 **Automação de Instagram**
+- Geração automática de posts com IA
+- Postagem automática via API do Facebook
+- Agenda de publicação configurável
+- Templates de design personalizados
+- Analytics de engajamento
 
 #### 📧 **Sistema de Newsletter Completo**
 - Double opt-in com verificação por email
 - Envio automático de novos posts aos assinantes
 - Templates responsivos profissionais
 - Gerenciamento via Supabase
+- Métricas de abertura e cliques
 
-#### 🌐 **Internacionalização Total**
-- Suporte completo para Português e Inglês
-- Troca de idioma dinâmica sem reload
-- URLs localizadas (catbytes.site/pt-BR, catbytes.site/en-US)
-- Todos os componentes e emails traduzidos
+#### 📊 **Analytics Avançado**
+- Google Analytics 4 integrado
+- Google Search Console para SEO
+- Métricas customizadas no Supabase
+- Dashboard admin com visualizações
+- Rastreamento de blog posts
+
+#### 🔐 **Painel Administrativo**
+- Autenticação JWT segura
+- CRUD completo de posts
+- Gerenciamento de newsletter
+- Aprovação de posts do Instagram
+- Analytics consolidado
 
 ---
 
@@ -104,26 +128,29 @@ A versão 2.0 representa uma **transformação completa** do projeto original:
 
 ### 🎨 Interface do Usuário
 
-- ✅ **Design Responsivo** - Mobile-first com 3 breakpoints (sm, md, lg)
-- ✅ **Tema Claro/Escuro** - Troca suave com detecção de preferência do sistema
-- ✅ **Animações de Página** - Transições suaves entre rotas com Framer Motion
-- ✅ **Navegação Tradicional** - Header responsivo com menu hambúrguer no mobile
-- ✅ **Hero Dinâmico** - Gato sentado com partículas animadas e estatísticas do GitHub
-- ✅ **Galeria de Projetos** - Cards interativos com hover effects e lazy loading
+- ✅ **Design Responsivo** - Mobile-first com 3 breakpoints
+- ✅ **Tema Claro/Escuro** - Troca suave com detecção automática
+- ✅ **Animações de Página** - Transições com Framer Motion
+- ✅ **Hero Dinâmico** - Gato animado + estatísticas GitHub
+- ✅ **Blog Público** - Feed de posts com paginação
+- ✅ **Galeria de Projetos** - Cards interativos
 
 ### 🤖 Recursos de IA
 
-- ✅ **Adoção de Gatos** - Encontre seu gato ideal com IA
-- ✅ **Identificação de Raças** - Upload de foto para identificar raça
-- ✅ **Gerador de Anúncios** - Crie textos publicitários com estratégia
-- ✅ **Blog Automatizado** - Posts gerados por IA com imagens
+- ✅ **Geração de Blog** - Artigos completos com IA
+- ✅ **Geração de Instagram** - Posts automatizados
+- ✅ **Adoção de Gatos** - Recomendações personalizadas
+- ✅ **Identificação de Raças** - Upload de fotos
+- ✅ **Gerador de Anúncios** - Copy publicitário
 
 ### 📊 Integrações
 
-- ✅ **GitHub Stats** - Estatísticas em tempo real dos repositórios
-- ✅ **Newsletter** - Sistema completo de assinatura e envio
-- ✅ **Analytics** - Rastreamento de visualizações e interações
-- ✅ **WhatsApp** - Botão flutuante para contato direto
+- ✅ **GitHub Stats** - Commits e linguagens em tempo real
+- ✅ **Newsletter** - Sistema completo de assinatura
+- ✅ **Google Analytics** - GA4 + Search Console
+- ✅ **Instagram API** - Postagem automática
+- ✅ **Supabase** - Database PostgreSQL
+- ✅ **Resend** - Envio profissional de emails
 
 ---
 
@@ -155,13 +182,69 @@ A versão 2.0 representa uma **transformação completa** do projeto original:
 
 - **OpenAI** `6.7.0` - GPT-4o-mini + DALL-E 3
 - **Google Generative AI** `0.21.0` - Gemini Pro
+- **Google Analytics Data** `4.9.0` - GA4 API
+- **Googleapis** `144.0.0` - Search Console API
 - **Supabase** `2.78.0` - Database PostgreSQL
 - **Resend** `6.4.0` - Envio profissional de emails
 
-###  Formulários & Validação
+### 🔒 Segurança & Validação
 
-- **React Hook Form** `7.53.2` - Gerenciamento de formulários
-- **Zod** `3.23.8` - Validação de schemas TypeScript-first
+- **Jose** `5.9.6` - JWT tokens
+- **Zod** `3.23.8` - Validação TypeScript-first
+- **React Hook Form** `7.53.2` - Formulários
+
+---
+
+## 📱 Automação de Redes Sociais
+
+### 📸 Sistema de Instagram
+
+O CatBytes inclui um sistema completo de automação para Instagram:
+
+#### **Fluxo de Postagem**
+```
+1. Geração → 2. Revisão → 3. Aprovação → 4. Publicação
+```
+
+#### **Features**
+- ✅ Geração automática de:
+  - Imagens (DALL-E 3 ou Stability AI)
+  - Captions (GPT-4 otimizado para Instagram)
+  - Hashtags relevantes
+- ✅ Tipos de posts suportados:
+  - Feed posts (imagem única)
+  - Carrosséis (múltiplas imagens)
+  - Stories (em desenvolvimento)
+- ✅ Agenda de publicação:
+  - Configurável por horários
+  - Fila de aprovação
+  - Logs de erro
+- ✅ Analytics:
+  - Alcance e impressões
+  - Engajamento (likes, comments)
+  - Crescimento de seguidores
+
+#### **Nichos Disponíveis**
+- 🐱 Cuidados Felinos
+- 💻 Programação & Tech
+- 🤖 Automação & IA
+- 📊 Negócios & Marketing
+
+#### **API Endpoints**
+```typescript
+// Gerar novo post
+POST /api/instagram/generate
+{
+  "nicho": "cuidados_felinos",
+  "tema": "Alimentação saudável"
+}
+
+// Aprovar post pendente
+POST /api/instagram/approve/:id
+
+// Publicar automaticamente
+POST /api/instagram/publish/:id
+```
 
 ---
 

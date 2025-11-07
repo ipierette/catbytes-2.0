@@ -23,12 +23,13 @@ export function PostModal({ post, isOpen, onClose }: PostModalProps) {
   const dateLocale = locale === 'pt-BR' ? ptBR : enUS
 
   // Track blog post views when modal is open
-  useEffect(() => {
-    if (isOpen && post) {
-      // Start tracking when modal opens
-      useBlogPostTracking(post.id, post.slug, post.title)
-    }
-  }, [isOpen, post])
+  // Hook must be called at the top level - conditionally enable/disable tracking
+  useBlogPostTracking(
+    post?.id || '', 
+    post?.slug || '', 
+    post?.title || '',
+    isOpen && !!post // Only track when modal is open and post exists
+  )
 
   // Reset image error when modal opens with new post
   useEffect(() => {
