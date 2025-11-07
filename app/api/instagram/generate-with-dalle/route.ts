@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { generateInstagramPostWithDALLE, downloadAndSaveDALLEImage, NICHE_TEMPLATES } from '@/lib/dalle-canvas-post-generator'
+import { generatePostWithLeonardo } from '@/lib/dalle-canvas-post-generator'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdminCookie } from '@/lib/api-security'
 
@@ -53,10 +53,6 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Usar template do nicho se disponível
-    const nicheTemplate = NICHE_TEMPLATES[nicho as keyof typeof NICHE_TEMPLATES]
-    console.log('🟣 [DEBUG DALL-E] Template do nicho:', nicheTemplate ? 'Encontrado' : 'Usando padrão')
-
     const generatedPosts = []
     const errors = []
 
@@ -65,14 +61,12 @@ export async function POST(request: NextRequest) {
         console.log(`🟣 [DEBUG DALL-E] === POST ${i + 1}/${quantidade} ===`)
         
         // 1. Gerar com DALL-E 3
-        console.log('🟣 [DEBUG DALL-E] Chamando generateInstagramPostWithDALLE...')
-        const post = await generateInstagramPostWithDALLE({
+        console.log('🟣 [DEBUG DALL-E] Chamando generatePostWithLeonardo...')
+        const post = await generatePostWithLeonardo({
           nicho,
           tema: quantidade > 1 ? `${tema} - Variação ${i + 1}` : tema,
-          palavrasChave: palavrasChave || nicheTemplate?.palavrasChave || [],
-          estilo: estilo || nicheTemplate?.estilo || 'moderno',
-          coresPrincipais: nicheTemplate?.coresPrincipais,
-          incluirLogo: true
+          palavrasChave: palavrasChave || [],
+          estilo: estilo || 'moderno'
         })
         
         console.log('🟣 [DEBUG DALL-E] ✓ Post gerado:', {
@@ -103,16 +97,12 @@ export async function POST(request: NextRequest) {
           continue
         }
         
-        console.log('🟣 [DEBUG DALL-E] ✓ Post salvo no DB, ID:', tempPost.id)
+        console.log('🟣 [DEBUG DALL-E] ✓ Post criado no DB com ID:', tempPost.id)
 
-        // 3. Baixar e salvar imagem permanentemente
-        console.log('🟣 [DEBUG DALL-E] Baixando e salvando imagem...')
-        const permanentUrl = await downloadAndSaveDALLEImage(
-          post.imageUrl,
-          tempPost.id
-        )
+        // 3. Usar a URL da imagem diretamente (já vem permanente do DALL-E)
+        const permanentUrl = post.imageUrl
         
-        console.log('🟣 [DEBUG DALL-E] ✓ Imagem salva:', permanentUrl)
+        console.log('🟣 [DEBUG DALL-E] ✓ Usando URL da imagem:', permanentUrl)
 
         // 4. Atualizar post com URL permanente
         console.log('🟣 [DEBUG DALL-E] Atualizando post com URL permanente...')
@@ -233,7 +223,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      templates: NICHE_TEMPLATES,
       estilos: [
         'moderno',
         'minimalista',
