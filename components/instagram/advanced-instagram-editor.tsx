@@ -12,6 +12,7 @@ import { Slider } from '@/components/ui/slider'
 import Image from 'next/image'
 import { Bold, Italic, Sparkles, Plus, Trash2 } from 'lucide-react'
 import { HexColorPicker } from 'react-colorful'
+import { useToast } from '@/components/ui/toast'
 
 interface TextLayer {
   id: string
@@ -65,6 +66,7 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
   const [isGeneratingAI, setIsGeneratingAI] = useState(false)
   const [activeTab, setActiveTab] = useState('content')
   const [showColorPicker, setShowColorPicker] = useState(false)
+  const { showToast } = useToast()
   
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const imageContainerRef = useRef<HTMLDivElement>(null)
@@ -221,7 +223,7 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
       }
     } catch (error) {
       console.error('Error generating AI suggestions:', error)
-      alert('Erro ao gerar sugestões. Tente novamente.')
+      showToast('Erro ao gerar sugestões. Tente novamente.', 'error')
     } finally {
       setIsGeneratingAI(false)
     }
@@ -324,7 +326,7 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
       onClose()
     } catch (error) {
       console.error('Error saving:', error)
-      alert('Erro ao salvar post. Tente novamente.')
+      showToast('Erro ao salvar post. Tente novamente.', 'error')
     } finally {
       setIsSaving(false)
     }

@@ -8,6 +8,7 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useState } from 'react'
 import { useAdmin } from '@/hooks/use-admin'
+import { useToast } from '@/components/ui/toast'
 
 interface PostCardProps {
   post: BlogPost
@@ -20,6 +21,7 @@ interface PostCardProps {
 export function PostCard({ post, onClick, index = 0, onDelete, onTranslate }: PostCardProps) {
   const [imageError, setImageError] = useState(false)
   const { isAdmin } = useAdmin()
+  const { showToast } = useToast()
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -33,12 +35,12 @@ export function PostCard({ post, onClick, index = 0, onDelete, onTranslate }: Po
 
       if (response.ok) {
         onDelete?.()
-        alert('Post deletado com sucesso!')
+        showToast('Post deletado com sucesso!', 'success')
       } else {
-        alert('Erro ao deletar post')
+        showToast('Erro ao deletar post', 'error')
       }
     } catch (error) {
-      alert('Erro ao deletar post')
+      showToast('Erro ao deletar post', 'error')
       console.error(error)
     }
   }
@@ -57,12 +59,12 @@ export function PostCard({ post, onClick, index = 0, onDelete, onTranslate }: Po
 
       if (response.ok) {
         onTranslate?.()
-        alert('Post traduzido com sucesso!')
+        showToast('Post traduzido com sucesso!', 'success')
       } else {
-        alert('Erro ao traduzir post')
+        showToast('Erro ao traduzir post', 'error')
       }
     } catch (error) {
-      alert('Erro ao traduzir post')
+      showToast('Erro ao traduzir post', 'error')
       console.error(error)
     }
   }

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Comfortaa } from 'next/font/google'
-// Removed unused imports: routing, notFound
+import { ToastProvider } from '@/components/ui/toast'
 import './globals.css'
 
 const inter = Inter({
@@ -51,7 +51,6 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
     apple: '/apple-touch-icon.png',
   },
-  manifest: '/manifest.json',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
     { media: '(prefers-color-scheme: dark)', color: '#0f0617' }
@@ -119,14 +118,16 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang={resolvedParams?.locale || 'pt-BR'} className={`${inter.variable} ${comfortaa.variable}`}>
+    <html lang={resolvedParams?.locale || 'pt-BR'} className={`${inter.variable} ${comfortaa.variable}`} suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="bg-background text-foreground">{children}</body>
+      <body className="bg-background text-foreground" suppressHydrationWarning>
+        <ToastProvider>{children}</ToastProvider>
+      </body>
     </html>
   )
 }

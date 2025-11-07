@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { getSuggestions, hasCachedSuggestions } from '@/lib/instagram-suggestions-cache'
+import { useToast } from '@/components/ui/toast'
 
 interface DALLEConfigModalProps {
   open: boolean
@@ -44,6 +45,7 @@ export function DALLEConfigModal({ open, onClose, onGenerate, mode = 'dalle' }: 
   const [estilo, setEstilo] = useState<string>('moderno')
   const [palavrasChave, setPalavrasChave] = useState<string>('')
   const [loadingSuggestion, setLoadingSuggestion] = useState(false)
+  const { showToast } = useToast()
 
   const isDALLE = mode === 'dalle'
   const isNano = mode === 'nano'
@@ -84,10 +86,10 @@ export function DALLEConfigModal({ open, onClose, onGenerate, mode = 'dalle' }: 
       setPalavrasChave(suggestion.palavrasChave.join(', '))
       
       const cacheMsg = fromCache ? ' (♻️ do cache)' : ' (🆕 gerado agora)'
-      alert(`✨ Sugestão aplicada${cacheMsg}! Você pode editar os campos antes de gerar.`)
+      showToast(`✨ Sugestão aplicada${cacheMsg}! Você pode editar os campos antes de gerar.`, 'success')
     } catch (error) {
       console.error('Erro ao buscar sugestão:', error)
-      alert('❌ Erro ao buscar sugestão da IA')
+      showToast('Erro ao buscar sugestão da IA', 'error')
     } finally {
       setLoadingSuggestion(false)
     }
@@ -95,7 +97,7 @@ export function DALLEConfigModal({ open, onClose, onGenerate, mode = 'dalle' }: 
 
   const handleGenerate = () => {
     if (!nicho || !tema) {
-      alert('Nicho e tema são obrigatórios!')
+      showToast('Nicho e tema são obrigatórios!', 'warning')
       return
     }
 
