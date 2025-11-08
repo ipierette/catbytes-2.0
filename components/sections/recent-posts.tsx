@@ -12,6 +12,7 @@ import { ptBR, enUS } from 'date-fns/locale'
 import { PostModal } from '@/components/blog/post-modal'
 import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
 import { useTranslations } from 'next-intl'
+import { blogSync } from '@/lib/blog-sync'
 
 export function RecentPosts() {
   const [posts, setPosts] = useState<BlogPost[]>([])
@@ -47,6 +48,24 @@ export function RecentPosts() {
     }
 
     fetchRecentPosts()
+  }, [])
+
+  // Subscribe to blog sync updates
+  useEffect(() => {
+    const unsubscribe = blogSync.subscribe((updatedPost) => {
+      setPosts((prev) => 
+        prev.map((p) => 
+          p.id === updatedPost.id ? updatedPost : p
+        )
+      )
+      
+      // Also update selected post if it's open
+      setSelectedPost((prev) => 
+        prev?.id === updatedPost.id ? updatedPost : prev
+      )
+    })
+
+    return unsubscribe
   }, [])
 
   // Handle view increment from modal

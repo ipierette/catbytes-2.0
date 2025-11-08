@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import { useBlogPostTracking } from '@/components/analytics/analytics-tracker'
 import { PostImageUploader } from '@/components/blog/post-image-uploader'
 import { Button } from '@/components/ui/button'
+import { blogSync } from '@/lib/blog-sync'
 
 interface PostModalProps {
   post: BlogPost | null
@@ -63,10 +64,14 @@ export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncr
         .then((updatedPost) => {
           setViewsIncremented(true)
           console.log('[PostModal] View incremented for:', post.slug, 'New views:', updatedPost.views)
-          // Notify parent component of the updated post
+          
+          // Notify parent component
           if (onViewIncremented) {
             onViewIncremented(updatedPost)
           }
+          
+          // Notify all other components via blogSync
+          blogSync.notifyUpdate(updatedPost)
         })
         .catch((err) => {
           console.error('[PostModal] Failed to increment view:', err)

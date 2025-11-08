@@ -7,6 +7,7 @@ import { BookOpen, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { PostCard } from '@/components/blog/post-card'
 import { PostModal } from '@/components/blog/post-modal'
 import type { BlogPost, PaginatedBlogPosts } from '@/types/blog'
+import { blogSync } from '@/lib/blog-sync'
 
 export default function BlogPage() {
   const params = useParams()
@@ -46,14 +47,27 @@ export default function BlogPage() {
     fetchPosts()
   }, [currentPage, locale])
 
-  const handleRefresh = async () => {
-    // Reset to page 1 and refetch
-    if (currentPage !== 1) {
-      setCurrentPage(1)
-    } else {
-      await fetchPosts()
-    }
-  }
+  // Subscribe to blog sync updates
+  useEffect(() => {
+    const unsubscribe = blogSync.subscribe((updatedPost) => {
+      setPosts((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          posts: prev.posts.map((p) => 
+            p.id === updatedPost.id ? updatedPost : p
+          ),
+        }
+      })
+      
+      // Also update selected post if it's open
+      setSelectedPost((prev) => 
+        prev?.id === updatedPost.id ? updatedPost : prev
+      )
+    })
+
+    return unsubscribe
+  }, [])
 
   // Handle view increment from modal
   const handleViewIncremented = (updatedPost: BlogPost) => {
@@ -133,8 +147,6 @@ export default function BlogPage() {
                   post={post}
                   onClick={() => setSelectedPost(post)}
                   index={index}
-                  onDelete={handleRefresh}
-                  onTranslate={handleRefresh}
                 />
               ))}
             </div>
