@@ -135,11 +135,24 @@ export const db = {
 
   // Increment views
   async incrementViews(postId: string) {
-    const { error } = await supabase.rpc('increment_post_views', {
-      post_id: postId,
-    })
+    try {
+      // Use admin client for RPC calls in Edge runtime
+      const { data, error } = await supabaseAdmin.rpc('increment_post_views', {
+        post_id: postId,
+      })
 
-    if (error) console.error('Error incrementing views:', error)
+      if (error) {
+        console.error('Error incrementing views:', error)
+        console.error('Post ID:', postId)
+        return false
+      }
+      
+      console.log('[Views] Incremented views for post:', postId)
+      return true
+    } catch (err) {
+      console.error('Exception incrementing views:', err)
+      return false
+    }
   },
 
   // Get total post count
