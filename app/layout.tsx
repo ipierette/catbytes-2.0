@@ -26,12 +26,32 @@ export const metadata: Metadata = {
     },
   },
   title: {
-    default: 'Izadora Cury Pierette | CatBytes — Portfólio Criativo',
+    default: 'CatBytes | Izadora Cury Pierette — Portfólio de Desenvolvimento Web e IA',
     template: '%s | CatBytes'
   },
-  description: 'Conheça projetos que unem design moderno, código limpo e soluções com inteligência artificial e automação.',
-  keywords: ['react', 'next.js', 'desenvolvedor front-end', 'portfolio', 'web development', 'AI'],
-  authors: [{ name: 'Izadora Cury Pierette' }],
+  description: 'CatBytes é o portfólio de Izadora Cury Pierette, desenvolvedora full-stack especializada em React, Next.js, TypeScript e soluções com inteligência artificial. Projetos que unem design moderno, código limpo e automação.',
+  keywords: [
+    'CatBytes',
+    'Izadora Cury Pierette',
+    'Izadora Pierette',
+    'desenvolvedor react',
+    'desenvolvedor next.js',
+    'desenvolvedor typescript',
+    'portfolio desenvolvedor',
+    'full stack developer',
+    'front-end developer',
+    'inteligência artificial',
+    'automação web',
+    'React',
+    'Next.js',
+    'TypeScript',
+    'Tailwind CSS',
+    'web development',
+    'AI automation',
+    'chatbot development',
+    'UI/UX design'
+  ],
+  authors: [{ name: 'Izadora Cury Pierette', url: 'https://catbytes.site' }],
   creator: 'Izadora Cury Pierette',
   publisher: 'CatBytes',
   robots: {
@@ -74,23 +94,32 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'pt_BR',
     url: 'https://catbytes.site',
-    title: 'Izadora Cury Pierette | CatBytes — Portfólio Criativo',
-    description: 'Conheça projetos que unem design moderno, código limpo e soluções com inteligência artificial e automação.',
+    title: 'CatBytes | Izadora Cury Pierette — Portfólio de Desenvolvimento Web e IA',
+    description: 'Portfólio de Izadora Cury Pierette: projetos que unem design moderno, código limpo e soluções com inteligência artificial. Especialista em React, Next.js e automação.',
     siteName: 'CatBytes',
     images: [
       {
         url: '/images/og-1200x630-safe.webp',
         width: 1200,
         height: 630,
-        alt: 'CatBytes Portfolio',
+        alt: 'CatBytes - Portfólio de Izadora Cury Pierette',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Izadora Cury Pierette | CatBytes — Portfólio Criativo',
-    description: 'Conheça projetos que unem design moderno, código limpo e soluções com inteligência artificial e automação.',
+    title: 'CatBytes | Izadora Cury Pierette — Portfólio de Desenvolvimento Web e IA',
+    description: 'Portfólio de Izadora Cury Pierette: projetos que unem design moderno, código limpo e soluções com inteligência artificial.',
     images: ['/images/og-1200x630-safe.webp'],
+    creator: '@catbytes',
+    site: '@catbytes',
+  },
+  alternates: {
+    canonical: 'https://catbytes.site',
+    languages: {
+      'pt-BR': 'https://catbytes.site/pt-BR',
+      'en-US': 'https://catbytes.site/en-US',
+    },
   },
 }
 
@@ -107,17 +136,80 @@ export default async function RootLayout({
   // JSON-LD Structured Data for SEO
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Izadora Cury Pierette',
-    jobTitle: 'Full Stack Developer & Designer',
-    url: 'https://catbytes.site',
-    image: 'https://catbytes.site/images/og-1200x630-safe.webp',
-    sameAs: [
-      'https://github.com/izadoracury',
-      'https://www.linkedin.com/in/izadoracury',
-    ],
-    knowsAbout: ['Web Development', 'React', 'Next.js', 'AI Automation', 'UX/UI Design'],
-    description: 'Desenvolvedora Full Stack especializada em React, Next.js e soluções com inteligência artificial',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        '@id': 'https://catbytes.site/#website',
+        url: 'https://catbytes.site',
+        name: 'CatBytes',
+        description: 'Portfólio de desenvolvimento web, IA e automação de Izadora Cury Pierette',
+        publisher: {
+          '@id': 'https://catbytes.site/#person'
+        },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://catbytes.site/pt-BR/blog?search={search_term_string}'
+          },
+          'query-input': 'required name=search_term_string'
+        },
+        inLanguage: ['pt-BR', 'en-US']
+      },
+      {
+        '@type': 'Person',
+        '@id': 'https://catbytes.site/#person',
+        name: 'Izadora Cury Pierette',
+        alternateName: 'Izadora Pierette',
+        jobTitle: 'Full Stack Developer & AI Specialist',
+        url: 'https://catbytes.site',
+        image: {
+          '@type': 'ImageObject',
+          url: 'https://catbytes.site/images/og-1200x630-safe.webp',
+          width: 1200,
+          height: 630
+        },
+        sameAs: [
+          'https://github.com/izadoracury',
+          'https://www.linkedin.com/in/izadoracury',
+        ],
+        knowsAbout: [
+          'Web Development',
+          'React',
+          'Next.js',
+          'TypeScript',
+          'Tailwind CSS',
+          'AI Automation',
+          'Chatbot Development',
+          'UX/UI Design',
+          'Front-end Development',
+          'Full Stack Development'
+        ],
+        description: 'Desenvolvedora Full Stack especializada em React, Next.js, TypeScript e soluções com inteligência artificial. Criadora do portfólio CatBytes.',
+        worksFor: {
+          '@type': 'Organization',
+          name: 'CatBytes',
+          url: 'https://catbytes.site'
+        }
+      },
+      {
+        '@type': 'Organization',
+        '@id': 'https://catbytes.site/#organization',
+        name: 'CatBytes',
+        url: 'https://catbytes.site',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://catbytes.site/images/og-1200x630-safe.webp'
+        },
+        description: 'Portfólio de projetos de desenvolvimento web, inteligência artificial e automação',
+        founder: {
+          '@id': 'https://catbytes.site/#person'
+        },
+        sameAs: [
+          'https://github.com/izadoracury',
+        ]
+      }
+    ]
   }
 
   return (

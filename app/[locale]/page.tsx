@@ -8,10 +8,12 @@ import { Curiosities } from '@/components/sections/curiosities'
 import { AIFeatures } from '@/components/sections/ai-features'
 import { RecentPosts } from '@/components/sections/recent-posts'
 import { Contact } from '@/components/sections/contact'
+import { SEOContent } from '@/components/sections/seo-content'
 
 export default function Home() {
   return (
     <>
+      <SEOContent />
       <Hero />
       <About />
       <Skills />
