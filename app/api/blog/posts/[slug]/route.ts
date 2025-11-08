@@ -27,8 +27,16 @@ export async function GET(
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
     }
 
+    console.log('[API] Post found:', { id: post.id, slug: post.slug, currentViews: post.views })
+
     // Increment views (fire and forget)
-    db.incrementViews(post.id).catch(console.error)
+    db.incrementViews(post.id)
+      .then((success) => {
+        console.log('[API] incrementViews result:', success)
+      })
+      .catch((err) => {
+        console.error('[API] incrementViews error:', err)
+      })
 
     return NextResponse.json(post, {
       headers: {
