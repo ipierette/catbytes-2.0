@@ -33,26 +33,69 @@
 
 ### 1. Google Search Console ⚠️ **PRIORITÁRIO**
 
-**Passos para configurar:**
+**⚠️ ERRO: "O URL não está na propriedade"**
+
+Se você viu esse erro, significa que precisa **PRIMEIRO adicionar a propriedade** no Search Console.
+
+**Passos CORRETOS para configurar:**
+
+**PASSO 1: Adicionar Propriedade**
 
 1. **Acesse:** https://search.google.com/search-console
-2. **Adicione a propriedade:** `https://catbytes.site`
-3. **Verificação:** Já está verificado via meta tag no código
-4. **Submeta o sitemap:**
-   - Vá em "Sitemaps"
-   - Adicione: `https://catbytes.site/sitemap.xml`
-   - Clique em "Enviar"
+2. **No canto superior esquerdo**, clique no dropdown de propriedades
+3. **Clique em "Adicionar propriedade"**
+4. **Escolha:** "Prefixo do URL" (NÃO escolha "Domínio")
+5. **Digite:** `https://catbytes.site` (COM o https://)
+6. **Clique em "Continuar"**
 
-5. **Solicite indexação manual:**
-   - Vá em "Inspeção de URL"
-   - Digite: `https://catbytes.site`
-   - Clique em "Solicitar indexação"
-   - Repita para: 
-     - `https://catbytes.site/pt-BR`
-     - `https://catbytes.site/en-US`
-     - `https://catbytes.site/pt-BR/blog`
+**PASSO 2: Verificação**
 
-**Tempo de indexação:** 3-7 dias normalmente, mas pode solicitar indexação urgente.
+O Google vai mostrar várias opções de verificação. Use a **Tag HTML** (mais fácil):
+
+1. **Escolha:** "Tag HTML"
+2. **Copie o código** que aparece (já está no seu site!)
+3. O código já está em `app/layout.tsx`:
+   ```tsx
+   verification: {
+     google: 'x6dGmR7woC-z7VVaZottGIYO-gmCCEkNBzv9b9qWmgw'
+   }
+   ```
+4. **Clique em "Verificar"**
+5. ✅ **Sucesso!** A propriedade foi adicionada
+
+**PASSO 3: Submeter Sitemap**
+
+Agora sim você pode submeter o sitemap:
+
+1. **No menu lateral esquerdo**, clique em "Sitemaps"
+2. **Em "Adicionar um novo sitemap"**, digite: `sitemap.xml`
+3. **Clique em "Enviar"**
+4. ✅ Aguarde alguns minutos. O status deve mudar para "Sucesso"
+
+**PASSO 4: Solicitar Indexação Manual**
+
+1. **No menu lateral**, clique em "Inspeção de URL"
+2. **Na barra de pesquisa no topo**, digite: `https://catbytes.site`
+3. **Aguarde a análise** (pode levar 1-2 minutos)
+4. **Clique em "Solicitar indexação"**
+5. **Aguarde** (pode levar 1-2 minutos para processar)
+6. ✅ Pronto! Você verá "Solicitação de indexação enviada"
+
+**Repita para as páginas principais:**
+- `https://catbytes.site/pt-BR`
+- `https://catbytes.site/en-US`
+- `https://catbytes.site/pt-BR/blog`
+
+**Tempo de indexação:** 
+- **Urgente:** 1-3 dias (se solicitar indexação manual)
+- **Normal:** 3-7 dias (apenas com sitemap)
+- **Primeira vez:** Pode levar até 2 semanas
+
+**Dica:** Depois de solicitar indexação, pesquise no Google:
+```
+site:catbytes.site
+```
+Se aparecer resultados, está indexado! 🎉
 
 ---
 
