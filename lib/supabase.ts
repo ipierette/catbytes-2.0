@@ -136,6 +136,11 @@ export const db = {
   // Increment views
   async incrementViews(postId: string) {
     try {
+      if (!supabaseAdmin) {
+        console.error('Error incrementing views: supabaseAdmin not configured')
+        return false
+      }
+
       // Use admin client for RPC calls in Edge runtime
       const { data, error } = await supabaseAdmin.rpc('increment_post_views', {
         post_id: postId,
