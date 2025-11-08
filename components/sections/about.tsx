@@ -86,83 +86,23 @@ export function About() {
                 )
               })}
             </div>
+
+            {/* Botão Sobre o CatBytes */}
+            <motion.button
+              onClick={() => setShowCatBytesStory(true)}
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: 0.8 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="mt-8 w-full md:w-auto px-8 py-4 bg-gradient-to-r from-catbytes-purple to-catbytes-pink text-white rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3"
+            >
+              <Sparkles className="w-5 h-5" />
+              {t('catbytes.buttonText')}
+              <FaCat className="w-5 h-5" />
+            </motion.button>
           </motion.div>
         </div>
-
-        {/* Sobre o CatBytes - História do Nome */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-20 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-3xl p-8 md:p-12 border-2 border-purple-200 dark:border-purple-700"
-        >
-          <h3 className="text-3xl md:text-4xl font-comfortaa font-bold text-center mb-8 flex items-center justify-center gap-3">
-            <FaCat className="text-orange-500 dark:text-orange-400" />
-            <span className="bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent">
-              {t('about.catbytes.title')}
-            </span>
-          </h3>
-
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.8, delay: 1 }}
-              className="space-y-4"
-            >
-              <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
-                {t('about.catbytes.paragraph1')}
-              </p>
-              <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
-                {t('about.catbytes.paragraph2')}
-              </p>
-              <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
-                {t('about.catbytes.paragraph3')}
-              </p>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border-l-4 border-catbytes-purple">
-                <p className="text-base italic text-gray-600 dark:text-gray-400">
-                  &quot;{t('about.catbytes.quote')}&quot;
-                </p>
-              </div>
-              
-              {/* Botão para abrir modal */}
-              <motion.button
-                onClick={() => setShowCatBytesStory(true)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="mt-6 w-full md:w-auto px-8 py-4 bg-gradient-to-r from-catbytes-purple to-catbytes-pink text-white rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3"
-              >
-                <Sparkles className="w-5 h-5" />
-                {t('catbytes.buttonText')}
-                <FaCat className="w-5 h-5" />
-              </motion.button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.8, delay: 1.2 }}
-              whileHover={{ scale: 1.05, rotate: 2 }}
-              className="relative"
-            >
-              <Image
-                src="/images/axel-adulto.webp"
-                alt={t('about.catbytes.imageAlt')}
-                width={500}
-                height={500}
-                className="rounded-2xl shadow-2xl mx-auto border-4 border-orange-400 dark:border-orange-500"
-              />
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ delay: 1.5, duration: 0.5 }}
-                className="absolute -bottom-4 -right-4 bg-gradient-to-r from-catbytes-purple to-catbytes-pink text-white px-6 py-3 rounded-full shadow-lg font-bold"
-              >
-                {t('about.catbytes.badge')}
-              </motion.div>
-            </motion.div>
-          </div>
-        </motion.div>
       </div>
       
       {/* Modal da História do CatBytes */}
