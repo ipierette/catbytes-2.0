@@ -345,5 +345,29 @@
     "subscribing": "Subscribing...",
     "subscribeButton": "Subscribe for Free",
     "frequency": "We send articles 3x per week. Cancel anytime."
+  },
+  "mobileDashboard": {
+    "greeting": "Hello, I'm Izadora! 👋",
+    "role": "Front-end Developer",
+    "explore": "Explore",
+    "highlights": {
+      "projects": {
+        "title": "Featured Projects",
+        "description": "Explore my development portfolio"
+      },
+      "blog": {
+        "title": "Tech Blog",
+        "description": "Articles about React, Next.js and AI"
+      },
+      "felineAI": {
+        "title": "Feline AI",
+        "description": "AI tools for cats"
+      }
+    },
+    "cta": {
+      "title": "Let's work together?",
+      "description": "Get in touch to discuss your project",
+      "button": "View Full Profile"
+    }
   }
 }

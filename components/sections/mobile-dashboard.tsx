@@ -4,29 +4,30 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Sparkles, BookOpen, Briefcase } from 'lucide-react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 
 export function MobileDashboard() {
   const locale = useLocale()
+  const t = useTranslations('mobileDashboard')
 
   const highlights = [
     {
-      title: 'Projetos em Destaque',
-      description: 'Explore meu portfólio de desenvolvimento',
+      title: t('highlights.projects.title'),
+      description: t('highlights.projects.description'),
       icon: Briefcase,
       href: `/${locale}/projetos`,
       gradient: 'from-purple-500 to-pink-500'
     },
     {
-      title: 'Blog Tech',
-      description: 'Artigos sobre React, Next.js e IA',
+      title: t('highlights.blog.title'),
+      description: t('highlights.blog.description'),
       icon: BookOpen,
       href: `/${locale}/blog`,
       gradient: 'from-blue-500 to-cyan-500'
     },
     {
-      title: 'IA Felina',
-      description: 'Ferramentas de IA para gatos',
+      title: t('highlights.felineAI.title'),
+      description: t('highlights.felineAI.description'),
       icon: Sparkles,
       href: `/${locale}/ia-felina`,
       gradient: 'from-pink-500 to-rose-500'
@@ -55,11 +56,11 @@ export function MobileDashboard() {
           </div>
           
           <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent dark:from-purple-400 dark:to-pink-400">
-            Olá, sou Izadora! 👋
+            {t('greeting')}
           </h1>
           
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-2">
-            Desenvolvedora Front-end
+            {t('role')}
           </p>
           
           <div className="flex flex-wrap justify-center gap-2 mt-4">
@@ -79,7 +80,7 @@ export function MobileDashboard() {
       {/* Cards de Destaque */}
       <section className="px-6 pb-8">
         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-          Explore
+          {t('explore')}
         </h2>
         
         <div className="space-y-4">
@@ -129,14 +130,14 @@ export function MobileDashboard() {
           className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-6 text-white text-center shadow-xl"
         >
           <h3 className="text-xl font-bold mb-2">
-            Vamos trabalhar juntos?
+            {t('cta.title')}
           </h3>
           <p className="text-purple-100 mb-4 text-sm">
-            Entre em contato para discutir seu projeto
+            {t('cta.description')}
           </p>
           <Link href={`/${locale}/sobre`}>
             <button className="bg-white text-purple-600 px-6 py-3 rounded-xl font-semibold hover:bg-purple-50 transition-colors w-full max-w-xs">
-              Ver Perfil Completo
+              {t('cta.button')}
             </button>
           </Link>
         </motion.div>

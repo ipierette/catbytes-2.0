@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Header } from './header'
 import { Footer } from './footer'
+import { WhatsAppButton } from '@/components/ui/whatsapp-button'
+import { BackToTop } from '@/components/ui/back-to-top'
 
 interface DesktopLayoutProps {
   children: React.ReactNode
@@ -48,6 +50,8 @@ export function DesktopLayout({ children }: DesktopLayoutProps) {
       <Header />
       {children}
       {!isAdminRoute && <Footer />}
+      <WhatsAppButton />
+      <BackToTop />
     </>
   )
 }
