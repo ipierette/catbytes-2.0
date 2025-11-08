@@ -86,6 +86,27 @@ Agora sim você pode submeter o sitemap:
 - `https://catbytes.site/en-US`
 - `https://catbytes.site/pt-BR/blog`
 
+**⚠️ ERRO Soft 404 na página do blog?**
+
+Se você ver "Erro soft 404" ao inspecionar `/pt-BR/blog`, não se preocupe! 
+
+**Causa:** Página carrega via JavaScript (client-side), Google vê conteúdo vazio inicialmente.
+
+**Solução já implementada:**
+- ✅ Criado `blog/layout.tsx` com metadata rica
+- ✅ Adicionado conteúdo SEO invisível mas rastreável
+- ✅ Keywords específicas para blog
+
+**O que fazer:**
+1. **Aguarde 24-48 horas** - Google vai re-rastrear e detectar o conteúdo
+2. **Publique 2-3 posts de blog** - Conteúdo real ajuda muito!
+3. **Não force indexação repetidamente** - Pode ser contraproducente
+
+**Como verificar se resolveu:**
+Após 2 dias, inspecione novamente. O status deve mudar para:
+- ✅ "URL está no Google" 
+- ✅ "Informação definida somente após a indexação"
+
 **Tempo de indexação:** 
 - **Urgente:** 1-3 dias (se solicitar indexação manual)
 - **Normal:** 3-7 dias (apenas com sitemap)
