@@ -49,19 +49,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Gera slug único
-    const slug = generateSlug(title)
-
-    // Usa a imagem de capa do template
-    const finalImageUrl = templateImages?.coverImage || cover_image_url || null
-
-    if (!finalImageUrl) {
-      return NextResponse.json(
-        { error: 'Imagem de capa é obrigatória' },
-        { status: 400 }
-      )
-    }
-
     // Cria post no banco de dados
     const blogPostData: BlogPostInsert = {
       title,
