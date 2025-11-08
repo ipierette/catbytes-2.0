@@ -7,7 +7,8 @@ import { db } from '@/lib/supabase'
 // =====================================================
 
 export const runtime = 'edge'
-export const revalidate = 300 // Cache for 5 minutes
+// Reduced cache to allow view counts to update quickly
+export const revalidate = 10
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30',
       },
     })
   } catch (error) {

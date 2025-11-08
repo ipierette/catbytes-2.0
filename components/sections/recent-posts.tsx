@@ -49,6 +49,18 @@ export function RecentPosts() {
     fetchRecentPosts()
   }, [])
 
+  // Handle view increment from modal
+  const handleViewIncremented = (updatedPost: BlogPost) => {
+    // Update the post in the current list
+    setPosts((prev) => 
+      prev.map((p) => 
+        p.id === updatedPost.id ? updatedPost : p
+      )
+    )
+    // Also update the selected post to reflect the new view count in the modal
+    setSelectedPost(updatedPost)
+  }
+
   return (
     <section
       id="blog"
@@ -282,7 +294,12 @@ export function RecentPosts() {
       </AnimatePresence>
 
       {/* Post Modal */}
-      <PostModal post={selectedPost} isOpen={!!selectedPost} onClose={() => setSelectedPost(null)} />
+      <PostModal 
+        post={selectedPost} 
+        isOpen={!!selectedPost} 
+        onClose={() => setSelectedPost(null)}
+        onViewIncremented={handleViewIncremented}
+      />
     </section>
   )
 }

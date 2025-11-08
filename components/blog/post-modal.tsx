@@ -16,9 +16,10 @@ interface PostModalProps {
   isOpen: boolean
   onClose: () => void
   adminMode?: boolean // Show upload controls for admin
+  onViewIncremented?: (updatedPost: BlogPost) => void // Callback when views are incremented
 }
 
-export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModalProps) {
+export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncremented }: PostModalProps) {
   const [imageError, setImageError] = useState(false)
   const [viewsIncremented, setViewsIncremented] = useState(false)
   const [coverImageUrl, setCoverImageUrl] = useState(post?.cover_image_url || '')
@@ -55,12 +56,17 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
 
   // Increment views on server when modal opens
   useEffect(() => {
-    if (isOpen && post && !viewsIncremented) {
-      // Call the API endpoint to increment views
+    if (isOpen && post && !viewsIncremented && !adminMode) {
+      // Call the API endpoint to increment views and get updated post
       fetch(`/api/blog/posts/${post.slug}`)
-        .then(() => {
+        .then((res) => res.json())
+        .then((updatedPost) => {
           setViewsIncremented(true)
-          console.log('[PostModal] View incremented for:', post.slug)
+          console.log('[PostModal] View incremented for:', post.slug, 'New views:', updatedPost.views)
+          // Notify parent component of the updated post
+          if (onViewIncremented) {
+            onViewIncremented(updatedPost)
+          }
         })
         .catch((err) => {
           console.error('[PostModal] Failed to increment view:', err)
@@ -71,7 +77,7 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
     if (!isOpen) {
       setViewsIncremented(false)
     }
-  }, [isOpen, post?.slug])
+  }, [isOpen, post?.slug, adminMode, onViewIncremented])
 
   // Reset image error when modal opens with new post
   useEffect(() => {

@@ -55,6 +55,22 @@ export default function BlogPage() {
     }
   }
 
+  // Handle view increment from modal
+  const handleViewIncremented = (updatedPost: BlogPost) => {
+    // Update the post in the current list
+    setPosts((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        posts: prev.posts.map((p) => 
+          p.id === updatedPost.id ? updatedPost : p
+        ),
+      }
+    })
+    // Also update the selected post to reflect the new view count in the modal
+    setSelectedPost(updatedPost)
+  }
+
   // Scroll to top on page change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -231,7 +247,12 @@ export default function BlogPage() {
       </div>
 
       {/* Post Modal */}
-      <PostModal post={selectedPost} isOpen={!!selectedPost} onClose={() => setSelectedPost(null)} />
+      <PostModal 
+        post={selectedPost} 
+        isOpen={!!selectedPost} 
+        onClose={() => setSelectedPost(null)}
+        onViewIncremented={handleViewIncremented}
+      />
     </div>
   )
 }
