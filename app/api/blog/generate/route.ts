@@ -65,7 +65,12 @@ export async function POST(request: NextRequest) {
       console.log('[Generate] No request body, using defaults')
     }
 
-    const { topic, keywords, category, theme, textOnly } = body
+    const { topic, keywords, category, theme, textOnly, generateOnly } = body
+
+    // Se generateOnly=true, apenas gera o conteúdo sem salvar no banco
+    if (generateOnly) {
+      console.log('[Generate] Generate-only mode: will return content without saving to database')
+    }
 
     // Determine blog theme based on current day or provided theme
     const blogTheme = theme || getCurrentBlogTheme()
@@ -176,6 +181,52 @@ Responda APENAS com JSON válido.`
 
     const generatedPost: AIGeneratedPost = JSON.parse(aiResponse)
     console.log('[Generate] Content generated:', generatedPost.title)
+
+    // ====== GENERATE-ONLY MODE: Return content without saving ======
+    if (generateOnly) {
+      console.log('[Generate] Generate-only mode: returning content without database save')
+      
+      let imagePromptSuggestion: string | null = null
+      let contentImagePrompts: string[] = []
+      
+      if (textOnly) {
+        // Gera prompts de imagem
+        imagePromptSuggestion = generateImagePromptForTheme(blogTheme, generatedPost.title)
+        
+        const contentSections = generatedPost.content.split('##').filter(s => s.trim().length > 50)
+        const numSuggestions = Math.min(3, Math.max(2, Math.floor(contentSections.length / 2)))
+        
+        for (let i = 0; i < numSuggestions; i++) {
+          const section = contentSections[i] || ''
+          const sectionTitle = section.split('\n')[0].trim()
+          const sectionText = section.substring(0, 200)
+          
+          contentImagePrompts.push(
+            `Diagrama técnico profissional sobre "${sectionTitle}". IMPORTANTE: Inclua texto explicativo em português nos elementos do diagrama. Tipo: ${i % 3 === 0 ? 'Fluxograma' : i % 3 === 1 ? 'Infográfico' : 'Diagrama de arquitetura'}. Estilo: Profissional, educacional, limpo. Cores vibrantes mas equilibradas (azul, roxo, verde). Inclua títulos, labels e descrições curtas em cada elemento. Contexto: ${sectionText}. Alta qualidade, 1200x800px, formato horizontal.`
+          )
+        }
+      }
+      
+      return NextResponse.json({
+        success: true,
+        post: {
+          ...generatedPost,
+          category: selectedCategory,
+          cover_image_url: textOnly ? 'https://placehold.co/1792x1024/1e293b/64748b?text=Upload+Required' : null,
+        },
+        textOnly: !!textOnly,
+        imagePrompt: imagePromptSuggestion,
+        contentImagePrompts: contentImagePrompts,
+        metadata: {
+          theme: blogTheme,
+          topic: selectedTopic,
+          category: selectedCategory,
+          keywords: selectedKeywords,
+          model: 'gpt-4o-mini',
+          generateOnly: true,
+        },
+      })
+    }
 
     // ====== STEP 2: Generate/Suggest cover image ======
     let coverImageUrl: string
