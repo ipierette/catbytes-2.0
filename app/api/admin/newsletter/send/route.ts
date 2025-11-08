@@ -61,7 +61,7 @@ async function sendTestEmail(
 
   try {
     await resend.emails.send({
-      from: 'CatBytes <newsletter@catbytes.site>',
+      from: 'CatBytes <contato@catbytes.site.site>',
       to: adminEmail,
       subject: `[TESTE] ${subject}`,
       html: `
@@ -119,7 +119,7 @@ async function sendBatches(
   for (const batch of batches) {
     try {
       await resend.emails.send({
-        from: 'CatBytes <newsletter@catbytes.site>',
+        from: 'CatBytes <contato@catbytes.site.site>',
         to: batch,
         subject,
         html: content,

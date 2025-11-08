@@ -7,11 +7,18 @@ import { Moon, Sun, LogOut, Home } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useAdmin } from '@/hooks/use-admin'
 import { Button } from '@/components/ui/button'
+import { useEffect, useState } from 'react'
 
 export function AdminHeader() {
   const { theme, setTheme } = useTheme()
   const { logout } = useAdmin()
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+
+  // Evita hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -57,7 +64,9 @@ export function AdminHeader() {
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="gap-2 text-gray-300 hover:text-white hover:bg-gray-800"
             >
-              {theme === 'dark' ? (
+              {!mounted ? (
+                <Sun className="h-4 w-4" />
+              ) : theme === 'dark' ? (
                 <>
                   <Sun className="h-4 w-4" />
                   <span className="hidden sm:inline">Light</span>

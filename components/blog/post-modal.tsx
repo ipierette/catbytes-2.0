@@ -9,6 +9,7 @@ import { ptBR, enUS } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 import { useBlogPostTracking } from '@/components/analytics/analytics-tracker'
 import { PostImageUploader } from '@/components/blog/post-image-uploader'
+import { Button } from '@/components/ui/button'
 
 interface PostModalProps {
   post: BlogPost | null
@@ -34,6 +35,12 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
     }
     if (post?.content) {
       setPostContent(post.content)
+    }
+    // Se não há imagem, marca como erro para mostrar fallback
+    if (!post?.cover_image_url || post.cover_image_url.trim() === '') {
+      setImageError(true)
+    } else {
+      setImageError(false)
     }
   }, [post?.cover_image_url, post?.content])
 
@@ -143,7 +150,7 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
 
                 {/* Cover Image */}
                 <div className="relative w-full h-64 md:h-96 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">
-                  {!imageError && (
+                  {!imageError && coverImageUrl && coverImageUrl.trim() !== '' && (
                     <Image
                       src={coverImageUrl}
                       alt={post.title}
@@ -157,7 +164,7 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
                   )}
 
                   {/* Fallback icon quando imagem falha */}
-                  {imageError && (
+                  {(imageError || !coverImageUrl || coverImageUrl.trim() === '') && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <ImageOff className="w-24 h-24 text-gray-400 dark:text-gray-500" />
                     </div>

@@ -28,6 +28,8 @@ export interface BlogPost {
   translated_from?: string | null // ID of the original post if this is a translation
   deleted_at?: string | null // Soft delete timestamp
   scheduled_at?: string | null // Scheduled publication date
+  image_prompt?: string | null // AI prompt for cover image generation
+  content_image_prompts?: string[] | null // AI prompts for content images
 }
 
 export interface BlogPostInsert {
@@ -51,6 +53,8 @@ export interface BlogPostInsert {
   locale?: string // 'pt-BR' or 'en-US'
   translated_from?: string | null // ID of the original post if this is a translation
   scheduled_at?: string | null
+  image_prompt?: string | null // AI prompt for cover image generation
+  content_image_prompts?: string[] | null // AI prompts for content images
 }
 
 export interface BlogPostUpdate {

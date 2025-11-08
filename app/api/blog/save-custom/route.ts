@@ -19,8 +19,10 @@ export async function POST(request: NextRequest) {
       category,
       tags,
       cover_image_url,
-      imageText,
-      imageSettings
+      template,
+      templateImages,
+      image_prompt,
+      content_image_prompts
     } = postData
 
     if (!title || !content) {
@@ -31,71 +33,33 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[Save Custom] Processing custom blog post...')
+    console.log('[Save Custom] Template:', template)
+    console.log('[Save Custom] Template Images:', templateImages)
 
     // Gera slug único
     const slug = generateSlug(title)
 
-    // Se tem texto personalizado para imagem, gera nova imagem
-    let finalImageUrl = cover_image_url
-    
-    if (imageText && imageSettings && cover_image_url) {
-      try {
-        console.log('[Save Custom] Generating custom image with text overlay...')
-        
-        // Configura fonte baseado nas opções
-        let fontFamily = imageSettings.fontFamily
-        if (imageSettings.isBold && imageSettings.isItalic) {
-          fontFamily = `bold italic ${imageSettings.fontSize}px ${imageSettings.fontFamily}`
-        } else if (imageSettings.isBold) {
-          fontFamily = `bold ${imageSettings.fontSize}px ${imageSettings.fontFamily}`
-        } else if (imageSettings.isItalic) {
-          fontFamily = `italic ${imageSettings.fontSize}px ${imageSettings.fontFamily}`
-        } else {
-          fontFamily = `${imageSettings.fontSize}px ${imageSettings.fontFamily}`
-        }
+    // Usa a imagem de capa do template
+    const finalImageUrl = templateImages?.coverImage || cover_image_url || null
 
-        const customImageDataUrl = await addTextOverlay({
-          text: imageText,
-          imageUrl: cover_image_url,
-          fontSize: imageSettings.fontSize,
-          fontFamily: fontFamily,
-          textColor: imageSettings.color,
-          strokeColor: imageSettings.strokeColor,
-          strokeWidth: imageSettings.strokeWidth,
-          backgroundColor: imageSettings.backgroundColor,
-          position: imageSettings.position,
-          maxWidth: 700
-        })
+    if (!finalImageUrl) {
+      return NextResponse.json(
+        { error: 'Imagem de capa é obrigatória' },
+        { status: 400 }
+      )
+    }
 
-        // Converte data URL para buffer e faz upload
-        if (supabaseAdmin) {
-          const base64Data = customImageDataUrl.replace(/^data:image\/\w+;base64,/, '')
-          const imageBuffer = Buffer.from(base64Data, 'base64')
-          
-          const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-            .from('blog-images')
-            .upload(`custom/${slug}-${Date.now()}.png`, imageBuffer, {
-              contentType: 'image/png',
-              upsert: true
-            })
+    // Gera slug único
+    const slug = generateSlug(title)
 
-          if (uploadError) {
-            console.error('[Save Custom] Upload error:', uploadError)
-            // Continua com imagem original se upload falhar
-          } else {
-            // Gera URL pública da imagem customizada
-            const { data: { publicUrl } } = supabaseAdmin.storage
-              .from('blog-images')
-              .getPublicUrl(uploadData.path)
-            
-            finalImageUrl = publicUrl
-            console.log('[Save Custom] Custom image uploaded:', publicUrl)
-          }
-        }
-      } catch (imageError) {
-        console.error('[Save Custom] Error generating custom image:', imageError)
-        // Continua com imagem original se geração falhar
-      }
+    // Usa a imagem de capa do template
+    const finalImageUrl = templateImages?.coverImage || cover_image_url || null
+
+    if (!finalImageUrl) {
+      return NextResponse.json(
+        { error: 'Imagem de capa é obrigatória' },
+        { status: 400 }
+      )
     }
 
     // Cria post no banco de dados
@@ -112,9 +76,11 @@ export async function POST(request: NextRequest) {
       category: category || 'Geral',
       tags: tags || [],
       author: 'CatBytes Editor',
-      ai_model: 'gpt-4o-mini + custom-editor',
-      generation_prompt: `Custom edited: ${title}`,
-      locale: 'pt-BR'
+      ai_model: 'gpt-4o-mini + template-editor',
+      generation_prompt: `Template ${template || 'default'}: ${title}`,
+      locale: 'pt-BR',
+      image_prompt,
+      content_image_prompts
     }
 
     const createdPost = await db.createPost(blogPostData)
@@ -126,18 +92,15 @@ export async function POST(request: NextRequest) {
         post_id: createdPost.id,
         status: 'success',
         generation_time_ms: 0, // Customização manual
-        error_message: `Custom edited with image text: "${imageText || 'none'}"`
+        error_message: `Template ${template || 'default'} with ${Object.keys(templateImages || {}).length} images`
       })
     }
 
     return NextResponse.json({
       success: true,
       post: createdPost,
-      customizations: {
-        imageText: imageText || null,
-        imageSettings: imageSettings || null,
-        finalImageUrl
-      }
+      template,
+      templateImages
     })
 
   } catch (error) {

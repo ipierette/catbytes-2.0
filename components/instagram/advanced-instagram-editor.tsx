@@ -80,23 +80,23 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
   }, [post.texto_imagem])
 
   const addTextLayer = (initialText = 'Novo texto') => {
-    // Calcular tamanho baseado no comprimento do texto para melhor visualização
+    // Tamanhos REAIS para Instagram 1080x1080
     const textLength = initialText.length
-    let idealFontSize = 64 // Padrão para textos curtos (títulos)
+    let idealFontSize = 100
     
     if (textLength > 50) {
-      idealFontSize = 40 // Textos médios
+      idealFontSize = 70
     } else if (textLength > 100) {
-      idealFontSize = 32 // Textos longos
+      idealFontSize = 50
     } else if (textLength < 20) {
-      idealFontSize = 80 // Títulos muito curtos e impactantes
+      idealFontSize = 130
     }
     
     const newLayer: TextLayer = {
       id: `layer-${Date.now()}`,
       text: initialText,
-      x: 50,
-      y: 50,
+      x: 100, // Coordenadas Instagram 1080x1080
+      y: 100,
       fontSize: idealFontSize,
       fontFamily: 'Impact',
       color: '#FFFFFF',
@@ -126,43 +126,36 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
     e.stopPropagation()
     
     const layer = textLayers.find(l => l.id === layerId)
-    if (!layer || !imageContainerRef.current) return
+    if (!layer) return
     
     setSelectedLayer(layerId)
     setIsDragging(true)
     
-    // Calcular posição inicial relativa ao container
-    const rect = imageContainerRef.current.getBoundingClientRect()
+    // Offset do mouse em relação à posição da layer
     setDragStart({
-      x: e.clientX - rect.left - layer.x,
-      y: e.clientY - rect.top - layer.y
+      x: e.clientX - layer.x,
+      y: e.clientY - layer.y
     })
   }
 
   const handleMouseMove = (e: React.MouseEvent | React.PointerEvent) => {
-    if (!isDragging || !selectedLayer || !imageContainerRef.current) return
+    if (!isDragging || !selectedLayer) return
     
     e.preventDefault()
     e.stopPropagation()
     
-    // Usar requestAnimationFrame para movimento suave
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
     }
     
     animationFrameRef.current = requestAnimationFrame(() => {
-      const rect = imageContainerRef.current!.getBoundingClientRect()
+      // Nova posição = mouse - offset
+      const newX = e.clientX - dragStart.x
+      const newY = e.clientY - dragStart.y
       
-      // Calcular nova posição
-      const newX = e.clientX - rect.left - dragStart.x
-      const newY = e.clientY - rect.top - dragStart.y
-      
-      // Limitar aos bounds do container
-      const maxX = rect.width - 100
-      const maxY = rect.height - 50
-      
-      const boundedX = Math.max(0, Math.min(newX, maxX))
-      const boundedY = Math.max(0, Math.min(newY, maxY))
+      // Limitar bounds (1080x1080)
+      const boundedX = Math.max(0, Math.min(newX, 880))
+      const boundedY = Math.max(0, Math.min(newY, 980))
       
       updateLayer(selectedLayer, { x: boundedX, y: boundedY })
     })
@@ -229,24 +222,24 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
     }
   }
 
-  const renderToCanvas = async (): Promise<string> => {
+    const renderToCanvas = async (): Promise<string> => {
     const canvas = canvasRef.current
     if (!canvas) throw new Error('Canvas not found')
 
     const ctx = canvas.getContext('2d')
     if (!ctx) throw new Error('Canvas context not found')
 
-    // Set canvas size to Instagram square
-    canvas.width = 1080
-    canvas.height = 1080
+    // Instagram standard size
+    const INSTAGRAM_SIZE = 1080
+    canvas.width = INSTAGRAM_SIZE
+    canvas.height = INSTAGRAM_SIZE
 
-    // Load and draw base image
-    const img = new window.Image()
-    img.crossOrigin = 'anonymous'
-    
-    await new Promise((resolve, reject) => {
-      img.onload = resolve
-      img.onerror = reject
+    // Load image
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new window.Image()
+      image.crossOrigin = 'anonymous'
+      image.onload = () => resolve(image)
+      image.onerror = reject
       img.src = post.image_url
     })
 
@@ -257,39 +250,29 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
     
     ctx.drawImage(img, x, y, img.width * scale, img.height * scale)
 
-    // Draw text layers
+    // Draw text layers - valores JÁ estão em 1080x1080
     textLayers.forEach(layer => {
       ctx.save()
       
-      // Calculate scale factor
-      const containerWidth = imageContainerRef.current?.offsetWidth || 500
-      const scaleX = canvas.width / containerWidth
-      
-      // Position
-      const scaledX = layer.x * scaleX
-      const scaledY = layer.y * scaleX
-      
-      ctx.translate(scaledX, scaledY)
+      ctx.translate(layer.x, layer.y)
       ctx.rotate((layer.rotation * Math.PI) / 180)
 
-      // Font style
+      // Font
       let fontStyle = ''
       if (layer.italic) fontStyle += 'italic '
       if (layer.bold) fontStyle += 'bold '
       
-      const scaledFontSize = layer.fontSize * scaleX
-      ctx.font = `${fontStyle}${scaledFontSize}px ${layer.fontFamily}`
+      ctx.font = `${fontStyle}${layer.fontSize}px ${layer.fontFamily}`
       ctx.fillStyle = layer.color
       ctx.textAlign = 'left'
       ctx.textBaseline = 'top'
 
-      // Text shadow for better readability
+      // Shadow
       ctx.shadowColor = 'rgba(0, 0, 0, 0.8)'
       ctx.shadowBlur = 10
       ctx.shadowOffsetX = 2
       ctx.shadowOffsetY = 2
 
-      // Draw text
       ctx.fillText(layer.text, 0, 0)
       
       ctx.restore()
@@ -492,9 +475,9 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
                       <Slider
                         value={[selectedLayerData.fontSize]}
                         onValueChange={([value]) => updateLayer(selectedLayerData.id, { fontSize: value })}
-                        min={20}
-                        max={120}
-                        step={2}
+                        min={30}
+                        max={200}
+                        step={5}
                       />
                     </div>
 
@@ -561,58 +544,76 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
                   💡 Clique e arraste os textos para posicionar
                 </div>
                 
-                <div
-                  ref={imageContainerRef}
-                  className="relative bg-black rounded-lg overflow-hidden select-none"
-                  style={{ aspectRatio: '1/1', touchAction: 'none' }}
-                  onPointerMove={handleMouseMove}
-                  onPointerUp={handleMouseUp}
-                  onPointerLeave={handleMouseUp}
-                  role="application"
-                  aria-label="Editor de imagem com textos arrastáveis"
+                {/* Container com escala CSS - Tamanho real 1080x1080 escalado para caber */}
+                <div 
+                  className="relative bg-black rounded-lg overflow-hidden"
+                  style={{ 
+                    width: '100%',
+                    aspectRatio: '1/1'
+                  }}
                 >
-                  <Image
-                    src={post.image_url}
-                    alt={post.titulo}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
+                  <div
+                    ref={imageContainerRef}
+                    className="absolute inset-0"
+                    style={{
+                      width: '1080px',
+                      height: '1080px',
+                      transformOrigin: 'top left',
+                      transform: 'scale(0.46)', // 500/1080 = ~0.46
+                      touchAction: 'none'
+                    }}
+                    onPointerMove={handleMouseMove}
+                    onPointerUp={handleMouseUp}
+                    onPointerLeave={handleMouseUp}
+                    role="application"
+                    aria-label="Editor de imagem com textos arrastáveis"
+                  >
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={post.image_url}
+                        alt={post.titulo}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
 
-                  {textLayers.map(layer => (
-                    <div
-                      key={layer.id}
-                      className={`absolute cursor-move select-none transition-shadow ${
-                        selectedLayer === layer.id ? 'ring-2 ring-primary' : ''
-                      }`}
-                      style={{
-                        left: `${layer.x}px`,
-                        top: `${layer.y}px`,
-                        fontSize: `${layer.fontSize}px`,
-                        fontFamily: layer.fontFamily,
-                        color: layer.color,
-                        fontWeight: layer.bold ? 'bold' : 'normal',
-                        fontStyle: layer.italic ? 'italic' : 'normal',
-                        transform: `rotate(${layer.rotation}deg)`,
-                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                        whiteSpace: 'pre-wrap',
-                        maxWidth: '80%',
-                        touchAction: 'none',
-                        userSelect: 'none'
-                      }}
-                      onPointerDown={(e) => handleMouseDown(e, layer.id)}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`Camada de texto: ${layer.text}`}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          setSelectedLayer(layer.id)
-                        }
-                      }}
-                    >
-                      {layer.text}
+                      {textLayers.map(layer => (
+                        <div
+                          key={layer.id}
+                          className={`absolute cursor-move select-none transition-shadow ${
+                            selectedLayer === layer.id ? 'ring-2 ring-primary' : ''
+                          }`}
+                          style={{
+                            left: `${layer.x}px`,
+                            top: `${layer.y}px`,
+                            fontSize: `${layer.fontSize}px`,
+                            fontFamily: layer.fontFamily,
+                            color: layer.color,
+                            fontWeight: layer.bold ? 'bold' : 'normal',
+                            fontStyle: layer.italic ? 'italic' : 'normal',
+                            transform: `rotate(${layer.rotation}deg)`,
+                            textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                            whiteSpace: 'pre-wrap',
+                            maxWidth: '80%',
+                            touchAction: 'none',
+                            userSelect: 'none',
+                            pointerEvents: 'auto'
+                          }}
+                          onPointerDown={(e) => handleMouseDown(e, layer.id)}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`Camada de texto: ${layer.text}`}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              setSelectedLayer(layer.id)
+                            }
+                          }}
+                        >
+                          {layer.text}
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
             </div>

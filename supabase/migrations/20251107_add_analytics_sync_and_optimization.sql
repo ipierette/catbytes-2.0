@@ -68,7 +68,24 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_views ON blog_posts(views DESC);
 -- =====================================================
 
 DROP VIEW IF EXISTS analytics_daily_summary CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS analytics_blog_summary CASCADE;
+
+-- Check if analytics_blog_summary exists as a view or materialized view
+DO $$
+BEGIN
+  -- Drop as regular view if exists
+  IF EXISTS (
+    SELECT 1 FROM pg_views WHERE viewname = 'analytics_blog_summary'
+  ) THEN
+    EXECUTE 'DROP VIEW analytics_blog_summary CASCADE';
+  END IF;
+  
+  -- Drop as materialized view if exists
+  IF EXISTS (
+    SELECT 1 FROM pg_matviews WHERE matviewname = 'analytics_blog_summary'
+  ) THEN
+    EXECUTE 'DROP MATERIALIZED VIEW analytics_blog_summary CASCADE';
+  END IF;
+END $$;
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS analytics_daily_summary AS
 SELECT 

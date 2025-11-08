@@ -5,7 +5,6 @@ import { routing } from '@/i18n/routing'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { AdminProvider } from '@/hooks/use-admin'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
-import { AppShell } from '@/components/app/app-shell'
 import { DesktopLayout } from '@/components/layout'
 import { AnalyticsTracker } from '@/components/analytics/analytics-tracker'
 
@@ -99,13 +98,11 @@ export default async function LocaleLayout({
         disableTransitionOnChange
       >
         <AdminProvider>
-          <AppShell>
-            <DesktopLayout>
-              <ScrollProgress />
-              <AnalyticsTracker />
-              <main>{children}</main>
-            </DesktopLayout>
-          </AppShell>
+          <DesktopLayout>
+            <ScrollProgress />
+            <AnalyticsTracker />
+            <main>{children}</main>
+          </DesktopLayout>
         </AdminProvider>
       </ThemeProvider>
     </NextIntlClientProvider>

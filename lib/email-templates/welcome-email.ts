@@ -17,7 +17,7 @@ export function getWelcomeEmailHTML(name: string, token: string, locale: string 
     whatYouGet: isPortuguese ? '🎁 O que você vai receber:' : '🎁 What you will receive:',
     list: isPortuguese ? ['✨ Artigos exclusivos sobre IA e automação', '💻 Dicas práticas de desenvolvimento web', '🚀 Novidades e tendências tech', '📬 Conteúdo enviado 4x por semana'] : ['✨ Exclusive articles about AI and automation', '💻 Practical web development tips', '🚀 Tech news and trends', '�� Content sent 4x per week'],
     important: isPortuguese ? '📧 Importante:' : '📧 Important:',
-    spamWarning: isPortuguese ? 'Para garantir que meus emails não caiam no spam, adicione newsletter@catbytes.site aos seus contatos!' : 'To ensure my emails dont end up in spam, add newsletter@catbytes.site to your contacts!',
+    spamWarning: isPortuguese ? 'Para garantir que meus emails não caiam no spam, adicione contato@catbytes.site.site aos seus contatos!' : 'To ensure my emails dont end up in spam, add contato@catbytes.site.site to your contacts!',
     confirmButton: isPortuguese ? '✓ Confirmar Inscrição' : '✓ Confirm Subscription',
     goodbye: isPortuguese ? 'Até breve! 🐱💻' : 'See you soon! 🐱💻',
     signature: isPortuguese ? 'Izadora Cury Pierette - Criadora da CatBytes' : 'Izadora Cury Pierette - CatBytes Founder',

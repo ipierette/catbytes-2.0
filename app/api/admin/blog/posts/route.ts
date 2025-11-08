@@ -79,3 +79,62 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
+// =====================================================
+// DELETE /api/admin/blog/posts
+// Delete a blog post - Admin only
+// =====================================================
+
+export async function DELETE(request: NextRequest) {
+  try {
+    // Verify admin authentication
+    const adminVerification = await verifyAdminCookie(request)
+    if (!adminVerification.valid) {
+      return adminVerification.error || NextResponse.json(
+        { error: 'Unauthorized', message: 'Admin authentication required' },
+        { status: 401 }
+      )
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
+    const { id } = await request.json()
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Post ID required' },
+        { status: 400 }
+      )
+    }
+
+    // Delete post
+    const { error } = await supabaseAdmin
+      .from('blog_posts')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('[Admin API] Error deleting post:', error)
+      return NextResponse.json(
+        { error: 'Failed to delete post', details: error.message },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('[Admin API] Error:', error)
+    return NextResponse.json(
+      { 
+        error: 'Internal server error', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      },
+      { status: 500 }
+    )
+  }
+}

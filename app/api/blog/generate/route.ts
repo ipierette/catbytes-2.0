@@ -180,12 +180,29 @@ Responda APENAS com JSON válido.`
     // ====== STEP 2: Generate/Suggest cover image ======
     let coverImageUrl: string
     let imagePromptSuggestion: string | null = null
+    let contentImagePrompts: string[] = []
 
     if (textOnly) {
       // Modo Text-Only: Gera apenas o prompt para imagem (usuário faz upload depois)
       imagePromptSuggestion = generateImagePromptForTheme(blogTheme, generatedPost.title)
       console.log('[Generate] Text-only mode: Image prompt generated for manual creation')
       console.log('[Generate] Image prompt:', imagePromptSuggestion)
+      
+      // Gera 2-3 sugestões de prompts para imagens de conteúdo
+      const contentSections = generatedPost.content.split('##').filter(s => s.trim().length > 50)
+      const numSuggestions = Math.min(3, Math.max(2, Math.floor(contentSections.length / 2)))
+      
+      for (let i = 0; i < numSuggestions; i++) {
+        const section = contentSections[i] || ''
+        const sectionTitle = section.split('\n')[0].trim()
+        const sectionText = section.substring(0, 200) // Primeiros 200 chars da seção
+        
+        contentImagePrompts.push(
+          `Diagrama técnico profissional sobre "${sectionTitle}". IMPORTANTE: Inclua texto explicativo em português nos elementos do diagrama. Tipo: ${i % 3 === 0 ? 'Fluxograma' : i % 3 === 1 ? 'Infográfico' : 'Diagrama de arquitetura'}. Estilo: Profissional, educacional, limpo. Cores vibrantes mas equilibradas (azul, roxo, verde). Inclua títulos, labels e descrições curtas em cada elemento. Contexto: ${sectionText}. Alta qualidade, 1200x800px, formato horizontal.`
+        )
+      }
+      
+      console.log('[Generate] Generated', contentImagePrompts.length, 'content image prompts')
       
       // Usa imagem placeholder temporária
       coverImageUrl = 'https://placehold.co/1792x1024/1e293b/64748b?text=Upload+Required'
@@ -243,15 +260,17 @@ Responda APENAS com JSON válido.`
       ai_model: 'gpt-4o-mini',
       generation_prompt: selectedTopic,
       locale: 'pt-BR', // Portuguese version (original)
+      image_prompt: textOnly ? imagePromptSuggestion : null,
+      content_image_prompts: textOnly && contentImagePrompts.length > 0 ? contentImagePrompts : null,
     }
 
     const createdPost = await db.createPost(postData)
     console.log('[Generate] Post created:', createdPost.id)
 
-    // ====== STEP 3.5: Save image prompt if text-only mode ======
+    // Log saved prompts
     if (textOnly && imagePromptSuggestion) {
-      // Armazena o prompt de imagem em um campo custom (vamos adicionar depois)
-      console.log('[Generate] Text-only mode: Image prompt saved for post:', createdPost.slug)
+      console.log('[Generate] Text-only mode: Image prompt saved to database for post:', createdPost.slug)
+      console.log('[Generate] Content image prompts saved:', contentImagePrompts.length)
     }
 
     // ====== STEP 3.6: Translate post to English (DISABLED FOR NOW) ======
@@ -260,10 +279,12 @@ Responda APENAS com JSON válido.`
     
     console.log('[Generate] Translation skipped - generating Portuguese only')
 
-    // ====== STEP 4: Send to newsletter subscribers ======
+    // ====== STEP 4: Send to newsletter subscribers (only published posts) ======
     console.log('[Generate] Newsletter sending step - Resend configured:', !!resend)
+    console.log('[Generate] Post published status:', createdPost.published)
     
-    if (resend) {
+    // Only send newsletter if post is published (not textOnly drafts)
+    if (resend && createdPost.published) {
       try {
         console.log('[Generate] Fetching verified newsletter subscribers...')
         
@@ -334,6 +355,8 @@ Responda APENAS com JSON válido.`
         console.error('[Generate] ❌ Error sending newsletter emails:', emailError)
         // Don't fail post creation if email fails
       }
+    } else if (!createdPost.published) {
+      console.log('[Generate] ⚠️ Post is draft (textOnly mode) - skipping newsletter')
     } else {
       console.log('[Generate] ⚠️ Resend not configured - skipping newsletter')
     }
@@ -355,6 +378,7 @@ Responda APENAS com JSON válido.`
       generationTime,
       textOnly: !!textOnly,
       imagePrompt: imagePromptSuggestion || null,
+      contentImagePrompts: contentImagePrompts,
       metadata: {
         theme: blogTheme,
         topic: selectedTopic,

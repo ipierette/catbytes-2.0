@@ -11,9 +11,12 @@ export const runtime = 'edge'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
+    // Await params in Next.js 15
+    const { slug } = await context.params
+    
     // Verify admin authentication
     const adminVerification = await verifyAdminCookie(request)
     if (!adminVerification.valid) {
@@ -30,7 +33,6 @@ export async function PATCH(
       )
     }
 
-    const { slug } = params
     const body = await request.json()
     const { content, cover_image_url } = body
 

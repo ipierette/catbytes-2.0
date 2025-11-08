@@ -21,9 +21,16 @@ END
 WHERE status IS NULL;
 
 -- Add constraint for status field
-ALTER TABLE blog_posts 
-  ADD CONSTRAINT blog_posts_status_check 
-  CHECK (status IN ('draft', 'published', 'scheduled', 'archived'));
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'blog_posts_status_check'
+  ) THEN
+    ALTER TABLE blog_posts 
+      ADD CONSTRAINT blog_posts_status_check 
+      CHECK (status IN ('draft', 'published', 'scheduled', 'archived'));
+  END IF;
+END $$;
 
 -- Add index for soft delete and status queries
 CREATE INDEX IF NOT EXISTS idx_blog_posts_deleted_at ON blog_posts(deleted_at);
@@ -31,14 +38,28 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON blog_posts(status);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_scheduled_at ON blog_posts(scheduled_at);
 
 -- Add constraint for meta_description length
-ALTER TABLE blog_posts 
-  ADD CONSTRAINT meta_description_length 
-  CHECK (meta_description IS NULL OR char_length(meta_description) BETWEEN 50 AND 160);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'meta_description_length'
+  ) THEN
+    ALTER TABLE blog_posts 
+      ADD CONSTRAINT meta_description_length 
+      CHECK (meta_description IS NULL OR char_length(meta_description) BETWEEN 50 AND 160);
+  END IF;
+END $$;
 
 -- Add constraint for canonical_url format
-ALTER TABLE blog_posts 
-  ADD CONSTRAINT canonical_url_format 
-  CHECK (canonical_url IS NULL OR canonical_url ~* '^https?://');
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'canonical_url_format'
+  ) THEN
+    ALTER TABLE blog_posts 
+      ADD CONSTRAINT canonical_url_format 
+      CHECK (canonical_url IS NULL OR canonical_url ~* '^https?://');
+  END IF;
+END $$;
 
 -- Create updated_at trigger function if not exists
 CREATE OR REPLACE FUNCTION update_updated_at_column()

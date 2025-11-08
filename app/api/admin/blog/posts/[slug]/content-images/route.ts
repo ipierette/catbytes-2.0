@@ -13,9 +13,12 @@ export const maxDuration = 60
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
+    // Await params in Next.js 15
+    const { slug } = await context.params
+    
     // Verify admin authentication
     const adminVerification = await verifyAdminCookie(request)
     if (!adminVerification.valid) {
@@ -32,7 +35,6 @@ export async function POST(
       )
     }
 
-    const { slug } = params
     console.log('[Content Image Upload] Processing upload for post:', slug)
 
     // Get form data
@@ -72,13 +74,13 @@ export async function POST(
     const fileExt = file.name.split('.').pop()
     const timestamp = Date.now()
     const fileName = `${slug}-content-${timestamp}.${fileExt}`
-    const filePath = `blog/content/${fileName}`
+    const filePath = `content/${fileName}`
 
     console.log('[Content Image Upload] Uploading to:', filePath)
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage (blog-images bucket)
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-      .from('images')
+      .from('blog-images')
       .upload(filePath, buffer, {
         contentType: file.type,
         upsert: false,
@@ -91,7 +93,7 @@ export async function POST(
 
     // Get public URL
     const { data: publicUrlData } = supabaseAdmin.storage
-      .from('images')
+      .from('blog-images')
       .getPublicUrl(filePath)
 
     const publicUrl = publicUrlData.publicUrl

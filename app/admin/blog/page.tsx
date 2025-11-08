@@ -5,10 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { FileText, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Plus, Edit, Trash2, Eye, Clock, ChevronDown } from 'lucide-react'
-import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Input } from '@/components/ui/input'
+import { FileText, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Plus, Edit, Trash2, Eye, Clock, ChevronDown, Sparkles } from 'lucide-react'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
+import { toast } from 'sonner'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { BlogPreviewModal } from '@/components/blog/blog-preview-modal'
 import { PostModal } from '@/components/blog/post-modal'
 import type { BlogPost as BlogPostType } from '@/types/blog'
@@ -48,12 +57,16 @@ export default function BlogAdminPage() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [selectedPosts, setSelectedPosts] = useState<string[]>([])
+  // Removed message state - using toast instead
   const [previewModalOpen, setPreviewModalOpen] = useState(false)
   const [previewTheme, setPreviewTheme] = useState('')
   const [generatedPost, setGeneratedPost] = useState<any>(null)
   const [previewPost, setPreviewPost] = useState<BlogPostType | null>(null)
   const [textOnlyMode, setTextOnlyMode] = useState(false)
+  const [customThemeDialogOpen, setCustomThemeDialogOpen] = useState(false)
+  const [customTheme, setCustomTheme] = useState('')
+  // Removed message state - using toast instead
 
   useEffect(() => {
     loadData()
@@ -83,11 +96,11 @@ export default function BlogAdminPage() {
         }
         setStats(stats)
       } else {
-        setMessage({ type: 'error', text: 'Erro ao carregar posts. Verifique se está autenticado.' })
+        toast.error('Erro ao carregar posts. Verifique se está autenticado.')
       }
     } catch (error) {
       console.error('Error loading blog data:', error)
-      setMessage({ type: 'error', text: 'Erro ao carregar posts do blog' })
+      toast.error('Erro ao carregar posts do blog')
     } finally {
       setLoading(false)
     }
@@ -97,7 +110,7 @@ export default function BlogAdminPage() {
     try {
       const modeText = textOnlyMode ? ' (Texto + Prompt)' : ''
       const themeText = theme ? ` (${theme})` : ''
-      setMessage({ type: 'success', text: `Gerando rascunho do artigo${themeText}${modeText}... Prepare-se para personalizar!` })
+      toast.loading(`Gerando rascunho do artigo${themeText}${modeText}...`, { id: 'generate' })
       
       const response = await fetch('/api/blog/generate', {
         method: 'POST',
@@ -120,31 +133,39 @@ export default function BlogAdminPage() {
           cover_image_url: data.post?.cover_image_url || '',
           category: theme || data.post?.category || '',
           tags: data.post?.tags || [],
-          imagePrompt: data.imagePrompt || null,
+          image_prompt: data.imagePrompt || null,
+          content_image_prompts: data.contentImagePrompts || [],
           textOnly: data.textOnly || false
         })
         setPreviewTheme(theme || data.metadata?.theme || 'Automação e Negócios')
         setPreviewModalOpen(true)
         
         if (textOnlyMode && data.imagePrompt) {
-          setMessage({ 
-            type: 'success', 
-            text: '✅ Rascunho gerado! Use o modal para fazer upload da imagem de capa e imagens do conteúdo.' 
-          })
+          toast.success('✅ Rascunho gerado! Use o modal para fazer upload das imagens.', { id: 'generate' })
         } else {
-          setMessage({ type: 'success', text: 'Rascunho gerado! Agora você pode personalizar antes de publicar.' })
+          toast.success('Rascunho gerado! Agora você pode personalizar antes de publicar.', { id: 'generate' })
         }
       } else {
-        setMessage({ type: 'error', text: data.error || 'Erro ao gerar artigo' })
+        toast.error(data.error || 'Erro ao gerar artigo', { id: 'generate' })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Erro ao gerar artigo' })
+      toast.error('Erro ao gerar artigo', { id: 'generate' })
     }
+  }
+
+  const handleGenerateWithCustomTheme = async () => {
+    if (!customTheme.trim()) {
+      toast.error('Digite um tema para o artigo')
+      return
+    }
+    setCustomThemeDialogOpen(false)
+    await handleGeneratePost(customTheme)
+    setCustomTheme('')
   }
 
   const handleSaveFromPreview = async (postData: any) => {
     try {
-      setMessage({ type: 'success', text: 'Salvando artigo personalizado...' })
+      toast.loading('Salvando artigo personalizado...', { id: 'save' })
       
       const response = await fetch('/api/blog/save-custom', {
         method: 'POST',
@@ -155,14 +176,14 @@ export default function BlogAdminPage() {
       const data = await response.json()
 
       if (data.success) {
-        setMessage({ type: 'success', text: `Artigo "${data.post?.title}" salvo com sucesso!` })
+        toast.success(`Artigo "${data.post?.title}" salvo com sucesso!`, { id: 'save' })
         setPreviewModalOpen(false)
         await loadData()
       } else {
-        setMessage({ type: 'error', text: data.error || 'Erro ao salvar artigo' })
+        toast.error(data.error || 'Erro ao salvar artigo', { id: 'save' })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Erro ao salvar artigo' })
+      toast.error('Erro ao salvar artigo', { id: 'save' })
     }
   }
 
@@ -171,10 +192,7 @@ export default function BlogAdminPage() {
 
     try {
       setLoading(true)
-      setMessage({ 
-        type: 'success', 
-        text: `Traduzindo "${title}"... Isso pode demorar alguns minutos.` 
-      })
+      toast.loading(`Traduzindo "${title}"...`, { id: 'translate' })
 
       const response = await fetch('/api/blog/translate', {
         method: 'POST',
@@ -189,21 +207,12 @@ export default function BlogAdminPage() {
 
       if (data.success) {
         const slug = data.post?.slug || 'unknown'
-        setMessage({ 
-          type: 'success', 
-          text: `Post traduzido com sucesso! A versão em inglês estará disponível em /en-US/blog/${slug}` 
-        })
+        toast.success(`Post traduzido com sucesso! A versão em inglês estará disponível em /en-US/blog/${slug}`, { id: 'translate' })
       } else {
-        setMessage({ 
-          type: 'error', 
-          text: data.error || 'Erro ao traduzir post' 
-        })
+        toast.error(data.error || 'Erro ao traduzir post', { id: 'translate' })
       }
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: 'Erro ao conectar com o servidor de tradução' 
-      })
+      toast.error('Erro ao conectar com o servidor de tradução', { id: 'translate' })
     } finally {
       setLoading(false)
     }
@@ -218,13 +227,62 @@ export default function BlogAdminPage() {
       })
 
       if (response.ok) {
-        setMessage({ type: 'success', text: 'Post excluído com sucesso' })
+        toast.success('Post excluído com sucesso')
         await loadData()
       } else {
-        setMessage({ type: 'error', text: 'Erro ao excluir post' })
+        toast.error('Erro ao excluir post')
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Erro ao excluir post' })
+      toast.error('Erro ao excluir post')
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedPosts.length === 0) {
+      toast.error('Selecione pelo menos um post para deletar')
+      return
+    }
+
+    if (!confirm(`Tem certeza que deseja deletar ${selectedPosts.length} post(s)?`)) return
+
+    try {
+      setLoading(true)
+      toast.loading('Deletando posts...', { id: 'bulk-delete' })
+      
+      const deletePromises = selectedPosts.map(postId =>
+        fetch('/api/admin/blog/posts', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ id: postId })
+        })
+      )
+
+      await Promise.all(deletePromises)
+      
+      toast.success(`${selectedPosts.length} post(s) deletado(s) com sucesso!`, { id: 'bulk-delete' })
+      setSelectedPosts([])
+      await loadData()
+    } catch (error) {
+      toast.error('Erro ao deletar posts', { id: 'bulk-delete' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const togglePostSelection = (postId: string) => {
+    setSelectedPosts(prev => 
+      prev.includes(postId) 
+        ? prev.filter(id => id !== postId)
+        : [...prev, postId]
+    )
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedPosts.length === posts.length) {
+      setSelectedPosts([])
+    } else {
+      setSelectedPosts(posts.map(p => p.id))
     }
   }
 
@@ -270,28 +328,29 @@ export default function BlogAdminPage() {
         title="Blog Admin"
         description="Gerencie posts e conteúdo do blog"
       >
-      <div className="space-y-8">
+      <div className="space-y-8 bg-slate-900 min-h-screen p-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <FileText className="h-8 w-8" />
+            <h1 className="text-3xl font-bold flex items-center gap-2 text-slate-100">
+              <FileText className="h-8 w-8 text-blue-400" />
               Administração do Blog
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-slate-400 mt-1">
               {posts.length} post{posts.length !== 1 ? 's' : ''} no total
             </p>
           </div>
           <div className="flex gap-3">
-            <div className="flex items-center gap-2 mr-4 px-4 py-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+            <div className="flex items-center gap-2 mr-4 px-4 py-2 bg-emerald-900/30 rounded-lg border border-emerald-700/50">
               <Checkbox
                 id="textOnlyMode"
                 checked={textOnlyMode}
                 onCheckedChange={(checked) => setTextOnlyMode(checked as boolean)}
+                className="border-emerald-600 data-[state=checked]:bg-emerald-600"
               />
               <Label
                 htmlFor="textOnlyMode"
-                className="text-sm font-medium cursor-pointer flex items-center gap-2"
+                className="text-sm font-medium cursor-pointer flex items-center gap-2 text-emerald-200"
               >
                 <span>🎨 Modo Texto + Upload Manual</span>
               </Label>
@@ -352,6 +411,18 @@ export default function BlogAdminPage() {
                 <DropdownMenuSeparator />
                 
                 <DropdownMenuItem 
+                  onClick={() => setCustomThemeDialogOpen(true)}
+                  className="cursor-pointer"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-semibold">✨ Tema Customizado</span>
+                    <span className="text-xs text-muted-foreground">Digite seu próprio tema</span>
+                  </div>
+                </DropdownMenuItem>
+                
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuItem 
                   onClick={() => handleGeneratePost()}
                   className="cursor-pointer"
                 >
@@ -365,79 +436,67 @@ export default function BlogAdminPage() {
           </div>
         </div>
 
-        {/* Message Alert */}
-        {message && (
-          <Alert variant={message.type === 'error' ? 'destructive' : 'default'}>
-            {message.type === 'success' ? (
-              <CheckCircle className="h-4 w-4" />
-            ) : (
-              <AlertCircle className="h-4 w-4" />
-            )}
-            <AlertDescription>{message.text}</AlertDescription>
-          </Alert>
-        )}
-
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
+          <Card className="bg-slate-800 border-slate-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Rascunhos</CardTitle>
-              <Edit className="h-4 w-4 text-gray-600" />
+              <CardTitle className="text-sm font-medium text-slate-200">Rascunhos</CardTitle>
+              <Edit className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-600">{stats?.drafts || 0}</div>
+              <div className="text-2xl font-bold text-gray-300">{stats?.drafts || 0}</div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800 border-slate-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Agendados</CardTitle>
-              <Clock className="h-4 w-4 text-blue-600" />
+              <CardTitle className="text-sm font-medium text-slate-200">Agendados</CardTitle>
+              <Clock className="h-4 w-4 text-blue-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats?.scheduled || 0}</div>
+              <div className="text-2xl font-bold text-blue-400">{stats?.scheduled || 0}</div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800 border-slate-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Publicados</CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
+              <CardTitle className="text-sm font-medium text-slate-200">Publicados</CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats?.published || 0}</div>
+              <div className="text-2xl font-bold text-green-400">{stats?.published || 0}</div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-slate-800 border-slate-700">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-slate-200">Total</CardTitle>
+              <TrendingUp className="h-4 w-4 text-slate-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats?.total || 0}</div>
+              <div className="text-2xl font-bold text-slate-100">{stats?.total || 0}</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Automation Info */}
-        <Card>
+        <Card className="bg-slate-800 border-slate-700">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-slate-100">
+              <Calendar className="h-5 w-5 text-blue-400" />
               Sistema Temático de Blog
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-slate-400">
               4 categorias de artigos que rotacionam por dia da semana
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
-                <h4 className="font-semibold mb-2 text-blue-600">🗓️ Segunda-feira</h4>
-                <div className="bg-blue-50 p-3 rounded-lg">
-                  <p className="font-medium text-sm mb-1">💼 Automação e Negócios</p>
-                  <p className="text-xs text-muted-foreground">
+                <h4 className="font-semibold mb-2 text-blue-400">🗓️ Segunda-feira</h4>
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600">
+                  <p className="font-medium text-sm mb-1 text-slate-200">💼 Automação e Negócios</p>
+                  <p className="text-xs text-slate-400">
                     Para clientes e recrutadores sobre vantagens de sistemas automáticos, 
                     ROI digital e transformação empresarial
                   </p>
@@ -445,10 +504,10 @@ export default function BlogAdminPage() {
               </div>
               
               <div>
-                <h4 className="font-semibold mb-2 text-purple-600">🗓️ Quinta-feira</h4>
-                <div className="bg-purple-50 p-3 rounded-lg">
-                  <p className="font-medium text-sm mb-1">💻 Programação Web Full Stack</p>
-                  <p className="text-xs text-muted-foreground">
+                <h4 className="font-semibold mb-2 text-purple-400">🗓️ Quinta-feira</h4>
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600">
+                  <p className="font-medium text-sm mb-1 text-slate-200">💻 Programação Web Full Stack</p>
+                  <p className="text-xs text-slate-400">
                     De HTML básico até frameworks modernos (React, Angular, Node.js, bancos de dados, 
                     N8N, ferramentas e atualizações). Tudo explicado para leigos com imagens didáticas.
                   </p>
@@ -456,10 +515,10 @@ export default function BlogAdminPage() {
               </div>
               
               <div>
-                <h4 className="font-semibold mb-2 text-pink-600">🗓️ Sábado</h4>
-                <div className="bg-pink-50 p-3 rounded-lg">
-                  <p className="font-medium text-sm mb-1">🐱 Cuidados Felinos</p>
-                  <p className="text-xs text-muted-foreground">
+                <h4 className="font-semibold mb-2 text-pink-400">🗓️ Sábado</h4>
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600">
+                  <p className="font-medium text-sm mb-1 text-slate-200">🐱 Cuidados Felinos</p>
+                  <p className="text-xs text-slate-400">
                     Artigos acolhedores sobre cuidados com gatinhos: saúde, alimentação, 
                     bem-estar animal com fotos adoráveis de gatinhos
                   </p>
@@ -467,10 +526,10 @@ export default function BlogAdminPage() {
               </div>
               
               <div>
-                <h4 className="font-semibold mb-2 text-emerald-600">🗓️ Domingo</h4>
-                <div className="bg-emerald-50 p-3 rounded-lg">
-                  <p className="font-medium text-sm mb-1">🤖 Novidades sobre IA</p>
-                  <p className="text-xs text-muted-foreground">
+                <h4 className="font-semibold mb-2 text-emerald-400">🗓️ Domingo</h4>
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600">
+                  <p className="font-medium text-sm mb-1 text-slate-200">🤖 Novidades sobre IA</p>
+                  <p className="text-xs text-slate-400">
                     Últimas notícias sobre inteligência artificial: novos modelos (ChatGPT, Gemini, Claude), 
                     ferramentas, atualizações e tendências de fontes confiáveis
                   </p>
@@ -478,107 +537,144 @@ export default function BlogAdminPage() {
               </div>
             </div>
             
-            <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
-              <p className="text-sm">
-                <strong className="text-green-700">Status do Sistema:</strong>{' '}
-                <span className="text-green-600 font-semibold">ATIVO</span> - 
-                Geração automática nos dias programados (Segunda, Quinta, Sábado, Domingo) + geração manual por tema
+            <div className="mt-6 p-4 bg-emerald-900/30 rounded-lg border border-emerald-700/50">
+              <p className="text-sm text-slate-200">
+                <strong className="text-emerald-400">Status do Sistema:</strong>{' '}
+                <span className="text-emerald-300 font-semibold">ATIVO</span> - 
+                <span className="text-slate-300"> Geração automática nos dias programados (Segunda, Quinta, Sábado, Domingo) + geração manual por tema</span>
               </p>
             </div>
           </CardContent>
         </Card>
 
         {/* Lista de Posts */}
-        <Card>
+        <Card className="bg-slate-800 border-slate-700">
           <CardHeader>
-            <CardTitle>Todos os Posts</CardTitle>
-            <CardDescription>
-              Gerencie e visualize todos os posts do blog
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-slate-100">Todos os Posts</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Gerencie e visualize todos os posts do blog
+                </CardDescription>
+              </div>
+              {selectedPosts.length > 0 && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  className="gap-2 bg-red-600 hover:bg-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Deletar {selectedPosts.length} selecionado(s)
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {posts.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8">
+              <p className="text-slate-400 text-center py-8">
                 Nenhum post encontrado. Gere o primeiro post!
               </p>
             ) : (
               <div className="space-y-4">
+                {/* Select All */}
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-700">
+                  <Checkbox
+                    checked={selectedPosts.length === posts.length && posts.length > 0}
+                    onCheckedChange={toggleSelectAll}
+                    id="select-all"
+                  />
+                  <Label htmlFor="select-all" className="text-sm font-medium cursor-pointer text-slate-200">
+                    Selecionar todos ({posts.length})
+                  </Label>
+                </div>
+
                 {posts.map(post => (
                   <div
                     key={post.id}
-                    className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                    className="border border-slate-700 rounded-lg p-4 hover:bg-slate-700/30 transition-colors bg-slate-800/50"
                   >
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        checked={selectedPosts.includes(post.id)}
+                        onCheckedChange={() => togglePostSelection(post.id)}
+                        id={`post-${post.id}`}
+                        className="mt-1"
+                      />
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-lg">{post.title}</h3>
-                          <span className={`text-xs font-medium px-2 py-1 rounded-md ${getStatusColor(post.status)}`}>
-                            {getStatusLabel(post.status)}
-                          </span>
-                        </div>
-                        
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                          {post.excerpt}
-                        </p>
-                        
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span>Por: {post.author}</span>
-                          <span>•</span>
-                          <span>Criado: {new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
-                          {post.published_at && (
-                            <>
-                              <span>•</span>
-                              <span>Publicado: {new Date(post.published_at).toLocaleDateString('pt-BR')}</span>
-                            </>
-                          )}
-                          <span>•</span>
-                          <span>Slug: /{post.slug}</span>
-                        </div>
-                        
-                        {post.tags && post.tags.length > 0 && (
-                          <div className="flex gap-1 mt-2">
-                            {post.tags.slice(0, 3).map((tag, index) => (
-                              <span key={index} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
-                                #{tag}
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <h3 className="font-semibold text-lg text-slate-100">{post.title}</h3>
+                              <span className={`text-xs font-medium px-2 py-1 rounded-md ${getStatusColor(post.status)}`}>
+                                {getStatusLabel(post.status)}
                               </span>
-                            ))}
-                            {post.tags.length > 3 && (
-                              <span className="text-xs text-muted-foreground">+{post.tags.length - 3}</span>
+                            </div>
+                            
+                            <p className="text-sm text-slate-400 mb-3 line-clamp-2">
+                              {post.excerpt}
+                            </p>
+                            
+                            <div className="flex items-center gap-4 text-xs text-slate-500">
+                              <span>Por: {post.author}</span>
+                              <span>•</span>
+                              <span>Criado: {new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
+                              {post.published_at && (
+                                <>
+                                  <span>•</span>
+                                  <span>Publicado: {new Date(post.published_at).toLocaleDateString('pt-BR')}</span>
+                                </>
+                              )}
+                              <span>•</span>
+                              <span className="text-emerald-400">/{post.slug}</span>
+                            </div>
+                            
+                            {post.tags && post.tags.length > 0 && (
+                              <div className="flex gap-1 mt-2">
+                                {post.tags.slice(0, 3).map((tag, index) => (
+                                  <span key={index} className="text-xs bg-emerald-900/40 text-emerald-300 border border-emerald-700/50 px-2 py-1 rounded">
+                                    #{tag}
+                                  </span>
+                                ))}
+                                {post.tags.length > 3 && (
+                                  <span className="text-xs text-slate-500">+{post.tags.length - 3}</span>
+                                )}
+                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex gap-2 ml-4">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="gap-1"
-                          onClick={() => setPreviewPost(post as unknown as BlogPostType)}
-                        >
-                          <Eye className="h-3 w-3" />
-                          Ver
-                        </Button>
-                        
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          className="gap-1"
-                          onClick={() => handleTranslatePost(post.id, post.title)}
-                          disabled={loading}
-                        >
-                          🌐 Traduzir
-                        </Button>
-                        
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="gap-1"
-                          onClick={() => handleDeletePost(post.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                          Excluir
-                        </Button>
+                          
+                          <div className="flex gap-2 ml-4">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="gap-1"
+                              onClick={() => setPreviewPost(post as unknown as BlogPostType)}
+                            >
+                              <Eye className="h-3 w-3" />
+                              Ver
+                            </Button>
+                            
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="gap-1"
+                              onClick={() => handleTranslatePost(post.id, post.title)}
+                              disabled={loading}
+                            >
+                              🌐 Traduzir
+                            </Button>
+                            
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="gap-1"
+                              onClick={() => handleDeletePost(post.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Excluir
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -588,6 +684,63 @@ export default function BlogAdminPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialog de Tema Customizado */}
+      <Dialog open={customThemeDialogOpen} onOpenChange={setCustomThemeDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>✨ Gerar Artigo com Tema Customizado</DialogTitle>
+            <DialogDescription>
+              Digite o tema ou assunto sobre o qual você quer gerar um artigo. A IA criará conteúdo relevante e otimizado para SEO.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="custom-theme">Tema do Artigo</Label>
+              <Input
+                id="custom-theme"
+                placeholder="Ex: Como criar um chatbot com IA, Tendências de automação 2025..."
+                value={customTheme}
+                onChange={(e) => setCustomTheme(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleGenerateWithCustomTheme()
+                  }
+                }}
+                className="w-full"
+              />
+            </div>
+            
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-xs text-blue-800 dark:text-blue-300">
+                💡 <strong>Dica:</strong> Seja específico! Quanto mais detalhado o tema, melhor será o conteúdo gerado.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCustomThemeDialogOpen(false)
+                setCustomTheme('')
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleGenerateWithCustomTheme}
+              disabled={!customTheme.trim()}
+              className="gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              Gerar Artigo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Modal de Preview e Edição */}
       <BlogPreviewModal

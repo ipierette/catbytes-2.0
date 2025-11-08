@@ -259,60 +259,60 @@ export default function DashboardPage() {
 
           {/* Main Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
+            <Card className="bg-slate-800 border-slate-700">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Posts do Blog</CardTitle>
-                <FileText className="h-4 w-4 text-blue-600" />
+                <CardTitle className="text-sm font-medium text-slate-200">Posts do Blog</CardTitle>
+                <FileText className="h-4 w-4 text-emerald-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-blue-600">{stats?.blog.totalPosts || 0}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-2xl font-bold text-emerald-400">{stats?.blog.totalPosts || 0}</div>
+                <p className="text-xs text-slate-400">
                   {stats?.blog.publishedPosts || 0} publicados
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-slate-800 border-slate-700">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Posts Instagram</CardTitle>
-                <Instagram className="h-4 w-4 text-pink-600" />
+                <CardTitle className="text-sm font-medium text-slate-200">Posts Instagram</CardTitle>
+                <Instagram className="h-4 w-4 text-emerald-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-pink-600">{stats?.instagram.totalPosts || 0}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-2xl font-bold text-emerald-400">{stats?.instagram.totalPosts || 0}</div>
+                <p className="text-xs text-slate-400">
                   {stats?.instagram.pendingPosts || 0} pendentes
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-slate-800 border-slate-700">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Automação</CardTitle>
-                <Zap className={`h-4 w-4 ${stats?.automation.status === 'active' ? 'text-green-600' : 'text-red-600'}`} />
+                <CardTitle className="text-sm font-medium text-slate-200">Automação</CardTitle>
+                <Zap className={`h-4 w-4 ${stats?.automation.status === 'active' ? 'text-emerald-400' : 'text-red-400'}`} />
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${stats?.automation.status === 'active' ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-2xl font-bold ${stats?.automation.status === 'active' ? 'text-emerald-400' : 'text-red-400'}`}>
                   {stats?.automation.status === 'active' ? 'ATIVA' : 'PAUSADA'}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-slate-400">
                   {stats?.automation.cronJobs || 0}/2 cron jobs
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-slate-800 border-slate-700">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Próxima Execução</CardTitle>
-                <Clock className="h-4 w-4 text-orange-600" />
+                <CardTitle className="text-sm font-medium text-slate-200">Próxima Execução</CardTitle>
+                <Clock className="h-4 w-4 text-emerald-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-xl font-bold text-orange-600">
+                <div className="text-xl font-bold text-emerald-400">
                   {stats?.automation.nextRun 
                     ? new Date(stats.automation.nextRun).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
                     : '13:00'
                   }
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-slate-400">
                   {stats?.automation.nextRun 
                     ? formatNextExecution(stats.automation.nextRun).replace(/ às \d{2}:\d{2}$/, '')
                     : 'Amanhã'
@@ -325,24 +325,24 @@ export default function DashboardPage() {
           {/* System Overview */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Blog Stats */}
-            <Card>
+            <Card className="bg-slate-800 border-slate-700">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-slate-100">
+                  <FileText className="h-5 w-5 text-emerald-400" />
                   Sistema de Blog
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-slate-400">
                   Estatísticas e status do blog
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Posts Publicados</span>
-                  <span className="text-lg font-bold text-green-600">{stats?.blog.publishedPosts || 0}</span>
+                  <span className="text-sm font-medium text-slate-300">Posts Publicados</span>
+                  <span className="text-lg font-bold text-emerald-400">{stats?.blog.publishedPosts || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Rascunhos</span>
-                  <span className="text-lg font-bold text-gray-600">{stats?.blog.drafts || 0}</span>
+                  <span className="text-sm font-medium text-slate-300">Rascunhos</span>
+                  <span className="text-lg font-bold text-slate-500">{stats?.blog.drafts || 0}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Última Geração</span>

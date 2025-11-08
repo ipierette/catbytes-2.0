@@ -12,9 +12,12 @@ export const maxDuration = 60
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
+    // Await params in Next.js 15
+    const { slug } = await context.params
+    
     // Verify admin authentication
     const adminVerification = await verifyAdminCookie(request)
     if (!adminVerification.valid) {
@@ -31,7 +34,6 @@ export async function POST(
       )
     }
 
-    const { slug } = params
     console.log('[Cover Image Upload] Processing upload for post:', slug)
 
     // Get form data
@@ -69,13 +71,13 @@ export async function POST(
     // Generate file path
     const fileExt = file.name.split('.').pop()
     const fileName = `${slug}-cover-${Date.now()}.${fileExt}`
-    const filePath = `blog/covers/${fileName}`
+    const filePath = `covers/${fileName}`
 
     console.log('[Cover Image Upload] Uploading to:', filePath)
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage (blog-images bucket)
     const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-      .from('images')
+      .from('blog-images')
       .upload(filePath, buffer, {
         contentType: file.type,
         upsert: false,
@@ -88,7 +90,7 @@ export async function POST(
 
     // Get public URL
     const { data: publicUrlData } = supabaseAdmin.storage
-      .from('images')
+      .from('blog-images')
       .getPublicUrl(filePath)
 
     const publicUrl = publicUrlData.publicUrl
@@ -107,7 +109,7 @@ export async function POST(
     if (updateError) {
       console.error('[Cover Image Upload] Failed to update post:', updateError)
       // Try to delete uploaded file
-      await supabaseAdmin.storage.from('images').remove([filePath])
+      await supabaseAdmin.storage.from('blog-images').remove([filePath])
       throw new Error(`Failed to update post: ${updateError.message}`)
     }
 

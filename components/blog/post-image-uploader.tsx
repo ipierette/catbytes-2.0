@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from 'sonner'
 
 interface PostImageUploaderProps {
   postSlug: string
@@ -13,26 +14,39 @@ interface PostImageUploaderProps {
   currentContent?: string
   onCoverUpdated?: (newUrl: string) => void
   onContentUpdated?: (newContent: string) => void
+  imagePrompt?: string | null
+  contentImagePrompts?: string[] | null
 }
 
-export function PostImageUploader({ postSlug, currentCoverUrl, currentContent, onCoverUpdated, onContentUpdated }: PostImageUploaderProps) {
+export function PostImageUploader({ 
+  postSlug, 
+  currentCoverUrl, 
+  currentContent, 
+  onCoverUpdated, 
+  onContentUpdated,
+  imagePrompt,
+  contentImagePrompts
+}: PostImageUploaderProps) {
   const [uploadingCover, setUploadingCover] = useState(false)
-  const [uploadingContent, setUploadingContent] = useState(false)
+  const [uploadingContent, setUploadingContent] = useState<number | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [contentPreviews, setContentPreviews] = useState<(string | null)[]>([null, null, null, null])
+  const [contentDescriptions, setContentDescriptions] = useState<string[]>(['', '', '', ''])
+  const [markdownSnippets, setMarkdownSnippets] = useState<string[]>(['', '', '', ''])
+  const [editableContent, setEditableContent] = useState(currentContent || '')
+  
+  // Single content upload states (for backward compatibility)
   const [contentPreview, setContentPreview] = useState<string | null>(null)
   const [contentDescription, setContentDescription] = useState('')
   const [markdownSnippet, setMarkdownSnippet] = useState('')
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  const [editableContent, setEditableContent] = useState(currentContent || '')
 
   const handleCoverUpload = async (file: File) => {
     if (!file || !file.type.startsWith('image/')) {
-      setMessage({ type: 'error', text: 'Selecione uma imagem válida' })
+      toast.error('Selecione uma imagem válida')
       return
     }
 
     setUploadingCover(true)
-    setMessage(null)
 
     try {
       const formData = new FormData()
@@ -50,15 +64,12 @@ export function PostImageUploader({ postSlug, currentCoverUrl, currentContent, o
         throw new Error(data.error || 'Erro ao fazer upload')
       }
 
-      setMessage({ type: 'success', text: '✅ Imagem de capa atualizada!' })
+      toast.success('✅ Imagem de capa atualizada!')
       setCoverPreview(null)
       onCoverUpdated?.(data.coverImageUrl)
-
-      // Auto-hide success message
-      setTimeout(() => setMessage(null), 3000)
     } catch (error: any) {
       console.error('Erro no upload:', error)
-      setMessage({ type: 'error', text: error.message })
+      toast.error(error.message)
     } finally {
       setUploadingCover(false)
     }
@@ -66,17 +77,16 @@ export function PostImageUploader({ postSlug, currentCoverUrl, currentContent, o
 
   const handleContentUpload = async (file: File) => {
     if (!file || !file.type.startsWith('image/')) {
-      setMessage({ type: 'error', text: 'Selecione uma imagem válida' })
+      toast.error('Selecione uma imagem válida')
       return
     }
 
     if (!contentDescription.trim()) {
-      setMessage({ type: 'error', text: 'Adicione uma descrição para a imagem' })
+      toast.error('Adicione uma descrição para a imagem')
       return
     }
 
     setUploadingContent(true)
-    setMessage(null)
 
     try {
       const formData = new FormData()
@@ -96,12 +106,12 @@ export function PostImageUploader({ postSlug, currentCoverUrl, currentContent, o
       }
 
       setMarkdownSnippet(data.markdownSnippet)
-      setMessage({ type: 'success', text: '✅ Imagem enviada! Copie o código abaixo.' })
+      toast.success('✅ Imagem enviada! Copie o código abaixo.')
       setContentPreview(null)
       setContentDescription('')
     } catch (error: any) {
       console.error('Erro no upload:', error)
-      setMessage({ type: 'error', text: error.message })
+      toast.error(error.message)
     } finally {
       setUploadingContent(false)
     }
@@ -130,16 +140,51 @@ export function PostImageUploader({ postSlug, currentCoverUrl, currentContent, o
     }
   }
 
-  const copyMarkdown = async () => {
+  const copyMarkdown = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
     try {
       await navigator.clipboard.writeText(markdownSnippet)
-      setMessage({ type: 'success', text: '✅ Markdown copiado!' })
-      setTimeout(() => {
-        setMessage(null)
-        setMarkdownSnippet('')
-      }, 2000)
-    } catch {
-      setMessage({ type: 'error', text: 'Erro ao copiar' })
+      toast.success('✅ Markdown copiado!')
+    } catch (err) {
+      // Fallback for older browsers or permissions denied
+      try {
+        const textarea = document.createElement('textarea')
+        textarea.value = markdownSnippet
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+        toast.success('✅ Markdown copiado!')
+      } catch (fallbackErr) {
+        console.error('Erro ao copiar:', fallbackErr)
+        toast.error('Erro ao copiar. Tente manualmente.')
+      }
+    }
+  }
+
+  const copyPrompt = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      toast.success('✅ Prompt copiado!')
+    } catch (err) {
+      // Fallback for older browsers or permissions denied
+      try {
+        const textarea = document.createElement('textarea')
+        textarea.value = text
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+        toast.success('✅ Prompt copiado!')
+      } catch (fallbackErr) {
+        console.error('Erro ao copiar:', fallbackErr)
+        toast.error('Erro ao copiar. Tente manualmente.')
+      }
     }
   }
 
@@ -150,7 +195,7 @@ export function PostImageUploader({ postSlug, currentCoverUrl, currentContent, o
     const newContent = editableContent + '\n\n' + markdownSnippet + '\n\n'
     setEditableContent(newContent)
     onContentUpdated?.(newContent)
-    setMessage({ type: 'success', text: '✅ Imagem inserida no conteúdo!' })
+    toast.success('✅ Imagem inserida no conteúdo!')
     setMarkdownSnippet('')
     setContentPreview(null)
     setContentDescription('')
@@ -163,13 +208,66 @@ export function PostImageUploader({ postSlug, currentCoverUrl, currentContent, o
         Upload de Imagens (Admin)
       </h3>
 
-      {message && (
-        <div className={`p-3 rounded-lg text-sm ${
-          message.type === 'error' 
-            ? 'bg-red-100 text-red-900 dark:bg-red-900 dark:text-red-100' 
-            : 'bg-green-100 text-green-900 dark:bg-green-900 dark:text-green-100'
-        }`}>
-          {message.text}
+      {/* AI Prompts Section */}
+      {(imagePrompt || (contentImagePrompts && contentImagePrompts.length > 0)) && (
+        <div className="space-y-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-2 border-blue-300 dark:border-blue-700">
+          <h4 className="font-semibold text-blue-900 dark:text-blue-300 flex items-center gap-2">
+            🤖 Prompts Gerados pela IA
+          </h4>
+          
+          {imagePrompt && (
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-blue-800 dark:text-blue-400">
+                Prompt para Imagem de Capa
+              </Label>
+              <div className="flex gap-2">
+                <code className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 rounded text-sm overflow-x-auto border border-blue-200 dark:border-blue-800">
+                  {imagePrompt}
+                </code>
+                <Button
+                  onClick={() => copyPrompt(imagePrompt)}
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 border-blue-300 dark:border-blue-700"
+                  title="Copiar prompt"
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-blue-700 dark:text-blue-400">
+                💡 Use este prompt no DALL-E, Midjourney ou outra ferramenta de IA para gerar a imagem de capa
+              </p>
+            </div>
+          )}
+
+          {contentImagePrompts && contentImagePrompts.length > 0 && (
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold text-blue-800 dark:text-blue-400">
+                Prompts para Imagens de Conteúdo ({contentImagePrompts.length})
+              </Label>
+              {contentImagePrompts.map((prompt, index) => (
+                <div key={index} className="space-y-1">
+                  <div className="flex gap-2">
+                    <code className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 rounded text-sm overflow-x-auto border border-blue-200 dark:border-blue-800">
+                      {prompt}
+                    </code>
+                    <Button
+                      onClick={() => copyPrompt(prompt)}
+                      variant="outline"
+                      size="sm"
+                      className="gap-1 border-blue-300 dark:border-blue-700"
+                      title="Copiar prompt"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+              <p className="text-xs text-blue-700 dark:text-blue-400">
+                💡 Gere estas imagens e faça upload abaixo na seção "Imagem para Conteúdo"
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -243,10 +341,11 @@ export function PostImageUploader({ postSlug, currentCoverUrl, currentContent, o
             onChange={handleContentFileSelect}
             disabled={uploadingContent}
             className="flex-1 cursor-pointer"
+            id="content-image-input"
           />
           <Button
             onClick={() => {
-              const input = document.querySelector('input[type="file"]') as HTMLInputElement
+              const input = document.getElementById('content-image-input') as HTMLInputElement
               const file = input?.files?.[0]
               if (file) handleContentUpload(file)
             }}
