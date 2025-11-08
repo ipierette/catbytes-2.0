@@ -76,7 +76,7 @@ export function CatBytesStoryModal({ isOpen, onClose }: CatBytesStoryModalProps)
                   >
                     <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-catbytes-purple/20 dark:border-catbytes-pink/20">
                       <Image
-                        src="/images/axel-adulto.webp"
+                        src="/images/axel.png"
                         alt="Axel - A inspiração do CatBytes"
                         width={500}
                         height={500}
