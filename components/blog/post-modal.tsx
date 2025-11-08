@@ -58,15 +58,20 @@ export function PostModal({ post, isOpen, onClose, adminMode = false }: PostModa
     if (isOpen && post && !viewsIncremented) {
       // Call the API endpoint to increment views
       fetch(`/api/blog/posts/${post.slug}`)
-        .then(() => setViewsIncremented(true))
-        .catch(console.error)
+        .then(() => {
+          setViewsIncremented(true)
+          console.log('[PostModal] View incremented for:', post.slug)
+        })
+        .catch((err) => {
+          console.error('[PostModal] Failed to increment view:', err)
+        })
     }
     
     // Reset when modal closes
     if (!isOpen) {
       setViewsIncremented(false)
     }
-  }, [isOpen, post, viewsIncremented])
+  }, [isOpen, post?.slug])
 
   // Reset image error when modal opens with new post
   useEffect(() => {
