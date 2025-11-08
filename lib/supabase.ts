@@ -136,8 +136,13 @@ export const db = {
   // Increment views
   async incrementViews(postId: string) {
     try {
+      console.log('[Views] Starting increment for post:', postId)
+      console.log('[Views] supabaseAdmin configured:', !!supabaseAdmin)
+      console.log('[Views] Environment:', process.env.NODE_ENV)
+      
       if (!supabaseAdmin) {
-        console.error('Error incrementing views: supabaseAdmin not configured')
+        console.error('[Views] ERROR: supabaseAdmin not configured')
+        console.error('[Views] SUPABASE_SERVICE_ROLE_KEY present:', !!process.env.SUPABASE_SERVICE_ROLE_KEY)
         return false
       }
 
@@ -147,15 +152,22 @@ export const db = {
       })
 
       if (error) {
-        console.error('Error incrementing views:', error)
-        console.error('Post ID:', postId)
+        console.error('[Views] RPC Error:', error)
+        console.error('[Views] Error code:', error.code)
+        console.error('[Views] Error message:', error.message)
+        console.error('[Views] Post ID:', postId)
         return false
       }
       
-      console.log('[Views] Incremented views for post:', postId)
+      console.log('[Views] SUCCESS - Incremented views for post:', postId)
+      console.log('[Views] RPC returned data:', data)
       return true
     } catch (err) {
-      console.error('Exception incrementing views:', err)
+      console.error('[Views] Exception incrementing views:', err)
+      if (err instanceof Error) {
+        console.error('[Views] Exception message:', err.message)
+        console.error('[Views] Exception stack:', err.stack)
+      }
       return false
     }
   },

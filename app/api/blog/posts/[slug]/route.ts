@@ -7,7 +7,8 @@ import { db } from '@/lib/supabase'
 // =====================================================
 
 export const runtime = 'edge'
-export const revalidate = 600 // Cache for 10 minutes
+// Removed static revalidate - we'll handle caching dynamically
+// to ensure view counts update properly
 
 export async function GET(
   request: NextRequest,
@@ -30,17 +31,26 @@ export async function GET(
     console.log('[API] Post found:', { id: post.id, slug: post.slug, currentViews: post.views })
 
     // Increment views (fire and forget)
-    db.incrementViews(post.id)
+    const incrementPromise = db.incrementViews(post.id)
       .then((success) => {
         console.log('[API] incrementViews result:', success)
+        return success
       })
       .catch((err) => {
         console.error('[API] incrementViews error:', err)
+        return false
       })
 
-    return NextResponse.json(post, {
+    // Wait for increment to complete before responding
+    await incrementPromise
+
+    // Fetch updated post with new view count
+    const updatedPost = await db.getPostBySlug(slug)
+
+    return NextResponse.json(updatedPost || post, {
       headers: {
-        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200',
+        // Short cache only, prioritize fresh data for view counts
+        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30',
       },
     })
   } catch (error) {
