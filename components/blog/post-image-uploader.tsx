@@ -86,7 +86,7 @@ export function PostImageUploader({
       return
     }
 
-    setUploadingContent(true)
+    setUploadingContent(0)
 
     try {
       const formData = new FormData()
@@ -113,7 +113,7 @@ export function PostImageUploader({
       console.error('Erro no upload:', error)
       toast.error(error.message)
     } finally {
-      setUploadingContent(false)
+      setUploadingContent(null)
     }
   }
 
@@ -339,7 +339,7 @@ export function PostImageUploader({
             type="file"
             accept="image/*"
             onChange={handleContentFileSelect}
-            disabled={uploadingContent}
+            disabled={uploadingContent !== null}
             className="flex-1 cursor-pointer"
             id="content-image-input"
           />
@@ -349,11 +349,11 @@ export function PostImageUploader({
               const file = input?.files?.[0]
               if (file) handleContentUpload(file)
             }}
-            disabled={uploadingContent || !contentPreview || !contentDescription}
+            disabled={uploadingContent !== null || !contentPreview || !contentDescription}
             className="gap-2"
           >
             <Upload className="w-4 h-4" />
-            {uploadingContent ? 'Enviando...' : 'Enviar'}
+            {uploadingContent !== null ? 'Enviando...' : 'Enviar'}
           </Button>
         </div>
 
