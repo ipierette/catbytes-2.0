@@ -42,6 +42,27 @@
       "webDevelopment": "Desenvolvimento Web",
       "coffeeAndCreativity": "Café e Criatividade",
       "continuousLearning": "Aprendizado Contínuo"
+    },
+    "catbytes": {
+      "title": "Por que \"CatBytes\"?",
+      "paragraph1": "Na verdade é bem simples! Quando comecei como desenvolvedora, eu queria um portfólio que refletisse a minha personalidade: criativa, dedicada e um pouco excêntrica (no bom sentido!).",
+      "paragraph2": "Nessa época, eu havia recentemente adotado o Axel — um gatinho laranja cheio de energia e travessuras — e minha vida começou a girar muito ao redor das necessidades dele: brinquedos, horários de alimentação, cuidados... enfim, todo o pacote felino completo! 🐱",
+      "paragraph3": "Então pensei: se eu estava começando do zero no mundo tech, e meu dia-a-dia já girava em torno de gatos, por que não unir os dois? Decidi que a melhor forma de criar algo único era unir código e gatos! 😸",
+      "quote": "CatBytes = Cats + Bytes — A união perfeita entre tecnologia e o amor pelos felinos mais fofos do mundo!",
+      "imageAlt": "Axel - O gato que inspirou o nome CatBytes",
+      "badge": "🐱 Axel, o CEO",
+      "buttonText": "Sobre o CatBytes",
+      "storyTitle": "A História do CatBytes",
+      "storySubtitle": "Como código e gatos se uniram",
+      "axelRole": "A inspiração do CatBytes",
+      "storyPart1": "Na verdade é bem simples. Quando eu comecei como desenvolvedora, eu queria um portfólio que refletisse a minha personalidade no momento.",
+      "storyPart2": "Naquela época eu havia recentemente adotado o Axel e minha vida começou a girar muito ao redor das necessidades dele. Eu sempre gostei muito de gatos, mas a paixão aumentou com a presença dele na minha vida.",
+      "storyPart3": "E eu decidi que pro meu portfólio refletir minha identidade naquele momento de início de carreira, a melhor forma era unir código e gatos! 😺💜",
+      "funFactsTitle": "Curiosidades sobre o CatBytes",
+      "funFact1": "🐾 Axel é um gato resgatado que mudou minha perspectiva sobre desenvolvimento",
+      "funFact2": "💻 O logo combina elementos felinos com código binário",
+      "funFact3": "✨ Cada projeto tem um toque de personalidade gatística",
+      "footer": "CatBytes: Onde código e amor por gatos se encontram ✨"
     }
   },
   "skills": {

@@ -42,6 +42,27 @@
       "webDevelopment": "Web Development",
       "coffeeAndCreativity": "Coffee and Creativity",
       "continuousLearning": "Continuous Learning"
+    },
+    "catbytes": {
+      "title": "Why \"CatBytes\"?",
+      "paragraph1": "It's actually quite simple! When I started as a developer, I wanted a portfolio that reflected my personality: creative, dedicated, and a bit quirky (in a good way!).",
+      "paragraph2": "At that time, I had recently adopted Axel — an orange kitten full of energy and mischief — and my life started revolving around his needs: toys, feeding schedules, care... basically, the complete feline package! 🐱",
+      "paragraph3": "So I thought: if I was starting from scratch in the tech world, and my daily life already revolved around cats, why not combine the two? I decided the best way to create something unique was to unite code and cats! 😸",
+      "quote": "CatBytes = Cats + Bytes — The perfect union between technology and love for the cutest felines in the world!",
+      "imageAlt": "Axel - The cat who inspired the CatBytes name",
+      "badge": "🐱 Axel, the CEO",
+      "buttonText": "About CatBytes",
+      "storyTitle": "The CatBytes Story",
+      "storySubtitle": "How code and cats came together",
+      "axelRole": "The CatBytes inspiration",
+      "storyPart1": "It's actually quite simple. When I started as a developer, I wanted a portfolio that reflected my personality at that moment.",
+      "storyPart2": "At that time I had recently adopted Axel and my life started revolving a lot around his needs. I've always loved cats, but my passion grew even more with his presence in my life.",
+      "storyPart3": "And I decided that for my portfolio to reflect my identity at that early career moment, the best way was to unite code and cats! 😺💜",
+      "funFactsTitle": "Fun Facts about CatBytes",
+      "funFact1": "🐾 Axel is a rescued cat who changed my perspective on development",
+      "funFact2": "💻 The logo combines feline elements with binary code",
+      "funFact3": "✨ Every project has a touch of catastic personality",
+      "footer": "CatBytes: Where code and love for cats meet ✨"
     }
   },
   "skills": {
