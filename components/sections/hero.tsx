@@ -151,12 +151,10 @@ export function Hero() {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="text-4xl md:text-5xl font-bold leading-tight text-gray-900 dark:text-white"
             >
-              Bem-vindo ao
-              <br />
-              Mundo
+              {t('title')}
               <br />
               <span className="bg-gradient-to-r from-green-500 via-pink-500 to-blue-500 bg-clip-text text-transparent">
-                CatBytes
+                {t('brandName')}
               </span>
             </motion.h1>
 
