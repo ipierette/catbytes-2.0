@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/supabase'
+import { unstable_cache } from 'next/cache'
 
 // =====================================================
 // GET /api/blog/posts
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result, {
       headers: {
         'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30',
+        'Cache-Tags': 'blog-posts',
       },
     })
   } catch (error) {

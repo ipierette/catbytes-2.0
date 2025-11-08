@@ -17,9 +17,10 @@ interface PostCardProps {
   onDelete?: () => void
   onTranslate?: () => void
   onEdit?: () => void // Nova prop para edição
+  showAdminButtons?: boolean // Control whether to show admin buttons
 }
 
-export function PostCard({ post, onClick, index = 0, onDelete, onTranslate, onEdit }: PostCardProps) {
+export function PostCard({ post, onClick, index = 0, onDelete, onTranslate, onEdit, showAdminButtons = false }: PostCardProps) {
   const [imageError, setImageError] = useState(false)
   const { isAdmin } = useAdmin()
   const { showToast } = useToast()
@@ -161,8 +162,8 @@ export function PostCard({ post, onClick, index = 0, onDelete, onTranslate, onEd
           Ler artigo completo
         </button>
 
-        {/* Admin buttons */}
-        {isAdmin && (
+        {/* Admin buttons - only show if explicitly enabled AND user is admin */}
+        {showAdminButtons && isAdmin && (
           <div className="flex gap-2 mt-3">
             {onEdit && (
               <button

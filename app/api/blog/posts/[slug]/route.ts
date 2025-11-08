@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/supabase'
+import { revalidateTag } from 'next/cache'
 
 // =====================================================
 // GET /api/blog/posts/[slug]
@@ -46,6 +47,9 @@ export async function GET(
 
     // Fetch updated post with new view count
     const updatedPost = await db.getPostBySlug(slug)
+
+    // Revalidate blog posts cache tag to update all pages showing this post
+    revalidateTag('blog-posts')
 
     return NextResponse.json(updatedPost || post, {
       headers: {

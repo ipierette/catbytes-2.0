@@ -11,6 +11,7 @@ import { useBlogPostTracking } from '@/components/analytics/analytics-tracker'
 import { PostImageUploader } from '@/components/blog/post-image-uploader'
 import { Button } from '@/components/ui/button'
 import { blogSync } from '@/lib/blog-sync'
+import { useRouter } from 'next/navigation'
 
 interface PostModalProps {
   post: BlogPost | null
@@ -26,6 +27,7 @@ export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncr
   const [coverImageUrl, setCoverImageUrl] = useState(post?.cover_image_url || '')
   const [postContent, setPostContent] = useState(post?.content || '')
   const [saving, setSaving] = useState(false)
+  const router = useRouter()
   // Use pt-BR as default since this is admin context
   const locale = 'pt-BR'
   const dateLocale = ptBR
@@ -72,6 +74,9 @@ export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncr
           
           // Notify all other components via blogSync
           blogSync.notifyUpdate(updatedPost)
+          
+          // Revalidate the cache for blog posts to ensure fresh data on next load
+          router.refresh()
         })
         .catch((err) => {
           console.error('[PostModal] Failed to increment view:', err)
@@ -82,7 +87,7 @@ export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncr
     if (!isOpen) {
       setViewsIncremented(false)
     }
-  }, [isOpen, post?.slug, adminMode, onViewIncremented])
+  }, [isOpen, post?.slug, adminMode, onViewIncremented, router])
 
   // Reset image error when modal opens with new post
   useEffect(() => {
