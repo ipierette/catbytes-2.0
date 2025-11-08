@@ -109,9 +109,11 @@ export function PostCard({ post, onClick, index = 0, onDelete, onTranslate, onEd
         </div>
 
         {/* Views badge */}
-        <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-1 bg-black/60 text-white text-xs rounded-full backdrop-blur-sm">
-          <Eye className="w-3 h-3" />
-          <span>{post.views}</span>
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-full shadow-lg border border-gray-200 dark:border-gray-700">
+          <Eye className="w-3.5 h-3.5 text-catbytes-purple dark:text-catbytes-pink" />
+          <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
+            {post.views || 0}
+          </span>
         </div>
       </div>
 

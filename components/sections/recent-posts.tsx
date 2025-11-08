@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, ArrowRight, Loader2, Mail, X, ImageOff } from 'lucide-react'
+import { BookOpen, ArrowRight, Loader2, Mail, X, ImageOff, Eye } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -135,6 +135,14 @@ export function RecentPosts() {
                     <div className="absolute top-3 left-3 z-10">
                       <span className="px-3 py-1 bg-catbytes-purple/90 dark:bg-catbytes-pink/90 text-white text-xs font-bold rounded-full backdrop-blur-sm">
                         {post.category}
+                      </span>
+                    </div>
+
+                    {/* Views badge */}
+                    <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-3 py-1.5 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-full shadow-lg border border-gray-200 dark:border-gray-700">
+                      <Eye className="w-3.5 h-3.5 text-catbytes-purple dark:text-catbytes-pink" />
+                      <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                        {post.views || 0}
                       </span>
                     </div>
                   </div>
