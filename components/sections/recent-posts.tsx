@@ -105,10 +105,10 @@ export function RecentPosts() {
                   className="block"
                 >
                   <motion.article
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 1, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.2 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ delay: index * 0.1, duration: 0.3, ease: "easeOut" }}
                     whileHover={{ y: -8 }}
                     className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
                   >
