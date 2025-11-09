@@ -107,13 +107,33 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
       const coverUploadRes = await fetch('/api/blog/upload-image', {
         method: 'POST',
         body: coverFormData,
+        credentials: 'include', // ← IMPORTANTE: Incluir cookies de autenticação
       })
 
+      console.log('[Manual Post Editor] Cover upload response status:', coverUploadRes.status)
+      
       if (!coverUploadRes.ok) {
-        throw new Error('Falha no upload da imagem de capa')
+        const errorText = await coverUploadRes.text()
+        console.error('[Manual Post Editor] Cover upload error (raw):', errorText)
+        let errorData
+        try {
+          errorData = JSON.parse(errorText)
+        } catch {
+          errorData = { error: errorText }
+        }
+        console.error('[Manual Post Editor] Cover upload error (parsed):', errorData)
+        throw new Error(errorData.error || 'Falha no upload da imagem de capa')
       }
 
-      const { url: coverImageUrl } = await coverUploadRes.json()
+      const coverData = await coverUploadRes.json()
+      console.log('[Manual Post Editor] Cover upload response data:', coverData)
+      
+      const coverImageUrl = coverData.imageUrl || coverData.url
+      
+      if (!coverImageUrl) {
+        console.error('[Manual Post Editor] No URL in response:', coverData)
+        throw new Error('URL da imagem não retornada pelo servidor')
+      }
 
       console.log('[Manual Post Editor] Cover image uploaded:', coverImageUrl)
 
@@ -127,12 +147,24 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
         const uploadRes = await fetch('/api/blog/upload-image', {
           method: 'POST',
           body: formData,
+          credentials: 'include', // ← IMPORTANTE: Incluir cookies de autenticação
         })
 
+        console.log('[Manual Post Editor] Content image upload response status:', uploadRes.status)
+
         if (uploadRes.ok) {
-          const { url } = await uploadRes.json()
-          contentImageUrls.push(url)
-          console.log('[Manual Post Editor] Content image uploaded:', url)
+          const uploadData = await uploadRes.json()
+          console.log('[Manual Post Editor] Content image upload response data:', uploadData)
+          const url = uploadData.imageUrl || uploadData.url
+          if (url) {
+            contentImageUrls.push(url)
+            console.log('[Manual Post Editor] Content image uploaded:', url)
+          } else {
+            console.warn('[Manual Post Editor] No URL in content image response:', uploadData)
+          }
+        } else {
+          const errorText = await uploadRes.text()
+          console.error('[Manual Post Editor] Content image upload failed (raw):', errorText)
         }
       }
 
