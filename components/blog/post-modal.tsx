@@ -8,8 +8,6 @@ import { format } from 'date-fns'
 import { ptBR, enUS } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 import { useBlogPostTracking } from '@/components/analytics/analytics-tracker'
-import { PostImageUploader } from '@/components/blog/post-image-uploader'
-import { Button } from '@/components/ui/button'
 import { blogSync } from '@/lib/blog-sync'
 import { useRouter } from 'next/navigation'
 
@@ -17,36 +15,25 @@ interface PostModalProps {
   post: BlogPost | null
   isOpen: boolean
   onClose: () => void
-  adminMode?: boolean // Show upload controls for admin
   onViewIncremented?: (updatedPost: BlogPost) => void // Callback when views are incremented
 }
 
-export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncremented }: PostModalProps) {
+export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModalProps) {
   const [imageError, setImageError] = useState(false)
   const [viewsIncremented, setViewsIncremented] = useState(false)
-  const [coverImageUrl, setCoverImageUrl] = useState(post?.cover_image_url || '')
-  const [postContent, setPostContent] = useState(post?.content || '')
-  const [saving, setSaving] = useState(false)
   const router = useRouter()
   // Use pt-BR as default since this is admin context
   const locale = 'pt-BR'
   const dateLocale = ptBR
 
-  // Update cover URL when post changes
+  // Reset image error when post changes
   useEffect(() => {
-    if (post?.cover_image_url) {
-      setCoverImageUrl(post.cover_image_url)
-    }
-    if (post?.content) {
-      setPostContent(post.content)
-    }
-    // Se não há imagem, marca como erro para mostrar fallback
     if (!post?.cover_image_url || post.cover_image_url.trim() === '') {
       setImageError(true)
     } else {
       setImageError(false)
     }
-  }, [post?.cover_image_url, post?.content])
+  }, [post?.cover_image_url])
 
   // Track blog post views when modal is open
   // Hook must be called at the top level - conditionally enable/disable tracking
@@ -59,7 +46,7 @@ export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncr
 
   // Increment views on server when modal opens
   useEffect(() => {
-    if (isOpen && post && !viewsIncremented && !adminMode) {
+    if (isOpen && post && !viewsIncremented) {
       // Call the API endpoint to increment views and get updated post
       fetch(`/api/blog/posts/${post.slug}`)
         .then((res) => res.json())
@@ -87,7 +74,7 @@ export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncr
     if (!isOpen) {
       setViewsIncremented(false)
     }
-  }, [isOpen, post?.slug, adminMode, onViewIncremented, router])
+  }, [isOpen, post?.slug, onViewIncremented, router])
 
   // Reset image error when modal opens with new post
   useEffect(() => {
@@ -171,9 +158,9 @@ export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncr
 
                 {/* Cover Image */}
                 <div className="relative w-full h-64 md:h-96 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">
-                  {!imageError && coverImageUrl && coverImageUrl.trim() !== '' && (
+                  {!imageError && post.cover_image_url && post.cover_image_url.trim() !== '' && (
                     <Image
-                      src={coverImageUrl}
+                      src={post.cover_image_url}
                       alt={post.title}
                       fill
                       className="object-cover"
@@ -185,7 +172,7 @@ export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncr
                   )}
 
                   {/* Fallback icon quando imagem falha */}
-                  {(imageError || !coverImageUrl || coverImageUrl.trim() === '') && (
+                  {(imageError || !post.cover_image_url || post.cover_image_url.trim() === '') && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <ImageOff className="w-24 h-24 text-gray-400 dark:text-gray-500" />
                     </div>
@@ -201,57 +188,6 @@ export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncr
 
                 {/* Content */}
                 <div className="p-6 md:p-10 max-h-[60vh] overflow-y-auto">
-                  {/* Admin Image Uploader */}
-                  {adminMode && post && (
-                    <div className="mb-8">
-                      <PostImageUploader
-                        postSlug={post.slug}
-                        currentCoverUrl={coverImageUrl}
-                        currentContent={postContent}
-                        onCoverUpdated={(newUrl) => {
-                          setCoverImageUrl(newUrl)
-                          setImageError(false)
-                        }}
-                        onContentUpdated={(newContent) => {
-                          setPostContent(newContent)
-                        }}
-                      />
-                      
-                      {/* Save Button */}
-                      <div className="mt-6 flex gap-3">
-                        <Button
-                          onClick={async () => {
-                            setSaving(true)
-                            try {
-                              const response = await fetch(`/api/admin/blog/posts/${post.slug}`, {
-                                method: 'PATCH',
-                                headers: { 'Content-Type': 'application/json' },
-                                credentials: 'include',
-                                body: JSON.stringify({
-                                  content: postContent,
-                                  cover_image_url: coverImageUrl
-                                })
-                              })
-                              
-                              if (response.ok) {
-                                alert('✅ Post atualizado com sucesso!')
-                              } else {
-                                alert('❌ Erro ao salvar')
-                              }
-                            } catch (error) {
-                              alert('❌ Erro ao salvar')
-                            } finally {
-                              setSaving(false)
-                            }
-                          }}
-                          disabled={saving}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          {saving ? 'Salvando...' : '💾 Salvar Alterações'}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
 
                   {/* Meta */}
                   <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600 dark:text-gray-400">
@@ -312,7 +248,7 @@ export function PostModal({ post, isOpen, onClose, adminMode = false, onViewIncr
                     prose-ol:text-gray-700 dark:prose-ol:text-gray-300
                     prose-li:my-2
                     prose-img:rounded-xl prose-img:shadow-lg"
-                    dangerouslySetInnerHTML={{ __html: formatMarkdown(postContent) }}
+                    dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
                   />
 
                   {/* Share buttons */}

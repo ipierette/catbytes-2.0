@@ -26,8 +26,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { BlogPreviewModal } from '@/components/blog/blog-preview-modal'
 import { PostModal } from '@/components/blog/post-modal'
+import { ManualPostEditor } from '@/components/blog/manual-post-editor'
 import type { BlogPost as BlogPostType } from '@/types/blog'
 
 interface BlogPost {
@@ -66,6 +66,7 @@ export default function BlogAdminPage() {
   const [textOnlyMode, setTextOnlyMode] = useState(false)
   const [customThemeDialogOpen, setCustomThemeDialogOpen] = useState(false)
   const [customTheme, setCustomTheme] = useState('')
+  const [manualEditorOpen, setManualEditorOpen] = useState(false)
   // Removed message state - using toast instead
 
   useEffect(() => {
@@ -110,7 +111,7 @@ export default function BlogAdminPage() {
     try {
       const modeText = textOnlyMode ? ' (Texto + Prompt)' : ''
       const themeText = theme ? ` (${theme})` : ''
-      toast.loading(`Gerando rascunho do artigo${themeText}${modeText}...`, { id: 'generate' })
+      toast.loading(`Gerando e publicando artigo${themeText}${modeText}...`, { id: 'generate' })
       
       const response = await fetch('/api/blog/generate', {
         method: 'POST',
@@ -118,33 +119,15 @@ export default function BlogAdminPage() {
         body: JSON.stringify({ 
           theme, 
           textOnly: textOnlyMode,
-          generateOnly: true 
+          // Removido generateOnly - agora publica direto
         })
       })
 
       const data = await response.json()
 
       if (data.success) {
-        // Abre modal de preview com o post gerado
-        setGeneratedPost({
-          title: data.post?.title || '',
-          excerpt: data.post?.excerpt || '',
-          content: data.post?.content || '',
-          cover_image_url: data.post?.cover_image_url || '',
-          category: theme || data.post?.category || '',
-          tags: data.post?.tags || [],
-          image_prompt: data.imagePrompt || null,
-          content_image_prompts: data.contentImagePrompts || [],
-          textOnly: data.textOnly || false
-        })
-        setPreviewTheme(theme || data.metadata?.theme || 'Automação e Negócios')
-        setPreviewModalOpen(true)
-        
-        if (textOnlyMode && data.imagePrompt) {
-          toast.success('✅ Rascunho gerado! Use o modal para fazer upload das imagens.', { id: 'generate' })
-        } else {
-          toast.success('Rascunho gerado! Agora você pode personalizar antes de publicar.', { id: 'generate' })
-        }
+        toast.success(`✅ Artigo "${data.post?.title}" publicado com sucesso!`, { id: 'generate' })
+        await loadData()
       } else {
         toast.error(data.error || 'Erro ao gerar artigo', { id: 'generate' })
       }
@@ -341,20 +324,14 @@ export default function BlogAdminPage() {
             </p>
           </div>
           <div className="flex gap-3">
-            <div className="flex items-center gap-2 mr-4 px-4 py-2 bg-emerald-900/30 rounded-lg border border-emerald-700/50">
-              <Checkbox
-                id="textOnlyMode"
-                checked={textOnlyMode}
-                onCheckedChange={(checked) => setTextOnlyMode(checked as boolean)}
-                className="border-emerald-600 data-[state=checked]:bg-emerald-600"
-              />
-              <Label
-                htmlFor="textOnlyMode"
-                className="text-sm font-medium cursor-pointer flex items-center gap-2 text-emerald-200"
-              >
-                <span>🎨 Modo Texto + Upload Manual</span>
-              </Label>
-            </div>
+            <Button
+              variant="outline"
+              size="lg"
+              className="gap-2"
+              onClick={() => setManualEditorOpen(true)}
+            >
+              ✍️ Escrever Post Manual
+            </Button>
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -742,21 +719,18 @@ export default function BlogAdminPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal de Preview e Edição */}
-      <BlogPreviewModal
-        isOpen={previewModalOpen}
-        onClose={() => setPreviewModalOpen(false)}
-        onSave={handleSaveFromPreview}
-        initialPost={generatedPost || {}}
-        theme={previewTheme}
-      />
-      
       {/* Modal de Preview de Post Publicado */}
       <PostModal 
         post={previewPost} 
         isOpen={!!previewPost} 
-        onClose={() => setPreviewPost(null)} 
-        adminMode={true}
+        onClose={() => setPreviewPost(null)}
+      />
+
+      {/* Editor Manual de Posts */}
+      <ManualPostEditor
+        isOpen={manualEditorOpen}
+        onClose={() => setManualEditorOpen(false)}
+        onSave={loadData}
       />
     </AdminLayoutWrapper>
     </AdminGuard>
