@@ -46,28 +46,27 @@ Todo artigo manual deve seguir **exatamente** este formato para garantir uma apr
 
 O sistema aplica **automaticamente** tamanhos e negritos aos títulos:
 
-#### **Hierarquia de Títulos:**
+#### **Títulos nos Inputs de Texto:**
+
+⚠️ **IMPORTANTE:** O título principal do artigo vem do campo "Título" separado - NÃO use # no conteúdo!
 
 ```markdown
-# Título Nível 1
-- Tamanho: 4xl (muito grande)
+## Seção Principal
+- Tamanho: 2xl (grande e legível)
 - Negrito: Automático
-- Uso: Raramente usado (apenas título principal se necessário)
+- Uso: Todas as seções dentro do conteúdo
+- Exemplos: "## Introdução", "## Como Funciona", "## Conclusão"
 
-## Título Nível 2  
-- Tamanho: 3xl (grande)
-- Negrito: Automático  
-- Uso: Seções principais do artigo
-- Exemplo: "## Introdução", "## Como Funciona", "## Conclusão"
-
-### Título Nível 3
-- Tamanho: 2xl (médio-grande)
-- Negrito: Automático
-- Uso: Subseções dentro de uma seção principal
-- Exemplo: "### Benefícios da IA", "### Passo a Passo"
+### Mesmo Tamanho
+- ### também vira 2xl automático
+- Tanto faz usar ## ou ### - resultado é o mesmo
+- Sistema normaliza tudo para consistência visual
 ```
 
-**💡 Dica:** Você NÃO precisa usar `**texto**` para deixar títulos em negrito - o sistema já faz isso automaticamente!
+**💡 Dica:** 
+- Use `##` para títulos de seção dentro do texto (mais semântico)
+- NUNCA use `#` (título nível 1) pois o título principal já vem do campo separado
+- Títulos são SEMPRE em negrito automático - não precisa usar `**`
 
 #### **Formatação de Texto:**
 
@@ -85,7 +84,7 @@ O sistema aplica **automaticamente** tamanhos e negritos aos títulos:
 #### **Parágrafos:**
 - Tamanho: lg (confortável para leitura)
 - Espaçamento: relaxado entre linhas
-- Primeira letra da introdução: Capital letter automática (dropcap)
+- Primeira letra da introdução: Capital letter automática (dropcap gigante roxa/rosa)
 
 ---
 
@@ -100,17 +99,13 @@ Segundo parágrafo complementando a introdução.
 
 Terceiro parágrafo finalizando o contexto inicial.
 
-## 1. Primeira Seção Principal
+## Como Funciona
 
 Texto explicativo da primeira seção com no mínimo 2 parágrafos.
 
 Segundo parágrafo da primeira seção com mais detalhes.
 
-### Subseção Importante
-
-Detalhamento de um ponto específico dentro da seção.
-
-## 2. Segunda Seção Principal
+## Benefícios Principais
 
 Conteúdo da segunda seção bem desenvolvido.
 
@@ -118,7 +113,7 @@ Detalhamento adicional com exemplos práticos usando **palavras em negrito** par
 
 Terceiro parágrafo com conclusão da seção.
 
-## 3. Terceira Seção
+## Implementação Prática
 
 Desenvolvimento da terceira seção do artigo.
 

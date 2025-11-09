@@ -365,10 +365,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 // Simple markdown to HTML converter com estilos aprimorados
 function formatMarkdown(markdown: string): string {
   let html = markdown
-    // Títulos com tamanhos maiores e negrito
-    .replace(/^### (.*$)/gim, '<h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6 mt-10">$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-8 mt-12">$1</h1>')
+    // Títulos dentro do conteúdo - sempre ## (nível 2) em negrito
+    .replace(/^### (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h2>')
+    .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h2>')
+    .replace(/^# (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h2>')
     // Formatação inline
     .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900 dark:text-white">$1</strong>')
     .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
