@@ -266,8 +266,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
               {/* Primeira imagem (se existir) */}
               {contentImages.length >= 1 && (
-                <div className="grid md:grid-cols-2 gap-8 items-center">
-                  <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                  <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden shadow-2xl order-1 md:order-1">
                     <Image
                       src={contentImages[0]}
                       alt="Imagem do artigo 1"
@@ -278,6 +278,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     />
                   </div>
                   <div
+                    className="order-2 md:order-2"
                     dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.middle) }}
                   />
                 </div>
