@@ -115,6 +115,8 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
 
       const { url: coverImageUrl } = await coverUploadRes.json()
 
+      console.log('[Manual Post Editor] Cover image uploaded:', coverImageUrl)
+
       // Upload das imagens de conteúdo
       const contentImageUrls: string[] = []
       for (const image of contentImages) {
@@ -130,8 +132,18 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
         if (uploadRes.ok) {
           const { url } = await uploadRes.json()
           contentImageUrls.push(url)
+          console.log('[Manual Post Editor] Content image uploaded:', url)
         }
       }
+
+      console.log('[Manual Post Editor] All uploads complete. Creating post with:', {
+        hasTitle: !!title.trim(),
+        hasExcerpt: !!excerpt.trim(),
+        hasContent: !!content.trim(),
+        hasCoverImageUrl: !!coverImageUrl,
+        coverImageUrl,
+        contentImageCount: contentImageUrls.length
+      })
 
       // Criar post
       const postData = {
