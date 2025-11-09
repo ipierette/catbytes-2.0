@@ -56,6 +56,7 @@ export default function BlogAdminPage() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [generating, setGenerating] = useState(false)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [selectedPosts, setSelectedPosts] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft' | 'scheduled'>('all')
@@ -114,7 +115,13 @@ export default function BlogAdminPage() {
   }
 
   const handleGeneratePost = async (theme?: string) => {
+    if (generating) {
+      console.log('[Generate] Already generating, skipping duplicate call')
+      return
+    }
+
     try {
+      setGenerating(true)
       const modeText = textOnlyMode ? ' (Texto + Prompt)' : ''
       const themeText = theme ? ` (${theme})` : ''
       toast.loading(`Gerando e publicando artigo${themeText}${modeText}...`, { id: 'generate' })
@@ -138,7 +145,10 @@ export default function BlogAdminPage() {
         toast.error(data.error || 'Erro ao gerar artigo', { id: 'generate' })
       }
     } catch (error) {
+      console.error('[Generate] Error:', error)
       toast.error('Erro ao gerar artigo', { id: 'generate' })
+    } finally {
+      setGenerating(false)
     }
   }
 

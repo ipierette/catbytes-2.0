@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminCookie } from '@/lib/api-security'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin, generateSlug } from '@/lib/supabase'
 
 // =====================================================
 // GET /api/admin/blog/posts
@@ -129,6 +129,111 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('[Admin API] Error:', error)
+    return NextResponse.json(
+      { 
+        error: 'Internal server error', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      },
+      { status: 500 }
+    )
+  }
+}
+
+// =====================================================
+// POST /api/admin/blog/posts
+// Create a new blog post manually - Admin only
+// =====================================================
+
+export async function POST(request: NextRequest) {
+  try {
+    // Verify admin authentication
+    const adminVerification = await verifyAdminCookie(request)
+    if (!adminVerification.valid) {
+      return adminVerification.error || NextResponse.json(
+        { error: 'Unauthorized', message: 'Admin authentication required' },
+        { status: 401 }
+      )
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
+    const body = await request.json()
+    const { title, excerpt, content, tags, coverImageUrl, contentImages } = body
+
+    console.log('[Manual Post] Creating manual post:', { title, hasContent: !!content })
+
+    if (!title || !content || !coverImageUrl) {
+      return NextResponse.json(
+        { error: 'Title, content, and cover image are required' },
+        { status: 400 }
+      )
+    }
+
+    // Generate slug from title
+    const slug = generateSlug(title)
+
+    // Check if slug already exists
+    const { data: existingPost } = await supabaseAdmin
+      .from('blog_posts')
+      .select('id')
+      .eq('slug', slug)
+      .single()
+
+    if (existingPost) {
+      return NextResponse.json(
+        { error: 'A post with this title already exists. Please use a different title.' },
+        { status: 409 }
+      )
+    }
+
+    // Create post data
+    const postData = {
+      title,
+      slug,
+      excerpt: excerpt || content.substring(0, 200),
+      content,
+      cover_image_url: coverImageUrl,
+      content_images: contentImages || [],
+      tags: tags || [],
+      category: 'Manual',
+      author: 'Admin',
+      locale: 'pt-BR',
+      published: true,
+      ai_model: 'manual',
+      generation_prompt: 'Manual post created by admin',
+      seo_title: title,
+      seo_description: excerpt || content.substring(0, 160),
+      keywords: tags || [],
+    }
+
+    // Insert post
+    const { data: post, error } = await supabaseAdmin
+      .from('blog_posts')
+      .insert(postData)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('[Manual Post] Error creating post:', error)
+      return NextResponse.json(
+        { error: 'Failed to create post', details: error.message },
+        { status: 500 }
+      )
+    }
+
+    console.log('[Manual Post] Post created successfully:', post.id)
+
+    return NextResponse.json({ 
+      success: true, 
+      post 
+    })
+  } catch (error) {
+    console.error('[Manual Post] Error:', error)
     return NextResponse.json(
       { 
         error: 'Internal server error', 
