@@ -6,7 +6,7 @@ import { db } from '@/lib/supabase'
 // Get single blog post by slug
 // =====================================================
 
-export const runtime = 'edge'
+export const runtime = 'nodejs' // Changed from edge to nodejs for better compatibility
 export const revalidate = 60 // Revalidate every 60 seconds
 
 export async function GET(
@@ -34,15 +34,13 @@ export async function GET(
 
     // Only increment views if explicitly requested
     if (shouldIncrementViews) {
-      await db.incrementViews(post.id)
-        .then((success) => {
-          console.log('[API] incrementViews result:', success)
-          return success
-        })
-        .catch((err) => {
-          console.error('[API] incrementViews error:', err)
-          return false
-        })
+      try {
+        await db.incrementViews(post.id)
+        console.log('[API] Views incremented successfully')
+      } catch (err) {
+        console.error('[API] incrementViews error:', err)
+        // Continue even if increment fails
+      }
 
       // Fetch updated post with new view count
       const updatedPost = await db.getPostBySlug(slug)

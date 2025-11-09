@@ -11,56 +11,37 @@ import { ViewCounter } from '@/components/blog/view-counter'
 // Allow dynamic params for new posts without rebuild
 export const dynamicParams = true
 export const revalidate = 3600 // Revalidate every hour
+export const dynamic = 'force-dynamic' // Force dynamic rendering for production
 
 // Generate static params for all blog posts
 export async function generateStaticParams() {
-  try {
-    // Use internal API URL for build time
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    
-    const response = await fetch(`${baseUrl}/api/blog/posts?pageSize=100`, {
-      headers: {
-        'x-increment-views': 'false',
-      },
-      // Don't cache during build
-      cache: 'no-store',
-    })
-    
-    if (!response.ok) {
-      console.error('[generateStaticParams] Failed to fetch posts:', response.status, response.statusText)
-      return []
-    }
-    
-    const data = await response.json()
-    const posts = data.posts || []
-    
-    // Generate params for both locales
-    const params = posts.flatMap((post: BlogPost) => [
-      { locale: 'pt-BR', slug: post.slug },
-      { locale: 'en-US', slug: post.slug },
-    ])
-    
-    console.log(`[generateStaticParams] Generated ${params.length} static paths for blog posts`)
-    return params
-  } catch (error) {
-    console.error('[generateStaticParams] Error:', error)
-    // Return empty array instead of failing the build
-    return []
-  }
+  // Skip static generation during build to avoid API issues
+  // Pages will be generated on-demand
+  return []
 }
 
 // Simular fetch do post - você vai integrar com sua API real
 async function getPost(slug: string, locale: string): Promise<BlogPost | null> {
   try {
+    // Use VERCEL_URL in production or fallback to NEXT_PUBLIC_SITE_URL
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    
     // Don't increment views during SSG/SSR - we'll do it client-side
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/blog/posts/${slug}`, {
+    const response = await fetch(`${baseUrl}/api/blog/posts/${slug}`, {
       next: { revalidate: 3600 }, // Cache for 1 hour
       headers: {
         'x-increment-views': 'false', // Don't increment during build/SSR
       },
+      // Add timeout to prevent hanging
+      signal: AbortSignal.timeout(10000), // 10 second timeout
     })
     
-    if (!response.ok) return null
+    if (!response.ok) {
+      console.error(`[getPost] Failed to fetch post ${slug}:`, response.status)
+      return null
+    }
     
     const post = await response.json()
     return post
