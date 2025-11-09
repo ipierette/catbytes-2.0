@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { ManualPostEditor } from '@/components/blog/manual-post-editor'
+import { StructuredPostEditor } from '@/components/blog/structured-post-editor'
 import type { BlogPost as BlogPostType } from '@/types/blog'
 
 interface BlogPost {
@@ -67,6 +68,7 @@ export default function BlogAdminPage() {
   const [customThemeDialogOpen, setCustomThemeDialogOpen] = useState(false)
   const [customTheme, setCustomTheme] = useState('')
   const [manualEditorOpen, setManualEditorOpen] = useState(false)
+  const [structuredEditorOpen, setStructuredEditorOpen] = useState(false)
   // Removed message state - using toast instead
 
   // Filtrar posts baseado no status selecionado
@@ -335,12 +337,21 @@ export default function BlogAdminPage() {
           </div>
           <div className="flex flex-wrap gap-3 w-full md:w-auto">
             <Button
+              variant="default"
+              size="lg"
+              className="gap-2 flex-1 md:flex-initial bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              onClick={() => setStructuredEditorOpen(true)}
+            >
+              ✨ Editor Estruturado (Recomendado)
+            </Button>
+            
+            <Button
               variant="outline"
               size="lg"
               className="gap-2 flex-1 md:flex-initial"
               onClick={() => setManualEditorOpen(true)}
             >
-              ✍️ Escrever Post Manual
+              ✍️ Editor Livre
             </Button>
             
             <DropdownMenu>
@@ -780,6 +791,13 @@ export default function BlogAdminPage() {
       <ManualPostEditor
         isOpen={manualEditorOpen}
         onClose={() => setManualEditorOpen(false)}
+        onSave={loadData}
+      />
+
+      {/* Editor Estruturado de Posts */}
+      <StructuredPostEditor
+        isOpen={structuredEditorOpen}
+        onClose={() => setStructuredEditorOpen(false)}
         onSave={loadData}
       />
     </AdminLayoutWrapper>
