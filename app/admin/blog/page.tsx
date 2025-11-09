@@ -58,6 +58,7 @@ export default function BlogAdminPage() {
   const [loading, setLoading] = useState(true)
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [selectedPosts, setSelectedPosts] = useState<string[]>([])
+  const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft' | 'scheduled'>('all')
   // Removed message state - using toast instead
   const [previewModalOpen, setPreviewModalOpen] = useState(false)
   const [previewTheme, setPreviewTheme] = useState('')
@@ -68,6 +69,11 @@ export default function BlogAdminPage() {
   const [customTheme, setCustomTheme] = useState('')
   const [manualEditorOpen, setManualEditorOpen] = useState(false)
   // Removed message state - using toast instead
+
+  // Filtrar posts baseado no status selecionado
+  const filteredPosts = filterStatus === 'all' 
+    ? posts 
+    : posts.filter(p => p.status === filterStatus)
 
   useEffect(() => {
     loadData()
@@ -174,30 +180,26 @@ export default function BlogAdminPage() {
     if (!confirm(`Traduzir "${title}" para inglês? Esta ação criará uma versão em inglês do post.`)) return
 
     try {
-      setLoading(true)
       toast.loading(`Traduzindo "${title}"...`, { id: 'translate' })
 
       const response = await fetch('/api/blog/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          postId: postId,
-          targetLanguage: 'en'
-        })
+        body: JSON.stringify({ postId })
       })
 
       const data = await response.json()
 
       if (data.success) {
         const slug = data.post?.slug || 'unknown'
-        toast.success(`Post traduzido com sucesso! A versão em inglês estará disponível em /en-US/blog/${slug}`, { id: 'translate' })
+        toast.success(`✅ Post traduzido! Versão em inglês: /en-US/blog/${slug}`, { id: 'translate' })
+        await loadData() // Recarrega lista para mostrar nova tradução
       } else {
         toast.error(data.error || 'Erro ao traduzir post', { id: 'translate' })
       }
     } catch (error) {
+      console.error('Translation error:', error)
       toast.error('Erro ao conectar com o servidor de tradução', { id: 'translate' })
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -546,27 +548,74 @@ export default function BlogAdminPage() {
                 </Button>
               )}
             </div>
+
+            {/* Filtro de Status */}
+            <div className="flex gap-2 mt-4 flex-wrap">
+              <button
+                onClick={() => setFilterStatus('all')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'all'
+                    ? 'bg-slate-600 text-white'
+                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                Todos ({posts.length})
+              </button>
+              <button
+                onClick={() => setFilterStatus('published')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'published'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                Publicados ({stats?.published || 0})
+              </button>
+              <button
+                onClick={() => setFilterStatus('draft')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'draft'
+                    ? 'bg-yellow-600 text-white'
+                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                Rascunhos ({stats?.drafts || 0})
+              </button>
+              <button
+                onClick={() => setFilterStatus('scheduled')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  filterStatus === 'scheduled'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                Agendados ({stats?.scheduled || 0})
+              </button>
+            </div>
           </CardHeader>
           <CardContent>
-            {posts.length === 0 ? (
+            {filteredPosts.length === 0 ? (
               <p className="text-slate-400 text-center py-8">
-                Nenhum post encontrado. Gere o primeiro post!
+                {filterStatus === 'all' 
+                  ? 'Nenhum post encontrado. Gere o primeiro post!'
+                  : `Nenhum post ${filterStatus === 'published' ? 'publicado' : filterStatus === 'draft' ? 'rascunho' : 'agendado'} encontrado.`
+                }
               </p>
             ) : (
               <div className="space-y-4">
                 {/* Select All */}
                 <div className="flex items-center gap-2 pb-2 border-b border-slate-700">
                   <Checkbox
-                    checked={selectedPosts.length === posts.length && posts.length > 0}
+                    checked={selectedPosts.length === filteredPosts.length && filteredPosts.length > 0}
                     onCheckedChange={toggleSelectAll}
                     id="select-all"
                   />
                   <Label htmlFor="select-all" className="text-sm font-medium cursor-pointer text-slate-200">
-                    Selecionar todos ({posts.length})
+                    Selecionar todos ({filteredPosts.length})
                   </Label>
                 </div>
 
-                {posts.map(post => (
+                {filteredPosts.map(post => (
                   <div
                     key={post.id}
                     className="border border-slate-700 rounded-lg p-4 hover:bg-slate-700/30 transition-colors bg-slate-800/50"
