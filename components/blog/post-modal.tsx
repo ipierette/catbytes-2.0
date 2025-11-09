@@ -343,11 +343,21 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
                   ) : contentImages.length === 1 ? (
                     // Layout REVISTA SIMPLES (1 imagem) - Estilo Imagem 2
                     <div className="space-y-8">
-                      {/* Introdução */}
-                      <div
-                        className="prose prose-lg dark:prose-invert max-w-none magazine-text text-justify"
-                        dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
-                      />
+                      {/* Introdução com caixa de destaque */}
+                      <div className="grid md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2">
+                          <div
+                            className="prose prose-lg dark:prose-invert max-w-none magazine-text"
+                            dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
+                          />
+                        </div>
+                        <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-6 rounded-xl border-l-4 border-catbytes-purple">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">📌 Resumo</h3>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {post.excerpt}
+                          </p>
+                        </div>
+                      </div>
 
                       {/* Imagem destacada com moldura */}
                       <div className="relative">
@@ -367,13 +377,13 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
                       <div className="grid md:grid-cols-3 gap-6">
                         <div className="md:col-span-2">
                           <div
-                            className="prose prose-lg dark:prose-invert max-w-none magazine-text text-justify"
+                            className="prose prose-lg dark:prose-invert max-w-none magazine-text"
                             dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end) }}
                           />
                         </div>
-                        <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 p-6 rounded-xl h-fit sticky top-4">
-                          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b-2 border-catbytes-pink pb-2">
-                            Leia & Inspire-se
+                        <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 p-6 rounded-xl h-fit sticky top-4 border-l-4 border-catbytes-pink">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                            💡 Continue Lendo
                           </h3>
                           <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 italic">
                             "{post.excerpt}"
@@ -387,28 +397,32 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
                       </div>
                     </div>
                   ) : (
-                    // Layout PADRÃO (sem imagens extras) - Estilo jornal clássico
-                    <div
-                      className="prose prose-lg dark:prose-invert max-w-none magazine-text
-                      prose-headings:text-gray-900 dark:prose-headings:text-white
-                      prose-headings:font-bold
-                      prose-p:text-gray-700 dark:prose-p:text-gray-300
-                      prose-p:leading-relaxed prose-p:text-justify
-                      prose-a:text-catbytes-purple dark:prose-a:text-catbytes-pink
-                      prose-a:no-underline hover:prose-a:underline
-                      prose-strong:text-catbytes-purple dark:prose-strong:text-catbytes-pink
-                      prose-code:text-catbytes-blue
-                      prose-code:bg-gray-100 dark:prose-code:bg-gray-700
-                      prose-code:px-2 prose-code:py-1 prose-code:rounded
-                      prose-pre:bg-gray-900 prose-pre:text-gray-100
-                      prose-blockquote:border-l-catbytes-purple dark:prose-blockquote:border-l-catbytes-pink
-                      prose-ul:text-gray-700 dark:prose-ul:text-gray-300
-                      prose-ol:text-gray-700 dark:prose-ol:text-gray-300
-                      prose-li:my-2
-                      prose-img:rounded-xl prose-img:shadow-lg
-                      columns-1 md:columns-2 gap-8"
-                      dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
-                    />
+                    // Layout COM ESTILO REVISTA (sem imagens extras) - Aplicar dropcap e caixas
+                    <div className="space-y-8">
+                      {/* Introdução com dropcap e caixa de destaque */}
+                      <div className="grid md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2">
+                          <div
+                            className="prose prose-lg dark:prose-invert max-w-none magazine-text"
+                            dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
+                          />
+                        </div>
+                        <div className="space-y-6">
+                          {/* Caixa de destaque com excerpt */}
+                          <div className="bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 p-6 rounded-xl border-l-4 border-catbytes-pink sticky top-4">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">💡 Destaque</h3>
+                            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+                              {post.excerpt}
+                            </p>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1 pt-4 border-t border-gray-300 dark:border-gray-600">
+                              <p>📅 {format(new Date(post.created_at), "dd/MM/yyyy")}</p>
+                              <p>👁️ {post.views} visualizações</p>
+                              <p>✍️ Por {post.author}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   )}
 
                   {/* Share buttons */}
