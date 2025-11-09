@@ -165,9 +165,23 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { title, excerpt, content, tags, coverImageUrl, contentImages } = body
 
-    console.log('[Manual Post] Creating manual post:', { title, hasContent: !!content })
+    console.log('[Manual Post] Request body:', JSON.stringify(body, null, 2))
+    console.log('[Manual Post] Extracted fields:', { 
+      title, 
+      hasExcerpt: !!excerpt,
+      hasContent: !!content, 
+      hasCoverImageUrl: !!coverImageUrl,
+      coverImageUrl,
+      hasTags: !!tags,
+      hasContentImages: !!contentImages
+    })
 
     if (!title || !content || !coverImageUrl) {
+      console.log('[Manual Post] Validation failed:', { 
+        hasTitle: !!title, 
+        hasContent: !!content, 
+        hasCoverImageUrl: !!coverImageUrl 
+      })
       return NextResponse.json(
         { error: 'Title, content, and cover image are required' },
         { status: 400 }

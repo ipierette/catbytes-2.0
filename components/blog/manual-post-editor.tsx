@@ -143,6 +143,8 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
         contentImages: contentImageUrls,  // camelCase para a API
       }
 
+      console.log('[Manual Post Editor] Sending postData:', JSON.stringify(postData, null, 2))
+
       const saveRes = await fetch('/api/admin/blog/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -150,8 +152,12 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
         body: JSON.stringify(postData),
       })
 
+      console.log('[Manual Post Editor] Response status:', saveRes.status)
+      
       if (!saveRes.ok) {
-        throw new Error('Falha ao salvar post')
+        const errorData = await saveRes.json()
+        console.error('[Manual Post Editor] Error response:', errorData)
+        throw new Error(errorData.error || 'Falha ao salvar post')
       }
 
       toast.success('✅ Artigo publicado com sucesso!', { id: 'save-manual' })
