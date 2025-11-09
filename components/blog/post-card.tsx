@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Calendar, Eye, Tag, ImageOff, Trash2, Globe } from 'lucide-react'
 import type { BlogPost } from '@/types/blog'
 import { format } from 'date-fns'
@@ -12,18 +13,20 @@ import { useToast } from '@/components/ui/toast'
 
 interface PostCardProps {
   post: BlogPost
-  onClick: () => void
+  locale?: string
   index?: number
   onDelete?: () => void
   onTranslate?: () => void
-  onEdit?: () => void // Nova prop para edição
-  showAdminButtons?: boolean // Control whether to show admin buttons
+  onEdit?: () => void
+  showAdminButtons?: boolean
 }
 
-export function PostCard({ post, onClick, index = 0, onDelete, onTranslate, onEdit, showAdminButtons = false }: PostCardProps) {
+export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTranslate, onEdit, showAdminButtons = false }: PostCardProps) {
   const [imageError, setImageError] = useState(false)
   const { isAdmin } = useAdmin()
   const { showToast } = useToast()
+
+  const articleUrl = `/${locale}/blog/${post.slug}`
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -69,15 +72,15 @@ export function PostCard({ post, onClick, index = 0, onDelete, onTranslate, onEd
       showToast('Erro ao traduzir post', 'error')
       console.error(error)
     }
-  }
-
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
       whileHover={{ y: -8, scale: 1.02 }}
-      onClick={onClick}
+      className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
+    >
+      <Link href={articleUrl} target="_blank" rel="noopener noreferrer" className="block"> onClick={onClick}
       className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
     >
       {/* Cover Image */}
@@ -158,13 +161,13 @@ export function PostCard({ post, onClick, index = 0, onDelete, onTranslate, onEd
         )}
 
         {/* Read more button */}
-        <button className="w-full mt-2 px-4 py-2 bg-gradient-to-r from-catbytes-purple to-catbytes-blue hover:from-catbytes-blue hover:to-catbytes-purple text-white font-medium rounded-lg transition-all duration-300 transform group-hover:scale-105">
+        <div className="w-full mt-2 px-4 py-2 bg-gradient-to-r from-catbytes-purple to-catbytes-blue hover:from-catbytes-blue hover:to-catbytes-purple text-white font-medium rounded-lg transition-all duration-300 transform group-hover:scale-105 text-center">
           Ler artigo completo
-        </button>
+        </div>
+      </Link>
 
-        {/* Admin buttons - only show if explicitly enabled AND user is admin */}
-        {showAdminButtons && isAdmin && (
-          <div className="flex gap-2 mt-3">
+      {/* Admin buttons - outside the Link */}
+          <div className="flex gap-2 mt-3 px-6 pb-6">
             {onEdit && (
               <button
                 onClick={(e) => {
@@ -197,6 +200,7 @@ export function PostCard({ post, onClick, index = 0, onDelete, onTranslate, onEd
               Deletar
             </button>
           </div>
+        )}</div>
         )}
       </div>
 

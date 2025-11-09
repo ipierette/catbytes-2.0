@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { BookOpen, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { PostCard } from '@/components/blog/post-card'
-import { PostModal } from '@/components/blog/post-modal'
 import type { BlogPost, PaginatedBlogPosts } from '@/types/blog'
 import { blogSync } from '@/lib/blog-sync'
 
@@ -17,7 +16,6 @@ export default function BlogPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const pageSize = 10
 
   // Fetch posts function
@@ -59,31 +57,10 @@ export default function BlogPage() {
           ),
         }
       })
-      
-      // Also update selected post if it's open
-      setSelectedPost((prev) => 
-        prev?.id === updatedPost.id ? updatedPost : prev
-      )
     })
 
     return unsubscribe
   }, [])
-
-  // Handle view increment from modal
-  const handleViewIncremented = (updatedPost: BlogPost) => {
-    // Update the post in the current list
-    setPosts((prev) => {
-      if (!prev) return prev
-      return {
-        ...prev,
-        posts: prev.posts.map((p) => 
-          p.id === updatedPost.id ? updatedPost : p
-        ),
-      }
-    })
-    // Also update the selected post to reflect the new view count in the modal
-    setSelectedPost(updatedPost)
-  }
 
   // Scroll to top on page change
   useEffect(() => {
@@ -161,16 +138,16 @@ export default function BlogPage() {
                 {/* Previous button */}
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-catbytes-purple dark:hover:border-catbytes-pink disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                  Anterior
-                </button>
-
-                {/* Page numbers */}
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: posts.totalPages }, (_, i) => i + 1).map((page) => {
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {posts.posts.map((post, index) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  locale={locale}
+                  index={index}
+                />
+              ))}
+            </div>{Array.from({ length: posts.totalPages }, (_, i) => i + 1).map((page) => {
                     // Show first page, last page, current page, and pages around current
                     const showPage =
                       page === 1 ||
@@ -257,14 +234,6 @@ export default function BlogPage() {
           </div>
         )}
       </div>
-
-      {/* Post Modal */}
-      <PostModal 
-        post={selectedPost} 
-        isOpen={!!selectedPost} 
-        onClose={() => setSelectedPost(null)}
-        onViewIncremented={handleViewIncremented}
-      />
     </div>
   )
 }

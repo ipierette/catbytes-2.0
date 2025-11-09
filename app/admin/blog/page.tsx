@@ -26,7 +26,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { PostModal } from '@/components/blog/post-modal'
 import { ManualPostEditor } from '@/components/blog/manual-post-editor'
 import type { BlogPost as BlogPostType } from '@/types/blog'
 
@@ -64,7 +63,6 @@ export default function BlogAdminPage() {
   const [previewModalOpen, setPreviewModalOpen] = useState(false)
   const [previewTheme, setPreviewTheme] = useState('')
   const [generatedPost, setGeneratedPost] = useState<any>(null)
-  const [previewPost, setPreviewPost] = useState<BlogPostType | null>(null)
   const [textOnlyMode, setTextOnlyMode] = useState(false)
   const [customThemeDialogOpen, setCustomThemeDialogOpen] = useState(false)
   const [customTheme, setCustomTheme] = useState('')
@@ -684,7 +682,7 @@ export default function BlogAdminPage() {
                               size="sm"
                               variant="outline"
                               className="gap-1 flex-1 md:flex-initial"
-                              onClick={() => setPreviewPost(post as unknown as BlogPostType)}
+                              onClick={() => window.open(`/pt-BR/blog/${post.slug}`, '_blank')}
                             >
                               <Eye className="h-3 w-3" />
                               <span className="hidden sm:inline">Ver</span>
@@ -777,13 +775,6 @@ export default function BlogAdminPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Modal de Preview de Post Publicado */}
-      <PostModal 
-        post={previewPost} 
-        isOpen={!!previewPost} 
-        onClose={() => setPreviewPost(null)}
-      />
 
       {/* Editor Manual de Posts */}
       <ManualPostEditor
