@@ -72,17 +72,17 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
       showToast('Erro ao traduzir post', 'error')
       console.error(error)
     }
-  }
-
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
       whileHover={{ y: -8, scale: 1.02 }}
-      className="relative group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
+      className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
     >
-      <Link href={articleUrl} target="_blank" rel="noopener noreferrer" className="block">
+      <Link href={articleUrl} target="_blank" rel="noopener noreferrer" className="block"> onClick={onClick}
+      className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
+    >
       {/* Cover Image */}
       <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">
         {!imageError && (
@@ -161,40 +161,36 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
         )}
 
         {/* Read more button */}
-                  {/* Read more button */}
-          <div className="w-full mt-2 px-4 py-2 bg-gradient-to-r from-catbytes-purple to-catbytes-blue hover:from-catbytes-blue hover:to-catbytes-purple text-white font-medium rounded-lg transition-all duration-300 transform group-hover:scale-105 text-center">
-            Ler artigo completo
-          </div>
+        <div className="w-full mt-2 px-4 py-2 bg-gradient-to-r from-catbytes-purple to-catbytes-blue hover:from-catbytes-blue hover:to-catbytes-purple text-white font-medium rounded-lg transition-all duration-300 transform group-hover:scale-105 text-center">
+          Ler artigo completo
         </div>
       </Link>
 
       {/* Admin buttons - outside the Link */}
-      {(isAdmin && showAdminButtons) && (
-        <div className="flex gap-2 px-6 pb-6">
-          {onEdit && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onEdit()
-              }}
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors"
-              title="Editar post"
-            >
-              <Eye className="w-4 h-4" />
-              Editar
-            </button>
-          )}
-          {post.locale === 'pt-BR' && onTranslate && (
-            <button
-              onClick={handleTranslate}
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-              title="Traduzir para inglês"
-            >
-              <Globe className="w-4 h-4" />
-              Traduzir
-            </button>
-          )}
-          {onDelete && (
+          <div className="flex gap-2 mt-3 px-6 pb-6">
+            {onEdit && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit()
+                }}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors"
+                title="Editar post"
+              >
+                <Eye className="w-4 h-4" />
+                Editar
+              </button>
+            )}
+            {post.locale === 'pt-BR' && (
+              <button
+                onClick={handleTranslate}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                title="Traduzir para inglês"
+              >
+                <Globe className="w-4 h-4" />
+                Traduzir
+              </button>
+            )}
             <button
               onClick={handleDelete}
               className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
@@ -203,12 +199,13 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
               <Trash2 className="w-4 h-4" />
               Deletar
             </button>
-          )}
-        </div>
-      )}
+          </div>
+        )}</div>
+        )}
+      </div>
 
       {/* Decorative cat paw print */}
-      <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none">
+      <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-20 transition-opacity duration-300">
         <span className="text-6xl">🐾</span>
       </div>
     </motion.article>
