@@ -457,29 +457,6 @@ Seu conteúdo aqui em Markdown...
             </div>
           </div>
         </div>
-            ) : (
-              <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                <input
-                  type="file"
-                  id="cover-upload"
-                  accept="image/*"
-                  onChange={handleCoverImageChange}
-                  className="hidden"
-                />
-                <label
-                  htmlFor="cover-upload"
-                  className="cursor-pointer flex flex-col items-center gap-2"
-                >
-                  <Upload className="h-8 w-8 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    Clique para fazer upload da imagem de capa
-                  </p>
-                  <p className="text-xs text-muted-foreground">PNG, JPG até 5MB</p>
-                </label>
-              </div>
-            )}
-          </div>
-        </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={saving}>
