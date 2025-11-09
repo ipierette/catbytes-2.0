@@ -113,6 +113,49 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
   const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/blog/${post.slug}` : ''
   const shareText = `Confira: ${post.title}`
 
+  // Extrair imagens do conteúdo Markdown
+  const extractImagesFromContent = (content: string): string[] => {
+    const imageRegex = /!\[.*?\]\((.*?)\)/g
+    const matches = content.matchAll(imageRegex)
+    return Array.from(matches, m => m[1])
+  }
+
+  const contentImages = extractImagesFromContent(post.content)
+  const hasContentImages = contentImages.length > 0
+
+  // Dividir o conteúdo em seções para layout de revista
+  const splitContentForMagazineLayout = (content: string) => {
+    // Remove imagens do conteúdo para processar separadamente
+    const textContent = content.replace(/!\[.*?\]\(.*?\)/g, '')
+    
+    // Divide em parágrafos
+    const paragraphs = textContent.split('\n\n').filter(p => p.trim())
+    
+    // Para layout com 2 imagens (revista completa)
+    if (contentImages.length >= 2) {
+      return {
+        intro: paragraphs.slice(0, 2).join('\n\n'),
+        middle: paragraphs.slice(2, 4).join('\n\n'),
+        end: paragraphs.slice(4).join('\n\n'),
+      }
+    }
+    
+    // Para layout com 1 imagem (revista simples)
+    if (contentImages.length === 1) {
+      return {
+        intro: paragraphs.slice(0, 3).join('\n\n'),
+        end: paragraphs.slice(3).join('\n\n'),
+      }
+    }
+    
+    // Layout padrão sem imagens
+    return {
+      intro: content,
+    }
+  }
+
+  const sections = splitContentForMagazineLayout(post.content)
+
   const handleShare = (platform: string) => {
     const urls = {
       instagram: `https://www.instagram.com/catbytes_izadora_pierette/`, // Instagram não permite compartilhamento direto de links
@@ -229,27 +272,141 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
                     </div>
                   )}
 
-                  {/* Content - Markdown rendered as HTML */}
-                  <div
-                    className="prose prose-lg dark:prose-invert max-w-none
-                    prose-headings:text-gray-900 dark:prose-headings:text-white
-                    prose-headings:font-bold
-                    prose-p:text-gray-700 dark:prose-p:text-gray-300
-                    prose-p:leading-relaxed
-                    prose-a:text-catbytes-purple dark:prose-a:text-catbytes-pink
-                    prose-a:no-underline hover:prose-a:underline
-                    prose-strong:text-catbytes-purple dark:prose-strong:text-catbytes-pink
-                    prose-code:text-catbytes-blue
-                    prose-code:bg-gray-100 dark:prose-code:bg-gray-700
-                    prose-code:px-2 prose-code:py-1 prose-code:rounded
-                    prose-pre:bg-gray-900 prose-pre:text-gray-100
-                    prose-blockquote:border-l-catbytes-purple dark:prose-blockquote:border-l-catbytes-pink
-                    prose-ul:text-gray-700 dark:prose-ul:text-gray-300
-                    prose-ol:text-gray-700 dark:prose-ol:text-gray-300
-                    prose-li:my-2
-                    prose-img:rounded-xl prose-img:shadow-lg"
-                    dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
-                  />
+                  {/* Layout adaptável baseado no número de imagens */}
+                  {contentImages.length >= 2 ? (
+                    // Layout REVISTA COMPLETA (2+ imagens) - Estilo Imagem 1
+                    <div className="space-y-8">
+                      {/* Introdução com caixa colorida */}
+                      <div className="grid md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2">
+                          <div
+                            className="prose prose-lg dark:prose-invert max-w-none magazine-text"
+                            dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
+                          />
+                        </div>
+                        <div className="bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 p-6 rounded-xl border-l-4 border-catbytes-pink">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">💡 Destaque</h3>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {post.excerpt}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Primeira imagem com texto ao lado */}
+                      <div className="grid md:grid-cols-2 gap-6 items-center">
+                        <div className="relative h-64 md:h-80 rounded-xl overflow-hidden shadow-lg">
+                          <Image
+                            src={contentImages[0]}
+                            alt="Imagem do artigo 1"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                          />
+                        </div>
+                        <div
+                          className="prose prose-lg dark:prose-invert max-w-none magazine-text"
+                          dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.middle) }}
+                        />
+                      </div>
+
+                      {/* Segunda imagem com caixa informativa */}
+                      <div className="grid md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2 order-2 md:order-1">
+                          <div className="relative h-64 md:h-96 rounded-xl overflow-hidden shadow-lg">
+                            <Image
+                              src={contentImages[1]}
+                              alt="Imagem do artigo 2"
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 768px) 100vw, 66vw"
+                            />
+                          </div>
+                        </div>
+                        <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-6 rounded-xl border-l-4 border-catbytes-purple order-1 md:order-2">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">📌 Saiba Mais</h3>
+                          <div
+                            className="prose prose-sm dark:prose-invert max-w-none magazine-text"
+                            dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end.substring(0, 200) + '...') }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Restante do conteúdo */}
+                      <div
+                        className="prose prose-lg dark:prose-invert max-w-none magazine-text"
+                        dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end) }}
+                      />
+                    </div>
+                  ) : contentImages.length === 1 ? (
+                    // Layout REVISTA SIMPLES (1 imagem) - Estilo Imagem 2
+                    <div className="space-y-8">
+                      {/* Introdução */}
+                      <div
+                        className="prose prose-lg dark:prose-invert max-w-none magazine-text text-justify"
+                        dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
+                      />
+
+                      {/* Imagem destacada com moldura */}
+                      <div className="relative">
+                        <div className="absolute -inset-4 bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 rounded-2xl transform rotate-1"></div>
+                        <div className="relative h-64 md:h-96 rounded-xl overflow-hidden shadow-2xl">
+                          <Image
+                            src={contentImages[0]}
+                            alt="Imagem do artigo"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, 100vw"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Continuação com caixa call-to-action */}
+                      <div className="grid md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2">
+                          <div
+                            className="prose prose-lg dark:prose-invert max-w-none magazine-text text-justify"
+                            dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end) }}
+                          />
+                        </div>
+                        <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 p-6 rounded-xl h-fit sticky top-4">
+                          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b-2 border-catbytes-pink pb-2">
+                            Leia & Inspire-se
+                          </h3>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 italic">
+                            "{post.excerpt}"
+                          </p>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                            <p>📅 {format(new Date(post.created_at), "dd/MM/yyyy")}</p>
+                            <p>👁️ {post.views} leitores</p>
+                            <p>✍️ {post.author}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Layout PADRÃO (sem imagens extras) - Estilo jornal clássico
+                    <div
+                      className="prose prose-lg dark:prose-invert max-w-none magazine-text
+                      prose-headings:text-gray-900 dark:prose-headings:text-white
+                      prose-headings:font-bold
+                      prose-p:text-gray-700 dark:prose-p:text-gray-300
+                      prose-p:leading-relaxed prose-p:text-justify
+                      prose-a:text-catbytes-purple dark:prose-a:text-catbytes-pink
+                      prose-a:no-underline hover:prose-a:underline
+                      prose-strong:text-catbytes-purple dark:prose-strong:text-catbytes-pink
+                      prose-code:text-catbytes-blue
+                      prose-code:bg-gray-100 dark:prose-code:bg-gray-700
+                      prose-code:px-2 prose-code:py-1 prose-code:rounded
+                      prose-pre:bg-gray-900 prose-pre:text-gray-100
+                      prose-blockquote:border-l-catbytes-purple dark:prose-blockquote:border-l-catbytes-pink
+                      prose-ul:text-gray-700 dark:prose-ul:text-gray-300
+                      prose-ol:text-gray-700 dark:prose-ol:text-gray-300
+                      prose-li:my-2
+                      prose-img:rounded-xl prose-img:shadow-lg
+                      columns-1 md:columns-2 gap-8"
+                      dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
+                    />
+                  )}
 
                   {/* Share buttons */}
                   <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">

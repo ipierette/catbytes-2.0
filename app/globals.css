@@ -71,6 +71,42 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Estilos de revista/jornal para o PostModal */
+  .magazine-text {
+    @apply leading-relaxed;
+  }
+
+  .magazine-text p {
+    @apply mb-4 text-justify;
+    font-family: 'Georgia', serif;
+    line-height: 1.8;
+  }
+
+  .magazine-text h2,
+  .magazine-text h3 {
+    font-family: 'system-ui', sans-serif;
+    @apply font-black tracking-tight;
+  }
+
+  .magazine-text h2 {
+    @apply text-3xl mb-4 mt-8;
+  }
+
+  .magazine-text h3 {
+    @apply text-2xl mb-3 mt-6;
+  }
+
+  /* Drop cap para primeira letra (estilo revista) */
+  .magazine-text > p:first-of-type::first-letter {
+    @apply float-left text-6xl font-bold leading-none mr-2 mt-1;
+    font-family: 'Georgia', serif;
+    color: #8A2BE2;
+  }
+
+  .dark .magazine-text > p:first-of-type::first-letter {
+    color: #FF69B4;
+  }
 }
 
 /* Smooth scrolling */
