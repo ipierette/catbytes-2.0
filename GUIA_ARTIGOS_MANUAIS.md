@@ -1,5 +1,39 @@
 # 📝 Guia para Criar Artigos Manuais - CatBytes Blog
 
+## 🎯 Divisão Proporcional Inteligente
+
+O sistema utiliza **auto-cálculo de posicionamento** baseado no total de parágrafos do artigo.
+
+### 📐 Como Funciona
+
+O algoritmo analisa seu conteúdo e divide proporcionalmente:
+
+- **Introdução:** 30% do total de parágrafos
+- **Texto do Meio:** 40% do total de parágrafos  
+- **Conteúdo Final:** 30% do total de parágrafos
+
+**Exemplo com 10 parágrafos:**
+```
+Parágrafos 1-3:   Introdução (30%)
+Parágrafos 4-7:   Texto do Meio com Imagem 1 (40%)
+Parágrafos 8-10:  Final com Imagem 2 (30%)
+```
+
+**Exemplo com 20 parágrafos:**
+```
+Parágrafos 1-6:    Introdução (30%)
+Parágrafos 7-14:   Texto do Meio com Imagem 1 (40%)
+Parágrafos 15-20:  Final com Imagem 2 (30%)
+```
+
+**Vantagens:**
+- ✅ Adapta-se automaticamente a qualquer tamanho de artigo
+- ✅ Imagens sempre bem distribuídas visualmente
+- ✅ Proporção equilibrada entre seções
+- ✅ Você não precisa contar parágrafos manualmente
+
+---
+
 ## 🎯 Estrutura Obrigatória
 
 Todo artigo manual deve seguir **exatamente** este formato para garantir uma apresentação visual perfeita.

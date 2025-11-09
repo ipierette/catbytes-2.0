@@ -109,15 +109,43 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   const contentImages = extractImagesFromContent(post.content)
 
-  // Dividir o conteúdo em seções
+  // Dividir o conteúdo em seções de forma inteligente
   const splitContentForLayout = (content: string) => {
+    // Remove imagens do texto para análise
     const textContent = content.replace(/!\[.*?\]\(.*?\)/g, '')
     const paragraphs = textContent.split('\n\n').filter(p => p.trim())
     
+    const totalParagraphs = paragraphs.length
+    
+    // Se tiver 2 imagens: divide em 3 partes equilibradas
+    if (contentImages.length >= 2) {
+      // 30% para introdução (com caixa destaque)
+      const introEnd = Math.ceil(totalParagraphs * 0.30)
+      // 40% para texto do meio (ao lado da imagem 1)
+      const middleEnd = Math.ceil(totalParagraphs * 0.70)
+      
+      return {
+        intro: paragraphs.slice(0, introEnd).join('\n\n') || '',
+        middle: paragraphs.slice(introEnd, middleEnd).join('\n\n') || '',
+        end: paragraphs.slice(middleEnd).join('\n\n') || '',
+      }
+    }
+    
+    // Se tiver 1 imagem: divide em 2 partes
+    if (contentImages.length === 1) {
+      const half = Math.ceil(totalParagraphs / 2)
+      return {
+        intro: paragraphs.slice(0, half).join('\n\n') || '',
+        middle: '',
+        end: paragraphs.slice(half).join('\n\n') || '',
+      }
+    }
+    
+    // Sem imagens: tudo é conteúdo
     return {
-      intro: paragraphs.slice(0, 3).join('\n\n') || '',
-      middle: paragraphs.slice(3, 6).join('\n\n') || '',
-      end: paragraphs.slice(6).join('\n\n') || '',
+      intro: content,
+      middle: '',
+      end: '',
     }
   }
 

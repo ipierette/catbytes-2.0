@@ -141,7 +141,8 @@ export function StructuredPostEditor({ isOpen, onClose, onSave }: StructuredPost
     toast.loading('Salvando artigo estruturado...', { id: 'save-structured' })
 
     try {
-      // Montar conteúdo markdown estruturado
+      // Montar conteúdo markdown estruturado de forma proporcional
+      // Layout: Introdução (30%) → Imagem 1 + Texto do Meio (40%) → Imagem 2 → Final (30%)
       const fullContent = `${introduction.trim()}
 
 ![Imagem 1](${image1Url})
