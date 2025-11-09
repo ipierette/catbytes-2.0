@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Analytics Tracking</title>
+</head>
+<body>
+    <h1>Analytics Test Page</h1>
+    <p>Abra o console (F12) para ver os logs de tracking</p>
+    
+    <div id="status"></div>
+    
+    <script type="module">
+        // Simular o tracking
+        const SUPABASE_URL = "https://lbjekucdxgouwgegpdhi.supabase.co"
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxiamVrdWNkeGdvdXdnZWdwZGhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMTY0NDEsImV4cCI6MjA3NzY5MjQ0MX0.IHvBFOggnPwASsMKA3C2-g3Pc-HCvUD6f26LS1ESueI"
+        
+        console.log('✅ Variáveis configuradas:', {
+            url: !!SUPABASE_URL,
+            key: !!SUPABASE_ANON_KEY
+        })
+        
+        // Test direct insert
+        async function testInsert() {
+            const data = {
+                page: '/test',
+                referrer: document.referrer || null,
+                user_agent: navigator.userAgent,
+                session_id: 'test-' + Date.now(),
+                locale: 'pt-BR',
+                timestamp: new Date().toISOString(),
+                ip_address: null
+            }
+            
+            console.log('📤 Tentando inserir:', data)
+            
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/analytics_page_views`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(data)
+                })
+                
+                const result = await response.text()
+                
+                if (response.ok) {
+                    console.log('✅ Insert SUCCESS:', result)
+                    document.getElementById('status').innerHTML = '✅ TRACKING FUNCIONANDO!'
+                } else {
+                    console.error('❌ Insert FAILED:', response.status, result)
+                    document.getElementById('status').innerHTML = '❌ ERRO: ' + result
+                }
+            } catch (error) {
+                console.error('❌ Network error:', error)
+                document.getElementById('status').innerHTML = '❌ ERRO DE REDE: ' + error
+            }
+        }
+        
+        // Test connection
+        async function testConnection() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/analytics_page_views?limit=1`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                })
+                
+                if (response.ok) {
+                    console.log('✅ Conexão com Supabase OK')
+                    const data = await response.json()
+                    console.log('📊 Registros existentes:', data)
+                } else {
+                    const error = await response.text()
+                    console.error('❌ Erro de conexão:', response.status, error)
+                }
+            } catch (error) {
+                console.error('❌ Erro de rede:', error)
+            }
+        }
+        
+        // Run tests
+        testConnection()
+        setTimeout(testInsert, 1000)
+    </script>
+</body>
+</html>

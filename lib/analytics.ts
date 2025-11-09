@@ -19,6 +19,16 @@ export const supabase = isClientConfigured ? createClient(supabaseUrl!, supabase
 const isServerConfigured = !!(supabaseUrl && supabaseServiceKey)
 export const supabaseAdmin = isServerConfigured ? createClient(supabaseUrl!, supabaseServiceKey!) : null
 
+// Debug: Log initialization status (only in browser)
+if (typeof window !== 'undefined') {
+  console.log('[Analytics] 🔧 Initialization:', {
+    clientConfigured: isClientConfigured,
+    supabaseUrl: !!supabaseUrl,
+    supabaseAnonKey: !!supabaseAnonKey,
+    supabaseClient: !!supabase
+  })
+}
+
 // =====================================================
 // TRACKING FUNCTIONS (Client-side)
 // =====================================================
