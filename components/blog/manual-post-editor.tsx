@@ -289,15 +289,29 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
           {/* Conteúdo */}
           <div className="space-y-2">
             <Label htmlFor="content">Conteúdo * (Markdown suportado, mín. 100 caracteres)</Label>
-            className={`font-mono text-sm ${content.length > 0 && content.length < 100 ? 'border-red-500' : ''}`}
+            <Textarea
+              id="content"
+              placeholder="## Introdução
+
+Seu conteúdo aqui em Markdown...
+
+### Seção 1
+- Ponto 1
+- Ponto 2
+
+**Texto em negrito** e *itálico*"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={12}
+              className={`font-mono text-sm ${content.length > 0 && content.length < 100 ? 'border-red-500' : ''}`}
             />
             <p className={`text-xs ${content.length < 100 ? 'text-red-500' : 'text-muted-foreground'}`}>
               {content.length} caracteres {content.length < 100 && content.length > 0 ? `(mínimo: 100)` : ''}
             </p>
-          </div>
             <p className="text-xs text-muted-foreground">
               Use Markdown: ## para títulos, **negrito**, *itálico*, - listas
             </p>
+          </div>
           </div>
 
           {/* Tags */}
