@@ -144,6 +144,7 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
     if (contentImages.length === 1) {
       return {
         intro: paragraphs.slice(0, 3).join('\n\n') || '',
+        middle: '',
         end: paragraphs.slice(3).join('\n\n') || '',
       }
     }
@@ -151,6 +152,8 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
     // Layout padrão sem imagens
     return {
       intro: content,
+      middle: '',
+      end: '',
     }
   }
 
