@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
       excerpt: excerpt || content.substring(0, 200),
       content,
       cover_image_url: coverImageUrl,
-      content_images: contentImages || [],
+      // content_images não existe na tabela, removido
       tags: tags || [],
       category: 'Manual',
       author: 'Admin',
@@ -224,6 +224,8 @@ export async function POST(request: NextRequest) {
       seo_description: excerpt || content.substring(0, 160),
       keywords: tags || [],
     }
+
+    console.log('[Manual Post] Creating post with data:', JSON.stringify(postData, null, 2))
 
     // Insert post
     const { data: post, error } = await supabaseAdmin
