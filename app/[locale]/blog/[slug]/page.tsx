@@ -365,6 +365,22 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 // Simple markdown to HTML converter com estilos aprimorados
 function formatMarkdown(markdown: string): string {
   let html = markdown
+    
+    // Blocos de código com múltiplas linhas (```código```)
+    .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, language, code) => {
+      const lang = language || 'code'
+      return `<div class="code-block-wrapper my-6">
+        <div class="code-block-header bg-gray-800 dark:bg-gray-900 text-gray-300 px-4 py-2 text-sm font-mono rounded-t-lg flex items-center justify-between">
+          <span class="text-catbytes-purple dark:text-catbytes-pink font-semibold">${lang}</span>
+          <span class="text-xs opacity-60">código</span>
+        </div>
+        <pre class="code-block bg-gray-900 dark:bg-black text-gray-100 p-4 rounded-b-lg overflow-x-auto"><code class="language-${lang} text-sm leading-relaxed">${escapeHtml(code.trim())}</code></pre>
+      </div>`
+    })
+    
+    // Código inline (`código`)
+    .replace(/`([^`]+)`/g, '<code class="inline-code bg-gray-100 dark:bg-gray-800 text-catbytes-purple dark:text-catbytes-pink px-2 py-1 rounded text-sm font-mono border border-gray-300 dark:border-gray-700">$1</code>')
+    
     // Títulos dentro do conteúdo - sempre ## (nível 2) em negrito
     .replace(/^### (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h2>')
     .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h2>')
@@ -382,9 +398,21 @@ function formatMarkdown(markdown: string): string {
 
   html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul class="list-disc list-inside space-y-2 mb-6">$1</ul>')
 
-  if (!html.startsWith('<h') && !html.startsWith('<ul')) {
+  if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<div class="code-block')) {
     html = `<p class="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6">${html}</p>`
   }
 
   return html
+}
+
+// Helper para escapar HTML dentro de blocos de código
+function escapeHtml(text: string): string {
+  const map: { [key: string]: string } = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  }
+  return text.replace(/[&<>"']/g, char => map[char])
 }

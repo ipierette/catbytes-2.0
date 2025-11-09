@@ -79,7 +79,45 @@ O sistema aplica **automaticamente** tamanhos e negritos aos títulos:
 
 - Item de lista
 - Outro item
+
+`código inline` - para código curto, comandos, variáveis
+Exemplo: Use o comando `npm install` para instalar as dependências.
+
+```javascript
+// Bloco de código com múltiplas linhas
+function exemplo() {
+  console.log('Olá mundo!')
+}
 ```
+```
+
+#### **Código em Artigos:**
+
+**Código Inline (curto):**
+- Use `` `código` `` (crase dupla)
+- Exemplo: ``A variável `userName` armazena o nome``
+- Resultado: Fundo cinza claro, texto roxo/rosa, fonte monospace
+
+**Blocos de Código (múltiplas linhas):**
+```markdown
+```javascript
+function minhaFuncao() {
+  return "Hello World"
+}
+```
+```
+
+**Linguagens Suportadas:**
+- `javascript`, `typescript`, `python`, `java`, `html`, `css`
+- `jsx`, `tsx`, `json`, `bash`, `sql`, etc.
+- Se não especificar linguagem, aparece como "code"
+
+**Resultado Visual:**
+- 🎨 Header com nome da linguagem (roxo/rosa)
+- ⬛ Fundo escuro (cinza 900/preto)
+- 💻 Fonte monospace (Monaco, Menlo, Consolas)
+- 📜 Scroll horizontal automático
+- 🔲 Bordas arredondadas + sombra
 
 #### **Parágrafos:**
 - Tamanho: lg (confortável para leitura)

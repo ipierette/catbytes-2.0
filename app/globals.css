@@ -125,6 +125,49 @@
   .dark .magazine-text p:first-of-type::first-letter {
     color: #FF69B4;
   }
+
+  /* Estilos para blocos de código */
+  .code-block-wrapper {
+    @apply rounded-lg shadow-lg overflow-hidden border border-gray-700 dark:border-gray-600;
+  }
+
+  .code-block {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    tab-size: 2;
+  }
+
+  .code-block code {
+    display: block;
+    white-space: pre;
+    word-wrap: normal;
+    line-height: 1.6;
+    color: #e3e3e3;
+  }
+
+  /* Código inline */
+  .inline-code {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Scrollbar customizado para blocos de código */
+  .code-block::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .code-block::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+
+  .code-block::-webkit-scrollbar-thumb {
+    background: #8A2BE2;
+    border-radius: 4px;
+  }
+
+  .code-block::-webkit-scrollbar-thumb:hover {
+    background: #9333EA;
+  }
 }
 
 /* Smooth scrolling */

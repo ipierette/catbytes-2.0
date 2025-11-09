@@ -89,9 +89,3 @@ Com as ferramentas certas, é possível unir **tecnologia e empatia**, transform
 Se quiser ir além, integre seu chatbot a **automações n8n**, **bancos de dados Supabase** e **serviços de mensagens** como WhatsApp, e-mail e redes sociais.  
 Assim, você cria um ecossistema digital completo que trabalha por você, 24 horas por dia.
 
-
-2. **Imagem 1 (no corpo – após seção 1):**  
-   “Ilustração vetorial limpa mostrando fluxograma de criação de chatbot: usuário → modelo de IA → respostas → integração web. Estilo educacional, flat design, com cores vibrantes mas equilibradas (azul, violeta, branco).
-
-3. **Imagem 2 (no corpo – após seção 3):**  
-   “Arte digital mostrando um chatbot humanizado conversando com um usuário em um celular. Interface moderna, elementos de UX e IA, atmosfera tecnológica e amigável, fundo com gradiente suave e luzes em tons de azul e lilás.”
