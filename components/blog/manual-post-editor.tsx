@@ -29,7 +29,7 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
   const [contentImageUrls, setContentImageUrls] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
 
-  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -42,30 +42,85 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
         setCoverImagePreview(reader.result as string)
       }
       reader.readAsDataURL(file)
+
+      // Upload imediato para obter URL
+      toast.loading('Fazendo upload da capa...', { id: 'cover-upload' })
+      try {
+        const formData = new FormData()
+        formData.append('image', file)
+        formData.append('slug', `cover-${Date.now()}`)
+
+        const uploadRes = await fetch('/api/blog/upload-image', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+        })
+
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json()
+          const url = uploadData.imageUrl || uploadData.url
+          if (url) {
+            setCoverImageUrl(url)
+            toast.success('✅ Capa enviada!', { id: 'cover-upload' })
+          }
+        } else {
+          toast.error('Erro ao enviar capa', { id: 'cover-upload' })
+        }
+      } catch (error) {
+        toast.error('Erro ao enviar capa', { id: 'cover-upload' })
+      }
     }
   }
 
-  const handleContentImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleContentImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     if (contentImages.length + files.length > 2) {
       toast.error('Máximo de 2 imagens de conteúdo')
       return
     }
 
-    files.forEach(file => {
+    for (const file of files) {
       if (file.size > 5 * 1024 * 1024) {
         toast.error(`${file.name} excede 5MB`)
-        return
+        continue
       }
 
+      // Preview local
       const reader = new FileReader()
       reader.onloadend = () => {
         setContentImagePreviews(prev => [...prev, reader.result as string])
       }
       reader.readAsDataURL(file)
-    })
 
-    setContentImages(prev => [...prev, ...files])
+      // Upload imediato para obter URL
+      toast.loading(`Enviando ${file.name}...`, { id: `upload-${file.name}` })
+      try {
+        const formData = new FormData()
+        formData.append('image', file)
+        formData.append('slug', `content-${Date.now()}-${contentImages.length}`)
+
+        const uploadRes = await fetch('/api/blog/upload-image', {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+        })
+
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json()
+          const url = uploadData.imageUrl || uploadData.url
+          if (url) {
+            setContentImageUrls(prev => [...prev, url])
+            toast.success(`✅ ${file.name} enviada!`, { id: `upload-${file.name}` })
+          }
+        } else {
+          toast.error(`Erro ao enviar ${file.name}`, { id: `upload-${file.name}` })
+        }
+      } catch (error) {
+        toast.error(`Erro ao enviar ${file.name}`, { id: `upload-${file.name}` })
+      }
+
+      setContentImages(prev => [...prev, file])
+    }
   }
 
   const removeCoverImage = () => {
@@ -108,8 +163,8 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
       toast.error('Conteúdo deve ter no mínimo 100 caracteres')
       return
     }
-    if (!coverImage) {
-      toast.error('Imagem de capa é obrigatória')
+    if (!coverImageUrl) {
+      toast.error('Imagem de capa é obrigatória. Aguarde o upload concluir.')
       return
     }
 
@@ -117,93 +172,12 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
     toast.loading('Salvando artigo...', { id: 'save-manual' })
 
     try {
-      // Upload da imagem de capa
-      const coverFormData = new FormData()
-      coverFormData.append('image', coverImage)
-      coverFormData.append('slug', title.toLowerCase().replace(/\s+/g, '-'))
-
-      const coverUploadRes = await fetch('/api/blog/upload-image', {
-        method: 'POST',
-        body: coverFormData,
-        credentials: 'include', // ← IMPORTANTE: Incluir cookies de autenticação
-      })
-
-      console.log('[Manual Post Editor] Cover upload response status:', coverUploadRes.status)
-      
-      if (!coverUploadRes.ok) {
-        const errorText = await coverUploadRes.text()
-        console.error('[Manual Post Editor] Cover upload error (raw):', errorText)
-        let errorData
-        try {
-          errorData = JSON.parse(errorText)
-        } catch {
-          errorData = { error: errorText }
-        }
-        console.error('[Manual Post Editor] Cover upload error (parsed):', errorData)
-        throw new Error(errorData.error || 'Falha no upload da imagem de capa')
-      }
-
-      const coverData = await coverUploadRes.json()
-      console.log('[Manual Post Editor] Cover upload response data:', coverData)
-      
-      const coverImageUrl = coverData.imageUrl || coverData.url
-      
-      if (!coverImageUrl) {
-        console.error('[Manual Post Editor] No URL in response:', coverData)
-        throw new Error('URL da imagem não retornada pelo servidor')
-      }
-
-      console.log('[Manual Post Editor] Cover image uploaded:', coverImageUrl)
-      setCoverImageUrl(coverImageUrl) // Salvar URL no estado
-
-      // Upload das imagens de conteúdo
-      const uploadedUrls: string[] = []
-      for (const image of contentImages) {
-        const formData = new FormData()
-        formData.append('image', image)
-        formData.append('slug', `${title.toLowerCase().replace(/\s+/g, '-')}-content-${uploadedUrls.length + 1}`)
-
-        const uploadRes = await fetch('/api/blog/upload-image', {
-          method: 'POST',
-          body: formData,
-          credentials: 'include', // ← IMPORTANTE: Incluir cookies de autenticação
-        })
-
-        console.log('[Manual Post Editor] Content image upload response status:', uploadRes.status)
-
-        if (uploadRes.ok) {
-          const uploadData = await uploadRes.json()
-          console.log('[Manual Post Editor] Content image upload response data:', uploadData)
-          const url = uploadData.imageUrl || uploadData.url
-          if (url) {
-            uploadedUrls.push(url)
-            console.log('[Manual Post Editor] Content image uploaded:', url)
-            // Atualizar estado imediatamente para mostrar URL
-            setContentImageUrls(prev => [...prev, url])
-          } else {
-            console.warn('[Manual Post Editor] No URL in content image response:', uploadData)
-          }
-        } else {
-          const errorText = await uploadRes.text()
-          console.error('[Manual Post Editor] Content image upload failed (raw):', errorText)
-        }
-      }
-
-      console.log('[Manual Post Editor] All uploads complete. Creating post with:', {
-        hasTitle: !!title.trim(),
-        hasExcerpt: !!excerpt.trim(),
-        hasContent: !!content.trim(),
-        hasCoverImageUrl: !!coverImageUrl,
-        coverImageUrl,
-        contentImageCount: uploadedUrls.length
-      })
-
-      // Criar post
+      // Criar post (imagens já foram enviadas)
       const postData = {
         title: title.trim(),
         excerpt: excerpt.trim(),
         content: content.trim(),
-        coverImageUrl: coverImageUrl,  // camelCase para a API
+        coverImageUrl: coverImageUrl,
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
       }
 
@@ -432,26 +406,58 @@ Seu conteúdo aqui em Markdown...
                 )}
               </div>
               {contentImageUrls.length > 0 && (
-                <div className="mt-3 p-3 bg-muted rounded-lg">
-                  <p className="text-xs font-semibold mb-2">URLs das imagens (copie para usar no conteúdo):</p>
+                <div className="mt-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <p className="text-sm font-bold text-purple-900 dark:text-purple-100">
+                      📎 {contentImageUrls.length} {contentImageUrls.length === 1 ? 'imagem pronta' : 'imagens prontas'} para usar
+                    </p>
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                    Clique para inserir no conteúdo acima ⬆️
+                  </p>
                   {contentImageUrls.map((url, index) => (
-                    <div key={index} className="flex items-center gap-2 mb-1">
-                      <code className="text-xs bg-background px-2 py-1 rounded flex-1 truncate" title={url}>
+                    <div key={index} className="mb-2 p-2 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                          🖼️ Imagem {index + 1}
+                        </span>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="default"
+                            className="h-7 px-3 text-xs bg-purple-600 hover:bg-purple-700"
+                            onClick={() => {
+                              const markdown = `![Imagem ${index + 1}](${url})`
+                              setContent(prev => prev + '\n\n' + markdown + '\n\n')
+                              toast.success('Imagem inserida no conteúdo!')
+                            }}
+                          >
+                            ➕ Inserir
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => {
+                              navigator.clipboard.writeText(`![Imagem ${index + 1}](${url})`)
+                              toast.success('Markdown copiado!')
+                            }}
+                          >
+                            📋
+                          </Button>
+                        </div>
+                      </div>
+                      <code className="text-xs bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded block truncate text-gray-600 dark:text-gray-400" title={url}>
                         {url}
                       </code>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-6 px-2 text-xs"
-                        onClick={() => {
-                          navigator.clipboard.writeText(`![Imagem ${index + 1}](${url})`)
-                          toast.success('Markdown copiado!')
-                        }}
-                      >
-                        Copiar MD
-                      </Button>
                     </div>
                   ))}
+                  <div className="mt-3 pt-3 border-t border-purple-200 dark:border-purple-800">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      💡 <strong>Dica:</strong> Posicione o cursor onde quer a imagem e clique "Inserir"
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
