@@ -312,7 +312,6 @@ Seu conteúdo aqui em Markdown...
               Use Markdown: ## para títulos, **negrito**, *itálico*, - listas
             </p>
           </div>
-          </div>
 
           {/* Tags */}
           <div className="space-y-2">
