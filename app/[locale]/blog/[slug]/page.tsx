@@ -259,7 +259,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               {/* Segunda imagem com caixa "Saiba Mais" (se existir) */}
               {contentImages.length >= 2 && (
                 <div className="grid md:grid-cols-3 gap-8">
-                  <div className="md:col-span-2 order-2 md:order-1">
+                  {post.highlight && post.highlight.trim() !== '' && (
+                    <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-8 rounded-2xl border-l-4 border-catbytes-purple shadow-lg order-2 md:order-1 h-fit">
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">📌 Saiba Mais</h3>
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {post.highlight}
+                      </p>
+                    </div>
+                  )}
+                  <div className="md:col-span-2 order-1 md:order-2">
                     <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden shadow-2xl">
                       <Image
                         src={contentImages[1]}
@@ -271,14 +279,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                       />
                     </div>
                   </div>
-                  {post.highlight && post.highlight.trim() !== '' && (
-                    <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-8 rounded-2xl border-l-4 border-catbytes-purple shadow-lg order-1 md:order-2 h-fit">
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">📌 Saiba Mais</h3>
-                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                        {post.highlight}
-                      </p>
-                    </div>
-                  )}
                 </div>
               )}
 
