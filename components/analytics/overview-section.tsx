@@ -10,8 +10,15 @@ import {
   TrendingUp,
   Activity,
   Globe,
-  Zap
+  Zap,
+  Info
 } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { UnifiedTrafficChart, ProgressBarList } from './analytics-charts'
 
 interface OverviewData {
@@ -175,7 +182,20 @@ export function OverviewSection({ period }: OverviewSectionProps) {
         {/* Card 3: Leituras de Blog */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Leituras de Blog</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-sm font-medium">Leituras de Blog</CardTitle>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="font-semibold mb-1">Leituras Engajadas (Sistema Próprio)</p>
+                    <p className="text-xs">Conta apenas quando o visitante permanece no artigo por mais de 30 segundos E rola a página. Mede leituras de qualidade real.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <BookOpen className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
@@ -228,7 +248,20 @@ export function OverviewSection({ period }: OverviewSectionProps) {
         {/* Visualizações de Blog */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Views de Blog</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-sm font-medium">Views de Blog</CardTitle>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="h-3 w-3 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p className="font-semibold mb-1">Visualizações de Blog (Sistema Próprio)</p>
+                    <p className="text-xs">Conta cada visita aos artigos do blog que permanece por mais de 10 segundos. Filtra bounces rápidos mas conta todas as visitas reais aos artigos.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <Globe className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>

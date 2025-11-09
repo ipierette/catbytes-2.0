@@ -9,14 +9,15 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-// Check if Supabase is configured
-const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey && supabaseServiceKey)
+// Client-side Supabase (for tracking user events)
+// Only needs public vars (NEXT_PUBLIC_*)
+const isClientConfigured = !!(supabaseUrl && supabaseAnonKey)
+export const supabase = isClientConfigured ? createClient(supabaseUrl!, supabaseAnonKey!) : null
 
-// Client-side Supabase (for tracking user events) - only create if configured
-export const supabase = isSupabaseConfigured ? createClient(supabaseUrl!, supabaseAnonKey!) : null
-
-// Server-side Supabase (for analytics queries) - only create if configured
-export const supabaseAdmin = isSupabaseConfigured ? createClient(supabaseUrl!, supabaseServiceKey!) : null
+// Server-side Supabase (for analytics queries)
+// Needs service role key (only available server-side)
+const isServerConfigured = !!(supabaseUrl && supabaseServiceKey)
+export const supabaseAdmin = isServerConfigured ? createClient(supabaseUrl!, supabaseServiceKey!) : null
 
 // =====================================================
 // TRACKING FUNCTIONS (Client-side)
@@ -43,9 +44,12 @@ export interface BlogPostViewData {
 export async function trackPageView(data: PageViewData) {
   // Skip tracking if Supabase is not configured
   if (!supabase) {
-    console.log('[Analytics] Supabase not configured, skipping page view tracking')
+    console.warn('[Analytics] ❌ Supabase client not initialized - tracking disabled')
+    console.warn('[Analytics] Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY')
     return
   }
+
+  console.log('[Analytics] ✅ Tracking page view:', data.page)
 
   try {
     const { error } = await supabase
@@ -61,10 +65,12 @@ export async function trackPageView(data: PageViewData) {
       })
 
     if (error) {
-      console.warn('[Analytics] Page view tracking failed:', error)
+      console.error('[Analytics] ❌ Page view tracking failed:', error)
+    } else {
+      console.log('[Analytics] ✅ Page view saved successfully')
     }
   } catch (error) {
-    console.warn('[Analytics] Page view tracking error:', error)
+    console.error('[Analytics] ❌ Page view tracking error:', error)
   }
 }
 
@@ -72,9 +78,11 @@ export async function trackPageView(data: PageViewData) {
 export async function trackBlogPostView(data: BlogPostViewData) {
   // Skip tracking if Supabase is not configured
   if (!supabase) {
-    console.log('[Analytics] Supabase not configured, skipping blog post view tracking')
+    console.warn('[Analytics] ❌ Supabase client not initialized - blog tracking disabled')
     return
   }
+
+  console.log('[Analytics] 📖 Tracking blog view:', data.postSlug, `(${data.readTime}s read time)`)
 
   try {
     const { error } = await supabase
@@ -91,10 +99,12 @@ export async function trackBlogPostView(data: BlogPostViewData) {
       })
 
     if (error) {
-      console.warn('[Analytics] Blog view tracking failed:', error)
+      console.error('[Analytics] ❌ Blog view tracking failed:', error)
+    } else {
+      console.log('[Analytics] ✅ Blog view saved successfully')
     }
   } catch (error) {
-    console.warn('[Analytics] Blog view tracking error:', error)
+    console.error('[Analytics] ❌ Blog view tracking error:', error)
   }
 }
 
