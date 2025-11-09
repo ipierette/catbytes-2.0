@@ -98,14 +98,17 @@
   }
 
   /* Drop cap para primeira letra (estilo revista) - APENAS NA INTRODUÇÃO */
-  .magazine-text-intro > p:first-of-type::first-letter,
   .magazine-text-intro p:first-of-type::first-letter {
-    @apply float-left text-6xl font-bold leading-none mr-2 mt-1;
+    float: left;
+    font-size: 4.5rem;
+    line-height: 3.5rem;
+    font-weight: 700;
+    margin-right: 0.5rem;
+    margin-top: 0.25rem;
     font-family: 'Georgia', serif;
     color: #8A2BE2;
   }
 
-  .dark .magazine-text-intro > p:first-of-type::first-letter,
   .dark .magazine-text-intro p:first-of-type::first-letter {
     color: #FF69B4;
   }

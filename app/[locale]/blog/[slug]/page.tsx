@@ -250,7 +250,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               <div className="grid md:grid-cols-3 gap-8">
                 <div className="md:col-span-2">
                   <div
-                    className="prose prose-xl dark:prose-invert max-w-none magazine-text-intro"
+                    className="magazine-text-intro"
                     dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
                   />
                 </div>
@@ -278,7 +278,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     />
                   </div>
                   <div
-                    className="prose prose-xl dark:prose-invert max-w-none"
                     dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.middle) }}
                   />
                 </div>
@@ -303,7 +302,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               {/* Restante do conteúdo */}
               <div className="max-w-4xl mx-auto">
                 <div
-                  className="prose prose-xl dark:prose-invert max-w-none"
                   dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end) }}
                 />
               </div>
@@ -364,24 +362,28 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   )
 }
 
-// Simple markdown to HTML converter
+// Simple markdown to HTML converter com estilos aprimorados
 function formatMarkdown(markdown: string): string {
   let html = markdown
-    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-    .replace(/^\* (.*$)/gim, '<li>$1</li>')
-    .replace(/^- (.*$)/gim, '<li>$1</li>')
-    .replace(/\n\n/g, '</p><p>')
+    // Títulos com tamanhos maiores e negrito
+    .replace(/^### (.*$)/gim, '<h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6 mt-10">$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-8 mt-12">$1</h1>')
+    // Formatação inline
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900 dark:text-white">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-catbytes-purple dark:text-catbytes-pink font-semibold hover:underline">$1</a>')
+    // Listas
+    .replace(/^\* (.*$)/gim, '<li class="text-lg text-gray-700 dark:text-gray-300 mb-2">$1</li>')
+    .replace(/^- (.*$)/gim, '<li class="text-lg text-gray-700 dark:text-gray-300 mb-2">$1</li>')
+    // Parágrafos
+    .replace(/\n\n/g, '</p><p class="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6">')
     .replace(/\n/g, '<br>')
 
-  html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>')
+  html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul class="list-disc list-inside space-y-2 mb-6">$1</ul>')
 
   if (!html.startsWith('<h') && !html.startsWith('<ul')) {
-    html = `<p>${html}</p>`
+    html = `<p class="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6">${html}</p>`
   }
 
   return html

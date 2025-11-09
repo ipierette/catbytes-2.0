@@ -42,7 +42,98 @@ Todo artigo manual deve seguir **exatamente** este formato para garantir uma apr
 
 ## 📋 Template de Artigo
 
-### 1️⃣ **Estrutura do Markdown**
+### 📝 **Formatação Markdown com Estilos Automáticos**
+
+O sistema aplica **automaticamente** tamanhos e negritos aos títulos:
+
+#### **Hierarquia de Títulos:**
+
+```markdown
+# Título Nível 1
+- Tamanho: 4xl (muito grande)
+- Negrito: Automático
+- Uso: Raramente usado (apenas título principal se necessário)
+
+## Título Nível 2  
+- Tamanho: 3xl (grande)
+- Negrito: Automático  
+- Uso: Seções principais do artigo
+- Exemplo: "## Introdução", "## Como Funciona", "## Conclusão"
+
+### Título Nível 3
+- Tamanho: 2xl (médio-grande)
+- Negrito: Automático
+- Uso: Subseções dentro de uma seção principal
+- Exemplo: "### Benefícios da IA", "### Passo a Passo"
+```
+
+**💡 Dica:** Você NÃO precisa usar `**texto**` para deixar títulos em negrito - o sistema já faz isso automaticamente!
+
+#### **Formatação de Texto:**
+
+```markdown
+**texto em negrito** - para destacar palavras importantes no parágrafo
+
+*texto em itálico* - para ênfase suave
+
+[texto do link](https://url.com) - links aparecem em roxo/rosa
+
+- Item de lista
+- Outro item
+```
+
+#### **Parágrafos:**
+- Tamanho: lg (confortável para leitura)
+- Espaçamento: relaxado entre linhas
+- Primeira letra da introdução: Capital letter automática (dropcap)
+
+---
+
+### 1️⃣ **Exemplo de Estrutura Completa**
+
+```markdown
+## Introdução
+
+Primeiro parágrafo com contexto geral. A primeira letra terá o efeito de capital letter (dropcap) automaticamente em ROXO (modo claro) ou ROSA (modo escuro).
+
+Segundo parágrafo complementando a introdução.
+
+Terceiro parágrafo finalizando o contexto inicial.
+
+## 1. Primeira Seção Principal
+
+Texto explicativo da primeira seção com no mínimo 2 parágrafos.
+
+Segundo parágrafo da primeira seção com mais detalhes.
+
+### Subseção Importante
+
+Detalhamento de um ponto específico dentro da seção.
+
+## 2. Segunda Seção Principal
+
+Conteúdo da segunda seção bem desenvolvido.
+
+Detalhamento adicional com exemplos práticos usando **palavras em negrito** para destaque.
+
+Terceiro parágrafo com conclusão da seção.
+
+## 3. Terceira Seção
+
+Desenvolvimento da terceira seção do artigo.
+
+Explicação complementar com *ênfase em itálico* quando necessário.
+
+## Conclusão
+
+Parágrafo final resumindo os pontos principais do artigo.
+
+Fechamento com call-to-action ou reflexão final.
+```
+
+---
+
+### 1️⃣ **Estrutura do Markdown (LEGADO - DEPRECATED)**
 
 ```markdown
 # Título Principal do Artigo
