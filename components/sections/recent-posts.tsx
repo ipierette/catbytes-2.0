@@ -55,37 +55,39 @@ export function RecentPosts() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.95 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          initial={{ y: 30, scale: 0.95 }}
+          whileInView={{ y: 0, scale: 1 }}
           viewport={{ once: true }}
           transition={{ 
-            duration: 0.7,
+            duration: 0.6,
             ease: [0.22, 1, 0.36, 1]
           }}
+          style={{ opacity: 1 }}
           className="text-center mb-12"
         >
           <motion.div 
             className="flex items-center justify-center gap-3 mb-6 pb-2"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ scale: 0.9 }}
+            whileInView={{ scale: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.2, duration: 0.6 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            style={{ opacity: 1 }}
           >
             <motion.h2 
               className="text-4xl md:text-5xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent leading-tight pb-2"
-              initial={{ x: -20 }}
+              initial={{ x: -15 }}
               whileInView={{ x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+              transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
             >
               {t('title')}
             </motion.h2>
             <motion.div
-              initial={{ rotate: -20, scale: 0 }}
+              initial={{ rotate: -15, scale: 0.8 }}
               whileInView={{ rotate: 0, scale: 1 }}
               viewport={{ once: true }}
               transition={{ 
-                delay: 0.5, 
+                delay: 0.4, 
                 duration: 0.5,
                 type: "spring",
                 stiffness: 200
@@ -97,10 +99,11 @@ export function RecentPosts() {
 
           <motion.p 
             className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ y: 10 }}
+            whileInView={{ y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.4, duration: 0.5 }}
+            transition={{ delay: 0.35, duration: 0.4 }}
+            style={{ opacity: 1 }}
           >
             {t('subtitle')}
           </motion.p>
@@ -139,15 +142,16 @@ export function RecentPosts() {
                   className="block"
                 >
                   <motion.article
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true, margin: "-100px" }}
+                    initial={{ y: 40, scale: 0.95 }}
+                    whileInView={{ y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-100px", amount: 0.3 }}
                     transition={{ 
                       delay: index * 0.15,
                       duration: 0.5,
-                      ease: [0.22, 1, 0.36, 1] // Custom easing para animação mais suave
+                      ease: [0.22, 1, 0.36, 1]
                     }}
                     whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                    style={{ opacity: 1 }} // Força opacidade 1 para evitar piscar
                     className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
                   >
                   {/* Image */}

@@ -76,18 +76,19 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      initial={{ y: 30, scale: 0.95 }}
+      animate={{ y: 0, scale: 1 }}
       transition={{ 
         delay: index * 0.1, 
         duration: 0.6,
-        ease: [0.22, 1, 0.36, 1] // Easing suave personalizado
+        ease: [0.22, 1, 0.36, 1]
       }}
       whileHover={{ 
         y: -8, 
         scale: 1.02,
         transition: { duration: 0.3, ease: "easeOut" }
       }}
+      style={{ opacity: 1 }} // Força opacidade 1 sempre
       className="relative group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
     >
       <Link href={articleUrl} target="_blank" rel="noopener noreferrer" className="block">
