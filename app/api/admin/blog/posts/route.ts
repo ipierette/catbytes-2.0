@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, excerpt, content, tags, coverImageUrl, contentImages } = body
+    const { title, excerpt, content, tags, coverImageUrl, contentImages, highlight } = body
 
     console.log('[Manual Post] Request body:', JSON.stringify(body, null, 2))
     console.log('[Manual Post] Extracted fields:', { 
@@ -173,7 +173,8 @@ export async function POST(request: NextRequest) {
       hasCoverImageUrl: !!coverImageUrl,
       coverImageUrl,
       hasTags: !!tags,
-      hasContentImages: !!contentImages
+      hasContentImages: !!contentImages,
+      hasHighlight: !!highlight
     })
 
     if (!title || !content || !coverImageUrl) {
@@ -212,6 +213,7 @@ export async function POST(request: NextRequest) {
       excerpt: excerpt || content.substring(0, 200),
       content,
       cover_image_url: coverImageUrl,
+      highlight: highlight || null,
       // content_images não existe na tabela, removido
       tags: tags || [],
       category: 'Manual',
