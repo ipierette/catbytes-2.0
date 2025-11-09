@@ -138,13 +138,9 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
         title: title.trim(),
         excerpt: excerpt.trim(),
         content: content.trim(),
-        cover_image_url: coverImageUrl,
+        coverImageUrl: coverImageUrl,  // camelCase para a API
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-        category: 'Manual',
-        published: true,
-        author: 'CatBytes Editor',
-        locale: 'pt-BR',
-        content_images: contentImageUrls,
+        contentImages: contentImageUrls,  // camelCase para a API
       }
 
       const saveRes = await fetch('/api/admin/blog/posts', {

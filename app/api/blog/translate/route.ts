@@ -36,14 +36,14 @@ export async function POST(request: NextRequest) {
 
     // Check if translation already exists
     if (supabaseAdmin) {
-      const { data: existingTranslation } = await supabaseAdmin
+      const { data: existingTranslations, error: checkError } = await supabaseAdmin
         .from('blog_posts')
         .select('*')
         .eq('translated_from', postId)
         .eq('locale', 'en-US')
-        .single()
 
-      if (existingTranslation) {
+      if (!checkError && existingTranslations && existingTranslations.length > 0) {
+        const existingTranslation = existingTranslations[0]
         console.log('[Translate] Translation already exists:', existingTranslation.id)
         return NextResponse.json({
           success: true,
