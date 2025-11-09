@@ -250,7 +250,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               <div className="grid md:grid-cols-3 gap-8">
                 <div className="md:col-span-2">
                   <div
-                    className="prose prose-xl dark:prose-invert max-w-none magazine-text"
+                    className="prose prose-xl dark:prose-invert max-w-none magazine-text-intro"
                     dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
                   />
                 </div>
@@ -278,7 +278,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     />
                   </div>
                   <div
-                    className="prose prose-xl dark:prose-invert max-w-none magazine-text"
+                    className="prose prose-xl dark:prose-invert max-w-none"
                     dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.middle) }}
                   />
                 </div>
@@ -303,7 +303,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               {/* Restante do conteúdo */}
               <div className="max-w-4xl mx-auto">
                 <div
-                  className="prose prose-xl dark:prose-invert max-w-none magazine-text"
+                  className="prose prose-xl dark:prose-invert max-w-none"
                   dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end) }}
                 />
               </div>
