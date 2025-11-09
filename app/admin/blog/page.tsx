@@ -323,9 +323,9 @@ export default function BlogAdminPage() {
         title="Blog Admin"
         description="Gerencie posts e conteúdo do blog"
       >
-      <div className="space-y-8 bg-slate-900 min-h-screen p-6">
+      <div className="space-y-8 bg-slate-900 min-h-screen p-4 md:p-6 max-w-full overflow-x-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2 text-slate-100">
               <FileText className="h-8 w-8 text-blue-400" />
@@ -335,11 +335,11 @@ export default function BlogAdminPage() {
               {posts.length} post{posts.length !== 1 ? 's' : ''} no total
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3 w-full md:w-auto">
             <Button
               variant="outline"
               size="lg"
-              className="gap-2"
+              className="gap-2 flex-1 md:flex-initial"
               onClick={() => setManualEditorOpen(true)}
             >
               ✍️ Escrever Post Manual
@@ -347,7 +347,7 @@ export default function BlogAdminPage() {
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="lg" className="gap-2">
+                <Button size="lg" className="gap-2 flex-1 md:flex-initial">
                   <Plus className="h-4 w-4" />
                   Gerar Artigos
                   <ChevronDown className="h-4 w-4" />
@@ -628,47 +628,47 @@ export default function BlogAdminPage() {
                 {filteredPosts.map(post => (
                   <div
                     key={post.id}
-                    className="border border-slate-700 rounded-lg p-4 hover:bg-slate-700/30 transition-colors bg-slate-800/50"
+                    className="border border-slate-700 rounded-lg p-3 md:p-4 hover:bg-slate-700/30 transition-colors bg-slate-800/50"
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-2 md:gap-3">
                       <Checkbox
                         checked={selectedPosts.includes(post.id)}
                         onCheckedChange={() => togglePostSelection(post.id)}
                         id={`post-${post.id}`}
-                        className="mt-1"
+                        className="mt-1 flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold text-lg text-slate-100">{post.title}</h3>
-                              <span className={`text-xs font-medium px-2 py-1 rounded-md ${getStatusColor(post.status)}`}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col md:flex-row items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0 w-full">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <h3 className="font-semibold text-base md:text-lg text-slate-100 break-words">{post.title}</h3>
+                              <span className={`text-xs font-medium px-2 py-1 rounded-md whitespace-nowrap ${getStatusColor(post.status)}`}>
                                 {getStatusLabel(post.status)}
                               </span>
                             </div>
                             
-                            <p className="text-sm text-slate-400 mb-3 line-clamp-2">
+                            <p className="text-sm text-slate-400 mb-3 line-clamp-2 break-words">
                               {post.excerpt}
                             </p>
                             
-                            <div className="flex items-center gap-4 text-xs text-slate-500">
-                              <span>Por: {post.author}</span>
-                              <span>•</span>
-                              <span>Criado: {new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
+                            <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs text-slate-500">
+                              <span className="whitespace-nowrap">Por: {post.author}</span>
+                              <span className="hidden md:inline">•</span>
+                              <span className="whitespace-nowrap">Criado: {new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
                               {post.published_at && (
                                 <>
-                                  <span>•</span>
-                                  <span>Publicado: {new Date(post.published_at).toLocaleDateString('pt-BR')}</span>
+                                  <span className="hidden md:inline">•</span>
+                                  <span className="whitespace-nowrap">Publicado: {new Date(post.published_at).toLocaleDateString('pt-BR')}</span>
                                 </>
                               )}
-                              <span>•</span>
-                              <span className="text-emerald-400">/{post.slug}</span>
+                              <span className="hidden md:inline">•</span>
+                              <span className="text-emerald-400 break-all">/{post.slug}</span>
                             </div>
                             
                             {post.tags && post.tags.length > 0 && (
-                              <div className="flex gap-1 mt-2">
+                              <div className="flex gap-1 mt-2 flex-wrap">
                                 {post.tags.slice(0, 3).map((tag, index) => (
-                                  <span key={index} className="text-xs bg-emerald-900/40 text-emerald-300 border border-emerald-700/50 px-2 py-1 rounded">
+                                  <span key={index} className="text-xs bg-emerald-900/40 text-emerald-300 border border-emerald-700/50 px-2 py-1 rounded whitespace-nowrap">
                                     #{tag}
                                   </span>
                                 ))}
@@ -679,35 +679,35 @@ export default function BlogAdminPage() {
                             )}
                           </div>
                           
-                          <div className="flex gap-2 ml-4">
+                          <div className="flex gap-2 w-full md:w-auto md:ml-4 flex-wrap">
                             <Button
                               size="sm"
                               variant="outline"
-                              className="gap-1"
+                              className="gap-1 flex-1 md:flex-initial"
                               onClick={() => setPreviewPost(post as unknown as BlogPostType)}
                             >
                               <Eye className="h-3 w-3" />
-                              Ver
+                              <span className="hidden sm:inline">Ver</span>
                             </Button>
                             
                             <Button
                               size="sm"
                               variant="secondary"
-                              className="gap-1"
+                              className="gap-1 flex-1 md:flex-initial"
                               onClick={() => handleTranslatePost(post.id, post.title)}
                               disabled={loading}
                             >
-                              🌐 Traduzir
+                              🌐 <span className="hidden sm:inline">Traduzir</span>
                             </Button>
                             
                             <Button
                               size="sm"
                               variant="destructive"
-                              className="gap-1"
+                              className="gap-1 flex-1 md:flex-initial"
                               onClick={() => handleDeletePost(post.id)}
                             >
                               <Trash2 className="h-3 w-3" />
-                              Excluir
+                              <span className="hidden sm:inline">Excluir</span>
                             </Button>
                           </div>
                         </div>

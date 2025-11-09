@@ -23,8 +23,10 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
   const [tags, setTags] = useState('')
   const [coverImage, setCoverImage] = useState<File | null>(null)
   const [coverImagePreview, setCoverImagePreview] = useState<string>('')
+  const [coverImageUrl, setCoverImageUrl] = useState<string>('')
   const [contentImages, setContentImages] = useState<File[]>([])
   const [contentImagePreviews, setContentImagePreviews] = useState<string[]>([])
+  const [contentImageUrls, setContentImageUrls] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
 
   const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,13 +154,14 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
       }
 
       console.log('[Manual Post Editor] Cover image uploaded:', coverImageUrl)
+      setCoverImageUrl(coverImageUrl) // Salvar URL no estado
 
       // Upload das imagens de conteúdo
-      const contentImageUrls: string[] = []
+      const uploadedUrls: string[] = []
       for (const image of contentImages) {
         const formData = new FormData()
         formData.append('image', image)
-        formData.append('slug', `${title.toLowerCase().replace(/\s+/g, '-')}-content-${contentImageUrls.length + 1}`)
+        formData.append('slug', `${title.toLowerCase().replace(/\s+/g, '-')}-content-${uploadedUrls.length + 1}`)
 
         const uploadRes = await fetch('/api/blog/upload-image', {
           method: 'POST',
@@ -173,8 +176,10 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
           console.log('[Manual Post Editor] Content image upload response data:', uploadData)
           const url = uploadData.imageUrl || uploadData.url
           if (url) {
-            contentImageUrls.push(url)
+            uploadedUrls.push(url)
             console.log('[Manual Post Editor] Content image uploaded:', url)
+            // Atualizar estado imediatamente para mostrar URL
+            setContentImageUrls(prev => [...prev, url])
           } else {
             console.warn('[Manual Post Editor] No URL in content image response:', uploadData)
           }
@@ -190,7 +195,7 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
         hasContent: !!content.trim(),
         hasCoverImageUrl: !!coverImageUrl,
         coverImageUrl,
-        contentImageCount: contentImageUrls.length
+        contentImageCount: uploadedUrls.length
       })
 
       // Criar post
@@ -200,7 +205,6 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
         content: content.trim(),
         coverImageUrl: coverImageUrl,  // camelCase para a API
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
-        contentImages: contentImageUrls,  // camelCase para a API
       }
 
       console.log('[Manual Post Editor] Sending postData:', JSON.stringify(postData, null, 2))
@@ -229,8 +233,10 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
       setTags('')
       setCoverImage(null)
       setCoverImagePreview('')
+      setCoverImageUrl('')
       setContentImages([])
       setContentImagePreviews([])
+      setContentImageUrls([])
       
       onSave()
       onClose()
@@ -244,7 +250,7 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>✍️ Escrever Artigo Manual</DialogTitle>
           <DialogDescription>
@@ -252,46 +258,59 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Título */}
-          <div className="space-y-2">
-            <Label htmlFor="title">Título * (mín. 10 caracteres)</Label>
-            <Input
-              id="title"
-              placeholder="Ex: Como criar um chatbot com IA"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              maxLength={200}
-              className={title.length > 0 && title.length < 10 ? 'border-red-500' : ''}
-            />
-            <p className={`text-xs ${title.length < 10 ? 'text-red-500' : 'text-muted-foreground'}`}>
-              {title.length}/200 caracteres {title.length < 10 && title.length > 0 ? `(faltam ${10 - title.length})` : ''}
-            </p>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 py-4">
+          {/* Coluna Esquerda - Conteúdo */}
+          <div className="space-y-6">
+            {/* Título */}
+            <div className="space-y-2">
+              <Label htmlFor="title">Título * (mín. 10 caracteres)</Label>
+              <Input
+                id="title"
+                placeholder="Ex: Como criar um chatbot com IA"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={200}
+                className={title.length > 0 && title.length < 10 ? 'border-red-500' : ''}
+              />
+              <p className={`text-xs ${title.length < 10 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                {title.length}/200 caracteres {title.length < 10 && title.length > 0 ? `(faltam ${10 - title.length})` : ''}
+              </p>
+            </div>
 
-          {/* Resumo */}
-          <div className="space-y-2">
-            <Label htmlFor="excerpt">Resumo * (mín. 50 caracteres)</Label>
-            <Textarea
-              id="excerpt"
-              placeholder="Breve descrição do artigo que aparecerá nas prévias"
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-              rows={2}
-              maxLength={200}
-              className={excerpt.length > 0 && excerpt.length < 50 ? 'border-red-500' : ''}
-            />
-            <p className={`text-xs ${excerpt.length < 50 ? 'text-red-500' : 'text-muted-foreground'}`}>
-              {excerpt.length}/200 caracteres {excerpt.length < 50 && excerpt.length > 0 ? `(faltam ${50 - excerpt.length})` : ''}
-            </p>
-          </div>
+            {/* Resumo */}
+            <div className="space-y-2">
+              <Label htmlFor="excerpt">Resumo * (mín. 50 caracteres)</Label>
+              <Textarea
+                id="excerpt"
+                placeholder="Breve descrição do artigo que aparecerá nas prévias"
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                rows={2}
+                maxLength={200}
+                className={excerpt.length > 0 && excerpt.length < 50 ? 'border-red-500' : ''}
+              />
+              <p className={`text-xs ${excerpt.length < 50 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                {excerpt.length}/200 caracteres {excerpt.length < 50 && excerpt.length > 0 ? `(faltam ${50 - excerpt.length})` : ''}
+              </p>
+            </div>
 
-          {/* Conteúdo */}
-          <div className="space-y-2">
-            <Label htmlFor="content">Conteúdo * (Markdown suportado, mín. 100 caracteres)</Label>
-            <Textarea
-              id="content"
-              placeholder="## Introdução
+            {/* Tags */}
+            <div className="space-y-2">
+              <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
+              <Input
+                id="tags"
+                placeholder="Ex: IA, automação, chatbot, negócios"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+              />
+            </div>
+
+            {/* Conteúdo */}
+            <div className="space-y-2">
+              <Label htmlFor="content">Conteúdo * (Markdown suportado, mín. 100 caracteres)</Label>
+              <Textarea
+                id="content"
+                placeholder="## Introdução
 
 Seu conteúdo aqui em Markdown...
 
@@ -300,51 +319,144 @@ Seu conteúdo aqui em Markdown...
 - Ponto 2
 
 **Texto em negrito** e *itálico*"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={12}
-              className={`font-mono text-sm ${content.length > 0 && content.length < 100 ? 'border-red-500' : ''}`}
-            />
-            <p className={`text-xs ${content.length < 100 ? 'text-red-500' : 'text-muted-foreground'}`}>
-              {content.length} caracteres {content.length < 100 && content.length > 0 ? `(mínimo: 100)` : ''}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Use Markdown: ## para títulos, **negrito**, *itálico*, - listas
-            </p>
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={16}
+                className={`font-mono text-sm ${content.length > 0 && content.length < 100 ? 'border-red-500' : ''}`}
+              />
+              <p className={`text-xs ${content.length < 100 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                {content.length} caracteres {content.length < 100 && content.length > 0 ? `(mínimo: 100)` : ''}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Use Markdown: ## para títulos, **negrito**, *itálico*, - listas
+              </p>
+            </div>
           </div>
 
-          {/* Tags */}
-          <div className="space-y-2">
-            <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
-            <Input
-              id="tags"
-              placeholder="Ex: IA, automação, chatbot, negócios"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-            />
-          </div>
+          {/* Coluna Direita - Imagens */}
+          <div className="space-y-6">
+            {/* Imagem de Capa */}
+            <div className="space-y-2">
+              <Label>Imagem de Capa * (1792x1024px recomendado)</Label>
+              {coverImagePreview ? (
+                <div className="relative border rounded-lg overflow-hidden">
+                  <Image
+                    src={coverImagePreview}
+                    alt="Preview"
+                    width={1792}
+                    height={1024}
+                    className="w-full h-auto"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={removeCoverImage}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                  <input
+                    type="file"
+                    id="cover-upload"
+                    accept="image/*"
+                    onChange={handleCoverImageChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="cover-upload"
+                    className="cursor-pointer flex flex-col items-center gap-2"
+                  >
+                    <Upload className="h-8 w-8 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Clique para fazer upload da imagem de capa
+                    </p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG até 5MB</p>
+                  </label>
+                </div>
+              )}
+            </div>
 
-          {/* Imagem de Capa */}
-          <div className="space-y-2">
-            <Label>Imagem de Capa * (1792x1024px recomendado)</Label>
-            {coverImagePreview ? (
-              <div className="relative border rounded-lg overflow-hidden">
-                <Image
-                  src={coverImagePreview}
-                  alt="Preview"
-                  width={1792}
-                  height={1024}
-                  className="w-full h-auto"
-                />
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  className="absolute top-2 right-2"
-                  onClick={removeCoverImage}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+            {/* Imagens de Conteúdo */}
+            <div className="space-y-2">
+              <Label>Imagens de Conteúdo (opcional, até 2)</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                URLs geradas: {contentImageUrls.length > 0 ? contentImageUrls.map((url, i) => `Imagem ${i + 1}`).join(', ') : 'Nenhuma ainda'}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {contentImagePreviews.map((preview, index) => (
+                  <div key={index} className="relative border rounded-lg overflow-hidden">
+                    <Image
+                      src={preview}
+                      alt={`Content ${index + 1}`}
+                      width={600}
+                      height={400}
+                      className="w-full h-auto"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={() => removeContentImage(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                    {contentImageUrls[index] && (
+                      <div className="absolute bottom-2 left-2 right-2 bg-black/70 text-white text-xs p-1 rounded truncate">
+                        ✓ URL disponível
+                      </div>
+                    )}
+                  </div>
+                ))}
+                
+                {contentImages.length < 2 && (
+                  <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                    <input
+                      type="file"
+                      id={`content-upload-${contentImages.length}`}
+                      accept="image/*"
+                      multiple
+                      onChange={handleContentImageChange}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor={`content-upload-${contentImages.length}`}
+                      className="cursor-pointer flex flex-col items-center gap-2"
+                    >
+                      <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                      <p className="text-xs text-muted-foreground">Upload opcional</p>
+                    </label>
+                  </div>
+                )}
               </div>
+              {contentImageUrls.length > 0 && (
+                <div className="mt-3 p-3 bg-muted rounded-lg">
+                  <p className="text-xs font-semibold mb-2">URLs das imagens (copie para usar no conteúdo):</p>
+                  {contentImageUrls.map((url, index) => (
+                    <div key={index} className="flex items-center gap-2 mb-1">
+                      <code className="text-xs bg-background px-2 py-1 rounded flex-1 truncate" title={url}>
+                        {url}
+                      </code>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 px-2 text-xs"
+                        onClick={() => {
+                          navigator.clipboard.writeText(`![Imagem ${index + 1}](${url})`)
+                          toast.success('Markdown copiado!')
+                        }}
+                      >
+                        Copiar MD
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
             ) : (
               <div className="border-2 border-dashed rounded-lg p-8 text-center">
                 <input
@@ -366,52 +478,6 @@ Seu conteúdo aqui em Markdown...
                 </label>
               </div>
             )}
-          </div>
-
-          {/* Imagens de Conteúdo */}
-          <div className="space-y-2">
-            <Label>Imagens de Conteúdo (até 2)</Label>
-            <div className="grid grid-cols-2 gap-4">
-              {contentImagePreviews.map((preview, index) => (
-                <div key={index} className="relative border rounded-lg overflow-hidden">
-                  <Image
-                    src={preview}
-                    alt={`Content ${index + 1}`}
-                    width={600}
-                    height={400}
-                    className="w-full h-auto"
-                  />
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={() => removeContentImage(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              
-              {contentImages.length < 2 && (
-                <div className="border-2 border-dashed rounded-lg p-4 text-center">
-                  <input
-                    type="file"
-                    id={`content-upload-${contentImages.length}`}
-                    accept="image/*"
-                    multiple
-                    onChange={handleContentImageChange}
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor={`content-upload-${contentImages.length}`}
-                    className="cursor-pointer flex flex-col items-center gap-2"
-                  >
-                    <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                    <p className="text-xs text-muted-foreground">Upload opcional</p>
-                  </label>
-                </div>
-              )}
-            </div>
           </div>
         </div>
 
