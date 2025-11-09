@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminCookie } from '@/lib/api-security'
 import { supabaseAdmin, generateSlug } from '@/lib/supabase'
+import { Resend } from 'resend'
+import { getNewPostEmailHTML } from '@/lib/email-templates'
+
+const resend = process.env.RESEND_API_KEY 
+  ? new Resend(process.env.RESEND_API_KEY) 
+  : null
 
 // =====================================================
 // GET /api/admin/blog/posts
@@ -245,6 +251,70 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[Manual Post] Post created successfully:', post.id)
+
+    // ====== ENVIAR NEWSLETTER ======
+    if (resend && post.published) {
+      try {
+        console.log('[Manual Post] Fetching verified newsletter subscribers...')
+        
+        const { data: subscribers, error: subError } = await supabaseAdmin
+          .from('newsletter_subscribers')
+          .select('email, name, locale')
+          .eq('verified', true)
+          .eq('subscribed', true)
+
+        if (subError) {
+          console.error('[Manual Post] Error fetching subscribers:', subError)
+        } else if (subscribers && subscribers.length > 0) {
+          console.log(`[Manual Post] ✅ Sending new post notification to ${subscribers.length} subscribers...`)
+          
+          const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
+          
+          // Send emails in batches to avoid rate limits
+          const batchSize = 50
+          for (let i = 0; i < subscribers.length; i += batchSize) {
+            const batch = subscribers.slice(i, i + batchSize)
+            
+            const emailPromises = batch.map(subscriber => {
+              const locale = subscriber.locale || 'pt-BR'
+              const isEnglish = locale === 'en-US'
+              const postUrl = `${baseUrl}/${locale}/blog/${post.slug}`
+              
+              return resend.emails.send({
+                from: 'CatBytes <contato@catbytes.site>',
+                to: subscriber.email,
+                subject: isEnglish 
+                  ? `🚀 New Article: ${post.title}`
+                  : `🚀 Novo Artigo: ${post.title}`,
+                html: getNewPostEmailHTML(
+                  subscriber.name || (isEnglish ? 'Friend' : 'Amigo'),
+                  post.title,
+                  post.excerpt,
+                  post.cover_image_url,
+                  postUrl,
+                  locale,
+                  baseUrl
+                ),
+              })
+            })
+            
+            await Promise.allSettled(emailPromises)
+            console.log(`[Manual Post] ✅ Sent batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(subscribers.length / batchSize)}`)
+          }
+          
+          console.log('[Manual Post] ✅✅✅ Newsletter emails sent successfully!')
+        } else {
+          console.log('[Manual Post] ⚠️ No verified subscribers to notify')
+        }
+      } catch (emailError) {
+        console.error('[Manual Post] ❌ Error sending newsletter emails:', emailError)
+        // Don't fail post creation if email fails
+      }
+    } else if (!post.published) {
+      console.log('[Manual Post] ⚠️ Post is draft - skipping newsletter')
+    } else {
+      console.log('[Manual Post] ⚠️ Resend not configured - skipping newsletter')
+    }
 
     return NextResponse.json({ 
       success: true, 
