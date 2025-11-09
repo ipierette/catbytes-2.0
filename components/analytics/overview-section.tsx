@@ -154,6 +154,7 @@ export function OverviewSection({ period }: OverviewSectionProps) {
       )}
 
       {/* Cards Principais - Visão Geral */}
+      <TooltipProvider>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Card 1: Usuários Totais (Google) */}
         <Card>
@@ -184,17 +185,17 @@ export function OverviewSection({ period }: OverviewSectionProps) {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="flex items-center gap-2">
               <CardTitle className="text-sm font-medium">Leituras de Blog</CardTitle>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="cursor-help">
                     <Info className="h-3 w-3 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="font-semibold mb-1">Leituras Engajadas (Sistema Próprio)</p>
-                    <p className="text-xs">Conta apenas quando o visitante permanece no artigo por mais de 30 segundos E rola a página. Mede leituras de qualidade real.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">Leituras Engajadas (Sistema Próprio)</p>
+                  <p className="text-xs">Conta apenas quando o visitante permanece no artigo por mais de 30 segundos E rola a página. Mede leituras de qualidade real.</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             <BookOpen className="h-4 w-4 text-purple-600" />
           </CardHeader>
@@ -218,8 +219,10 @@ export function OverviewSection({ period }: OverviewSectionProps) {
           </CardContent>
         </Card>
       </div>
+      </TooltipProvider>
 
       {/* Cards Secundários - Métricas Adicionais */}
+      <TooltipProvider>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Sessões (Google) */}
         <Card>
@@ -250,17 +253,17 @@ export function OverviewSection({ period }: OverviewSectionProps) {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="flex items-center gap-2">
               <CardTitle className="text-sm font-medium">Views de Blog</CardTitle>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="cursor-help">
                     <Info className="h-3 w-3 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="font-semibold mb-1">Visualizações de Blog (Sistema Próprio)</p>
-                    <p className="text-xs">Conta cada visita aos artigos do blog que permanece por mais de 10 segundos. Filtra bounces rápidos mas conta todas as visitas reais aos artigos.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">Visualizações de Blog (Sistema Próprio)</p>
+                  <p className="text-xs">Conta cada visita aos artigos do blog que permanece por mais de 10 segundos. Filtra bounces rápidos mas conta todas as visitas reais aos artigos.</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             <Globe className="h-4 w-4 text-green-500" />
           </CardHeader>
@@ -270,6 +273,7 @@ export function OverviewSection({ period }: OverviewSectionProps) {
           </CardContent>
         </Card>
       </div>
+      </TooltipProvider>
 
       {/* Comparação: Google vs Blog */}
       <Card>

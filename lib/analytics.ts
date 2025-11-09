@@ -54,12 +54,12 @@ export interface BlogPostViewData {
 export async function trackPageView(data: PageViewData) {
   // Skip tracking if Supabase is not configured
   if (!supabase) {
-    console.warn('[Analytics] ❌ Supabase client not initialized - tracking disabled')
+    console.error('%c[Analytics] ❌ Supabase client not initialized', 'color: #ff0000; font-weight: bold')
     console.warn('[Analytics] Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY')
     return
   }
 
-  console.log('[Analytics] ✅ Tracking page view:', data.page)
+  console.log('%c[Analytics] 📊 Tracking page view:', 'color: #00bfff; font-weight: bold', data.page)
 
   try {
     const { error } = await supabase
@@ -75,12 +75,12 @@ export async function trackPageView(data: PageViewData) {
       })
 
     if (error) {
-      console.error('[Analytics] ❌ Page view tracking failed:', error)
+      console.error('%c[Analytics] ❌ Page view tracking failed:', 'color: #ff0000; font-weight: bold', error)
     } else {
-      console.log('[Analytics] ✅ Page view saved successfully')
+      console.log('%c[Analytics] ✅ Page view saved successfully!', 'color: #00ff00; font-weight: bold')
     }
   } catch (error) {
-    console.error('[Analytics] ❌ Page view tracking error:', error)
+    console.error('%c[Analytics] ❌ Page view tracking error:', 'color: #ff0000; font-weight: bold', error)
   }
 }
 

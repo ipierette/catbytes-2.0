@@ -137,22 +137,23 @@ export function AnalyticsOverview({ period = '30d' }: AnalyticsOverviewProps) {
       </div>
 
       {/* Métricas principais */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <TooltipProvider>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="flex items-center gap-2">
               <CardTitle className="text-sm font-medium">Usuários</CardTitle>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="cursor-help">
                     <Info className="h-3 w-3 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="font-semibold mb-1">Google Analytics (GA4)</p>
-                    <p className="text-xs">Conta TODOS os visitantes incluindo bots, crawlers e visitas muito rápidas. Melhor métrica para comparar com outros sites.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">Google Analytics (GA4)</p>
+                  <p className="text-xs">Conta TODOS os visitantes incluindo bots, crawlers e visitas muito rápidas. Melhor métrica para comparar com outros sites.</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
@@ -166,17 +167,17 @@ export function AnalyticsOverview({ period = '30d' }: AnalyticsOverviewProps) {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="flex items-center gap-2">
               <CardTitle className="text-sm font-medium">Sessões</CardTitle>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="cursor-help">
                     <Info className="h-3 w-3 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="font-semibold mb-1">Google Analytics (GA4)</p>
-                    <p className="text-xs">Total de visitas ao site. Uma sessão pode ter várias visualizações de páginas. Útil para entender o volume de tráfego geral.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">Google Analytics (GA4)</p>
+                  <p className="text-xs">Total de visitas ao site. Uma sessão pode ter várias visualizações de páginas. Útil para entender o volume de tráfego geral.</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             <Activity className="h-4 w-4 text-green-600" />
           </CardHeader>
@@ -190,17 +191,17 @@ export function AnalyticsOverview({ period = '30d' }: AnalyticsOverviewProps) {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="flex items-center gap-2">
               <CardTitle className="text-sm font-medium">Visualizações</CardTitle>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="cursor-help">
                     <Info className="h-3 w-3 text-muted-foreground" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="font-semibold mb-1">Google Analytics (GA4)</p>
-                    <p className="text-xs">Cada carregamento de página. Inclui recarregamentos e navegação. Esta é a métrica mais alta porque conta tudo.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs">
+                  <p className="font-semibold mb-1">Google Analytics (GA4)</p>
+                  <p className="text-xs">Cada carregamento de página. Inclui recarregamentos e navegação. Esta é a métrica mais alta porque conta tudo.</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             <Eye className="h-4 w-4 text-purple-600" />
           </CardHeader>
@@ -232,6 +233,7 @@ export function AnalyticsOverview({ period = '30d' }: AnalyticsOverviewProps) {
           </CardContent>
         </Card>
       </div>
+      </TooltipProvider>
 
       {/* Gráficos e tabelas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

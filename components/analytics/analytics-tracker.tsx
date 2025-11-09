@@ -10,6 +10,8 @@ export function AnalyticsTracker() {
   useEffect(() => {
     // Track page view on route change
     if (pathname) {
+      console.log('%c[Analytics] 🚀 New page loaded:', 'color: #00ff00; font-weight: bold', pathname)
+      
       trackPageView({
         page: pathname,
         referrer: document.referrer,
