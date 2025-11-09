@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/supabase'
-import { revalidateTag } from 'next/cache'
 
 // =====================================================
 // GET /api/blog/posts/[slug]
@@ -8,8 +7,7 @@ import { revalidateTag } from 'next/cache'
 // =====================================================
 
 export const runtime = 'edge'
-// Removed static revalidate - we'll handle caching dynamically
-// to ensure view counts update properly
+export const revalidate = 60 // Revalidate every 60 seconds
 
 export async function GET(
   request: NextRequest,
@@ -22,6 +20,9 @@ export async function GET(
       return NextResponse.json({ error: 'Slug is required' }, { status: 400 })
     }
 
+    // Check if this is a view increment request (from client-side)
+    const shouldIncrementViews = request.headers.get('x-increment-views') === 'true'
+
     // Get post by slug
     const post = await db.getPostBySlug(slug)
 
@@ -31,30 +32,32 @@ export async function GET(
 
     console.log('[API] Post found:', { id: post.id, slug: post.slug, currentViews: post.views })
 
-    // Increment views (fire and forget)
-    const incrementPromise = db.incrementViews(post.id)
-      .then((success) => {
-        console.log('[API] incrementViews result:', success)
-        return success
+    // Only increment views if explicitly requested
+    if (shouldIncrementViews) {
+      await db.incrementViews(post.id)
+        .then((success) => {
+          console.log('[API] incrementViews result:', success)
+          return success
+        })
+        .catch((err) => {
+          console.error('[API] incrementViews error:', err)
+          return false
+        })
+
+      // Fetch updated post with new view count
+      const updatedPost = await db.getPostBySlug(slug)
+      
+      return NextResponse.json(updatedPost || post, {
+        headers: {
+          'Cache-Control': 'no-store', // Don't cache view increment requests
+        },
       })
-      .catch((err) => {
-        console.error('[API] incrementViews error:', err)
-        return false
-      })
+    }
 
-    // Wait for increment to complete before responding
-    await incrementPromise
-
-    // Fetch updated post with new view count
-    const updatedPost = await db.getPostBySlug(slug)
-
-    // Revalidate blog posts cache tag to update all pages showing this post
-    revalidateTag('blog-posts')
-
-    return NextResponse.json(updatedPost || post, {
+    // For regular requests, return cached data
+    return NextResponse.json(post, {
       headers: {
-        // Short cache only, prioritize fresh data for view counts
-        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30',
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
       },
     })
   } catch (error) {

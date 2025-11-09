@@ -21,6 +21,7 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
   const [excerpt, setExcerpt] = useState('')
   const [content, setContent] = useState('')
   const [tags, setTags] = useState('')
+  const [highlight, setHighlight] = useState('')
   const [coverImage, setCoverImage] = useState<File | null>(null)
   const [coverImagePreview, setCoverImagePreview] = useState<string>('')
   const [coverImageUrl, setCoverImageUrl] = useState<string>('')
@@ -179,6 +180,7 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
         content: content.trim(),
         coverImageUrl: coverImageUrl,
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
+        highlight: highlight.trim() || null,
       }
 
       console.log('[Manual Post Editor] Sending postData:', JSON.stringify(postData, null, 2))
@@ -205,6 +207,7 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
       setExcerpt('')
       setContent('')
       setTags('')
+      setHighlight('')
       setCoverImage(null)
       setCoverImagePreview('')
       setCoverImageUrl('')
@@ -265,6 +268,25 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
               />
               <p className={`text-xs ${excerpt.length < 50 ? 'text-red-500' : 'text-muted-foreground'}`}>
                 {excerpt.length}/200 caracteres {excerpt.length < 50 && excerpt.length > 0 ? `(faltam ${50 - excerpt.length})` : ''}
+              </p>
+            </div>
+
+            {/* Texto de Destaque (Opcional) */}
+            <div className="space-y-2">
+              <Label htmlFor="highlight">
+                💡 Texto de Destaque (Opcional - Aparece nas caixas coloridas)
+              </Label>
+              <Textarea
+                id="highlight"
+                placeholder="Texto curto e impactante que aparecerá destacado nas caixas laterais do artigo. Ex: 'A automação com IA pode reduzir custos em até 70%'"
+                value={highlight}
+                onChange={(e) => setHighlight(e.target.value)}
+                rows={3}
+                maxLength={300}
+                className={highlight.length > 300 ? 'border-red-500' : ''}
+              />
+              <p className={`text-xs ${highlight.length > 300 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                {highlight.length}/300 caracteres
               </p>
             </div>
 

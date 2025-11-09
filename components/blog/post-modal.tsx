@@ -61,9 +61,6 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
           
           // Notify all other components via blogSync
           blogSync.notifyUpdate(updatedPost)
-          
-          // Revalidate the cache for blog posts to ensure fresh data on next load
-          router.refresh()
         })
         .catch((err) => {
           console.error('[PostModal] Failed to increment view:', err)
@@ -74,7 +71,7 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
     if (!isOpen) {
       setViewsIncremented(false)
     }
-  }, [isOpen, post?.slug, onViewIncremented, router])
+  }, [isOpen, post?.slug, onViewIncremented])
 
   // Reset image error when modal opens with new post
   useEffect(() => {

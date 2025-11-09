@@ -6,17 +6,28 @@ import { Calendar, Eye, Tag, Share2, ImageOff, ArrowLeft } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR, enUS } from 'date-fns/locale'
 import type { BlogPost } from '@/types/blog'
+import { ViewCounter } from '@/components/blog/view-counter'
 
 // Allow dynamic params for new posts without rebuild
 export const dynamicParams = true
+export const revalidate = 3600 // Revalidate every hour
 
 // Generate static params for all blog posts
 export async function generateStaticParams() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/blog/posts?pageSize=100`)
+    // Use internal API URL for build time
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    
+    const response = await fetch(`${baseUrl}/api/blog/posts?pageSize=100`, {
+      headers: {
+        'x-increment-views': 'false',
+      },
+      // Don't cache during build
+      cache: 'no-store',
+    })
     
     if (!response.ok) {
-      console.error('[generateStaticParams] Failed to fetch posts')
+      console.error('[generateStaticParams] Failed to fetch posts:', response.status, response.statusText)
       return []
     }
     
@@ -33,6 +44,7 @@ export async function generateStaticParams() {
     return params
   } catch (error) {
     console.error('[generateStaticParams] Error:', error)
+    // Return empty array instead of failing the build
     return []
   }
 }
@@ -40,8 +52,12 @@ export async function generateStaticParams() {
 // Simular fetch do post - você vai integrar com sua API real
 async function getPost(slug: string, locale: string): Promise<BlogPost | null> {
   try {
+    // Don't increment views during SSG/SSR - we'll do it client-side
     const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/blog/posts/${slug}`, {
-      next: { revalidate: 60 } // Cache por 60 segundos
+      next: { revalidate: 3600 }, // Cache for 1 hour
+      headers: {
+        'x-increment-views': 'false', // Don't increment during build/SSR
+      },
     })
     
     if (!response.ok) return null
@@ -178,27 +194,17 @@ export default async function BlogPostPage({
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Header Navigation */}
-      <div className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link 
-            href={`/${locale}`}
-            className="inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-catbytes-purple dark:hover:text-catbytes-pink transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-medium">{locale === 'pt-BR' ? 'Voltar' : 'Back'}</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Cover Image Hero */}
-      <div className="relative w-full h-[40vh] md:h-[60vh] bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">
+      {/* Client-side view counter - only increments on client */}
+      <ViewCounter slug={slug} locale={locale} />
+      
+      {/* Cover Image Hero - Ajustado para altura fixa */}
+      <div className="relative w-full h-[300px] md:h-[400px] bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">
         {post.cover_image_url && post.cover_image_url.trim() !== '' ? (
           <Image
             src={post.cover_image_url}
             alt={post.title}
             fill
-            className="object-cover"
+            className="object-cover object-center"
             sizes="100vw"
             priority
             unoptimized
@@ -209,12 +215,23 @@ export default async function BlogPostPage({
           </div>
         )}
         
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        {/* Gradient Overlay para melhor legibilidade */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
         
-        {/* Category Badge */}
-        <div className="absolute bottom-8 left-8">
-          <span className="px-6 py-3 bg-catbytes-purple/90 dark:bg-catbytes-pink/90 text-white font-bold text-lg rounded-full backdrop-blur-sm shadow-lg">
+        {/* Botão Voltar posicionado sobre a imagem */}
+        <div className="absolute top-6 left-6 z-10">
+          <Link 
+            href={`/${locale}`}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-900 dark:text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg border border-gray-200 dark:border-gray-700"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>{locale === 'pt-BR' ? 'Voltar' : 'Back'}</span>
+          </Link>
+        </div>
+        
+        {/* Category badge sobre a imagem */}
+        <div className="absolute top-6 right-6 z-10">
+          <span className="px-4 py-2 bg-catbytes-purple/90 dark:bg-catbytes-pink/90 backdrop-blur-sm text-white font-bold text-sm rounded-full shadow-lg">
             {post.category}
           </span>
         </div>
@@ -277,17 +294,19 @@ export default async function BlogPostPage({
                       dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
                     />
                   </div>
-                  <div className="bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 p-8 rounded-2xl border-l-4 border-catbytes-pink shadow-lg">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">💡 Destaque</h3>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      {post.excerpt}
-                    </p>
-                  </div>
+                  {post.highlight && (
+                    <div className="bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 p-8 rounded-2xl border-l-4 border-catbytes-pink shadow-lg">
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">💡 Destaque</h3>
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {post.highlight}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Primeira imagem com texto ao lado */}
                 <div className="grid md:grid-cols-2 gap-8 items-center">
-                  <div className="relative h-80 md:h-96 rounded-2xl overflow-hidden shadow-2xl">
+                  <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden shadow-2xl">
                     <Image
                       src={contentImages[0]}
                       alt="Imagem do artigo 1"
@@ -305,7 +324,7 @@ export default async function BlogPostPage({
                 {/* Segunda imagem com caixa informativa */}
                 <div className="grid md:grid-cols-3 gap-8">
                   <div className="md:col-span-2 order-2 md:order-1">
-                    <div className="relative h-80 md:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
+                    <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden shadow-2xl">
                       <Image
                         src={contentImages[1]}
                         alt="Imagem do artigo 2"
@@ -315,13 +334,14 @@ export default async function BlogPostPage({
                       />
                     </div>
                   </div>
-                  <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-8 rounded-2xl border-l-4 border-catbytes-purple shadow-lg order-1 md:order-2">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">📌 Saiba Mais</h3>
-                    <div
-                      className="prose prose-sm dark:prose-invert max-w-none magazine-text"
-                      dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end.substring(0, 300) + '...') }}
-                    />
-                  </div>
+                  {post.highlight && (
+                    <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-8 rounded-2xl border-l-4 border-catbytes-purple shadow-lg order-1 md:order-2">
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">📌 Saiba Mais</h3>
+                      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed line-clamp-6">
+                        {post.highlight}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Restante do conteúdo */}
@@ -341,18 +361,20 @@ export default async function BlogPostPage({
                       dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
                     />
                   </div>
-                  <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-8 rounded-2xl border-l-4 border-catbytes-purple shadow-lg">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">📌 Resumo</h3>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      {post.excerpt}
-                    </p>
-                  </div>
+                  {post.highlight && (
+                    <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-8 rounded-2xl border-l-4 border-catbytes-purple shadow-lg">
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">📌 Destaque</h3>
+                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                        {post.highlight}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                {/* Imagem destacada com moldura */}
+                {/* Imagem destacada com moldura - TAMANHO REDUZIDO */}
                 <div className="relative my-12">
                   <div className="absolute -inset-6 bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 rounded-3xl transform rotate-1"></div>
-                  <div className="relative h-80 md:h-[600px] rounded-2xl overflow-hidden shadow-2xl">
+                  <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden shadow-2xl">
                     <Image
                       src={contentImages[0]}
                       alt="Imagem do artigo"
@@ -363,7 +385,7 @@ export default async function BlogPostPage({
                   </div>
                 </div>
 
-                {/* Continuação com caixa call-to-action */}
+                {/* Continuação */}
                 <div className="grid md:grid-cols-3 gap-8">
                   <div className="md:col-span-2">
                     <div
@@ -373,11 +395,8 @@ export default async function BlogPostPage({
                   </div>
                   <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 p-8 rounded-2xl h-fit sticky top-24 shadow-lg border-l-4 border-catbytes-pink">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                      💡 Continue Lendo
+                      � Informações
                     </h3>
-                    <p className="text-gray-700 dark:text-gray-300 mb-6 italic">
-                      "{post.excerpt}"
-                    </p>
                     <div className="text-sm text-gray-500 dark:text-gray-400 space-y-2">
                       <p className="flex items-center gap-2">
                         📅 {format(new Date(post.created_at), "dd/MM/yyyy")}
@@ -404,12 +423,9 @@ export default async function BlogPostPage({
                     />
                   </div>
                   <div className="space-y-6">
-                    {/* Caixa de destaque principal */}
+                    {/* Caixa de informações */}
                     <div className="bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 p-8 rounded-2xl border-l-4 border-catbytes-pink shadow-lg sticky top-24">
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">💡 Destaque</h3>
-                      <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-                        {post.excerpt}
-                      </p>
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">� Informações</h3>
                       <div className="text-sm text-gray-500 dark:text-gray-400 space-y-2 pt-6 border-t border-gray-300 dark:border-gray-600">
                         <p className="flex items-center gap-2">
                           📅 {format(new Date(post.created_at), "dd/MM/yyyy")}
@@ -419,6 +435,9 @@ export default async function BlogPostPage({
                         </p>
                         <p className="flex items-center gap-2">
                           ✍️ Por {post.author}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          📂 {post.category}
                         </p>
                       </div>
                     </div>

@@ -30,6 +30,7 @@ export interface BlogPost {
   scheduled_at?: string | null // Scheduled publication date
   image_prompt?: string | null // AI prompt for cover image generation
   content_image_prompts?: string[] | null // AI prompts for content images
+  highlight?: string | null // Custom highlight text for sidebar (max 300 chars)
 }
 
 export interface BlogPostInsert {
@@ -55,6 +56,7 @@ export interface BlogPostInsert {
   scheduled_at?: string | null
   image_prompt?: string | null // AI prompt for cover image generation
   content_image_prompts?: string[] | null // AI prompts for content images
+  highlight?: string | null // Custom highlight text for sidebar (max 300 chars)
 }
 
 export interface BlogPostUpdate {
@@ -73,6 +75,7 @@ export interface BlogPostUpdate {
   category?: string
   tags?: string[]
   scheduled_at?: string | null
+  highlight?: string | null // Custom highlight text for sidebar (max 300 chars)
 }
 
 export interface BlogGenerationLog {

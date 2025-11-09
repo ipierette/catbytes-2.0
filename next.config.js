@@ -16,6 +16,12 @@ const nextConfig = {
         hostname: 'oaidalleapiprodscus.blob.core.windows.net',
         pathname: '/private/**',
       },
+      // Supabase Storage
+      {
+        protocol: 'https',
+        hostname: 'lbjekucdxgouwgegpdhi.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
       // Adicionar suporte para outras CDNs comuns
       {
         protocol: 'https',
