@@ -134,17 +134,17 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
     // Para layout com 2 imagens (revista completa)
     if (contentImages.length >= 2) {
       return {
-        intro: paragraphs.slice(0, 2).join('\n\n'),
-        middle: paragraphs.slice(2, 4).join('\n\n'),
-        end: paragraphs.slice(4).join('\n\n'),
+        intro: paragraphs.slice(0, 2).join('\n\n') || '',
+        middle: paragraphs.slice(2, 4).join('\n\n') || '',
+        end: paragraphs.slice(4).join('\n\n') || '',
       }
     }
     
     // Para layout com 1 imagem (revista simples)
     if (contentImages.length === 1) {
       return {
-        intro: paragraphs.slice(0, 3).join('\n\n'),
-        end: paragraphs.slice(3).join('\n\n'),
+        intro: paragraphs.slice(0, 3).join('\n\n') || '',
+        end: paragraphs.slice(3).join('\n\n') || '',
       }
     }
     
