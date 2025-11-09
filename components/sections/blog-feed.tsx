@@ -102,9 +102,13 @@ export default function BlogFeed({ locale }: BlogFeedProps) {
           {posts.map((post, index) => (
             <motion.div
               key={post.id}
-              initial={{ opacity: 1, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: index * 0.03, ease: "easeOut" }}
+              initial={{ opacity: 0, x: -20, scale: 0.98 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ 
+                duration: 0.4, 
+                delay: index * 0.08,
+                ease: [0.25, 0.46, 0.45, 0.94] // Easing suave
+              }}
             >
               <Link href={`/${locale}/blog/${post.slug}`}>
                 <AppCard className="overflow-hidden">

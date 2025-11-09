@@ -55,21 +55,55 @@ export function RecentPosts() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true }}
+          transition={{ 
+            duration: 0.7,
+            ease: [0.22, 1, 0.36, 1]
+          }}
           className="text-center mb-12"
         >
-          <div className="flex items-center justify-center gap-3 mb-6 pb-2">
-            <h2 className="text-4xl md:text-5xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent leading-tight pb-2">
+          <motion.div 
+            className="flex items-center justify-center gap-3 mb-6 pb-2"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            <motion.h2 
+              className="text-4xl md:text-5xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent leading-tight pb-2"
+              initial={{ x: -20 }}
+              whileInView={{ x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
+            >
               {t('title')}
-            </h2>
-            <BookOpen className="w-10 h-10 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0" />
-          </div>
+            </motion.h2>
+            <motion.div
+              initial={{ rotate: -20, scale: 0 }}
+              whileInView={{ rotate: 0, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ 
+                delay: 0.5, 
+                duration: 0.5,
+                type: "spring",
+                stiffness: 200
+              }}
+            >
+              <BookOpen className="w-10 h-10 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0" />
+            </motion.div>
+          </motion.div>
 
-          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+          <motion.p 
+            className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+          >
             {t('subtitle')}
-          </p>
+          </motion.p>
         </motion.div>
 
         {/* Loading State */}
@@ -105,11 +139,15 @@ export function RecentPosts() {
                   className="block"
                 >
                   <motion.article
-                    initial={{ opacity: 1, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ delay: index * 0.1, duration: 0.3, ease: "easeOut" }}
-                    whileHover={{ y: -8 }}
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ 
+                      delay: index * 0.15,
+                      duration: 0.5,
+                      ease: [0.22, 1, 0.36, 1] // Custom easing para animação mais suave
+                    }}
+                    whileHover={{ y: -8, transition: { duration: 0.2 } }}
                     className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
                   >
                   {/* Image */}
