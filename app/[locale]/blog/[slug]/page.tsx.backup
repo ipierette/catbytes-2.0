@@ -393,12 +393,37 @@ export default async function BlogPostPage({
                 </div>
               </div>
             ) : (
-              // Layout SIMPLES (sem imagens extras) - Apenas conteúdo centralizado com dropcap
-              <div className="max-w-4xl mx-auto">
-                <div
-                  className="prose prose-xl dark:prose-invert max-w-none magazine-text"
-                  dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
-                />
+              // Layout COM ESTILO REVISTA (sem imagens extras) - Aplicar dropcap e caixas
+              <div className="space-y-12">
+                {/* Conteúdo com dropcap e caixa lateral de destaque */}
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div className="md:col-span-2">
+                    <div
+                      className="prose prose-xl dark:prose-invert max-w-none magazine-text"
+                      dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
+                    />
+                  </div>
+                  <div className="space-y-6">
+                    {/* Caixa de informações */}
+                    <div className="bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 p-8 rounded-2xl border-l-4 border-catbytes-pink shadow-lg sticky top-24">
+                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">� Informações</h3>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 space-y-2 pt-6 border-t border-gray-300 dark:border-gray-600">
+                        <p className="flex items-center gap-2">
+                          📅 {format(new Date(post.created_at), "dd/MM/yyyy")}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          👁️ {post.views} visualizações
+                        </p>
+                        <p className="flex items-center gap-2">
+                          ✍️ Por {post.author}
+                        </p>
+                        <p className="flex items-center gap-2">
+                          📂 {post.category}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

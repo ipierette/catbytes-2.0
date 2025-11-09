@@ -48,6 +48,7 @@ export function getRandomTopicForTheme(theme: BlogTheme): string {
 
 /**
  * Gera prompt de imagem personalizado para cada tema
+ * Adiciona variação aleatória para evitar imagens repetidas
  */
 export function generateImagePromptForTheme(theme: BlogTheme, title: string): string {
   const basePrompts = {
@@ -60,7 +61,22 @@ export function generateImagePromptForTheme(theme: BlogTheme, title: string): st
     'Novidades sobre IA': `Espaço de trabalho tech moderno com tema de IA. Múltiplos monitores exibindo modelos de IA, redes neurais, sites de notícias tech e interfaces futuristas. Setup elegante com iluminação LED ambiente (brilho azul/roxo). Gadgets tech, visualização de ferramentas de IA mais recentes, manchetes de notícias visíveis. Cores: Azul profundo, roxo, ciano, estética tech. Estilo: Vanguarda, focado em notícias, inovador, profissional. Sem pessoas na imagem.`
   }
   
-  return `${basePrompts[theme]} Imagem de cabeçalho de blog profissional para artigo sobre "${title}". Alta qualidade, pronta para web. Proporção: 16:9.`
+  // Adiciona elementos de variação para evitar imagens idênticas
+  const variations = [
+    'Ângulo: Vista frontal',
+    'Ângulo: Vista lateral diagonal',
+    'Ângulo: Vista aérea suave',
+    'Iluminação: Luz natural da manhã',
+    'Iluminação: Luz dourada da tarde',
+    'Iluminação: Luz difusa do dia nublado',
+    'Composição: Regra dos terços',
+    'Composição: Centralizada e equilibrada',
+    'Composição: Profundidade de campo'
+  ]
+  
+  const randomVariation = variations[Math.floor(Math.random() * variations.length)]
+  
+  return `${basePrompts[theme]} ${randomVariation}. Imagem de cabeçalho de blog profissional para artigo sobre "${title}". Alta qualidade, pronta para web. Proporção: 16:9. IMPORTANTE: Crie uma composição ÚNICA e visualmente distinta.`
 }
 
 /**

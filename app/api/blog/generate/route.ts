@@ -88,6 +88,58 @@ export async function POST(request: NextRequest) {
     console.log('[Generate] Creating post about:', selectedTopic)
     console.log('[Generate] Schedule info:', scheduleInfo)
 
+    // ====== VALIDATION: Check if this topic was recently used ======
+    console.log('[Generate] Checking for recent posts with similar topics...')
+    
+    const { data: recentPosts, error: recentError } = await supabaseAdmin
+      .from('blog_posts')
+      .select('id, title, generation_prompt, created_at')
+      .order('created_at', { ascending: false })
+      .limit(20) // Check last 20 posts
+    
+    if (recentError) {
+      console.error('[Generate] Error checking recent posts:', recentError)
+    } else if (recentPosts && recentPosts.length > 0) {
+      // Check if topic was used recently
+      const topicUsedRecently = recentPosts.some(post => 
+        post.generation_prompt?.toLowerCase().includes(selectedTopic.toLowerCase()) ||
+        selectedTopic.toLowerCase().includes(post.generation_prompt?.toLowerCase() || '')
+      )
+      
+      if (topicUsedRecently) {
+        console.warn('[Generate] ⚠️ Topic was used recently, selecting alternative...')
+        
+        // Try to find an unused topic from the same theme
+        const usedPrompts = recentPosts
+          .map(p => p.generation_prompt?.toLowerCase())
+          .filter(Boolean)
+        
+        const themeTopics = BLOG_TOPICS[blogTheme as keyof typeof BLOG_TOPICS]
+        const availableTopics = themeTopics.filter((topic: string) => 
+          !usedPrompts.some((used: string | undefined) => 
+            used?.includes(topic.toLowerCase()) || 
+            topic.toLowerCase().includes(used || '')
+          )
+        )
+        
+        if (availableTopics.length > 0) {
+          const alternativeTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)]
+          console.log('[Generate] ✅ Using alternative topic:', alternativeTopic)
+          // Update selectedTopic by reassigning
+          const finalTopic = alternativeTopic
+          return await POST(request) // Recursive call with new topic context
+        } else {
+          console.log('[Generate] ⚠️ All topics used recently, proceeding with original (will add uniqueness later)')
+        }
+      } else {
+        console.log('[Generate] ✅ Topic is fresh - not used recently')
+      }
+      
+      // Also check for exact title duplicates in database
+      const existingTitles = recentPosts.map(p => p.title.toLowerCase())
+      console.log('[Generate] Stored', existingTitles.length, 'recent titles for duplicate check')
+    }
+
     // ====== STEP 1: Generate blog content with ChatGPT ======
     const themePrompts: Record<string, string> = {
       'Automação e Negócios': `Você é um consultor empresarial especialista em transformação digital, escrevendo para o blog da CatBytes - empresa que oferece automação com IA, aplicações web inteligentes e chatbots.
@@ -139,7 +191,12 @@ REQUISITOS:
 
     const selectedPrompt = themePrompts[blogTheme] || themePrompts['Automação e Negócios']
     
-    const contentPrompt = `${selectedPrompt}
+    // Build list of recent titles to avoid
+    const recentTitlesWarning = recentPosts && recentPosts.length > 0
+      ? `\n\n⚠️ IMPORTANTE - NÃO USE ESTES TÍTULOS (já existem posts recentes):\n${recentPosts.slice(0, 10).map(p => `- "${p.title}"`).join('\n')}\n\nCRIE UM TÍTULO COMPLETAMENTE DIFERENTE E ÚNICO!`
+      : ''
+    
+    const contentPrompt = `${selectedPrompt}${recentTitlesWarning}
 
 ESTRUTURA: Introdução envolvente, 3-4 seções com subtítulos, conclusão inspiradora
 TAMANHO: 700-1000 palavras
@@ -147,7 +204,7 @@ SEO: Incluir naturalmente: ${selectedKeywords.join(', ')}
 
 FORMATO JSON:
 {
-  "title": "Título cativante (máx 70 caracteres)",
+  "title": "Título cativante (máx 70 caracteres) - DEVE SER ÚNICO E DIFERENTE DOS LISTADOS ACIMA",
   "excerpt": "Resumo atrativo (150-200 caracteres)", 
   "content": "Conteúdo completo em Markdown",
   "seo_title": "Título SEO (55-60 caracteres)",
@@ -181,6 +238,28 @@ Responda APENAS com JSON válido.`
 
     const generatedPost: AIGeneratedPost = JSON.parse(aiResponse)
     console.log('[Generate] Content generated:', generatedPost.title)
+
+    // ====== VALIDATION: Check for duplicate titles and slugs ======
+    const slug = generateSlug(generatedPost.title)
+    
+    console.log('[Generate] Checking for duplicate titles/slugs...')
+    const { data: existingPosts, error: checkError } = await supabaseAdmin
+      .from('blog_posts')
+      .select('id, title, slug')
+      .or(`title.eq.${generatedPost.title},slug.eq.${slug}`)
+    
+    if (checkError) {
+      console.error('[Generate] Error checking duplicates:', checkError)
+    } else if (existingPosts && existingPosts.length > 0) {
+      console.warn('[Generate] ⚠️ Found duplicate post:', existingPosts[0])
+      
+      // Add timestamp suffix to make it unique
+      const timestamp = Date.now()
+      generatedPost.title = `${generatedPost.title} (${new Date().toLocaleDateString('pt-BR')})`
+      console.log('[Generate] ✅ Title made unique:', generatedPost.title)
+    } else {
+      console.log('[Generate] ✅ No duplicates found - title is unique')
+    }
 
     // ====== GENERATE-ONLY MODE: Return content without saving ======
     if (generateOnly) {
@@ -293,7 +372,7 @@ Responda APENAS com JSON válido.`
     }
 
     // ====== STEP 3: Create post in database ======
-    const slug = generateSlug(generatedPost.title)
+    // Use the slug already validated and generated above (after duplicate check)
 
     const postData: BlogPostInsert = {
       title: generatedPost.title,
