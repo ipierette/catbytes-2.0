@@ -251,7 +251,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 <div className="md:col-span-2">
                   <div
                     className="magazine-text-intro"
-                    dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
+                    dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro, true) }}
                   />
                 </div>
                 {post.highlight && post.highlight.trim() !== '' && (
@@ -364,7 +364,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 }
 
 // Simple markdown to HTML converter com estilos aprimorados
-function formatMarkdown(markdown: string): string {
+function formatMarkdown(markdown: string, isIntro: boolean = false): string {
   let html = markdown
     
     // Blocos de código com múltiplas linhas (```código```)
@@ -400,7 +400,11 @@ function formatMarkdown(markdown: string): string {
   html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul class="list-disc list-inside space-y-2 mb-6">$1</ul>')
 
   if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<div class="code-block')) {
-    html = `<p class="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6">${html}</p>`
+    // Se for introdução, adiciona classe especial para capital letter no primeiro parágrafo
+    const pClass = isIntro 
+      ? 'text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6 first-paragraph-dropcap'
+      : 'text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6'
+    html = `<p class="${pClass}">${html}</p>`
   }
 
   return html

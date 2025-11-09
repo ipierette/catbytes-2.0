@@ -98,7 +98,8 @@
   }
 
   /* Drop cap para primeira letra (estilo revista) - APENAS NA INTRODUÇÃO */
-  .magazine-text-intro p:first-of-type::first-letter {
+  .magazine-text-intro p:first-of-type::first-letter,
+  .first-paragraph-dropcap::first-letter {
     float: left;
     font-size: 4.5rem;
     line-height: 3.5rem;
@@ -109,7 +110,8 @@
     color: #8A2BE2;
   }
 
-  .dark .magazine-text-intro p:first-of-type::first-letter {
+  .dark .magazine-text-intro p:first-of-type::first-letter,
+  .dark .first-paragraph-dropcap::first-letter {
     color: #FF69B4;
   }
 

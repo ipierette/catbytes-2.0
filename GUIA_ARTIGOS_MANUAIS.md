@@ -122,7 +122,12 @@ function minhaFuncao() {
 #### **Parágrafos:**
 - Tamanho: lg (confortável para leitura)
 - Espaçamento: relaxado entre linhas
-- Primeira letra da introdução: Capital letter automática (dropcap gigante roxa/rosa)
+- **Primeira letra da introdução: Capital letter automática (dropcap gigante roxa/rosa)**
+  - ✨ **AUTOMÁTICO!** Você não precisa fazer nada
+  - O sistema detecta automaticamente o primeiro parágrafo da introdução
+  - Aplica estilo de revista clássica (Georgia serif, 4.5rem)
+  - Cor: Roxo (#8A2BE2) no modo claro / Rosa (#FF69B4) no modo escuro
+  - Funciona apenas no primeiro parágrafo - outros parágrafos ficam normais
 
 ---
 
