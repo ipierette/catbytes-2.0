@@ -19,6 +19,7 @@ interface StructuredPostEditorProps {
 export function StructuredPostEditor({ isOpen, onClose, onSave }: StructuredPostEditorProps) {
   // Dados básicos
   const [title, setTitle] = useState('')
+  const [excerpt, setExcerpt] = useState('')
   const [category, setCategory] = useState('Desenvolvimento')
   const [tags, setTags] = useState('')
   const [highlight, setHighlight] = useState('')
@@ -103,6 +104,10 @@ export function StructuredPostEditor({ isOpen, onClose, onSave }: StructuredPost
       toast.error('Título é obrigatório')
       return
     }
+    if (!excerpt.trim()) {
+      toast.error('Resumo é obrigatório')
+      return
+    }
     if (!coverImageUrl) {
       toast.error('Imagem de capa é obrigatória')
       return
@@ -147,13 +152,10 @@ ${middleContent.trim()}
 
 ${finalContent.trim()}`
 
-      // Criar excerpt automaticamente (primeiras 150 chars da introdução)
-      const excerpt = introduction.trim().substring(0, 150) + (introduction.trim().length > 150 ? '...' : '')
-
       const postData = {
         title: title.trim(),
         category: category,
-        excerpt: excerpt,
+        excerpt: excerpt.trim(),
         content: fullContent,
         coverImageUrl: coverImageUrl,
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
@@ -178,6 +180,7 @@ ${finalContent.trim()}`
       
       // Limpar formulário
       setTitle('')
+      setExcerpt('')
       setCategory('Desenvolvimento')
       setTags('')
       setHighlight('')
@@ -253,6 +256,19 @@ ${finalContent.trim()}`
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="excerpt">Resumo para Cards * (Aparece nos cards da home)</Label>
+              <Textarea
+                id="excerpt"
+                placeholder="Breve resumo que aparecerá nos cards de preview do artigo na página inicial. Ex: 'Descubra como criar chatbots inteligentes que realmente entendem seus clientes...'"
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                rows={3}
+                maxLength={200}
+              />
+              <p className="text-xs text-muted-foreground">{excerpt.length}/200 caracteres</p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
               <Input
                 id="tags"
@@ -263,7 +279,7 @@ ${finalContent.trim()}`
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="highlight">💡 Texto em Destaque * (Aparece nas caixas coloridas)</Label>
+              <Label htmlFor="highlight">💡 Texto em Destaque * (Aparece na caixa colorida do topo)</Label>
               <Textarea
                 id="highlight"
                 placeholder="Frase impactante de 1-2 linhas. Ex: 'Chatbots com IA aumentam em 40% a satisfação do cliente e reduzem custos operacionais'"
@@ -430,7 +446,7 @@ Detalhes adicionais..."
             </h3>
             <div className="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-lg border border-indigo-200 dark:border-indigo-800">
               <p className="text-sm text-indigo-800 dark:text-indigo-300">
-                Aparece à direita da caixa "📌 Saiba Mais" na segunda seção visual.
+                Aparece centralizada <strong>DEPOIS</strong> de todo o "Texto do Meio" ser apresentado, antes do conteúdo final.
               </p>
             </div>
             

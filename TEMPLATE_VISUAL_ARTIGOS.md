@@ -34,10 +34,10 @@ Este é o **ÚNICO LAYOUT** que existe agora para artigos manuais. Simples, boni
 │  (se existir)   │   (Parágrafos 4-6)     │
 └─────────────────┴────────────────────────┘
 
-┌──────────────────┬──────────────────────┐
-│  📌 SAIBA MAIS   │   5. IMAGEM 2        │
-│  [Highlight box] │   (se existir)       │
-└──────────────────┴──────────────────────┘
+┌─────────────────────────────────────────┐
+│   5. IMAGEM 2 (centralizada)            │
+│   Aparece DEPOIS do texto do meio       │
+└─────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────┐
 │   6. RESTANTE DO CONTEÚDO               │
