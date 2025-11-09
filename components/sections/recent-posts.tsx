@@ -9,15 +9,12 @@ import { useParams } from 'next/navigation'
 import type { BlogPost } from '@/types/blog'
 import { format } from 'date-fns'
 import { ptBR, enUS } from 'date-fns/locale'
-import { PostModal } from '@/components/blog/post-modal'
 import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
 import { useTranslations } from 'next-intl'
-import { blogSync } from '@/lib/blog-sync'
 
 export function RecentPosts() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [showNewsletter, setShowNewsletter] = useState(false)
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set())
   const params = useParams()
@@ -49,36 +46,6 @@ export function RecentPosts() {
 
     fetchRecentPosts()
   }, [])
-
-  // Subscribe to blog sync updates
-  useEffect(() => {
-    const unsubscribe = blogSync.subscribe((updatedPost) => {
-      setPosts((prev) => 
-        prev.map((p) => 
-          p.id === updatedPost.id ? updatedPost : p
-        )
-      )
-      
-      // Also update selected post if it's open
-      setSelectedPost((prev) => 
-        prev?.id === updatedPost.id ? updatedPost : prev
-      )
-    })
-
-    return unsubscribe
-  }, [])
-
-  // Handle view increment from modal
-  const handleViewIncremented = (updatedPost: BlogPost) => {
-    // Update the post in the current list
-    setPosts((prev) => 
-      prev.map((p) => 
-        p.id === updatedPost.id ? updatedPost : p
-      )
-    )
-    // Also update the selected post to reflect the new view count in the modal
-    setSelectedPost(updatedPost)
-  }
 
   return (
     <section
@@ -130,16 +97,21 @@ export function RecentPosts() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 max-w-5xl mx-auto">
               {posts.map((post, index) => (
-                <motion.article
+                <Link
                   key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                  whileHover={{ y: -8 }}
-                  onClick={() => setSelectedPost(post)}
-                  className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
+                  href={`/${locale}/blog/${post.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
                 >
+                  <motion.article
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.2 }}
+                    whileHover={{ y: -8 }}
+                    className="group cursor-pointer bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-catbytes-purple dark:hover:border-catbytes-pink"
+                  >
                   {/* Image */}
                   <div className="relative w-full h-56 overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">
                     {!imageErrors.has(post.id) && (
@@ -208,6 +180,7 @@ export function RecentPosts() {
                     </div>
                   </div>
                 </motion.article>
+              </Link>
               ))}
             </div>
 
@@ -311,14 +284,6 @@ export function RecentPosts() {
           </>
         )}
       </AnimatePresence>
-
-      {/* Post Modal */}
-      <PostModal 
-        post={selectedPost} 
-        isOpen={!!selectedPost} 
-        onClose={() => setSelectedPost(null)}
-        onViewIncremented={handleViewIncremented}
-      />
     </section>
   )
 }

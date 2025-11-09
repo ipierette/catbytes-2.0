@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
       // content_images não existe na tabela, removido
       tags: tags || [],
       category: 'Manual',
-      author: 'Admin',
+      author: 'Izadora Cury Pierette',
       locale: 'pt-BR',
       published: true,
       ai_model: 'manual',
