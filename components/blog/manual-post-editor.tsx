@@ -82,12 +82,28 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
       toast.error('Título é obrigatório')
       return
     }
+    if (title.trim().length < 10) {
+      toast.error('Título deve ter no mínimo 10 caracteres')
+      return
+    }
+    if (title.trim().length > 200) {
+      toast.error('Título deve ter no máximo 200 caracteres')
+      return
+    }
     if (!excerpt.trim()) {
       toast.error('Resumo é obrigatório')
       return
     }
+    if (excerpt.trim().length < 50) {
+      toast.error('Resumo deve ter no mínimo 50 caracteres')
+      return
+    }
     if (!content.trim()) {
       toast.error('Conteúdo é obrigatório')
+      return
+    }
+    if (content.trim().length < 100) {
+      toast.error('Conteúdo deve ter no mínimo 100 caracteres')
       return
     }
     if (!coverImage) {
@@ -239,50 +255,46 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
         <div className="space-y-6 py-4">
           {/* Título */}
           <div className="space-y-2">
-            <Label htmlFor="title">Título *</Label>
+            <Label htmlFor="title">Título * (mín. 10 caracteres)</Label>
             <Input
               id="title"
               placeholder="Ex: Como criar um chatbot com IA"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              maxLength={100}
+              maxLength={200}
+              className={title.length > 0 && title.length < 10 ? 'border-red-500' : ''}
             />
-            <p className="text-xs text-muted-foreground">{title.length}/100 caracteres</p>
+            <p className={`text-xs ${title.length < 10 ? 'text-red-500' : 'text-muted-foreground'}`}>
+              {title.length}/200 caracteres {title.length < 10 && title.length > 0 ? `(faltam ${10 - title.length})` : ''}
+            </p>
           </div>
 
           {/* Resumo */}
           <div className="space-y-2">
-            <Label htmlFor="excerpt">Resumo *</Label>
+            <Label htmlFor="excerpt">Resumo * (mín. 50 caracteres)</Label>
             <Textarea
               id="excerpt"
-              placeholder="Breve descrição do artigo (150-200 caracteres)"
+              placeholder="Breve descrição do artigo que aparecerá nas prévias"
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               rows={2}
               maxLength={200}
+              className={excerpt.length > 0 && excerpt.length < 50 ? 'border-red-500' : ''}
             />
-            <p className="text-xs text-muted-foreground">{excerpt.length}/200 caracteres</p>
+            <p className={`text-xs ${excerpt.length < 50 ? 'text-red-500' : 'text-muted-foreground'}`}>
+              {excerpt.length}/200 caracteres {excerpt.length < 50 && excerpt.length > 0 ? `(faltam ${50 - excerpt.length})` : ''}
+            </p>
           </div>
 
           {/* Conteúdo */}
           <div className="space-y-2">
-            <Label htmlFor="content">Conteúdo * (Markdown suportado)</Label>
-            <Textarea
-              id="content"
-              placeholder="## Introdução
-
-Seu conteúdo aqui em Markdown...
-
-### Seção 1
-- Ponto 1
-- Ponto 2
-
-**Texto em negrito** e *itálico*"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={12}
-              className="font-mono text-sm"
+            <Label htmlFor="content">Conteúdo * (Markdown suportado, mín. 100 caracteres)</Label>
+            className={`font-mono text-sm ${content.length > 0 && content.length < 100 ? 'border-red-500' : ''}`}
             />
+            <p className={`text-xs ${content.length < 100 ? 'text-red-500' : 'text-muted-foreground'}`}>
+              {content.length} caracteres {content.length < 100 && content.length > 0 ? `(mínimo: 100)` : ''}
+            </p>
+          </div>
             <p className="text-xs text-muted-foreground">
               Use Markdown: ## para títulos, **negrito**, *itálico*, - listas
             </p>
