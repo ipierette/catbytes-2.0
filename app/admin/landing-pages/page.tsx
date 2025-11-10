@@ -16,7 +16,8 @@ import {
   MousePointerClick,
   Percent,
   Rocket,
-  Loader2
+  Loader2,
+  Trash2
 } from 'lucide-react'
 import { NICHES, COLOR_THEMES_ARRAY } from '@/lib/landing-pages-constants'
 import { CreateLandingPageModal } from '@/components/admin/create-landing-page-modal'
@@ -203,6 +204,34 @@ export default function LandingPagesAdminPage() {
       alert(`❌ Erro ao relançar: ${error.message}`)
     } finally {
       setDeployingId(null)
+    }
+  }
+
+  async function handleDelete(landingPageId: string, title: string) {
+    const confirmed = confirm(`🗑️ Excluir "${title}"?\n\nEsta ação é PERMANENTE e irá excluir:\n- A landing page\n- Todos os leads capturados\n- Todas as visualizações\n\nNão é possível desfazer!`)
+    if (!confirmed) return
+
+    try {
+      const response = await fetch('/api/landing-pages/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ landingPageId })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao excluir')
+      }
+
+      // Recarregar lista
+      await loadLandingPages()
+      
+      alert('✅ Landing page excluída com sucesso!')
+      
+    } catch (error: any) {
+      console.error('Erro ao excluir:', error)
+      alert(`❌ Erro ao excluir: ${error.message}`)
     }
   }
 
@@ -425,6 +454,17 @@ export default function LandingPagesAdminPage() {
                       </Button>
                     </div>
                   )}
+
+                  {/* Botão Excluir (sempre visível) */}
+                  <Button 
+                    size="sm" 
+                    variant="destructive"
+                    className="w-full"
+                    onClick={() => handleDelete(lp.id, lp.headline)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Excluir
+                  </Button>
                 </div>
               </CardContent>
             </Card>
