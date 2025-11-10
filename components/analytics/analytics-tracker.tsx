@@ -21,12 +21,23 @@ export function AnalyticsTracker({ postId, postSlug, title }: AnalyticsTrackerPr
     if (pathname) {
       console.log('%c[Analytics] 🚀 New page loaded:', 'color: #00ff00; font-weight: bold', pathname)
       
+      // Supabase tracking
       trackPageView({
         page: pathname,
         referrer: document.referrer,
         userAgent: navigator.userAgent,
         locale: document.documentElement.lang || 'pt-BR'
       })
+
+      // Google Analytics tracking
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'page_view', {
+          page_path: pathname,
+          page_title: document.title,
+          page_location: window.location.href
+        })
+        console.log('%c[Google Analytics] 📊 Page view sent:', 'color: #4285f4; font-weight: bold', pathname)
+      }
     }
   }, [pathname])
 
@@ -38,6 +49,13 @@ export function AnalyticsTracker({ postId, postSlug, title }: AnalyticsTrackerPr
       screenResolution: `${screen.width}x${screen.height}`,
       language: navigator.language
     })
+
+    // Google Analytics - Session start
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'session_start', {
+        engagement_time_msec: 100
+      })
+    }
 
     // Track page visibility changes
     const handleVisibilityChange = () => {
@@ -65,6 +83,14 @@ export function AnalyticsTracker({ postId, postSlug, title }: AnalyticsTrackerPr
             depth: scrollPercent,
             timestamp: new Date().toISOString()
           })
+
+          // Google Analytics - Scroll depth
+          if (typeof window !== 'undefined' && (window as any).gtag) {
+            (window as any).gtag('event', 'scroll', {
+              percent_scrolled: scrollPercent,
+              page_path: pathname
+            })
+          }
         }
       }
     }

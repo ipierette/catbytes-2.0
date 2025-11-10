@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Inter, Comfortaa } from 'next/font/google'
 import { ToastProvider } from '@/components/ui/toast'
 import './globals.css'
@@ -221,6 +222,24 @@ export default async function RootLayout({
         />
       </head>
       <body className="bg-background text-foreground" suppressHydrationWarning>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-3P34NX4KV8"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-3P34NX4KV8', {
+              page_path: window.location.pathname,
+              send_page_view: true
+            });
+            console.log('[Google Analytics] Tag inicializado: G-3P34NX4KV8');
+          `}
+        </Script>
+        
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
