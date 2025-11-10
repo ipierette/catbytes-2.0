@@ -83,7 +83,7 @@ Retorne um JSON com:
       n: 1,
     })
 
-    const heroImageUrl = imageResponse.data[0].url || ''
+    const heroImageUrl = imageResponse.data?.[0]?.url || ''
 
     // 3. Gerar HTML completo
     console.log('📄 Gerando HTML completo...')
