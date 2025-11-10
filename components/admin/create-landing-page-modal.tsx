@@ -27,7 +27,56 @@ export function CreateLandingPageModal({ open, onClose, onSuccess }: CreateLandi
   })
   const [generatedPage, setGeneratedPage] = useState<any>(null)
   const [error, setError] = useState('')
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false)
+  const [aiExplanation, setAiExplanation] = useState('')
 
+  async function handleNicheChange(nicheValue: string) {
+    setFormData({ ...formData, niche: nicheValue })
+    
+    // Buscar sugestões da IA automaticamente
+    if (nicheValue) {
+      await fetchAISuggestions(nicheValue)
+    }
+  }
+
+  async function fetchAISuggestions(niche: string) {
+    try {
+      setLoadingSuggestions(true)
+      setError('')
+
+      const response = await fetch('/api/landing-pages/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ niche })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao buscar sugestões')
+      }
+
+      // Preencher formulário com sugestões
+      setFormData(prev => ({
+        ...prev,
+        problem: data.suggestions.problem,
+        solution: data.suggestions.solution,
+        cta_text: data.suggestions.cta_text,
+        theme_color: data.suggestions.theme_color,
+  function resetForm() {
+    setFormData({
+      niche: '',
+      problem: '',
+      solution: '',
+      cta_text: '',
+      theme_color: 'blue'
+    })
+    setStep('form')
+    setError('')
+    setGeneratedPage(null)
+    setAiExplanation('')
+    setLoadingSuggestions(false)
+  }
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
@@ -96,14 +145,12 @@ export function CreateLandingPageModal({ open, onClose, onSuccess }: CreateLandi
                 Preencha as informações abaixo e a IA criará uma landing page profissional em ~30 segundos
               </DialogDescription>
             </DialogHeader>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
               {/* Nicho */}
               <div className="space-y-2">
                 <Label htmlFor="niche">Nicho do Negócio *</Label>
                 <Select
                   value={formData.niche}
-                  onValueChange={(value) => setFormData({ ...formData, niche: value })}
+                  onValueChange={handleNicheChange}
                   required
                 >
                   <SelectTrigger>
@@ -116,6 +163,20 @@ export function CreateLandingPageModal({ open, onClose, onSuccess }: CreateLandi
                       </SelectItem>
                     ))}
                   </SelectContent>
+                </Select>
+                {loadingSuggestions && (
+                  <p className="text-xs text-purple-500 flex items-center gap-2">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    IA sugerindo conteúdo para este nicho...
+                  </p>
+                )}
+                {aiExplanation && !loadingSuggestions && (
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 text-xs">
+                    <p className="font-semibold text-purple-900 mb-1">💡 Por que essas sugestões?</p>
+                    <p className="text-purple-700">{aiExplanation}</p>
+                  </div>
+                )}
+              </div>SelectContent>
                 </Select>
               </div>
 

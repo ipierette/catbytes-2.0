@@ -38,10 +38,59 @@ export async function POST(req: NextRequest) {
       .update({ deploy_status: 'deploying' })
       .eq('id', landingPageId)
 
-    // 2. Criar projeto único na Vercel
-    const projectName = `lp-${landingPage.slug}`
-    
-    console.log(`🚀 Deploying ${projectName} to Vercel...`)
+    // 2. Criar repositório PRIVADO no GitHub (opcional mas recomendado)
+    const githubToken = process.env.GITHUB_TOKEN
+    const repoName = `lp-${landingPage.slug}`
+    let githubRepoUrl = ''
+
+    if (githubToken) {
+      try {
+        console.log(`📁 Criando repositório privado no GitHub: ${repoName}`)
+        
+        const githubResponse = await fetch('https://api.github.com/user/repos', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${githubToken}`,
+            'Accept': 'application/vnd.github+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: repoName,
+            description: `Landing Page: ${landingPage.title}`,
+            private: true, // PRIVADO!
+            auto_init: true,
+          }),
+        })
+
+        if (githubResponse.ok) {
+          const repoData = await githubResponse.json()
+          githubRepoUrl = repoData.html_url
+          console.log(`✅ Repositório criado: ${githubRepoUrl}`)
+
+          // Criar arquivo index.html no repo
+          const contentBase64 = Buffer.from(landingPage.html_content).toString('base64')
+          
+          await fetch(`https://api.github.com/repos/${repoData.owner.login}/${repoName}/contents/index.html`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${githubToken}`,
+              'Accept': 'application/vnd.github+json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: 'Initial commit: Landing page HTML',
+              content: contentBase64,
+            }),
+          })
+
+          console.log('✅ HTML adicionado ao repositório')
+        } else {
+          console.warn('⚠️ Erro ao criar repositório GitHub (continuando sem ele)')
+        }
+      } catch (githubError) {
+        console.warn('⚠️ GitHub não disponível (continuando sem repositório):', githubError)
+      }
+    }
 
     // 3. Criar deployment direto (sem GitHub)
     const vercelToken = process.env.VERCEL_TOKEN
@@ -110,12 +159,13 @@ export async function POST(req: NextRequest) {
 
     console.log(`✅ Deployed to: ${deployUrl}`)
 
-    // 4. Atualizar banco com URL
+    // 4. Atualizar banco com URL e GitHub repo
     await supabase
       .from('landing_pages')
       .update({
         deploy_url: deployUrl,
         deploy_status: 'published',
+        github_repo_url: githubRepoUrl || null,
         published_at: new Date().toISOString(),
         status: 'published',
       })
@@ -125,6 +175,7 @@ export async function POST(req: NextRequest) {
       success: true,
       deployUrl,
       vercelUrl: deployment.url,
+      githubRepoUrl: githubRepoUrl || null,
       inspectorUrl: deployment.inspectorUrl,
     })
 

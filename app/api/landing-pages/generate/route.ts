@@ -142,13 +142,26 @@ DESIGN:
 - Formulário de captura: nome, email, telefone (opcional), mensagem
 - Footer: logo da desenvolvedora (https://catbytes.site/images/logo-desenvolvedora.webp) pequena + "powered by CATBytes AI"
 
+SEGURANÇA & PRIVACIDADE:
+- reCAPTCHA v3 (site key: 6LfDummy_SiteKey_ForPlaceholder)
+- Badge "🔒 Seus dados estão protegidos" visível
+- Honeypot field (campo invisível "website")
+- Formulário envia POST para /api/landing-pages/submit
+- Incluir campos hidden para tracking: utm_source, utm_medium, utm_campaign, referrer
+
+SEO:
+- Meta tags otimizadas (title, description, keywords)
+- Open Graph completo (og:title, og:description, og:image)
+- Twitter Cards
+- Schema.org JSON-LD (LocalBusiness ou Service)
+
 IMPORTANTE:
 - Logo deve ter background apropriado (não muito claro nem muito escuro)
-- Formulário envia POST para /api/landing-pages/submit
-- Incluir campos hidden para tracking: utm_source, utm_medium, etc
-- Meta tags para SEO e compartilhamento
-- Google Analytics opcional
-- reCAPTCHA v3 (site key placeholder)
+- Badge de segurança destacado perto do formulário
+- Texto: "Seus dados estão protegidos por reCAPTCHA e criptografia SSL"
+- Google Analytics opcional (placeholder)
+- CSS inline para performance
+- Sem dependências externas (exceto reCAPTCHA)
 
 Retorne APENAS o HTML completo, válido, pronto para deploy.`
         }
