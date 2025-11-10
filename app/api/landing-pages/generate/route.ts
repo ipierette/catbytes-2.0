@@ -77,52 +77,56 @@ Retorne um JSON com:
     console.log('🎨 Gerando imagem com DALL-E 3...')
     const imageResponse = await openai.images.generate({
       model: 'dall-e-3',
-      prompt: `ULTRA-REALISTIC COMMERCIAL PHOTOGRAPHY - MAGAZINE EDITORIAL QUALITY:
+      prompt: `REAL AUTHENTIC PHOTOGRAPHY - NOT 3D RENDER:
 
 ${content.image_prompt}
 
-PHOTOGRAPHIC TECHNICAL REQUIREMENTS:
-📷 Camera Setup: Professional full-frame DSLR (Canon EOS R5/Sony A7IV)
-🔍 Lens: 50mm f/1.4 OR 85mm f/1.2 prime lens for cinematic bokeh
-💡 Lighting: Professional studio setup OR natural golden hour (soft, flattering light)
-🎬 Resolution: 8K RAW, tack-sharp focus, crystal clear details
-🎨 Style: High-end advertising photography (Apple/Nike/Vogue quality)
-✨ Post-processing: Subtle color grading, natural tones, minimal retouching
+⚠️ ANTI-CGI ENFORCEMENT - CRITICAL:
+This MUST look like a real photograph taken by a human photographer with a real camera.
+NOT a 3D render, NOT a video game screenshot, NOT computer graphics.
 
-IF PEOPLE ARE IN THE IMAGE - CRITICAL HUMAN REALISM RULES:
-✅ MUST BE: Real human beings photographed with professional camera
-✅ Skin: Natural texture with visible pores, subtle imperfections, realistic complexion
-✅ Eyes: Crystal clear with natural catchlights, realistic iris details
-✅ Hair: Natural flow and texture (not plasticky or too perfect)
-✅ Expression: Genuine, authentic emotions (not forced smiles)
-✅ Pose: Professional model poses but natural body language
-✅ Diversity: Real-looking diverse people (age, ethnicity varies naturally)
-✅ Clothing: Real fabric wrinkles, realistic textures
-✅ Context: Natural interaction with environment
+PHOTOGRAPHY STYLE:
+📸 Medium: Real analog or digital photography ONLY
+📷 Camera: Canon 5D Mark IV / Nikon D850 / Sony A7III (real DSLR cameras)
+🎞️ Film stock aesthetic: Slight grain, natural color science (NOT perfect CGI smoothness)
+💡 Natural lighting: Soft window light, overcast sky, or subtle studio lighting
+🎨 Color: Slightly muted tones, natural saturation (NOT oversaturated game graphics)
+🔍 Focus: Shallow depth of field (f/2.8-f/4), natural lens blur in background
 
-❌ ABSOLUTELY FORBIDDEN - INSTANT REJECTION:
-❌ 3D renders, CGI, digital art, illustrations, paintings, cartoons
-❌ AI-generated "uncanny valley" faces (overly smooth/perfect skin)
-❌ Anime, manga, graphic design, vector art
-❌ Generic stock photo poses (too staged/fake)
-❌ Perfect symmetrical faces (unrealistic beauty standards)
+HUMAN SUBJECTS - ANTI-UNCANNY VALLEY:
+✅ Real people with IMPERFECT features (asymmetric faces, minor blemishes)
+✅ Skin has visible texture, pores, freckles, natural shine
+✅ Eyes: Slightly different sizes, natural reflections (not identical glass spheres)
+✅ Hair: Messy strands, flyaways, natural randomness (NOT 3D modeled perfection)
+✅ Age appropriate: Visible crow's feet, smile lines, natural aging
+✅ Body language: Candid, mid-gesture, natural posture (NOT T-pose or rigid)
+✅ Clothing: Real fabric wrinkles, creases, worn areas, natural fit
 
-🚫 ZERO TEXT RULE - MANDATORY:
-❌ NO text, letters, words, numbers, signs, labels, logos, typography
-❌ NO watermarks, captions, UI elements, buttons, symbols
-❌ NO characters or writing in ANY language
-✅ ONLY: Pure photographic scene
+ENVIRONMENT - REAL WORLD INDICATORS:
+✅ Slight imperfections: Dust particles, lens flare, natural shadows
+✅ Organic clutter: Coffee cups, papers, real objects with wear
+✅ Natural perspective: Slight lens distortion, NOT perfect 3D grid
+✅ Depth cues: Natural atmospheric haze, authentic bokeh blur
+✅ Lighting inconsistencies: Subtle shadows, natural light falloff
 
-VERIFICATION CHECKLIST:
-□ Could this image appear in Vogue, GQ, or Fortune magazine?
-□ Do people look like real humans you'd see on the street?
-□ Is the lighting natural and professional?
-□ Zero text or graphics visible?
-□ Shot on professional camera equipment?
+❌ FORBIDDEN - THESE SCREAM "3D RENDER":
+❌ Perfectly smooth gradient lighting (video game shading)
+❌ Overly symmetrical faces or environments
+❌ Plastic/waxy skin (CGI subsurface scattering look)
+❌ Perfectly aligned objects in background
+❌ Unnaturally sharp edges everywhere
+❌ Glowing eyes or hair (3D shader artifact)
+❌ Too much rim lighting / edge glow
+❌ Perfect bokeh circles (use natural lens aberrations)
+❌ Sterile environments (too clean = 3D scene)
 
-If ANY checkbox is NO → Image must be regenerated.
+🚫 NO TEXT/GRAPHICS:
+❌ Zero text, logos, signs, watermarks, UI elements
 
-Context: ${niche} industry, professional business setting, premium quality.`,
+REFERENCE STYLE: National Geographic, Humans of New York, authentic street photography, documentary photography.
+Think: "I took this photo with my phone" realism, NOT "I rendered this in Unreal Engine 5".
+
+Context: ${niche} industry, authentic professional setting.`,
       size: '1792x1024',
       quality: 'hd',
       n: 1,
