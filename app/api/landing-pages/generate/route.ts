@@ -152,13 +152,12 @@ Context: ${niche} industry, professional business photography.`,
         {
           role: 'system',
           content: `Você é um desenvolvedor front-end especialista em criar landing pages de alta conversão.
-Você DEVE retornar APENAS HTML puro, sem markdown, sem \`\`\`html, sem explicações.
-Preencha o template fornecido substituindo os marcadores [CONTEÚDO] pelo texto apropriado.
-IMPORTANTE: Retorne HTML direto começando com <!DOCTYPE html>, não envolva em blocos de código markdown.`
+Crie um HTML moderno, clean e profissional usando o TEMPLATE FIXO fornecido.
+Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estrutura do template.`
         },
         {
           role: 'user',
-          content: `Preencha os marcadores [CONTEÚDO] neste template. Retorne APENAS o HTML final, sem \`\`\`html:
+          content: `Use este TEMPLATE FIXO e preencha apenas os marcadores [CONTEÚDO]:
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -664,17 +663,13 @@ REGRAS CRÍTICAS:
 2. Modal agora promete E-BOOK + serviço
 3. Formulário menciona envio do ebook por email
 4. Design premium com gradientes modernos
-5. Retorne HTML completo e válido, começando com <!DOCTYPE html>
-6. NÃO envolva o HTML em blocos markdown como \`\`\`html`
+5. Retorne HTML completo e válido`
         }
       ],
       temperature: 0.7,
     })
 
-    let htmlContent = htmlResponse.choices[0].message.content || ''
-    
-    // Remover markdown se o GPT insistir em adicionar (fallback de segurança)
-    htmlContent = htmlContent.replace(/^```html\n?/i, '').replace(/\n?```$/i, '').trim()
+    const htmlContent = htmlResponse.choices[0].message.content || ''
 
     // 4. Gerar slug único
     const slug = `${niche}-${Date.now()}`
