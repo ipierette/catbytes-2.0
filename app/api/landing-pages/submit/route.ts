@@ -39,6 +39,7 @@ interface SubmitRequest {
   
   // Tracking
   landingPageSlug: string
+  landingPageUrl?: string // URL completa da LP
   utm_source?: string
   utm_medium?: string
   utm_campaign?: string
@@ -117,6 +118,7 @@ export async function POST(req: NextRequest) {
       .from('landing_page_leads')
       .insert({
         landing_page_id: landingPage.id,
+        landing_page_url: body.landingPageUrl || landingPage.deploy_url || null,
         name: body.name,
         email: body.email,
         phone: body.phone || null,
@@ -185,6 +187,7 @@ export async function POST(req: NextRequest) {
       </div>
 
       <div class="info-box">
+        <p><span class="label">🔗 URL:</span><span class="value">${body.landingPageUrl || landingPage.deploy_url || 'N/A'}</span></p>
         <p><span class="label">🎯 Nicho:</span><span class="value">${landingPage.niche}</span></p>
         <p><span class="label">🌐 Origem:</span><span class="value">${body.utm_source || 'Direto'}</span></p>
         <p><span class="label">📱 Dispositivo:</span><span class="value">${deviceType} - ${browser}</span></p>

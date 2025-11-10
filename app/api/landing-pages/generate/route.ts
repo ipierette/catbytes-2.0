@@ -147,7 +147,7 @@ SEGURANÇA & PRIVACIDADE:
 - Badge "🔒 Seus dados estão protegidos" visível
 - Honeypot field (campo invisível "website")
 - Formulário envia POST para /api/landing-pages/submit
-- Incluir campos hidden para tracking: utm_source, utm_medium, utm_campaign, referrer
+- Incluir campos hidden para tracking: utm_source, utm_medium, utm_campaign, referrer, landingPageSlug, landingPageUrl (capturado via JavaScript: window.location.href)
 
 SEO:
 - Meta tags otimizadas (title, description, keywords)

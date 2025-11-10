@@ -141,6 +141,70 @@ export default function LandingPagesAdminPage() {
     }
   }
 
+  async function handleArchive(landingPageId: string) {
+    const confirmed = confirm('🗄️ Arquivar esta landing page?\n\nEla será marcada como arquivada mas os dados serão preservados.')
+    if (!confirmed) return
+
+    try {
+      const response = await fetch('/api/landing-pages/archive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ landingPageId })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao arquivar')
+      }
+
+      // Recarregar lista
+      await loadLandingPages()
+      
+      alert('✅ Landing page arquivada com sucesso!')
+      
+    } catch (error: any) {
+      console.error('Erro ao arquivar:', error)
+      alert(`❌ Erro ao arquivar: ${error.message}`)
+    }
+  }
+
+  async function handleRelaunch(landingPageId: string, newDeploy: boolean = false) {
+    const message = newDeploy
+      ? '🚀 Relançar com NOVO deploy?\n\nSerá criado um novo projeto no Vercel.'
+      : '🔄 Relançar usando o deploy existente?\n\nRecomendado para manter SEO.'
+    
+    const confirmed = confirm(message)
+    if (!confirmed) return
+
+    try {
+      setDeployingId(landingPageId)
+
+      const response = await fetch('/api/landing-pages/relaunch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ landingPageId, newDeploy })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao relançar')
+      }
+
+      // Recarregar lista
+      await loadLandingPages()
+      
+      alert(`✅ Landing page relançada!\n\nURL: ${data.data.deploy_url}`)
+      
+    } catch (error: any) {
+      console.error('Erro ao relançar:', error)
+      alert(`❌ Erro ao relançar: ${error.message}`)
+    } finally {
+      setDeployingId(null)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -321,6 +385,47 @@ export default function LandingPagesAdminPage() {
                       )}
                     </Button>
                   ) : null}
+
+                  {/* Botão Archive (se publicada) */}
+                  {lp.status === 'published' && (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => handleArchive(lp.id)}
+                    >
+                      <Archive className="mr-2 h-4 w-4" />
+                      Arquivar
+                    </Button>
+                  )}
+
+                  {/* Botão Relaunch (se arquivada) */}
+                  {lp.status === 'archived' && (
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500"
+                        onClick={() => handleRelaunch(lp.id, false)}
+                        disabled={deployingId === lp.id}
+                      >
+                        {deployingId === lp.id ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Rocket className="mr-2 h-4 w-4" />
+                        )}
+                        Relançar
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleRelaunch(lp.id, true)}
+                        disabled={deployingId === lp.id}
+                        title="Novo deploy"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
