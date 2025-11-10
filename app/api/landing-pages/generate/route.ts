@@ -77,56 +77,66 @@ Retorne um JSON com:
     console.log('🎨 Gerando imagem com DALL-E 3...')
     const imageResponse = await openai.images.generate({
       model: 'dall-e-3',
-      prompt: `REAL AUTHENTIC PHOTOGRAPHY - NOT 3D RENDER:
+      prompt: `PROFESSIONAL PHOTOGRAPHER STYLE - REAL PHOTO WITH SUBTLE EDITING:
 
 ${content.image_prompt}
 
-⚠️ ANTI-CGI ENFORCEMENT - CRITICAL:
-This MUST look like a real photograph taken by a human photographer with a real camera.
-NOT a 3D render, NOT a video game screenshot, NOT computer graphics.
+📸 PHOTOGRAPHY APPROACH:
+This is a REAL photograph taken by a professional photographer and lightly edited in Lightroom/Photoshop.
+Think: Corporate headshots, wedding photography, lifestyle editorial, commercial portrait work.
 
-PHOTOGRAPHY STYLE:
-📸 Medium: Real analog or digital photography ONLY
-📷 Camera: Canon 5D Mark IV / Nikon D850 / Sony A7III (real DSLR cameras)
-🎞️ Film stock aesthetic: Slight grain, natural color science (NOT perfect CGI smoothness)
-💡 Natural lighting: Soft window light, overcast sky, or subtle studio lighting
-🎨 Color: Slightly muted tones, natural saturation (NOT oversaturated game graphics)
-🔍 Focus: Shallow depth of field (f/2.8-f/4), natural lens blur in background
+CAMERA & TECHNICAL SPECS:
+📷 Camera: Canon EOS R6 / Nikon Z6 / Sony A7III (professional mirrorless)
+🔍 Lens: 85mm f/1.8 or 50mm f/1.4 prime lens (natural bokeh)
+⚡ Lighting: Natural window light + reflector OR 1-2 softbox setup (soft, flattering)
+🎬 Settings: ISO 400-800, f/2.8-f/4, slight grain from real sensor
+📐 Composition: Rule of thirds, natural eye contact, professional framing
 
-HUMAN SUBJECTS - ANTI-UNCANNY VALLEY:
-✅ Real people with IMPERFECT features (asymmetric faces, minor blemishes)
-✅ Skin has visible texture, pores, freckles, natural shine
-✅ Eyes: Slightly different sizes, natural reflections (not identical glass spheres)
-✅ Hair: Messy strands, flyaways, natural randomness (NOT 3D modeled perfection)
-✅ Age appropriate: Visible crow's feet, smile lines, natural aging
-✅ Body language: Candid, mid-gesture, natural posture (NOT T-pose or rigid)
-✅ Clothing: Real fabric wrinkles, creases, worn areas, natural fit
+POST-PRODUCTION (SUBTLE PROFESSIONAL EDITING):
+✨ Color grading: Warm/cool shift (±5%), subtle lift in shadows
+✨ Skin retouching: Light frequency separation (keep texture, remove only major blemishes)
+✨ Exposure: +0.3 to +0.7 stop lift, gentle highlight recovery
+✨ Sharpening: Selective (eyes sharp, background soft)
+✨ Contrast: Mild S-curve for depth
+✨ Clarity: +10 to +20 (NOT overdone)
+⚠️ CRITICAL: Editing is SUBTLE - still looks natural, not Instagram filtered
 
-ENVIRONMENT - REAL WORLD INDICATORS:
-✅ Slight imperfections: Dust particles, lens flare, natural shadows
-✅ Organic clutter: Coffee cups, papers, real objects with wear
-✅ Natural perspective: Slight lens distortion, NOT perfect 3D grid
-✅ Depth cues: Natural atmospheric haze, authentic bokeh blur
-✅ Lighting inconsistencies: Subtle shadows, natural light falloff
+REAL HUMAN CHARACTERISTICS:
+✅ Authentic people: Real models/subjects with natural features
+✅ Skin: Visible pores and texture (retouched but NOT airbrushed smooth)
+✅ Eyes: Natural catchlights from real light source, slight asymmetry
+✅ Hair: Professional styling but with natural flyaways and texture
+✅ Expression: Genuine smiles (crow's feet visible), relaxed faces
+✅ Posing: Professional direction but natural body language
+✅ Wardrobe: Business casual, corporate, or lifestyle clothing (real fabric)
+✅ Diversity: Age 25-45, various ethnicities, realistic representation
 
-❌ FORBIDDEN - THESE SCREAM "3D RENDER":
-❌ Perfectly smooth gradient lighting (video game shading)
-❌ Overly symmetrical faces or environments
-❌ Plastic/waxy skin (CGI subsurface scattering look)
-❌ Perfectly aligned objects in background
-❌ Unnaturally sharp edges everywhere
-❌ Glowing eyes or hair (3D shader artifact)
-❌ Too much rim lighting / edge glow
-❌ Perfect bokeh circles (use natural lens aberrations)
-❌ Sterile environments (too clean = 3D scene)
+ENVIRONMENT:
+✅ Professional settings: Modern office, coffee shop, outdoor corporate campus
+✅ Natural clutter: Laptop, phone, coffee mug, plants (lived-in spaces)
+✅ Bokeh: Natural lens blur (f/1.8-f/2.8), NOT perfect circular bokeh
+✅ Lighting: One dominant source (window/softbox) + natural fill
+✅ Depth: Foreground/background elements slightly out of focus
 
-🚫 NO TEXT/GRAPHICS:
-❌ Zero text, logos, signs, watermarks, UI elements
+❌ ABSOLUTELY FORBIDDEN:
+❌ CGI, 3D renders, digital art, AI-generated uncanny valley faces
+❌ Overly smooth skin (plastic/waxy look)
+❌ Perfect symmetry (faces, environments, objects)
+❌ Video game lighting (rim glow, gradient fill, ambient occlusion look)
+❌ Heavy filters (over-saturated, HDR tone-mapped, Instagram presets)
+❌ Stock photo clichés (pointing at laptops, fake laughter)
+❌ Text, logos, watermarks, graphics, typography
 
-REFERENCE STYLE: National Geographic, Humans of New York, authentic street photography, documentary photography.
-Think: "I took this photo with my phone" realism, NOT "I rendered this in Unreal Engine 5".
+🎯 REFERENCE PHOTOGRAPHERS:
+- Peter Hurley (corporate headshots - natural but polished)
+- Annie Leibovitz (editorial portraits - authentic with flair)
+- José Villa (lifestyle photography - warm, natural light)
+- Sue Bryce (glamour portraits - flattering but real)
 
-Context: ${niche} industry, authentic professional setting.`,
+VIBE: "This person hired a professional photographer for LinkedIn/company website photos"
+NOT: "This is a 3D character from a Pixar movie" or "AI generated synthetic human"
+
+Context: ${niche} industry, professional business photography.`,
       size: '1792x1024',
       quality: 'hd',
       n: 1,
