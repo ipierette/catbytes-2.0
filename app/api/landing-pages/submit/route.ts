@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     const supabase = createClient()
     const { data: landingPage, error: lpError } = await supabase
       .from('landing_pages')
-      .select('id, title, niche')
+      .select('id, title, niche, deploy_url')
       .eq('slug', body.landingPageSlug)
       .single()
 
