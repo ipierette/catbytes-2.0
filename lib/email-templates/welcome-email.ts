@@ -17,7 +17,7 @@ export function getWelcomeEmailHTML(name: string, token: string, locale: string 
     whatYouGet: isPortuguese ? '🎁 O que você vai receber:' : '🎁 What you will receive:',
     list: isPortuguese ? ['✨ Artigos exclusivos sobre IA e automação', '💻 Dicas práticas de desenvolvimento web', '🚀 Novidades e tendências tech', '📬 Conteúdo enviado 4x por semana'] : ['✨ Exclusive articles about AI and automation', '💻 Practical web development tips', '🚀 Tech news and trends', '�� Content sent 4x per week'],
     important: isPortuguese ? '📧 Importante:' : '📧 Important:',
-    spamWarning: isPortuguese ? 'Para garantir que meus emails não caiam no spam, adicione contato@catbytes.site.site aos seus contatos!' : 'To ensure my emails dont end up in spam, add contato@catbytes.site.site to your contacts!',
+    spamWarning: isPortuguese ? 'Para garantir que meus emails não caiam no spam, adicione contato@catbytes.site aos seus contatos!' : 'To ensure my emails dont end up in spam, add contato@catbytes.site to your contacts!',
     confirmButton: isPortuguese ? '✓ Confirmar Inscrição' : '✓ Confirm Subscription',
     goodbye: isPortuguese ? 'Até breve! 🐱💻' : 'See you soon! 🐱💻',
     signature: isPortuguese ? 'Izadora Cury Pierette - Criadora da CatBytes' : 'Izadora Cury Pierette - CatBytes Founder',
@@ -42,7 +42,7 @@ export function getWelcomeEmailHTML(name: string, token: string, locale: string 
     <tr><td align="center" style="padding:40px 20px;">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" class="email-container" style="max-width:600px;background-color:#ffffff;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
           <tr><td align="center" style="background:linear-gradient(135deg,${c.dark} 0%,${c.darkHover} 100%);padding:50px 30px;border-radius:16px 16px 0 0;">
-              <img src="https://catbytes.site/images/catbytes-logo.png" alt="CatBytes" width="240" height="160" style="display:block;width:240px;height:auto;max-width:100%;margin:0 auto 20px;">
+              <img src="https://catbytes.site/images/catbytes-logo-email.png" alt="CatBytes" width="240" height="160" style="display:block;width:240px;height:auto;max-width:100%;margin:0 auto 20px;">
               <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:700;text-align:center;" class="mobile-font-size">${t.title}</h1>
             </td></tr>
           <tr><td style="padding:40px 30px;" class="mobile-padding">

@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     // Validar qualidade
     const report = await validateEmailQuality(emailHtml, {
       subject: emailSubject,
-      from: 'contato@catbytes.site.site'
+      from: 'contato@catbytes.site'
     })
 
     // Formatar relatório
@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
     // Validar qualidade
     const report = await validateEmailQuality(emailHtml, {
       subject: emailSubject,
-      from: 'contato@catbytes.site.site'
+      from: 'contato@catbytes.site'
     })
 
     // Formatar relatório

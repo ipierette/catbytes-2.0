@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
 
     // Enviar email de teste via Resend
     const { error } = await resend.emails.send({
-      from: 'CatBytes Newsletter <contato@catbytes.site.site>',
+      from: 'CatBytes Newsletter <contato@catbytes.site>',
       to: adminEmail,
       subject,
       html
