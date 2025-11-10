@@ -82,6 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
+    // Blog posts
     const { data: posts } = await supabase
       .from('blog_posts')
       .select('slug, language, updated_at, created_at')
@@ -97,6 +98,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }))
 
       routes.push(...blogPosts)
+    }
+
+    // Landing pages
+    const { data: landingPages } = await supabase
+      .from('landing_pages')
+      .select('slug, updated_at, created_at')
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
+
+    if (landingPages && landingPages.length > 0) {
+      const lpPages: MetadataRoute.Sitemap = landingPages.map((lp) => ({
+        url: `${baseUrl}/pt-BR/lp/${lp.slug}`,
+        lastModified: new Date(lp.updated_at || lp.created_at),
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+      }))
+
+      routes.push(...lpPages)
     }
   } catch (error) {
     console.error('Error fetching blog posts for sitemap:', error)

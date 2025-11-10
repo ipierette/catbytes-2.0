@@ -26,10 +26,34 @@ export async function generateMetadata({ params }: PageProps) {
   return {
     title: landingPage.title,
     description: landingPage.subheadline,
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+      },
+    },
     openGraph: {
       title: landingPage.headline,
       description: landingPage.subheadline,
+      url: `https://catbytes.site/pt-BR/lp/${slug}`,
+      type: 'website',
+      images: landingPage.hero_image_url ? [{
+        url: landingPage.hero_image_url,
+        width: 1200,
+        height: 630,
+        alt: landingPage.headline,
+      }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: landingPage.headline,
+      description: landingPage.subheadline,
       images: landingPage.hero_image_url ? [landingPage.hero_image_url] : [],
+    },
+    alternates: {
+      canonical: `https://catbytes.site/pt-BR/lp/${slug}`,
     },
   }
 }
@@ -63,11 +87,39 @@ export default async function LandingPagePreview({ params }: PageProps) {
       viewed_at: new Date().toISOString(),
     })
 
+  // Schema.org structured data para SEO
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: landingPage.headline,
+    description: landingPage.subheadline,
+    url: `https://catbytes.site/pt-BR/lp/${slug}`,
+    image: landingPage.hero_image_url,
+    datePublished: landingPage.created_at,
+    dateModified: landingPage.updated_at,
+    publisher: {
+      '@type': 'Organization',
+      name: 'CATBytes AI',
+      url: 'https://catbytes.site',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://catbytes.site/images/logo-desenvolvedora.webp',
+      },
+    },
+    inLanguage: 'pt-BR',
+  }
+
   // Renderizar HTML diretamente
   return (
-    <div 
-      dangerouslySetInnerHTML={{ __html: landingPage.html_content }}
-      suppressHydrationWarning
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <div 
+        dangerouslySetInnerHTML={{ __html: landingPage.html_content }}
+        suppressHydrationWarning
+      />
+    </>
   )
 }

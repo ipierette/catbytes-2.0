@@ -6,10 +6,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/'],
+        disallow: ['/api/', '/admin/'],
       },
     ],
-    sitemap: 'https://catbytes.com/sitemap.xml',
-    host: 'https://catbytes.com',
+    sitemap: 'https://catbytes.site/sitemap.xml',
+    host: 'https://catbytes.site',
   }
 }
