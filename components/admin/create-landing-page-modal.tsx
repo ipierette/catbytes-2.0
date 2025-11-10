@@ -63,6 +63,18 @@ export function CreateLandingPageModal({ open, onClose, onSuccess }: CreateLandi
         solution: data.suggestions.solution,
         cta_text: data.suggestions.cta_text,
         theme_color: data.suggestions.theme_color,
+      }))
+
+      // Mostrar explicação
+      setAiExplanation(data.explanation || '')
+
+    } catch (err: any) {
+      setError(err.message || 'Erro ao buscar sugestões da IA')
+    } finally {
+      setLoadingSuggestions(false)
+    }
+  }
+
   function resetForm() {
     setFormData({
       niche: '',
@@ -77,6 +89,7 @@ export function CreateLandingPageModal({ open, onClose, onSuccess }: CreateLandi
     setAiExplanation('')
     setLoadingSuggestions(false)
   }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
@@ -110,19 +123,6 @@ export function CreateLandingPageModal({ open, onClose, onSuccess }: CreateLandi
     }
   }
 
-  function resetForm() {
-    setFormData({
-      niche: '',
-      problem: '',
-      solution: '',
-      cta_text: '',
-      theme_color: 'blue'
-    })
-    setStep('form')
-    setError('')
-    setGeneratedPage(null)
-  }
-
   function handleClose() {
     if (step !== 'generating') {
       onClose()
@@ -145,6 +145,8 @@ export function CreateLandingPageModal({ open, onClose, onSuccess }: CreateLandi
                 Preencha as informações abaixo e a IA criará uma landing page profissional em ~30 segundos
               </DialogDescription>
             </DialogHeader>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Nicho */}
               <div className="space-y-2">
                 <Label htmlFor="niche">Nicho do Negócio *</Label>
@@ -176,8 +178,6 @@ export function CreateLandingPageModal({ open, onClose, onSuccess }: CreateLandi
                     <p className="text-purple-700">{aiExplanation}</p>
                   </div>
                 )}
-              </div>SelectContent>
-                </Select>
               </div>
 
               {/* Problema */}
