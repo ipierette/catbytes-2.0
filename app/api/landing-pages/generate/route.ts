@@ -92,104 +92,490 @@ Retorne um JSON com:
       messages: [
         {
           role: 'system',
-          content: `Você é um desenvolvedor front-end especialista em criar landing pages responsivas e de alta conversão.
-Crie HTML válido, semântico, com CSS inline otimizado para performance.
-Inclua meta tags para SEO e Open Graph.
-Use a logo fornecida no footer com o texto "powered by CATBytes AI".`
+          content: `Você é um desenvolvedor front-end especialista em criar landing pages de alta conversão.
+Crie um HTML moderno, clean e profissional usando o TEMPLATE FIXO fornecido.
+Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estrutura do template.`
         },
         {
           role: 'user',
-          content: `Crie uma landing page HTML completa com:
+          content: `Use este TEMPLATE FIXO e preencha apenas os marcadores [CONTEÚDO]:
 
-CONTEÚDO:
-- Headline: ${content.headline}
-- Subheadline: ${content.subheadline}
-- Benefícios: ${content.benefits.join(', ')}
-- Prova social: ${content.social_proof}
-- Urgência: ${content.urgency}
-- CTA: ${cta_text}
-- Imagem hero: ${heroImageUrl}
-
-DESIGN:
-- Cores: ${theme.primary} (primária), ${theme.secondary} (secundária), ${theme.accent} (accent)
-- Responsivo (mobile-first)
-- Formulário de captura: nome, email, telefone (opcional), mensagem
-- Footer: logo da desenvolvedora (https://catbytes.site/images/logo-desenvolvedora.webp) pequena + "powered by CATBytes AI"
-
-IMPORTANTE - FORMULÁRIO:
-- Fundo do formulário: BRANCO (#ffffff) ou cinza claro (#f5f5f5)
-- Labels e texto: PRETO (#1a1a1a) ou cinza escuro (#333333) - NUNCA branco!
-- Inputs: borda cinza (#d1d5db), fundo branco, texto preto
-- Botão de envio: gradiente com cores do tema (${theme.primary} para ${theme.secondary}), texto BRANCO
-- Placeholders: cinza médio (#6b7280)
-- Erro/validação: vermelho (#ef4444)
-
-IMPORTANTE - IMAGEM:
-- Use img tag com src="${heroImageUrl}"
-- Adicione alt descritivo
-- Estilo: width: 100%; height: auto; object-fit: cover; border-radius: 12px;
-- Loading: eager (para hero image)
-
-SEGURANÇA & PRIVACIDADE:
-- reCAPTCHA v3 (site key: 6LfDummy_SiteKey_ForPlaceholder)
-- Badge "🔒 Seus dados estão protegidos" visível perto do formulário
-- Honeypot field (campo invisível "website")
-- Formulário envia POST para /api/landing-pages/submit
-- Incluir campos hidden para tracking: utm_source, utm_medium, utm_campaign, referrer, landingPageSlug, landingPageUrl (capturado via JavaScript: window.location.href)
-
-SEO:
-- Meta tags otimizadas (title, description, keywords)
-- Open Graph completo (og:title, og:description, og:image)
-- Twitter Cards
-- Schema.org JSON-LD (LocalBusiness ou Service)
-
-ESTRUTURA OBRIGATÓRIA:
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${content.headline}</title>
-  <!-- Todos os estilos CSS INLINE no head -->
+  <title>[HEADLINE]</title>
+  <meta name="description" content="[SUBHEADLINE]">
+  <meta property="og:title" content="[HEADLINE]">
+  <meta property="og:description" content="[SUBHEADLINE]">
+  <meta property="og:image" content="${heroImageUrl}">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, sans-serif; }
-    /* IMPORTANTE: Formulário sempre com fundo claro e texto escuro */
-    form { background: #ffffff; padding: 2rem; border-radius: 12px; }
-    label, p, h1, h2, h3 { color: #1a1a1a; }
-    input, textarea { 
-      background: #ffffff; 
-      color: #1a1a1a; 
-      border: 1px solid #d1d5db; 
-      padding: 12px;
-      border-radius: 8px;
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #ffffff;
+      color: #1a202c;
+      line-height: 1.6;
     }
-    input::placeholder, textarea::placeholder { color: #6b7280; }
-    button { 
+    
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
       background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('${heroImageUrl}') center/cover no-repeat;
+      opacity: 0.15;
+      z-index: 0;
+    }
+    .hero-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-content h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
       color: #ffffff;
-      font-weight: bold;
+      margin-bottom: 1.5rem;
+      line-height: 1.1;
+    }
+    .hero-content p {
+      font-size: 1.5rem;
+      color: rgba(255,255,255,0.95);
+      margin-bottom: 2rem;
+    }
+    .hero-image {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    }
+    .hero-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    /* CTA Buttons */
+    .cta-button {
+      display: inline-block;
+      padding: 1.25rem 3rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      background: linear-gradient(135deg, ${theme.accent} 0%, ${theme.primary} 100%);
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+      text-decoration: none;
+    }
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px -5px rgba(0,0,0,0.4);
+    }
+    
+    /* Benefits Section */
+    .benefits {
+      padding: 6rem 2rem;
+      background: #f7fafc;
+    }
+    .benefits-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .benefits h2 {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 4rem;
+      color: #1a202c;
+    }
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2.5rem;
+    }
+    .benefit-card {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    .benefit-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.15);
+    }
+    .benefit-icon {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .benefit-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #2d3748;
+    }
+    .benefit-card p {
+      color: #4a5568;
+      line-height: 1.7;
+    }
+    
+    /* Social Proof */
+    .social-proof {
+      padding: 4rem 2rem;
+      background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
+      text-align: center;
+      color: white;
+    }
+    .social-proof h3 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .social-proof p {
+      font-size: 1.25rem;
+      opacity: 0.95;
+    }
+    
+    /* Footer */
+    footer {
+      padding: 2rem;
+      background: #1a202c;
+      text-align: center;
+    }
+    footer img {
+      height: 40px;
+      opacity: 0.7;
+      margin-bottom: 0.5rem;
+    }
+    footer p {
+      color: #a0aec0;
+      font-size: 0.9rem;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      padding: 3rem;
+      border-radius: 20px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-size: 2rem;
+      cursor: pointer;
+      color: #718096;
+      background: none;
+      border: none;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+    .modal-close:hover {
+      background: #f7fafc;
+      color: #1a202c;
+    }
+    .modal h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #1a202c;
+    }
+    .modal p {
+      color: #4a5568;
+      margin-bottom: 2rem;
+    }
+    form label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #2d3748;
+      font-size: 0.95rem;
+    }
+    form input, form textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      margin-bottom: 1.25rem;
+      transition: border 0.3s;
+      background: #ffffff;
+      color: #1a202c;
+    }
+    form input:focus, form textarea:focus {
+      outline: none;
+      border-color: ${theme.primary};
+    }
+    form input::placeholder, form textarea::placeholder {
+      color: #a0aec0;
+    }
+    form textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    form button {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.125rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    form button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3);
+    }
+    .security-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      color: #718096;
+      font-size: 0.875rem;
+    }
+    .honeypot {
+      position: absolute;
+      left: -9999px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .hero-content h1 {
+        font-size: 2.5rem;
+      }
+      .hero-content p {
+        font-size: 1.25rem;
+      }
+      .benefits h2 {
+        font-size: 2rem;
+      }
+      .modal-content {
+        padding: 2rem;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- HERO com imagem -->
-  <!-- BENEFÍCIOS -->
-  <!-- FORMULÁRIO com contraste adequado -->
-  <!-- FOOTER com logo -->
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1>[HEADLINE]</h1>
+        <p>[SUBHEADLINE]</p>
+        <button class="cta-button" onclick="openModal()">[CTA_TEXT]</button>
+      </div>
+      <div class="hero-image">
+        <img src="${heroImageUrl}" alt="[HEADLINE]" loading="eager">
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="benefits">
+    <div class="benefits-container">
+      <h2>Por que escolher nossa solução?</h2>
+      <div class="benefits-grid">
+        [BENEFITS_CARDS]
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Proof -->
+  <section class="social-proof">
+    <h3>[SOCIAL_PROOF_TITLE]</h3>
+    <p>[SOCIAL_PROOF_TEXT]</p>
+    <button class="cta-button" onclick="openModal()" style="margin-top: 2rem;">[CTA_TEXT]</button>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <img src="https://catbytes.site/images/logo-desenvolvedora.webp" alt="CATBytes AI">
+    <p>powered by CATBytes AI</p>
+  </footer>
+
+  <!-- Modal do Formulário -->
+  <div class="modal" id="leadModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <h2>Solicite uma Demonstração</h2>
+      <p>Preencha o formulário e entraremos em contato em breve!</p>
+      
+      <form id="leadForm" onsubmit="submitForm(event)">
+        <input type="text" class="honeypot" name="website" tabindex="-1">
+        
+        <label for="name">Nome completo *</label>
+        <input type="text" id="name" name="name" required placeholder="Seu nome">
+        
+        <label for="email">E-mail *</label>
+        <input type="email" id="email" name="email" required placeholder="seu@email.com">
+        
+        <label for="phone">Telefone</label>
+        <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000">
+        
+        <label for="message">Mensagem</label>
+        <textarea id="message" name="message" placeholder="Como podemos ajudar?"></textarea>
+        
+        <button type="submit">Enviar Solicitação</button>
+        
+        <div class="security-badge">
+          🔒 Seus dados estão protegidos por criptografia SSL
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
-    // reCAPTCHA, validação, captura de UTMs, etc
+    function openModal() {
+      document.getElementById('leadModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal() {
+      document.getElementById('leadModal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+    
+    async function submitForm(e) {
+      e.preventDefault();
+      const form = e.target;
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      
+      submitBtn.textContent = 'Enviando...';
+      submitBtn.disabled = true;
+      
+      const formData = {
+        name: form.name.value,
+        email: form.email.value,
+        phone: form.phone.value || '',
+        message: form.message.value || '',
+        honeypot: form.website.value,
+        landingPageSlug: window.location.pathname.split('/').pop(),
+        landingPageUrl: window.location.href,
+        utm_source: new URLSearchParams(window.location.search).get('utm_source') || '',
+        utm_medium: new URLSearchParams(window.location.search).get('utm_medium') || '',
+        utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign') || '',
+        referrer: document.referrer
+      };
+      
+      try {
+        const response = await fetch('/api/landing-pages/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        
+        if (response.ok) {
+          alert('✅ Obrigado! Entraremos em contato em breve.');
+          form.reset();
+          closeModal();
+        } else {
+          throw new Error('Erro ao enviar');
+        }
+      } catch (error) {
+        alert('❌ Erro ao enviar. Tente novamente.');
+      } finally {
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    }
+    
+    // Fechar modal ao clicar fora
+    document.getElementById('leadModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    
+    // Fechar modal com ESC
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
   </script>
 </body>
 </html>
 
-CRÍTICO:
-- NÃO use fundo escuro no formulário
-- NÃO use texto branco em labels/inputs
-- A imagem hero DEVE usar a URL fornecida: ${heroImageUrl}
-- Logo no footer: https://catbytes.site/images/logo-desenvolvedora.webp
+AGORA PREENCHA OS MARCADORES COM O CONTEÚDO:
 
-Retorne APENAS o HTML completo, válido, pronto para deploy.`
+AGORA PREENCHA OS MARCADORES COM O CONTEÚDO:
+
+[HEADLINE] = ${content.headline}
+[SUBHEADLINE] = ${content.subheadline}
+[CTA_TEXT] = ${cta_text}
+[SOCIAL_PROOF_TITLE] = ${content.social_proof.split('.')[0]}
+[SOCIAL_PROOF_TEXT] = ${content.social_proof}
+
+[BENEFITS_CARDS] = Crie 3-4 cards de benefícios baseados em: ${content.benefits.join(', ')}
+Cada card deve ter:
+<div class="benefit-card">
+  <div class="benefit-icon">[EMOJI]</div>
+  <h3>[TÍTULO DO BENEFÍCIO]</h3>
+  <p>[DESCRIÇÃO]</p>
+</div>
+
+REGRAS CRÍTICAS:
+1. Use EXATAMENTE o template fornecido
+2. Não adicione header/footer do site
+3. Não mude cores/estrutura
+4. Mantenha o modal do formulário intacto
+5. Retorne HTML completo e válido`
         }
       ],
       temperature: 0.7,
