@@ -1,37 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase'
+import { NICHES, COLOR_THEMES } from '@/lib/landing-pages-constants'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
-
-// 12 nichos disponíveis
-export const NICHES = [
-  { value: 'consultorio', label: 'Consultório Médico', emoji: '🏥' },
-  { value: 'academia', label: 'Academia', emoji: '💪' },
-  { value: 'salao', label: 'Salão de Beleza', emoji: '💇' },
-  { value: 'restaurante', label: 'Restaurante', emoji: '🍽️' },
-  { value: 'advogado', label: 'Escritório de Advocacia', emoji: '⚖️' },
-  { value: 'contabilidade', label: 'Contabilidade', emoji: '📊' },
-  { value: 'pet', label: 'Pet Shop / Veterinária', emoji: '🐾' },
-  { value: 'imobiliaria', label: 'Imobiliária', emoji: '🏠' },
-  { value: 'escola', label: 'Escola / Curso', emoji: '📚' },
-  { value: 'ecommerce', label: 'E-commerce', emoji: '🛍️' },
-  { value: 'marketing', label: 'Agência de Marketing', emoji: '📱' },
-  { value: 'outros', label: 'Outros Negócios', emoji: '💼' },
-] as const
-
-// 7 temas de cores
-export const COLOR_THEMES = [
-  { value: 'blue', label: 'Azul Profissional', primary: '#0066CC', secondary: '#004C99', accent: '#FFB800' },
-  { value: 'green', label: 'Verde Crescimento', primary: '#10B981', secondary: '#059669', accent: '#F59E0B' },
-  { value: 'purple', label: 'Roxo Inovação', primary: '#8B5CF6', secondary: '#7C3AED', accent: '#EC4899' },
-  { value: 'orange', label: 'Laranja Energia', primary: '#F97316', secondary: '#EA580C', accent: '#FBBF24' },
-  { value: 'red', label: 'Vermelho Urgência', primary: '#EF4444', secondary: '#DC2626', accent: '#F59E0B' },
-  { value: 'teal', label: 'Turquesa Saúde', primary: '#14B8A6', secondary: '#0D9488', accent: '#F59E0B' },
-  { value: 'indigo', label: 'Índigo Confiança', primary: '#6366F1', secondary: '#4F46E5', accent: '#F59E0B' },
-] as const
 
 interface GenerateRequest {
   niche: string
@@ -55,7 +29,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Buscar configuração de tema
-    const theme = COLOR_THEMES.find(t => t.value === theme_color)
+    const theme = COLOR_THEMES[theme_color as keyof typeof COLOR_THEMES]
     if (!theme) {
       return NextResponse.json(
         { error: 'Tema de cor inválido' },

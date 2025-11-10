@@ -2,7 +2,7 @@
 // Supabase Client Configuration
 // =====================================================
 
-import { createClient } from '@supabase/supabase-js'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import type { BlogPost, BlogPostInsert, BlogPostUpdate } from '@/types/blog'
 
 // Supabase configuration
@@ -11,7 +11,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 // Client for public operations (read-only)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: false,
   },
@@ -19,13 +19,18 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 // Admin client for server-side operations (full access)
 export const supabaseAdmin = supabaseServiceKey
-  ? createClient(supabaseUrl, supabaseServiceKey, {
+  ? createSupabaseClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
       },
     })
   : null
+
+// Helper function to create client (for landing pages routes)
+export function createClient() {
+  return supabaseAdmin || supabase
+}
 
 // Type-safe database helpers
 export const db = {

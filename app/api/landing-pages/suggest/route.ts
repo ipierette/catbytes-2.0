@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
-import { NICHES } from '../generate/route'
+import { NICHES } from '@/lib/landing-pages-constants'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { NICHES, COLOR_THEMES } from '@/app/api/landing-pages/generate/route'
+import { NICHES, COLOR_THEMES_ARRAY } from '@/lib/landing-pages-constants'
 import { Loader2, Sparkles, CheckCircle2 } from 'lucide-react'
 
 interface CreateLandingPageModalProps {
@@ -242,7 +242,7 @@ export function CreateLandingPageModal({ open, onClose, onSuccess }: CreateLandi
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {COLOR_THEMES.map((theme) => (
+                    {COLOR_THEMES_ARRAY.map((theme) => (
                       <SelectItem key={theme.value} value={theme.value}>
                         <div className="flex items-center gap-2">
                           <div 

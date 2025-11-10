@@ -18,7 +18,7 @@ import {
   Rocket,
   Loader2
 } from 'lucide-react'
-import { NICHES, COLOR_THEMES } from '@/app/api/landing-pages/generate/route'
+import { NICHES, COLOR_THEMES_ARRAY } from '@/lib/landing-pages-constants'
 import { CreateLandingPageModal } from '@/components/admin/create-landing-page-modal'
 
 interface LandingPage {
@@ -87,7 +87,7 @@ export default function LandingPagesAdminPage() {
   }
 
   function getThemeColors(value: string) {
-    return COLOR_THEMES.find(t => t.value === value) || COLOR_THEMES[0]
+    return COLOR_THEMES_ARRAY.find(t => t.value === value) || COLOR_THEMES_ARRAY[0]
   }
 
   function getStatusBadge(status: string) {
