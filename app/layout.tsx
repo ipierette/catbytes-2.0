@@ -117,7 +117,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'pt_BR',
     url: 'https://catbytes.site',
-    title: 'CatBytes | Izadora Cury Pierette — Portfólio de Desenvolvimento Web e IA',
+    title: 'CatBytes - Izadora Cury Pierette | Desenvolvimento Web, IA e Automação',
     description: 'Portfólio de Izadora Cury Pierette: projetos que unem design moderno, código limpo e soluções com inteligência artificial. Especialista em React, Next.js e automação.',
     siteName: 'CatBytes',
     images: [
@@ -125,15 +125,30 @@ export const metadata: Metadata = {
         url: '/images/og-1200x630-safe.webp',
         width: 1200,
         height: 630,
+        alt: 'CatBytes - Portfólio de Izadora Cury Pierette - Desenvolvimento Web, React, Next.js e IA',
+        type: 'image/webp',
+      },
+      {
+        url: '/images/og-1200x630.jpg',
+        width: 1200,
+        height: 630,
         alt: 'CatBytes - Portfólio de Izadora Cury Pierette',
+        type: 'image/jpeg',
+      },
+      {
+        url: '/images/og-1200x630.png',
+        width: 1200,
+        height: 630,
+        alt: 'CatBytes - Portfólio de Izadora Cury Pierette',
+        type: 'image/png',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CatBytes | Izadora Cury Pierette — Portfólio de Desenvolvimento Web e IA',
+    title: 'CatBytes - Izadora Cury Pierette | Desenvolvimento Web, IA e Automação',
     description: 'Portfólio de Izadora Cury Pierette: projetos que unem design moderno, código limpo e soluções com inteligência artificial.',
-    images: ['/images/og-1200x630-safe.webp'],
+    images: ['/images/og-twitter-800x418.jpg'],
     creator: '@catbytes',
     site: '@catbytes',
   },
@@ -238,10 +253,50 @@ export default async function RootLayout({
   return (
     <html lang={resolvedParams?.locale || 'pt-BR'} className={`${inter.variable} ${comfortaa.variable}`} suppressHydrationWarning>
       <head>
+        {/* JSON-LD Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        
+        {/* Meta tags adicionais para redes sociais */}
+        <meta property="og:image" content="https://catbytes.site/images/og-1200x630.jpg" />
+        <meta property="og:image:secure_url" content="https://catbytes.site/images/og-1200x630.jpg" />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="CatBytes - Portfólio de Izadora Cury Pierette - Desenvolvimento Web, React, Next.js e IA" />
+        
+        {/* Twitter/X Cards */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@catbytes" />
+        <meta name="twitter:creator" content="@catbytes" />
+        <meta name="twitter:title" content="CatBytes - Izadora Cury Pierette | Desenvolvimento Web, IA e Automação" />
+        <meta name="twitter:description" content="Portfólio de Izadora Cury Pierette: projetos que unem design moderno, código limpo e soluções com inteligência artificial." />
+        <meta name="twitter:image" content="https://catbytes.site/images/og-twitter-800x418.jpg" />
+        <meta name="twitter:image:alt" content="CatBytes - Portfólio de Izadora Pierette" />
+        
+        {/* LinkedIn */}
+        <meta property="og:image" content="https://catbytes.site/images/og-linkedin-1200x600.jpg" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="600" />
+        
+        {/* WhatsApp (usa og:image square) */}
+        <link rel="image_src" href="https://catbytes.site/images/og-whatsapp-1200x1200.jpg" />
+        
+        {/* Instagram/Facebook */}
+        <meta property="og:image" content="https://catbytes.site/images/og-instagram-1080x1080.jpg" />
+        <meta property="og:image:width" content="1080" />
+        <meta property="og:image:height" content="1080" />
+        
+        {/* Favicon e touch icons */}
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        
+        {/* Preconnect para performance */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       </head>
       <body className="bg-background text-foreground" suppressHydrationWarning>
         {/* Google Analytics */}
