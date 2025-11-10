@@ -348,7 +348,7 @@ export default function LandingPagesAdminPage() {
                 <div className="space-y-2 pt-2">
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" className="flex-1" asChild>
-                      <a href={`/lp/${lp.slug}`} target="_blank">
+                      <a href={`/pt-BR/lp/${lp.slug}`} target="_blank">
                         <Eye className="mr-1 h-4 w-4" />
                         Preview
                       </a>
