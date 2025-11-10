@@ -157,7 +157,7 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
         },
         {
           role: 'user',
-          content: `Use este TEMPLATE FIXO e preencha apenas os marcadores [CONTEÚDO]:
+          content: `Preencha os marcadores [CONTEÚDO] neste template. Retorne APENAS o HTML final, sem \`\`\`html:
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -169,16 +169,20 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
   <meta property="og:title" content="[HEADLINE]">
   <meta property="og:description" content="[SUBHEADLINE]">
   <meta property="og:image" content="${heroImageUrl}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #ffffff;
-      color: #1a202c;
+      color: #1e293b;
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
     
-    /* Header - Oculto visualmente, presente para SEO */
+    /* Header SEO */
     header {
       position: absolute;
       left: -9999px;
@@ -189,51 +193,83 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
     
     /* Hero Section */
     .hero {
-      min-height: 100vh;
+      min-height: 90vh;
       display: flex;
       align-items: center;
-      background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
+      background: #f8fafc;
       padding: 4rem 2rem;
       position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('${heroImageUrl}') center/cover no-repeat;
-      opacity: 0.15;
-      z-index: 0;
     }
     .hero-container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 5rem;
       align-items: center;
-      position: relative;
-      z-index: 1;
     }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.25rem;
+      background: ${theme.primary}12;
+      color: ${theme.primary};
+      border-radius: 50px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    
     .hero-content h1 {
-      font-size: 3.5rem;
+      font-size: 3.75rem;
       font-weight: 800;
-      color: #ffffff;
+      color: #0f172a;
       margin-bottom: 1.5rem;
       line-height: 1.1;
+      letter-spacing: -0.025em;
+    }
+    .hero-content h1 .highlight {
+      color: ${theme.primary};
     }
     .hero-content p {
-      font-size: 1.5rem;
-      color: rgba(255,255,255,0.95);
-      margin-bottom: 2rem;
+      font-size: 1.25rem;
+      color: #475569;
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+      max-width: 540px;
     }
+    
+    .stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 3rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-number {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+    
     .hero-image {
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      box-shadow: 0 20px 60px -15px rgba(0,0,0,0.12);
+      position: relative;
+      border: 1px solid #e2e8f0;
     }
     .hero-image img {
       width: 100%;
@@ -241,108 +277,239 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
       display: block;
     }
     
-    /* CTA Buttons */
+    .image-badge {
+      position: absolute;
+      bottom: 2rem;
+      left: 2rem;
+      background: white;
+      padding: 1.25rem 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border: 1px solid #e2e8f0;
+    }
+    .image-badge-icon {
+      width: 52px;
+      height: 52px;
+      background: ${theme.primary}10;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .image-badge-text h4 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1;
+    }
+    .image-badge-text p {
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    
+    .cta-group {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
     .cta-button {
-      display: inline-block;
-      padding: 1.25rem 3rem;
-      font-size: 1.25rem;
-      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.125rem 2.25rem;
+      font-size: 1.0625rem;
+      font-weight: 600;
       color: #ffffff;
-      background: linear-gradient(135deg, ${theme.accent} 0%, ${theme.primary} 100%);
+      background: ${theme.primary};
       border: none;
-      border-radius: 50px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px ${theme.primary}35;
       text-decoration: none;
+      font-family: inherit;
     }
     .cta-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 35px -5px rgba(0,0,0,0.4);
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px ${theme.primary}40;
+    }
+    .cta-secondary {
+      padding: 1.125rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #64748b;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .cta-secondary:hover {
+      color: #334155;
     }
     
     /* Benefits Section */
     .benefits {
       padding: 6rem 2rem;
-      background: #f7fafc;
+      background: white;
     }
     .benefits-container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
     }
-    .benefits h2 {
-      font-size: 2.5rem;
+    .section-header {
       text-align: center;
-      margin-bottom: 4rem;
-      color: #1a202c;
+      max-width: 720px;
+      margin: 0 auto 4.5rem;
+    }
+    .section-badge {
+      display: inline-block;
+      padding: 0.5rem 1.25rem;
+      background: ${theme.primary}08;
+      color: ${theme.primary};
+      border-radius: 50px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+    .section-header h2 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.025em;
+    }
+    .section-header p {
+      font-size: 1.1875rem;
+      color: #64748b;
     }
     .benefits-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
     }
     .benefit-card {
-      background: white;
-      padding: 2.5rem;
-      border-radius: 15px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-      transition: transform 0.3s;
+      padding: 2.25rem;
+      background: #f8fafc;
+      border-radius: 20px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.25s;
     }
     .benefit-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.15);
+      border-color: ${theme.primary}40;
+      box-shadow: 0 12px 36px -8px ${theme.primary}15;
+      transform: translateY(-4px);
+      background: white;
     }
     .benefit-icon {
       width: 60px;
       height: 60px;
-      background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
-      border-radius: 12px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
+      font-size: 1.875rem;
+      margin-bottom: 1.75rem;
     }
     .benefit-card h3 {
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      color: #2d3748;
+      font-size: 1.3125rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.875rem;
     }
     .benefit-card p {
-      color: #4a5568;
+      color: #64748b;
       line-height: 1.7;
     }
     
-    /* Social Proof */
-    .social-proof {
-      padding: 4rem 2rem;
-      background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
+    /* How It Works */
+    .how-it-works {
+      padding: 6rem 2rem;
+      background: #f8fafc;
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+      max-width: 1280px;
+      margin: 4rem auto 0;
+    }
+    .step-card {
+      text-align: center;
+    }
+    .step-number {
+      width: 68px;
+      height: 68px;
+      background: ${theme.primary};
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.875rem;
+      font-weight: 800;
+      margin: 0 auto 1.75rem;
+      box-shadow: 0 8px 24px ${theme.primary}35;
+    }
+    .step-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.875rem;
+    }
+    .step-card p {
+      color: #64748b;
+      line-height: 1.7;
+    }
+    
+    /* CTA Final */
+    .cta-section {
+      padding: 6rem 2rem;
+      background: #0f172a;
       text-align: center;
       color: white;
     }
-    .social-proof h3 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
+    .cta-section-content {
+      max-width: 820px;
+      margin: 0 auto;
     }
-    .social-proof p {
-      font-size: 1.25rem;
-      opacity: 0.95;
+    .cta-section h2 {
+      font-size: 3.25rem;
+      font-weight: 800;
+      margin-bottom: 1.75rem;
+      letter-spacing: -0.025em;
+    }
+    .cta-section p {
+      font-size: 1.3125rem;
+      color: #cbd5e1;
+      margin-bottom: 2.75rem;
+    }
+    .cta-section .cta-button {
+      font-size: 1.1875rem;
+      padding: 1.375rem 2.75rem;
     }
     
     /* Footer */
-    footer {
-      padding: 2rem;
-      background: #1a202c;
+    .footer {
+      padding: 2.5rem;
       text-align: center;
+      background: white;
+      border-top: 1px solid #e2e8f0;
     }
-    footer img {
-      height: 40px;
-      opacity: 0.7;
-      margin-bottom: 0.5rem;
+    .footer p {
+      color: #94a3b8;
+      font-size: 0.875rem;
     }
-    footer p {
-      color: #a0aec0;
-      font-size: 0.9rem;
+    .footer a {
+      color: ${theme.primary};
+      text-decoration: none;
+      font-weight: 600;
     }
     
     /* Modal */
@@ -353,217 +520,364 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.8);
+      background: rgba(15, 23, 42, 0.75);
       z-index: 9999;
       align-items: center;
       justify-content: center;
       padding: 2rem;
+      backdrop-filter: blur(12px);
     }
     .modal.active {
       display: flex;
     }
     .modal-content {
       background: white;
-      padding: 3rem;
-      border-radius: 20px;
-      max-width: 500px;
+      border-radius: 28px;
+      max-width: 620px;
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
       position: relative;
+      box-shadow: 0 25px 70px -15px rgba(0,0,0,0.35);
     }
     .modal-close {
       position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      font-size: 2rem;
-      cursor: pointer;
-      color: #718096;
-      background: none;
+      top: 1.75rem;
+      right: 1.75rem;
+      background: #f1f5f9;
       border: none;
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
-      transition: all 0.3s;
+      transition: all 0.2s;
+      z-index: 10;
+      color: #64748b;
     }
     .modal-close:hover {
-      background: #f7fafc;
-      color: #1a202c;
+      background: #e2e8f0;
+      color: #334155;
     }
-    .modal h2 {
-      font-size: 2rem;
+    
+    .ebook-banner {
+      background: ${theme.primary};
+      color: white;
+      padding: 3rem 2.5rem;
+      text-align: center;
+      border-radius: 28px 28px 0 0;
+    }
+    .ebook-icon {
+      font-size: 4.5rem;
+      margin-bottom: 1.25rem;
+      display: block;
+    }
+    .ebook-banner h3 {
+      font-size: 1.875rem;
+      font-weight: 800;
+      margin-bottom: 0.625rem;
+    }
+    .ebook-banner p {
+      font-size: 1.0625rem;
+      opacity: 0.95;
+    }
+    
+    .modal-body {
+      padding: 2.75rem 2.5rem;
+    }
+    .modal-body h2 {
+      font-size: 1.875rem;
+      font-weight: 800;
+      color: #0f172a;
       margin-bottom: 1rem;
-      color: #1a202c;
     }
-    .modal p {
-      color: #4a5568;
-      margin-bottom: 2rem;
+    .modal-body > p {
+      color: #64748b;
+      margin-bottom: 2.25rem;
     }
-    form label {
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
       display: block;
       font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: #2d3748;
-      font-size: 0.95rem;
+      color: #334155;
+      margin-bottom: 0.625rem;
+      font-size: 0.875rem;
     }
-    form input, form textarea {
+    .form-group input,
+    .form-group textarea {
       width: 100%;
-      padding: 0.875rem 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
+      padding: 0.9375rem 1.125rem;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
       font-size: 1rem;
-      margin-bottom: 1.25rem;
-      transition: border 0.3s;
-      background: #ffffff;
-      color: #1a202c;
+      font-family: inherit;
+      transition: all 0.2s;
+      color: #1e293b;
     }
-    form input:focus, form textarea:focus {
+    .form-group input:focus,
+    .form-group textarea:focus {
       outline: none;
       border-color: ${theme.primary};
+      box-shadow: 0 0 0 3px ${theme.primary}12;
     }
-    form input::placeholder, form textarea::placeholder {
-      color: #a0aec0;
-    }
-    form textarea {
+    .form-group textarea {
       resize: vertical;
-      min-height: 120px;
+      min-height: 130px;
     }
-    form button {
+    .submit-button {
       width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
+      padding: 1.1875rem;
+      background: ${theme.primary};
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 1.125rem;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px ${theme.primary}35;
+      font-family: inherit;
     }
-    form button:hover {
+    .submit-button:hover {
+      filter: brightness(1.08);
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px -5px rgba(0,0,0,0.3);
+      box-shadow: 0 6px 20px ${theme.primary}40;
     }
-    .security-badge {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-      color: #718096;
-      font-size: 0.875rem;
+    .submit-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
-    .honeypot {
-      position: absolute;
-      left: -9999px;
+    
+    .success-message {
+      display: none;
+      text-align: center;
+      padding: 3.5rem 2.5rem;
+    }
+    .success-message.active {
+      display: block;
+    }
+    .success-icon {
+      font-size: 4.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .success-message h3 {
+      font-size: 2.125rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 1.25rem;
+    }
+    .success-message p {
+      color: #64748b;
+      font-size: 1.0625rem;
+      line-height: 1.7;
     }
     
     /* Responsive */
     @media (max-width: 768px) {
+      .hero {
+        padding: 3rem 1.5rem;
+      }
       .hero-container {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        gap: 3rem;
       }
       .hero-content h1 {
-        font-size: 2.5rem;
+        font-size: 2.75rem;
       }
-      .hero-content p {
-        font-size: 1.25rem;
+      .stats {
+        gap: 2rem;
+        flex-wrap: wrap;
       }
-      .benefits h2 {
-        font-size: 2rem;
+      .steps-grid {
+        grid-template-columns: 1fr;
       }
-      .modal-content {
-        padding: 2rem;
+      .cta-group {
+        flex-direction: column;
+        width: 100%;
+      }
+      .cta-button {
+        width: 100%;
+        justify-content: center;
+      }
+      .cta-section h2 {
+        font-size: 2.25rem;
+      }
+      .section-header h2 {
+        font-size: 2.25rem;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Header SEO (visualmente oculto) -->
   <header>
-    <img src="https://catbytes.site/images/logo-desenvolvedora.webp" alt="[HEADLINE] - powered by CATBytes AI">
+    <h1>[HEADLINE]</h1>
+    <nav>
+      <a href="/">Início</a>
+      <a href="#beneficios">Benefícios</a>
+      <a href="#como-funciona">Como Funciona</a>
+    </nav>
   </header>
 
-  <!-- Hero Section -->
   <section class="hero">
     <div class="hero-container">
       <div class="hero-content">
-        <h1>[HEADLINE]</h1>
+        <span class="badge">🎯 [NICHO]</span>
+        <h1>[HEADLINE_WITH_HIGHLIGHT]</h1>
         <p>[SUBHEADLINE]</p>
-        <button class="cta-button" onclick="openModal()">[CTA_TEXT]</button>
+        
+        <div class="cta-group">
+          <button class="cta-button" onclick="openModal()">
+            🎁 [CTA_TEXT]
+          </button>
+          <a href="#como-funciona" class="cta-secondary">
+            Ver Demonstração →
+          </a>
+        </div>
+        
+        <div class="stats">
+          <div class="stat-item">
+            <div class="stat-number">[STAT_1_NUMBER]</div>
+            <div class="stat-label">[STAT_1_LABEL]</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">[STAT_2_NUMBER]</div>
+            <div class="stat-label">[STAT_2_LABEL]</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">[STAT_3_NUMBER]</div>
+            <div class="stat-label">[STAT_3_LABEL]</div>
+          </div>
+        </div>
       </div>
+      
       <div class="hero-image">
-        <img src="${heroImageUrl}" alt="[HEADLINE]" loading="eager">
+        <img src="${heroImageUrl}" alt="[HEADLINE]">
+        <div class="image-badge">
+          <div class="image-badge-icon">[BADGE_ICON]</div>
+          <div class="image-badge-text">
+            <h4>[BADGE_NUMBER]</h4>
+            <p>[BADGE_LABEL]</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Benefits Section -->
-  <section class="benefits">
+  <section class="benefits" id="beneficios">
     <div class="benefits-container">
-      <h2>Por que escolher nossa solução?</h2>
+      <div class="section-header">
+        <span class="section-badge">Por que escolher?</span>
+        <h2>Tudo que você precisa em uma única plataforma</h2>
+        <p>Recursos poderosos que simplificam sua rotina e melhoram resultados.</p>
+      </div>
+      
       <div class="benefits-grid">
         [BENEFITS_CARDS]
       </div>
     </div>
   </section>
 
-  <!-- Social Proof -->
-  <section class="social-proof">
-    <h3>[SOCIAL_PROOF_TITLE]</h3>
-    <p>[SOCIAL_PROOF_TEXT]</p>
-    <button class="cta-button" onclick="openModal()" style="margin-top: 2rem;">[CTA_TEXT]</button>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <img src="https://catbytes.site/images/logo-desenvolvedora.webp" alt="CATBytes AI">
-    <p>powered by CATBytes AI</p>
-  </footer>
-
-  <!-- Modal do Formulário -->
-  <div class="modal" id="leadModal">
-    <div class="modal-content">
-      <button class="modal-close" onclick="closeModal()">&times;</button>
-      
-      <!-- Destaque do E-book -->
-      <div style="background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; text-align: center;">
-        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎁</div>
-        <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.3rem;">Bônus Exclusivo!</h3>
-        <p style="color: rgba(255,255,255,0.95); font-size: 0.95rem; margin: 0;">E-book GRÁTIS: 100 Dicas de Presença Online</p>
+  <section class="how-it-works" id="como-funciona">
+    <div class="benefits-container">
+      <div class="section-header">
+        <span class="section-badge">Como funciona?</span>
+        <h2>Em 3 passos simples você começa</h2>
+        <p>Um processo descomplicado que transforma sua rotina.</p>
       </div>
       
-      <h2>[EBOOK_HEADLINE]</h2>
-      <p>[EBOOK_DESCRIPTION]</p>
-      
-      <form id="leadForm" onsubmit="submitForm(event)">
-        <input type="text" class="honeypot" name="website" tabindex="-1">
-        
-        <label for="name">Nome completo *</label>
-        <input type="text" id="name" name="name" required placeholder="Seu nome">
-        
-        <label for="email">E-mail * (enviaremos o e-book aqui)</label>
-        <input type="email" id="email" name="email" required placeholder="seu@email.com">
-        
-        <label for="phone">Telefone (opcional)</label>
-        <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000">
-        
-        <label for="message">Como podemos ajudar?</label>
-        <textarea id="message" name="message" placeholder="Conte-nos sobre suas necessidades..."></textarea>
-        
-        <button type="submit">🎁 Receber E-book Grátis + Contato</button>
-        
-        <div class="security-badge">
-          🔒 Seus dados estão protegidos por criptografia SSL
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>[STEP_1_TITLE]</h3>
+          <p>[STEP_1_DESC]</p>
         </div>
-        <p style="text-align: center; font-size: 0.85rem; color: #718096; margin-top: 1rem;">
-          Ao enviar, você receberá o e-book por email instantaneamente!
-        </p>
-      </form>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>[STEP_2_TITLE]</h3>
+          <p>[STEP_2_DESC]</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>[STEP_3_TITLE]</h3>
+          <p>[STEP_3_DESC]</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-section-content">
+      <h2>Pronto para transformar [AREA_NEGOCIO]?</h2>
+      <p>Junte-se a milhares de profissionais que já melhoraram seus resultados.</p>
+      <button class="cta-button" onclick="openModal()">
+        🎁 Baixar E-book + Agendar Demonstração
+      </button>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>powered by <a href="https://catbytes.site">CATBytes AI</a></p>
+  </footer>
+
+  <div class="modal" id="leadModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      
+      <div class="ebook-banner">
+        <span class="ebook-icon">🎁</span>
+        <h3>Bônus Exclusivo!</h3>
+        <p>Receba grátis nosso e-book "100 Dicas de Presença Online"</p>
+      </div>
+      
+      <div class="modal-body">
+        <div id="formContainer">
+          <h2>[CTA_TEXT]</h2>
+          <p>Preencha e receba o e-book + informações sobre [SOLUCAO]</p>
+          
+          <form id="leadForm" onsubmit="submitForm(event)">
+            <input type="hidden" name="hp" value="">
+            
+            <div class="form-group">
+              <label>Nome Completo</label>
+              <input type="text" name="name" required placeholder="Digite seu nome">
+            </div>
+            
+            <div class="form-group">
+              <label>E-mail <span style="color: #64748b; font-weight: 400;">(enviaremos o e-book)</span></label>
+              <input type="email" name="email" required placeholder="seu@email.com">
+            </div>
+            
+            <div class="form-group">
+              <label>Telefone/WhatsApp</label>
+              <input type="tel" name="phone" required placeholder="(00) 00000-0000">
+            </div>
+            
+            <div class="form-group">
+              <label>Como podemos ajudar?</label>
+              <textarea name="message" required placeholder="Conte sua necessidade..."></textarea>
+            </div>
+            
+            <button type="submit" class="submit-button" id="submitBtn">
+              🎁 Receber E-book Grátis + Contato
+            </button>
+          </form>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+          <span class="success-icon">✅</span>
+          <h3>Sucesso!</h3>
+          <p><strong>Verifique seu email:</strong><br><br>
+          📚 E-book "100 Dicas de Presença Online"<br>
+          📋 Informações sobre [SOLUCAO]<br><br>
+          Nossa equipe entrará em contato em breve!</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -578,92 +892,108 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
       document.body.style.overflow = 'auto';
     }
     
+    document.getElementById('leadModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+    
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+    
     async function submitForm(e) {
       e.preventDefault();
-      const form = e.target;
-      const submitBtn = form.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
       
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.textContent;
       submitBtn.textContent = 'Enviando...';
       submitBtn.disabled = true;
       
-      const formData = {
-        name: form.name.value,
-        email: form.email.value,
-        phone: form.phone.value || '',
-        message: form.message.value || '',
-        honeypot: form.website.value,
-        landingPageSlug: window.location.pathname.split('/').pop(),
-        landingPageUrl: window.location.href,
-        utm_source: new URLSearchParams(window.location.search).get('utm_source') || '',
-        utm_medium: new URLSearchParams(window.location.search).get('utm_medium') || '',
-        utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign') || '',
-        referrer: document.referrer
+      const formData = new FormData(e.target);
+      const data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        message: formData.get('message'),
+        hp: formData.get('hp'),
+        slug: window.location.pathname.split('/').pop()
       };
       
       try {
         const response = await fetch('/api/landing-pages/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(data)
         });
         
         if (response.ok) {
-          alert('✅ Sucesso!\\n\\n📧 Verifique seu email para receber:\\n- E-book "100 Dicas de Presença Online"\\n- Informações sobre nossos serviços\\n\\nEntraremos em contato em breve!');
-          form.reset();
-          closeModal();
+          document.getElementById('formContainer').style.display = 'none';
+          document.getElementById('successMessage').classList.add('active');
         } else {
-          throw new Error('Erro ao enviar');
+          alert('Erro ao enviar. Tente novamente.');
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
         }
       } catch (error) {
-        alert('❌ Erro ao enviar. Tente novamente.');
-      } finally {
+        alert('Erro ao enviar. Tente novamente.');
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
       }
     }
-    
-    // Fechar modal ao clicar fora
-    document.getElementById('leadModal').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
-    });
-    
-    // Fechar modal com ESC
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeModal();
-    });
   </script>
 </body>
 </html>
 
-AGORA PREENCHA OS MARCADORES COM O CONTEÚDO:
+INSTRUÇÕES DE PREENCHIMENTO:
 
-AGORA PREENCHA OS MARCADORES COM O CONTEÚDO:
-
-[HEADLINE] = ${content.headline}
+[NICHO] = ${niche}
+[HEADLINE_WITH_HIGHLIGHT] = ${content.headline} (use <span class="highlight">palavra-chave</span> em 1-2 palavras importantes)
 [SUBHEADLINE] = ${content.subheadline}
-[CTA_TEXT] = Baixar E-book Grátis + ${cta_text}
-[SOCIAL_PROOF_TITLE] = ${content.social_proof.split('.')[0]}
-[SOCIAL_PROOF_TEXT] = ${content.social_proof}
-[EBOOK_HEADLINE] = 🎁 Bônus Exclusivo: E-book Grátis com 100 Dicas!
-[EBOOK_DESCRIPTION] = Ao preencher o formulário, você receberá GRÁTIS nosso e-book "100 Dicas de Presença Online" + ${cta_text.toLowerCase()}
+[CTA_TEXT] = ${cta_text}
+[AREA_NEGOCIO] = sua rotina/negócio no nicho ${niche}
+[SOLUCAO] = ${solution}
 
-[BENEFITS_CARDS] = Crie 4 cards de benefícios baseados em: ${content.benefits.join(', ')}
-Cada card DEVE seguir este formato EXATO:
+ESTATÍSTICAS (números impactantes):
+[STAT_1_NUMBER] = Ex: "2.500+" (clientes, projetos, horas economizadas)
+[STAT_1_LABEL] = Ex: "Clientes Atendidos"
+[STAT_2_NUMBER] = Ex: "98%" (satisfação, aprovação, conversão)
+[STAT_2_LABEL] = Ex: "Taxa de Satisfação"
+[STAT_3_NUMBER] = Ex: "24h" (tempo resposta, suporte, entrega)
+[STAT_3_LABEL] = Ex: "Suporte Ativo"
+
+BADGE FLUTUANTE NA IMAGEM:
+[BADGE_ICON] = � ou ⭐ ou 💎
+[BADGE_NUMBER] = Ex: "15 anos" ou "#1 em SP" ou "5.0⭐"
+[BADGE_LABEL] = Ex: "de experiência" ou "no mercado" ou "avaliação"
+
+PASSOS (Como Funciona):
+[STEP_1_TITLE] = Ex: "Preencha o Formulário"
+[STEP_1_DESC] = Descreva primeira ação (1-2 linhas)
+[STEP_2_TITLE] = Ex: "Receba Consultoria"
+[STEP_2_DESC] = Descreva segunda ação (1-2 linhas)
+[STEP_3_TITLE] = Ex: "Veja Resultados"
+[STEP_3_DESC] = Descreva terceira ação (1-2 linhas)
+
+BENEFÍCIOS:
+[BENEFITS_CARDS] = Crie 4 cards baseados em: ${content.benefits.join(', ')}
+Formato EXATO para cada card:
 <div class="benefit-card">
-  <div class="benefit-icon">[EMOJI_GRANDE]</div>
-  <h3>[TÍTULO_CURTO]</h3>
-  <p>[DESCRIÇÃO_2_LINHAS]</p>
+  <div class="benefit-icon">[EMOJI]</div>
+  <h3>[TÍTULO_2-4_PALAVRAS]</h3>
+  <p>[DESCRIÇÃO_1-2_LINHAS]</p>
 </div>
 
-Use emojis grandes e impactantes: 🚀 💎 ⚡ 🎯 📈 ✨ 🔥 💰
+Emojis recomendados: 🚀 💎 ⚡ 🎯 📈 ✨ 🔥 💰 🎨 🔒
 
 REGRAS CRÍTICAS:
-1. Use EXATAMENTE o template fornecido
-2. Modal agora promete E-BOOK + serviço
-3. Formulário menciona envio do ebook por email
-4. Design premium com gradientes modernos
-5. Retorne HTML completo e válido`
+1. Retorne HTML puro sem \`\`\`html ou explicações
+2. Use fonte Inter (já incluída)
+3. Cores sutis (#f8fafc background, #0f172a texto)
+4. SEM gradientes em backgrounds
+5. Números reais e convincentes nas stats
+6. Highlight em 1-2 palavras-chave do headline
+7. Badge na imagem deve ser relevante ao nicho
+8. E-book mencionado no CTA e modal
+9. Design profissional moderno (SaaS style)`
         }
       ],
       temperature: 0.7,
