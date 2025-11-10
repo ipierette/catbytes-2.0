@@ -4,8 +4,17 @@ import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { trackPageView, trackEvent } from '@/lib/analytics'
 
-export function AnalyticsTracker() {
+interface AnalyticsTrackerProps {
+  postId?: string
+  postSlug?: string
+  title?: string
+}
+
+export function AnalyticsTracker({ postId, postSlug, title }: AnalyticsTrackerProps = {}) {
   const pathname = usePathname()
+
+  // Use blog tracking if props are provided
+  useBlogPostTracking(postId || '', postSlug || '', title || '', !!(postId && postSlug && title))
 
   useEffect(() => {
     // Track page view on route change
