@@ -202,14 +202,37 @@ ESTRUTURA: Introdução envolvente, 3-4 seções com subtítulos, conclusão ins
 TAMANHO: 700-1000 palavras
 SEO: Incluir naturalmente: ${selectedKeywords.join(', ')}
 
+📚 OBRIGATÓRIO - CITAÇÕES DE FONTES:
+- Cite pelo menos 2-3 fontes externas confiáveis (websites, estudos, estatísticas)
+- Formato: "Segundo [Nome da Fonte](URL), [estatística/citação]"
+- Prefira: sites governamentais, universidades, empresas de pesquisa (Gartner, McKinsey, etc), blogs tech renomados
+- Exemplo: "De acordo com [Gartner](https://gartner.com), 75% das empresas..."
+- Adicione as citações no texto onde fazem sentido contextualmente
+
+❓ OBRIGATÓRIO - FAQ (Perguntas Frequentes):
+- Adicione seção "## Perguntas Frequentes" no final do artigo (antes da conclusão)
+- Inclua 4-6 perguntas e respostas práticas
+- Use formato:
+  ### Pergunta 1?
+  Resposta completa (2-3 linhas)
+  
+  ### Pergunta 2?
+  Resposta completa (2-3 linhas)
+- Perguntas devem ser baseadas em dúvidas reais que leitores teriam sobre o tema
+- Respostas diretas, práticas e objetivas
+
 FORMATO JSON:
 {
   "title": "Título cativante (máx 70 caracteres) - DEVE SER ÚNICO E DIFERENTE DOS LISTADOS ACIMA",
   "excerpt": "Resumo atrativo (150-200 caracteres)", 
-  "content": "Conteúdo completo em Markdown",
+  "content": "Conteúdo completo em Markdown (incluindo citações inline e seção FAQ)",
   "seo_title": "Título SEO (55-60 caracteres)",
   "seo_description": "Meta description (150-160 caracteres)",
-  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
+  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "sources": [
+    {"name": "Nome da fonte 1", "url": "https://exemplo1.com"},
+    {"name": "Nome da fonte 2", "url": "https://exemplo2.com"}
+  ]
 }
 
 Responda APENAS com JSON válido.`

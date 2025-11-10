@@ -105,6 +105,10 @@ export interface AIGeneratedPost {
   seo_description: string
   category: string
   tags: string[]
+  sources?: Array<{
+    name: string
+    url: string
+  }>
 }
 
 export interface BlogGenerationRequest {
