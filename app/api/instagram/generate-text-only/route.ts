@@ -106,90 +106,109 @@ export async function POST(request: NextRequest) {
       // Gerar conteúdo com GPT-4
       console.log('🎨 [TEXT-ONLY] Chamando GPT-4 para gerar conteúdo...')
       
-      const prompt = `Você é um especialista em copywriting persuasivo e vendas de produtos digitais no Instagram.
+      const prompt = `Você é um copywriter especializado em vendas de serviços de automação e desenvolvimento web.
+
+🎯 CONTEXTO IMPORTANTE:
+Você está criando conteúdo para a CATBytes - desenvolvedora web fullstack especializada em AUTOMAÇÕES para empresas.
+
+👩‍💻 SOBRE A CATBYTES:
+- Desenvolvedora fullstack especializada em automação de processos
+- Cria soluções personalizadas para empresas
+- Site: catbytes.site
+- Foco: Automatizar tarefas repetitivas e economizar tempo das empresas
+
+� PÚBLICO-ALVO (empresas que precisam de automação):
+- Escritórios (advocacia, contabilidade, arquitetura)
+- Consultórios (médicos, dentistas, psicólogos, estéticos)
+- Academias e personal trainers
+- Lojas físicas e e-commerces
+- Restaurantes e food services
+- Salões de beleza e barbearias
+- Clínicas veterinárias
+- Escolas e cursos
+- Imobiliárias
+- Oficinas mecânicas
+- Agências de marketing
+- Qualquer negócio com processos manuais repetitivos
+
+💡 SERVIÇOS/PRODUTOS QUE A CATBYTES OFERECE:
+- Sistemas de agendamento online automatizado
+- Chatbots para atendimento 24/7
+- Automação de email marketing
+- Integração entre ferramentas (CRM, WhatsApp, planilhas)
+- Dashboards personalizados para gestão
+- Landing pages de alta conversão
+- E-commerces completos
+- Automação de processos internos (RH, financeiro, estoque)
+- APIs customizadas
+- Websites profissionais com SEO
 
 Tema: ${tema}
-Nicho: ${nicho}
-Estilo: ${estilo || 'Comercial e persuasivo'}
-Palavras-chave: ${palavrasChave || 'Produtos digitais, Infoprodutos, Transformação'}
+Nicho empresarial: ${nicho}
+Estilo: ${estilo || 'Comercial, direto e profissional'}
+Palavras-chave: ${palavrasChave || 'Automação, Produtividade, Economia de tempo'}
 
-🎯 OBJETIVO PRINCIPAL: VENDER PRODUTOS DIGITAIS
-
-PRIORIDADE DE TEMAS (90% do conteúdo):
-1. Venda direta de produtos digitais (e-books, cursos, templates, planilhas, etc)
-2. Transformação e resultados que o produto oferece
-3. Problema → Solução → Produto
-4. Prova social, depoimentos, cases de sucesso
-5. Urgência e escassez (promoções, bônus limitados)
-6. Autoridade no nicho (expertise que valida o produto)
-
-NICHOS DE PRODUTOS DIGITAIS (variar):
-- Marketing digital e vendas online
-- Finanças pessoais e investimentos
-- Emagrecimento e saúde
-- Desenvolvimento pessoal e mindset
-- Relacionamentos e autoestima
-- Produtividade e organização
-- Beleza e autocuidado
-- Maternidade e criação de filhos
-- Culinária saudável
-- Idiomas e educação
-- Design e criatividade
-- Empreendedorismo digital
-- **Tecnologia e automação (10% - apenas ocasionalmente)**
+🎯 OBJETIVO: Vender serviços de automação da CATBytes
 
 Gere um post completo para Instagram com:
 
-1. **titulo**: Título hipnotizante focado em BENEFÍCIO ou DOR (máx 60 caracteres)
-   Exemplos: "R$ 10K/mês com apenas 1 produto" | "Pare de perder dinheiro online"
+1. **titulo**: Título impactante focado no PROBLEMA ou BENEFÍCIO (máx 60 caracteres)
+   Exemplos: "Pare de perder clientes por falta de tempo" | "Automatize seu agendamento agora"
 
-2. **imagePrompt**: Prompt DETALHADO EM PORTUGUÊS para criar design vendedor.
-   - Visual profissional e impactante que VENDE
-   - Cores que convertem (vermelho, laranja, dourado, preto)
-   - TEXTO na imagem: curto, direto, provocativo (máx 30 chars)
-   - Incluir elementos de prova social se relevante (números, % crescimento)
-   - Estilo: clean, moderno, com sensação de valor alto
-   - Exemplo: "Design profissional para post comercial, fundo gradiente preto e dourado premium, elementos de luxo discretos, texto em destaque 'Fature 5x Mais' em tipografia bold impactante, ícones minimalistas de crescimento, composição equilibrada, qualidade publicitária, formato quadrado 1:1"
+2. **imagePrompt**: Prompt DETALHADO EM PORTUGUÊS para criar visual profissional de tecnologia/automação.
+   - Visual clean, moderno e profissional
+   - Cores: azul, roxo, verde ou gradientes tech
+   - Elementos de tecnologia, automação, códigos sutis
+   - TEXTO na imagem: curto e direto (máx 25 chars)
+   - Estilo: profissional, confiável, tecnológico
+   - Exemplo: "Design profissional tech para post comercial, fundo gradiente azul escuro e roxo moderno, elementos de interface digital sutis, ícones de automação minimalistas, texto em destaque 'Automação em 48h' em tipografia moderna e bold, composição limpa e profissional, qualidade premium, formato quadrado 1:1"
 
-3. **caption**: Legenda de VENDA com estrutura persuasiva:
+3. **caption**: Legenda VENDEDORA com estrutura persuasiva:
    
    📌 ESTRUTURA OBRIGATÓRIA:
    
    [HOOK - 1º parágrafo]
-   - Pergunta provocativa OU dado impactante OU história curta
-   - Objetivo: parar o scroll
+   - Pergunta sobre DOR do negócio OU dado impactante
+   - Exemplos: "Quantas horas você perde por semana com agendamentos manuais?" | "Seu consultório está perdendo 30% dos clientes por demora no atendimento?"
    
    [DOR/PROBLEMA - 2º parágrafo]
-   - Agitar a dor do público-alvo
-   - "Você está cansado de..."
+   - Agitar a dor específica do tipo de negócio
+   - Focar em: perda de tempo, perda de dinheiro, clientes insatisfeitos, trabalho manual repetitivo
    
    [SOLUÇÃO - 3º parágrafo]
-   - Apresentar a transformação possível
-   - "Imagine se você pudesse..."
+   - Apresentar a AUTOMAÇÃO como solução
+   - Mencionar benefícios tangíveis: economia de X horas, aumento de Y% em conversões, atendimento 24/7
    
-   [PRODUTO/OFERTA - 4º parágrafo]
-   - Mencionar o produto digital de forma natural
-   - Benefícios claros e objetivos
+   [SERVIÇO CATBYTES - 4º parágrafo]
+   - Apresentar a CATBytes como especialista em automação
+   - Mencionar um ou dois serviços específicos relevantes para o nicho
+   - Exemplos: "chatbot inteligente", "sistema de agendamento", "dashboard personalizado"
+   - Enfatizar: solução sob medida, rápida implementação
    
    [CALL-TO-ACTION - 5º parágrafo]
-   - Ação clara: "Link na bio" | "Comente QUERO" | "Chama no direct"
-   - Senso de urgência se aplicável
+   - SEMPRE incluir: "Acesse catbytes.site" ou "Link na bio: catbytes.site"
+   - Adicionar urgência quando cabível
+   - Pedir ação: "Chama no direct", "Comenta seu tipo de negócio"
    
    [HASHTAGS - final]
-   - 12-15 hashtags estratégicas
-   - Mix: nicho + comercial + viral
-   - Exemplos: #produtosdigitais #infoprodutos #rendaextra #marketingdigital
+   - 10-15 hashtags estratégicas
+   - Focar em: automação, tecnologia, produtividade, negócios, o nicho específico
+   - Exemplos: #automacao #desenvolvimentoweb #producao #tecnologia #empreendedorismo #negociosdigitais
    
-   Máx 2000 caracteres | Tom conversacional mas comercial
+   Máx 2200 caracteres | Tom: profissional mas acessível, focado em resultados
 
-REGRAS DE OURO:
-✅ FOCO TOTAL EM VENDER produtos digitais
-✅ Usar gatilhos mentais (escassez, urgência, prova social, autoridade)
-✅ Linguagem direta e persuasiva
-✅ TUDO em português brasileiro
-✅ Promessa clara de transformação
-❌ Evitar conteúdo puramente técnico (a menos que venda algo técnico)
-❌ Evitar teoria sem aplicação comercial
+REGRAS CRÍTICAS:
+✅ SEMPRE mencionar que é a CATBytes oferecendo o serviço
+✅ SEMPRE incluir "catbytes.site" no CTA
+✅ Focar em AUTOMAÇÃO e DESENVOLVIMENTO WEB
+✅ Usar casos de uso REAIS para empresas (não inventar nichos irrelevantes)
+✅ Ser específico sobre o problema que a automação resolve
+✅ Tudo em português brasileiro
+✅ Tom profissional e confiável
+❌ NÃO inventar serviços que a CATBytes não oferece
+❌ NÃO focar em infoprodutos genéricos
+❌ NÃO usar promessas exageradas ou irreais
+❌ NÃO esquecer de mencionar catbytes.site
 
 Retorne APENAS um objeto JSON válido:
 {
