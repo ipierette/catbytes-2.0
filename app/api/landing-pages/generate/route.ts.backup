@@ -154,7 +154,7 @@ Context: ${niche} industry, professional business photography.`,
           content: `Você é um desenvolvedor front-end especialista em criar landing pages de alta conversão.
 Você DEVE retornar APENAS HTML puro, sem markdown, sem \`\`\`html, sem explicações.
 Preencha o template fornecido substituindo os marcadores [CONTEÚDO] pelo texto apropriado.
-IMPORTANTE: Retorne HTML direto começando com <!DOCTYPE html>, não envolva em blocos de código markdown.`
+IMPORTANTE: Retorne HTML direto, não envolva em blocos de código markdown.`
         },
         {
           role: 'user',
@@ -170,16 +170,20 @@ IMPORTANTE: Retorne HTML direto começando com <!DOCTYPE html>, não envolva em 
   <meta property="og:title" content="[HEADLINE]">
   <meta property="og:description" content="[SUBHEADLINE]">
   <meta property="og:image" content="${heroImageUrl}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #ffffff;
-      color: #1a202c;
+      color: #1e293b;
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
     }
     
-    /* Header - Oculto visualmente, presente para SEO */
+    /* Header SEO - Oculto visualmente */
     header {
       position: absolute;
       left: -9999px;
@@ -188,53 +192,87 @@ IMPORTANTE: Retorne HTML direto começando com <!DOCTYPE html>, não envolva em 
       overflow: hidden;
     }
     
-    /* Hero Section */
+    /* Hero Section - Design Profissional */
     .hero {
-      min-height: 100vh;
+      min-height: 90vh;
       display: flex;
       align-items: center;
-      background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
-      padding: 4rem 2rem;
+      background: #f8fafc;
+      padding: 4rem 2rem 3rem;
       position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('${heroImageUrl}') center/cover no-repeat;
-      opacity: 0.15;
-      z-index: 0;
     }
     .hero-container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 5rem;
       align-items: center;
-      position: relative;
-      z-index: 1;
     }
+    
+    /* Badge Nicho */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: ${theme.primary}15;
+      color: ${theme.primary};
+      border-radius: 50px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    
     .hero-content h1 {
       font-size: 3.5rem;
       font-weight: 800;
-      color: #ffffff;
+      color: #0f172a;
       margin-bottom: 1.5rem;
       line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .hero-content h1 span {
+      color: ${theme.primary};
     }
     .hero-content p {
-      font-size: 1.5rem;
-      color: rgba(255,255,255,0.95);
-      margin-bottom: 2rem;
+      font-size: 1.25rem;
+      color: #475569;
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
     }
+    
+    /* Stats */
+    .stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: ${theme.primary};
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+    .stat-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+    
+    /* Hero Image */
     .hero-image {
-      border-radius: 20px;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+      box-shadow: 0 20px 60px -15px rgba(0,0,0,0.15);
+      position: relative;
     }
     .hero-image img {
       width: 100%;
@@ -242,43 +280,715 @@ IMPORTANTE: Retorne HTML direto começando com <!DOCTYPE html>, não envolva em 
       display: block;
     }
     
-    /* CTA Buttons */
-    .cta-button {
-      display: inline-block;
-      padding: 1.25rem 3rem;
-      font-size: 1.25rem;
+    /* Floating badge na imagem */
+    .image-badge {
+      position: absolute;
+      bottom: 2rem;
+      left: 2rem;
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .image-badge-icon {
+      width: 48px;
+      height: 48px;
+      background: ${theme.primary}15;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .image-badge-text h4 {
+      font-size: 1.5rem;
       font-weight: 700;
+      color: #0f172a;
+      line-height: 1;
+    }
+    .image-badge-text p {
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+    
+    /* CTA Buttons */
+    .cta-group {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 600;
       color: #ffffff;
-      background: linear-gradient(135deg, ${theme.accent} 0%, ${theme.primary} 100%);
+      background: ${theme.primary};
       border: none;
-      border-radius: 50px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px ${theme.primary}40;
       text-decoration: none;
     }
     .cta-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 35px -5px rgba(0,0,0,0.4);
+      background: ${theme.primary};
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px ${theme.primary}50;
+    }
+    .cta-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #64748b;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
     }
     
     /* Benefits Section */
     .benefits {
       padding: 6rem 2rem;
-      background: #f7fafc;
+      background: white;
     }
     .benefits-container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
     }
-    .benefits h2 {
-      font-size: 2.5rem;
+    .section-header {
       text-align: center;
-      margin-bottom: 4rem;
-      color: #1a202c;
+      max-width: 700px;
+      margin: 0 auto 4rem;
     }
+    .section-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: ${theme.primary}10;
+      color: ${theme.primary};
+      border-radius: 50px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .section-header h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+    .section-header p {
+      font-size: 1.125rem;
+      color: #64748b;
+    }
+    
     .benefits-grid {
       display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+    .benefit-card {
+      padding: 2rem;
+      background: #f8fafc;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.3s;
+    }
+    .benefit-card:hover {
+      border-color: ${theme.primary};
+      box-shadow: 0 10px 30px -10px ${theme.primary}20;
+      transform: translateY(-4px);
+    }
+    .benefit-icon {
+      width: 56px;
+      height: 56px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .benefit-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.75rem;
+    }
+    .benefit-card p {
+      color: #64748b;
+      line-height: 1.7;
+    }
+    
+    /* How it Works */
+    .how-it-works {
+      padding: 6rem 2rem;
+      background: #f8fafc;
+    }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+      max-width: 1280px;
+      margin: 4rem auto 0;
+    }
+    .step-card {
+      text-align: center;
+      position: relative;
+    }
+    .step-number {
+      width: 64px;
+      height: 64px;
+      background: ${theme.primary};
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 8px 20px ${theme.primary}40;
+    }
+    .step-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.75rem;
+    }
+    .step-card p {
+      color: #64748b;
+      line-height: 1.7;
+    }
+    
+    /* CTA Section */
+    .cta-section {
+      padding: 6rem 2rem;
+      background: #0f172a;
+      text-align: center;
+      color: white;
+    }
+    .cta-section-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .cta-section h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+    .cta-section p {
+      font-size: 1.25rem;
+      color: #cbd5e1;
+      margin-bottom: 2.5rem;
+    }
+    .cta-section .cta-button {
+      background: ${theme.primary};
+      font-size: 1.25rem;
+      padding: 1.25rem 2.5rem;
+    }
+    
+    /* Footer */
+    .footer {
+      padding: 2rem;
+      text-align: center;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+    }
+    .footer p {
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+    .footer a {
+      color: ${theme.primary};
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      backdrop-filter: blur(8px);
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 24px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 25px 60px -15px rgba(0,0,0,0.4);
+    }
+    .modal-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: #f1f5f9;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .modal-close:hover {
+      background: #e2e8f0;
+    }
+    
+    /* E-book Banner no Modal */
+    .ebook-banner {
+      background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary || theme.primary} 100%);
+      color: white;
+      padding: 2.5rem;
+      text-align: center;
+      border-radius: 24px 24px 0 0;
+    }
+    .ebook-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .ebook-banner h3 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+    .ebook-banner p {
+      font-size: 1rem;
+      opacity: 0.95;
+    }
+    
+    .modal-body {
+      padding: 2.5rem;
+    }
+    .modal-body h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 1rem;
+    }
+    .modal-body > p {
+      color: #64748b;
+      margin-bottom: 2rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: ${theme.primary};
+      box-shadow: 0 0 0 3px ${theme.primary}15;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .submit-button {
+      width: 100%;
+      padding: 1.125rem;
+      background: ${theme.primary};
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.125rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px ${theme.primary}40;
+    }
+    .submit-button:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px ${theme.primary}50;
+    }
+    .submit-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    /* Success Message */
+    .success-message {
+      display: none;
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    .success-message.active {
+      display: block;
+    }
+    .success-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    .success-message h3 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 1rem;
+    }
+    .success-message p {
+      color: #64748b;
+      font-size: 1.125rem;
+      line-height: 1.7;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+      .hero-content h1 {
+        font-size: 2.5rem;
+      }
+      .stats {
+        gap: 2rem;
+      }
+      .steps-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .cta-group {
+        flex-direction: column;
+      }
+      .cta-section h2 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header SEO -->
+  <header>
+    <h1>[HEADLINE]</h1>
+    <nav>
+      <a href="/">Início</a>
+      <a href="#beneficios">Benefícios</a>
+      <a href="#como-funciona">Como Funciona</a>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <span class="badge">🎯 [NICHO]</span>
+        <h1>[HEADLINE_COM_SPAN]</h1>
+        <p>[SUBHEADLINE]</p>
+        
+        <div class="cta-group">
+          <button class="cta-button" onclick="openModal()">
+            🎁 [CTA_TEXT]
+          </button>
+          <a href="#como-funciona" class="cta-secondary">
+            Ver Demonstração →
+          </a>
+        </div>
+        
+        <div class="stats">
+          <div class="stat-item">
+            <div class="stat-number">[STAT_1_NUMBER]</div>
+            <div class="stat-label">[STAT_1_LABEL]</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">[STAT_2_NUMBER]</div>
+            <div class="stat-label">[STAT_2_LABEL]</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">[STAT_3_NUMBER]</div>
+            <div class="stat-label">[STAT_3_LABEL]</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="hero-image">
+        <img src="${heroImageUrl}" alt="[HEADLINE]">
+        <div class="image-badge">
+          <div class="image-badge-icon">[BADGE_ICON]</div>
+          <div class="image-badge-text">
+            <h4>[BADGE_NUMBER]</h4>
+            <p>[BADGE_LABEL]</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="benefits" id="beneficios">
+    <div class="benefits-container">
+      <div class="section-header">
+        <span class="section-badge">Por que escolher nossa solução?</span>
+        <h2>Tudo que você precisa em uma única plataforma</h2>
+        <p>Recursos poderosos que simplificam sua rotina e melhoram seus resultados.</p>
+      </div>
+      
+      <div class="benefits-grid">
+        [BENEFITS_CARDS]
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works" id="como-funciona">
+    <div class="benefits-container">
+      <div class="section-header">
+        <span class="section-badge">Como funciona?</span>
+        <h2>Em 3 passos simples você está pronto para começar</h2>
+      </div>
+      
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3>[STEP_1_TITLE]</h3>
+          <p>[STEP_1_DESC]</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3>[STEP_2_TITLE]</h3>
+          <p>[STEP_2_DESC]</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3>[STEP_3_TITLE]</h3>
+          <p>[STEP_3_DESC]</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Final -->
+  <section class="cta-section">
+    <div class="cta-section-content">
+      <h2>Pronto para modernizar [AREA_ATUACAO]?</h2>
+      <p>Junte-se a milhares de profissionais que já transformaram seus resultados com nossa solução.</p>
+      <button class="cta-button" onclick="openModal()">
+        🎁 Baixar E-book Grátis + Agendar uma demonstração gratuita agora
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>powered by <a href="https://catbytes.site">CATBytes AI</a></p>
+  </footer>
+
+  <!-- Modal Form -->
+  <div class="modal" id="leadModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      
+      <div class="ebook-banner">
+        <span class="ebook-icon">🎁</span>
+        <h3>Bônus Exclusivo!</h3>
+        <p>Receba gratuitamente nosso e-book "100 Dicas de Presença Online"</p>
+      </div>
+      
+      <div class="modal-body">
+        <div id="formContainer">
+          <h2>[CTA_TEXT]</h2>
+          <p>Preencha o formulário abaixo e receba o e-book + informações sobre [SOLUCAO]</p>
+          
+          <form id="leadForm" onsubmit="submitForm(event)">
+            <input type="hidden" name="hp" id="hp" value="">
+            
+            <div class="form-group">
+              <label>Nome Completo</label>
+              <input type="text" name="name" required placeholder="Digite seu nome">
+            </div>
+            
+            <div class="form-group">
+              <label>E-mail (enviaremos o e-book aqui)</label>
+              <input type="email" name="email" required placeholder="seu@email.com">
+            </div>
+            
+            <div class="form-group">
+              <label>Telefone/WhatsApp</label>
+              <input type="tel" name="phone" required placeholder="(00) 00000-0000">
+            </div>
+            
+            <div class="form-group">
+              <label>Como podemos ajudar?</label>
+              <textarea name="message" placeholder="Conte-nos sobre sua necessidade..." required></textarea>
+            </div>
+            
+            <button type="submit" class="submit-button" id="submitBtn">
+              🎁 Receber E-book Grátis + Contato
+            </button>
+          </form>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+          <span class="success-icon">✅</span>
+          <h3>Sucesso!</h3>
+          <p><strong>Verifique seu email para receber:</strong><br><br>
+          📚 E-book "100 Dicas de Presença Online"<br>
+          📋 Informações sobre [SOLUCAO]<br><br>
+          Nossa equipe entrará em contato em breve!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal() {
+      document.getElementById('leadModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal() {
+      document.getElementById('leadModal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+    
+    // Fechar modal ao clicar fora
+    document.getElementById('leadModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+    
+    async function submitForm(e) {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = 'Enviando...';
+      submitBtn.disabled = true;
+      
+      const formData = new FormData(e.target);
+      const data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        message: formData.get('message'),
+        hp: formData.get('hp'),
+        slug: window.location.pathname.split('/').pop()
+      };
+      
+      try {
+        const response = await fetch('/api/landing-pages/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+          document.getElementById('formContainer').style.display = 'none';
+          document.getElementById('successMessage').classList.add('active');
+        } else {
+          alert('Erro ao enviar. Tente novamente.');
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        }
+      } catch (error) {
+        alert('Erro ao enviar. Tente novamente.');
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
+
+INSTRUÇÕES DE PREENCHIMENTO:
+Substitua TODOS os marcadores [CONTEÚDO] pelos valores apropriados baseados nestas informações:
+
+Nicho: ${niche}
+Problema: ${problem}
+Solução: ${solution}
+CTA: ${cta_text}
+Headline: ${content.headline}
+Subheadline: ${content.subheadline}
+Benefits: ${content.benefits.join(', ')}
+
+MARCADORES PARA PREENCHER:
+- [HEADLINE]: ${content.headline}
+- [SUBHEADLINE]: ${content.subheadline}
+- [NICHO]: Capitalize "${niche}"
+- [HEADLINE_COM_SPAN]: Divida o headline em 2 partes, coloque a segunda parte dentro de <span>${content.headline}</span>
+- [CTA_TEXT]: Baixar E-book Grátis + ${cta_text}
+- [STAT_1_NUMBER], [STAT_1_LABEL]: Crie estatísticas impressionantes relacionadas ao nicho (ex: "15k+", "Usuários ativos")
+- [STAT_2_NUMBER], [STAT_2_LABEL]: Outra estatística
+- [STAT_3_NUMBER], [STAT_3_LABEL]: Terceira estatística
+- [BADGE_ICON]: Emoji relacionado ao nicho
+- [BADGE_NUMBER]: Número grande (ex: "248", "4.9/5")
+- [BADGE_LABEL]: Label do badge (ex: "Clientes satisfeitos", "Avaliação")
+- [BENEFITS_CARDS]: Crie 4-6 benefit cards usando o formato:
+  <div class="benefit-card">
+    <div class="benefit-icon">🚀</div>
+    <h3>Título do Benefício</h3>
+    <p>Descrição clara e objetiva do benefício em 1-2 linhas.</p>
+  </div>
+- [STEP_1_TITLE], [STEP_1_DESC]: Passo 1 do processo
+- [STEP_2_TITLE], [STEP_2_DESC]: Passo 2 do processo
+- [STEP_3_TITLE], [STEP_3_DESC]: Passo 3 do processo
+- [AREA_ATUACAO]: Área de atuação (ex: "seu consultório", "sua empresa")
+- [SOLUCAO]: ${solution}
+
+IMPORTANTE: 
+1. Retorne APENAS o HTML final completo
+2. NÃO envolva em blocos markdown (\`\`\`html)
+3. NÃO adicione explicações antes ou depois
+4. Comece direto com <!DOCTYPE html>`
+        }
+      ],
+      temperature: 0.7,
+    })
+
+    let htmlContent = htmlResponse.choices[0].message.content || ''
+    
+    // Remover markdown se o GPT insistir em adicionar
+    htmlContent = htmlContent.replace(/^```html\n?/i, '').replace(/\n?```$/i, '').trim()
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 2.5rem;
     }
@@ -664,17 +1374,13 @@ REGRAS CRÍTICAS:
 2. Modal agora promete E-BOOK + serviço
 3. Formulário menciona envio do ebook por email
 4. Design premium com gradientes modernos
-5. Retorne HTML completo e válido, começando com <!DOCTYPE html>
-6. NÃO envolva o HTML em blocos markdown como \`\`\`html`
+5. Retorne HTML completo e válido`
         }
       ],
       temperature: 0.7,
     })
 
-    let htmlContent = htmlResponse.choices[0].message.content || ''
-    
-    // Remover markdown se o GPT insistir em adicionar (fallback de segurança)
-    htmlContent = htmlContent.replace(/^```html\n?/i, '').replace(/\n?```$/i, '').trim()
+    const htmlContent = htmlResponse.choices[0].message.content || ''
 
     // 4. Gerar slug único
     const slug = `${niche}-${Date.now()}`
