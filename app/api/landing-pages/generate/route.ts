@@ -46,7 +46,19 @@ export async function POST(req: NextRequest) {
           role: 'system',
           content: `Você é um especialista em copywriting para landing pages de conversão.
 Crie conteúdo persuasivo e profissional para capturar leads qualificados.
-Retorne APENAS um JSON válido sem markdown, sem comentários, sem quebras de linha dentro das strings.`
+Retorne APENAS um JSON válido sem markdown, sem comentários, sem quebras de linha dentro das strings.
+
+CRÍTICO PARA IMAGE_PROMPT: 
+O DALL-E 3 tende a gerar imagens com aparência de videogame/CGI/3D render (pele lisa demais, iluminação perfeita, ambiente sintético).
+Você DEVE combater isso explicitamente no prompt mencionando:
+- Modelo de câmera específico (Canon 5D Mark IV, Nikon D850, Sony A7R)
+- Configurações técnicas (ISO 800-1600, f/2.8, grain visível)
+- Imperfeições naturais (poros de pele, linhas de expressão, flyaways no cabelo)
+- Idade realista (30-45 anos, não modelos jovens perfeitos)
+- UMA fonte de luz principal (janela, softbox) - NÃO múltiplas luzes
+- Edição sutil em Lightroom (NÃO filtros pesados)
+Comece SEMPRE o image_prompt com "Real photograph shot on [camera] of..."
+NUNCA use palavras que sugiram CGI: "perfect", "flawless", "smooth", "rendered", "digital art", "illustration".`
         },
         {
           role: 'user',
@@ -63,7 +75,7 @@ Retorne um JSON com:
   "benefits": ["benefício 1", "benefício 2", "benefício 3", "benefício 4"],
   "social_proof": "Texto de prova social",
   "urgency": "Texto de urgência/escassez",
-  "image_prompt": "Prompt FOTOGRÁFICO ULTRA-DETALHADO para DALL-E 3. Descreva uma cena FOTORREALISTA de revista de publicidade profissional relacionada ao nicho. SE INCLUIR PESSOAS: especifique que devem ser fotografias reais de modelos humanos, com textura de pele natural, expressões autênticas, iluminação de estúdio profissional. PROIBIDO: ilustrações, cartoons, 3D, arte digital, anime. CRÍTICO: ZERO texto, palavras, letras, números, logos ou tipografia na imagem. Apenas fotografia pura estilo editorial comercial."
+  "image_prompt": "Prompt FOTOGRÁFICO REALISTA para DALL-E 3. Descreva UMA FOTOGRAFIA REAL tirada com câmera DSLR profissional. SE INCLUIR PESSOAS: especifique 'fotografia real de pessoa de [idade] anos, pele com textura natural visível, shot com Canon/Nikon, ISO 800 com grain visível, iluminação natural de janela'. MENCIONE SEMPRE: sensor grain, textura de pele com poros, imperfeições naturais, iluminação de UMA fonte principal. PROIBIDO: '3D render', 'ilustração', 'perfeito', 'smooth skin', 'cartoon', 'digital art', qualquer texto/logo. OBRIGATÓRIO: Começar com 'Real photograph shot on [camera model]' e mencionar características técnicas de fotografia real (ISO, grain, chromatic aberration, natural bokeh)."
 }`
         }
       ],
@@ -77,66 +89,59 @@ Retorne um JSON com:
     console.log('🎨 Gerando imagem com DALL-E 3...')
     const imageResponse = await openai.images.generate({
       model: 'dall-e-3',
-      prompt: `PROFESSIONAL PHOTOGRAPHER STYLE - REAL PHOTO WITH SUBTLE EDITING:
+      prompt: `REAL PHOTOGRAPHY ONLY - NO CGI - NO 3D RENDERS - NO VIDEO GAME GRAPHICS:
 
 ${content.image_prompt}
 
-📸 PHOTOGRAPHY APPROACH:
-This is a REAL photograph taken by a professional photographer and lightly edited in Lightroom/Photoshop.
-Think: Corporate headshots, wedding photography, lifestyle editorial, commercial portrait work.
+� CRITICAL ANTI-CGI RULES:
+This MUST be a real photograph taken with a DSLR camera by a human photographer.
+NOT computer graphics, NOT 3D render, NOT video game character, NOT AI-generated synthetic face.
 
-CAMERA & TECHNICAL SPECS:
-📷 Camera: Canon EOS R6 / Nikon Z6 / Sony A7III (professional mirrorless)
-🔍 Lens: 85mm f/1.8 or 50mm f/1.4 prime lens (natural bokeh)
-⚡ Lighting: Natural window light + reflector OR 1-2 softbox setup (soft, flattering)
-🎬 Settings: ISO 400-800, f/2.8-f/4, slight grain from real sensor
-📐 Composition: Rule of thirds, natural eye contact, professional framing
+📸 AUTHENTIC PHOTOGRAPHY CHARACTERISTICS:
+✅ Shot on: Canon 5D Mark IV / Nikon D850 / Sony A7R (real DSLR sensor grain)
+✅ Lens: 85mm f/1.4 prime (natural depth of field, NOT perfectly blurred background)
+✅ ISO: 400-1600 (visible sensor noise/grain in shadows - this proves it's real)
+✅ Lighting: ONE main light source (window/softbox) + natural reflections (NOT video game multiple light sources)
+✅ White balance: Slightly warm (3200-5600K) with subtle color cast (NOT perfectly neutral)
 
-POST-PRODUCTION (SUBTLE PROFESSIONAL EDITING):
-✨ Color grading: Warm/cool shift (±5%), subtle lift in shadows
-✨ Skin retouching: Light frequency separation (keep texture, remove only major blemishes)
-✨ Exposure: +0.3 to +0.7 stop lift, gentle highlight recovery
-✨ Sharpening: Selective (eyes sharp, background soft)
-✨ Contrast: Mild S-curve for depth
-✨ Clarity: +10 to +20 (NOT overdone)
-⚠️ CRITICAL: Editing is SUBTLE - still looks natural, not Instagram filtered
+REAL HUMAN SKIN (NOT 3D RENDERED):
+✅ Visible skin texture: Pores, fine lines, slight redness, natural imperfections
+✅ Uneven skin tone: Slight color variations (NOT uniform airbrushed game character skin)
+✅ Natural shadows: Under eyes, nose, neck (NOT soft ambient occlusion from 3D software)
+✅ Hair: Individual strands, flyaways, natural shine (NOT perfectly modeled 3D hair)
+✅ Eyes: Asymmetric catchlights from real light, NOT perfect specular reflections
+✅ Age: 28-45 years old with natural aging signs (slight wrinkles, expression lines)
 
-REAL HUMAN CHARACTERISTICS:
-✅ Authentic people: Real models/subjects with natural features
-✅ Skin: Visible pores and texture (retouched but NOT airbrushed smooth)
-✅ Eyes: Natural catchlights from real light source, slight asymmetry
-✅ Hair: Professional styling but with natural flyaways and texture
-✅ Expression: Genuine smiles (crow's feet visible), relaxed faces
-✅ Posing: Professional direction but natural body language
-✅ Wardrobe: Business casual, corporate, or lifestyle clothing (real fabric)
-✅ Diversity: Age 25-45, various ethnicities, realistic representation
+ENVIRONMENT REALISM:
+✅ Real location: Office, outdoor, cafe (with natural clutter, imperfect surfaces)
+✅ Background: Slightly out of focus from real lens (f/2.8), NOT gaussian blur filter
+✅ Lighting falloff: Natural inverse square law (NOT video game fake ambient light)
+✅ Imperfections: Lens flare, chromatic aberration, slight vignetting (camera artifacts)
 
-ENVIRONMENT:
-✅ Professional settings: Modern office, coffee shop, outdoor corporate campus
-✅ Natural clutter: Laptop, phone, coffee mug, plants (lived-in spaces)
-✅ Bokeh: Natural lens blur (f/1.8-f/2.8), NOT perfect circular bokeh
-✅ Lighting: One dominant source (window/softbox) + natural fill
-✅ Depth: Foreground/background elements slightly out of focus
+POST-PROCESSING (LIKE LIGHTROOM, NOT PHOTOSHOP FILTERS):
+- Exposure: +0.5 stop, slight shadow lift
+- Contrast: Gentle S-curve (NOT HDR tone mapping)
+- Color: Warm highlights (+300K), cool shadows (-200K) - split toning
+- Sharpening: Eyes only, NOT entire image
+- Grain: Add subtle film grain texture (proves it's not CGI)
 
-❌ ABSOLUTELY FORBIDDEN:
-❌ CGI, 3D renders, digital art, AI-generated uncanny valley faces
-❌ Overly smooth skin (plastic/waxy look)
-❌ Perfect symmetry (faces, environments, objects)
-❌ Video game lighting (rim glow, gradient fill, ambient occlusion look)
-❌ Heavy filters (over-saturated, HDR tone-mapped, Instagram presets)
-❌ Stock photo clichés (pointing at laptops, fake laughter)
-❌ Text, logos, watermarks, graphics, typography
+❌ INSTANTLY REJECTED IF IMAGE HAS:
+❌ Perfectly smooth skin (video game/Sims character look)
+❌ Too-perfect lighting (3D render ambient occlusion glow)
+❌ Symmetrical face/environment (CGI perfection)
+❌ Overly saturated colors (game engine look)
+❌ Plastic/waxy skin texture
+❌ Rim lighting on hair (3D shader effect)
+❌ Perfect bokeh circles (synthetic)
+❌ No grain/noise (too clean = CGI)
 
-🎯 REFERENCE PHOTOGRAPHERS:
-- Peter Hurley (corporate headshots - natural but polished)
-- Annie Leibovitz (editorial portraits - authentic with flair)
-- José Villa (lifestyle photography - warm, natural light)
-- Sue Bryce (glamour portraits - flattering but real)
+🎯 STYLE REFERENCE: 
+Corporate headshot by Peter Hurley (2020s professional photography)
+NOT: Unreal Engine 5 character, The Sims 4, GTA V avatar, Pixar render
 
-VIBE: "This person hired a professional photographer for LinkedIn/company website photos"
-NOT: "This is a 3D character from a Pixar movie" or "AI generated synthetic human"
+PHOTOGRAPHER MINDSET: "I'm shooting professional LinkedIn headshots with natural light in a real office. Subject is a real human, age 30-40, professionally dressed, genuine expression."
 
-Context: ${niche} industry, professional business photography.`,
+Industry context: ${niche}`,
       size: '1792x1024',
       quality: 'hd',
       n: 1,
