@@ -119,13 +119,30 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
       line-height: 1.6;
     }
     
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255,255,255,0.98);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 1rem 2rem;
+      z-index: 1000;
+    }
+    header img {
+      height: 45px;
+      width: auto;
+    }
+    
     /* Hero Section */
     .hero {
       min-height: 100vh;
       display: flex;
       align-items: center;
       background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
-      padding: 4rem 2rem;
+      padding: 8rem 2rem 4rem;
       position: relative;
       overflow: hidden;
     }
@@ -415,6 +432,11 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
   </style>
 </head>
 <body>
+  <!-- Header Minimalista -->
+  <header>
+    <img src="https://catbytes.site/images/logo-desenvolvedora.webp" alt="[HEADLINE]">
+  </header>
+
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-container">
