@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { NICHES, COLOR_THEMES_ARRAY } from '@/lib/landing-pages-constants'
 import { CreateLandingPageModal } from '@/components/admin/create-landing-page-modal'
+import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 
 interface LandingPage {
   id: string
@@ -214,20 +215,18 @@ export default function LandingPagesAdminPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Landing Pages</h1>
-          <p className="text-muted-foreground">
-            Geração automática com IA para captura de leads
-          </p>
+    <AdminLayoutWrapper
+      title="Landing Pages"
+      description="Geração automática com IA para captura de leads"
+    >
+      <div className="space-y-6">
+        {/* Header com botão */}
+        <div className="flex justify-end">
+          <Button onClick={() => setModalOpen(true)} size="lg">
+            <Plus className="mr-2 h-5 w-5" />
+            Nova Landing Page
+          </Button>
         </div>
-        <Button onClick={() => setModalOpen(true)} size="lg">
-          <Plus className="mr-2 h-5 w-5" />
-          Nova Landing Page
-        </Button>
-      </div>
 
       {/* Stats Cards */}
       {stats && (
@@ -458,6 +457,7 @@ export default function LandingPagesAdminPage() {
           loadLandingPages()
         }}
       />
-    </div>
+      </div>
+    </AdminLayoutWrapper>
   )
 }
