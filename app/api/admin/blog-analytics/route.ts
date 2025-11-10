@@ -6,52 +6,68 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function GET(request: NextRequest) {
+  console.log('\n🔍 [Blog Analytics API] Request recebido')
+  
   // Verificar autenticação admin
   const authCheck = await verifyAdminCookie(request)
   if (!authCheck.valid) {
+    console.log('❌ [Blog Analytics API] Autenticação falhou')
     return authCheck.error || NextResponse.json(
       { success: false, error: 'Unauthorized' },
       { status: 401 }
     )
   }
 
+  console.log('✅ [Blog Analytics API] Autenticação OK')
+
   if (!supabaseAdmin) {
+    console.log('❌ [Blog Analytics API] Supabase admin não configurado!')
     return NextResponse.json(
       { success: false, error: 'Supabase admin not configured' },
       { status: 500 }
     )
   }
 
+  console.log('✅ [Blog Analytics API] Supabase admin OK')
+
   try {
     // Total de visualizações (blog_posts.views)
+    console.log('📊 [Blog Analytics API] Buscando posts...')
     const { data: posts, error: postsError } = await supabaseAdmin
       .from('blog_posts')
       .select('id, title, slug, views, created_at, locale, published')
 
     if (postsError) {
-      console.error('[Blog Analytics] Error fetching posts:', postsError)
+      console.error('❌ [Blog Analytics API] Erro ao buscar posts:', postsError)
       return NextResponse.json(
         { success: false, error: 'Failed to fetch posts' },
         { status: 500 }
       )
     }
 
+    console.log(`✅ [Blog Analytics API] ${posts?.length || 0} posts encontrados`)
+
     // Leituras reais (analytics_blog_views)
+    console.log('📖 [Blog Analytics API] Buscando leituras...')
     const { data: reads, error: readsError } = await supabaseAdmin
       .from('analytics_blog_views')
       .select('post_id, read_time_seconds, scroll_depth_percent, session_id, locale, timestamp')
 
     if (readsError) {
-      console.error('[Blog Analytics] Error fetching reads:', readsError)
+      console.error('❌ [Blog Analytics API] Erro ao buscar leituras:', readsError)
       return NextResponse.json(
         { success: false, error: 'Failed to fetch analytics' },
         { status: 500 }
       )
     }
 
+    console.log(`✅ [Blog Analytics API] ${reads?.length || 0} leituras encontradas`)
+
     // Métricas agregadas
     const totalViews = posts?.reduce((acc, p) => acc + (p.views || 0), 0) || 0
     const totalReads = reads?.length || 0
+    
+    console.log('📈 [Blog Analytics API] Métricas:', { totalViews, totalReads })
     const avgReadTime = reads && reads.length > 0 
       ? reads.reduce((acc, r) => acc + (r.read_time_seconds || 0), 0) / reads.length 
       : 0

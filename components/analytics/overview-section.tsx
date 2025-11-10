@@ -66,14 +66,28 @@ export function OverviewSection({ period }: OverviewSectionProps) {
     try {
       setLoading(true)
 
+      console.log('%c[Overview] 🔄 Carregando dados...', 'color: #00bfff; font-weight: bold', { period })
+
       // Fetch both APIs in parallel
       const [googleResponse, blogResponse] = await Promise.all([
         fetch(`/api/analytics/google?period=${period}`),
         fetch('/api/admin/blog-analytics')
       ])
 
+      console.log('%c[Overview] 📡 Respostas recebidas:', 'color: #ffa500', {
+        google: googleResponse.status,
+        blog: blogResponse.status
+      })
+
       const googleResult = await googleResponse.json()
       const blogResult = await blogResponse.json()
+
+      console.log('%c[Overview] 📊 Dados processados:', 'color: #00ff00', {
+        googleSuccess: googleResult.success,
+        blogSuccess: blogResult.success,
+        googleData: googleResult.data,
+        blogData: blogResult.data
+      })
 
       if (googleResult.success && blogResult.success) {
         const googleData = googleResult.data
