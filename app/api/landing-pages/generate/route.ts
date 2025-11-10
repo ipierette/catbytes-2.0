@@ -63,7 +63,7 @@ Retorne um JSON com:
   "benefits": ["benefício 1", "benefício 2", "benefício 3", "benefício 4"],
   "social_proof": "Texto de prova social",
   "urgency": "Texto de urgência/escassez",
-  "image_prompt": "Prompt detalhado para DALL-E 3 gerar uma imagem relacionada ao nicho. IMPORTANTE: peça uma imagem SEM TEXTO, sem palavras, sem letras. Apenas visual representativo do nicho."
+  "image_prompt": "Prompt FOTOGRÁFICO ULTRA-DETALHADO para DALL-E 3. Descreva uma cena FOTORREALISTA de revista de publicidade profissional relacionada ao nicho. SE INCLUIR PESSOAS: especifique que devem ser fotografias reais de modelos humanos, com textura de pele natural, expressões autênticas, iluminação de estúdio profissional. PROIBIDO: ilustrações, cartoons, 3D, arte digital, anime. CRÍTICO: ZERO texto, palavras, letras, números, logos ou tipografia na imagem. Apenas fotografia pura estilo editorial comercial."
 }`
         }
       ],
@@ -77,9 +77,54 @@ Retorne um JSON com:
     console.log('🎨 Gerando imagem com DALL-E 3...')
     const imageResponse = await openai.images.generate({
       model: 'dall-e-3',
-      prompt: `${content.image_prompt}. Professional, high-quality, modern style. NO TEXT, NO WORDS, NO LETTERS in the image. Pure visual only.`,
+      prompt: `ULTRA-REALISTIC COMMERCIAL PHOTOGRAPHY - MAGAZINE EDITORIAL QUALITY:
+
+${content.image_prompt}
+
+PHOTOGRAPHIC TECHNICAL REQUIREMENTS:
+📷 Camera Setup: Professional full-frame DSLR (Canon EOS R5/Sony A7IV)
+🔍 Lens: 50mm f/1.4 OR 85mm f/1.2 prime lens for cinematic bokeh
+💡 Lighting: Professional studio setup OR natural golden hour (soft, flattering light)
+🎬 Resolution: 8K RAW, tack-sharp focus, crystal clear details
+🎨 Style: High-end advertising photography (Apple/Nike/Vogue quality)
+✨ Post-processing: Subtle color grading, natural tones, minimal retouching
+
+IF PEOPLE ARE IN THE IMAGE - CRITICAL HUMAN REALISM RULES:
+✅ MUST BE: Real human beings photographed with professional camera
+✅ Skin: Natural texture with visible pores, subtle imperfections, realistic complexion
+✅ Eyes: Crystal clear with natural catchlights, realistic iris details
+✅ Hair: Natural flow and texture (not plasticky or too perfect)
+✅ Expression: Genuine, authentic emotions (not forced smiles)
+✅ Pose: Professional model poses but natural body language
+✅ Diversity: Real-looking diverse people (age, ethnicity varies naturally)
+✅ Clothing: Real fabric wrinkles, realistic textures
+✅ Context: Natural interaction with environment
+
+❌ ABSOLUTELY FORBIDDEN - INSTANT REJECTION:
+❌ 3D renders, CGI, digital art, illustrations, paintings, cartoons
+❌ AI-generated "uncanny valley" faces (overly smooth/perfect skin)
+❌ Anime, manga, graphic design, vector art
+❌ Generic stock photo poses (too staged/fake)
+❌ Perfect symmetrical faces (unrealistic beauty standards)
+
+🚫 ZERO TEXT RULE - MANDATORY:
+❌ NO text, letters, words, numbers, signs, labels, logos, typography
+❌ NO watermarks, captions, UI elements, buttons, symbols
+❌ NO characters or writing in ANY language
+✅ ONLY: Pure photographic scene
+
+VERIFICATION CHECKLIST:
+□ Could this image appear in Vogue, GQ, or Fortune magazine?
+□ Do people look like real humans you'd see on the street?
+□ Is the lighting natural and professional?
+□ Zero text or graphics visible?
+□ Shot on professional camera equipment?
+
+If ANY checkbox is NO → Image must be regenerated.
+
+Context: ${niche} industry, professional business setting, premium quality.`,
       size: '1792x1024',
-      quality: 'standard',
+      quality: 'hd',
       n: 1,
     })
 
@@ -119,21 +164,13 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
       line-height: 1.6;
     }
     
-    /* Header */
+    /* Header - Oculto visualmente, presente para SEO */
     header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: rgba(255,255,255,0.98);
-      backdrop-filter: blur(10px);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      padding: 1rem 2rem;
-      z-index: 1000;
-    }
-    header img {
-      height: 45px;
-      width: auto;
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
     }
     
     /* Hero Section */
@@ -142,7 +179,7 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
       display: flex;
       align-items: center;
       background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
-      padding: 8rem 2rem 4rem;
+      padding: 4rem 2rem;
       position: relative;
       overflow: hidden;
     }
@@ -432,9 +469,9 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
   </style>
 </head>
 <body>
-  <!-- Header Minimalista -->
+  <!-- Header SEO (visualmente oculto) -->
   <header>
-    <img src="https://catbytes.site/images/logo-desenvolvedora.webp" alt="[HEADLINE]">
+    <img src="https://catbytes.site/images/logo-desenvolvedora.webp" alt="[HEADLINE] - powered by CATBytes AI">
   </header>
 
   <!-- Hero Section -->
