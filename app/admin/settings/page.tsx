@@ -34,6 +34,7 @@ interface SystemSettings {
   api: {
     openaiKey: string
     instagramToken: string
+    instagramTokenExpiryDate?: string // Data de expiração do token (60 dias)
     emailService: boolean
     databaseUrl: string
   }
@@ -57,10 +58,32 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [showApiKeys, setShowApiKeys] = useState(false)
+  const [tokenDaysRemaining, setTokenDaysRemaining] = useState<number | null>(null)
 
   useEffect(() => {
     loadSettings()
   }, [])
+
+  useEffect(() => {
+    if (settings?.api.instagramTokenExpiryDate) {
+      calculateDaysRemaining(settings.api.instagramTokenExpiryDate)
+    }
+  }, [settings?.api.instagramTokenExpiryDate])
+
+  const calculateDaysRemaining = (expiryDate: string) => {
+    const expiry = new Date(expiryDate)
+    const now = new Date()
+    const diffTime = expiry.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    setTokenDaysRemaining(diffDays)
+  }
+
+  const handleTokenRenewal = () => {
+    const newExpiryDate = new Date()
+    newExpiryDate.setDate(newExpiryDate.getDate() + 60)
+    updateSettings('api', 'instagramTokenExpiryDate', newExpiryDate.toISOString())
+    setMessage({ type: 'success', text: 'Data de expiração renovada! Lembre-se de atualizar o token no Instagram.' })
+  }
 
   const loadSettings = async () => {
     try {
@@ -357,6 +380,54 @@ export default function SettingsPage() {
                       )}
                     </div>
                   </div>
+                  
+                  {/* Token Expiry Info */}
+                  {settings?.api.instagramTokenExpiryDate && tokenDaysRemaining !== null && (
+                    <div className={`mt-3 p-3 rounded-lg border ${
+                      tokenDaysRemaining <= 1 
+                        ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800' 
+                        : tokenDaysRemaining <= 7
+                        ? 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800'
+                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">
+                            {tokenDaysRemaining <= 0 
+                              ? '⚠️ Token Expirado!' 
+                              : tokenDaysRemaining === 1
+                              ? '⚠️ Expira amanhã!'
+                              : `${tokenDaysRemaining} dias restantes`}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Expira em: {new Date(settings.api.instagramTokenExpiryDate).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleTokenRenewal}
+                          className="gap-2"
+                        >
+                          🔄 Renovar
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Adicionar data de expiração se não existir */}
+                  {!settings?.api.instagramTokenExpiryDate && settings?.api.instagramToken && (
+                    <div className="mt-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleTokenRenewal}
+                        className="gap-2 w-full"
+                      >
+                        📅 Definir Data de Expiração (60 dias)
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div>

@@ -9,6 +9,10 @@
     {
       "path": "/api/simple-cron",
       "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/check-instagram-token",
+      "schedule": "0 12 * * *"
     }
   ]
 }

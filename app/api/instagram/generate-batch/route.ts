@@ -12,6 +12,12 @@ import { generatePostContent } from '@/lib/content-generator'
 import { generateImage, optimizePromptWithText } from '@/lib/image-generator'
 import { saveInstagramImageToStorage } from '@/lib/instagram-image-storage'
 import type { Niche } from '@/lib/instagram-automation'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export const maxDuration = 60 // 1 minuto (limite do Vercel free tier)
 
@@ -124,7 +130,22 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const batchSize = 10
+    // Busca batchSize configurado pelo admin
+    let batchSize = 10 // default
+    try {
+      const { data: batchSizeData } = await supabase
+        .from('instagram_settings')
+        .select('value')
+        .eq('key', 'batch_size')
+        .single()
+      
+      if (batchSizeData?.value) {
+        batchSize = parseInt(batchSizeData.value, 10)
+        console.log(`Using configured batch size: ${batchSize}`)
+      }
+    } catch (error) {
+      console.log('Using default batch size: 10')
+    }
 
     // Se for chamada manual (admin), gera em background e retorna imediatamente
     if (isAdmin && !isCronJob) {

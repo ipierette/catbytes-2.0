@@ -186,27 +186,89 @@ export async function POST(request: NextRequest) {
 // Atualizar configurações relacionadas em outras tabelas
 async function updateRelatedSettings(settings: any) {
   try {
-    // Atualizar automation_settings
-    if (settings.automation) {
-      await supabase
-        .from('automation_settings')
-        .upsert({
-          id: 1,
-          auto_generation_enabled: settings.automation.blogGeneration || settings.automation.instagramGeneration,
-          batch_size: settings.automation.batchSize || 10,
-          updated_at: new Date().toISOString()
-        })
+    // Atualizar instagram_settings (controla geração automática de posts)
+    if (settings.automation?.instagramGeneration !== undefined) {
+      const { data: existing } = await supabase
+        .from('instagram_settings')
+        .select('id')
+        .eq('key', 'auto_generation_enabled')
+        .single()
+
+      if (existing) {
+        await supabase
+          .from('instagram_settings')
+          .update({
+            value: settings.automation.instagramGeneration ? 'true' : 'false',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existing.id)
+      } else {
+        await supabase
+          .from('instagram_settings')
+          .insert({
+            key: 'auto_generation_enabled',
+            value: settings.automation.instagramGeneration ? 'true' : 'false',
+            updated_at: new Date().toISOString()
+          })
+      }
+      
+      console.log(`✅ Instagram auto-generation: ${settings.automation.instagramGeneration ? 'ENABLED' : 'DISABLED'}`)
     }
 
-    // Atualizar instagram_settings se necessário
-    if (settings.automation?.instagramGeneration !== undefined) {
-      await supabase
+    // Atualizar batchSize do Instagram
+    if (settings.automation?.batchSize) {
+      const { data: existing } = await supabase
         .from('instagram_settings')
-        .upsert({
-          id: 1,
-          auto_generation_enabled: settings.automation.instagramGeneration,
-          updated_at: new Date().toISOString()
-        })
+        .select('id')
+        .eq('key', 'batch_size')
+        .single()
+
+      if (existing) {
+        await supabase
+          .from('instagram_settings')
+          .update({
+            value: settings.automation.batchSize.toString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existing.id)
+      } else {
+        await supabase
+          .from('instagram_settings')
+          .insert({
+            key: 'batch_size',
+            value: settings.automation.batchSize.toString(),
+            updated_at: new Date().toISOString()
+          })
+      }
+      
+      console.log(`✅ Instagram batch size: ${settings.automation.batchSize}`)
+    }
+
+    // Atualizar automation_settings (controla blog generation se implementado)
+    if (settings.automation?.blogGeneration !== undefined) {
+      const { data: existing } = await supabase
+        .from('automation_settings')
+        .select('id')
+        .single()
+
+      if (existing) {
+        await supabase
+          .from('automation_settings')
+          .update({
+            auto_generation_enabled: settings.automation.blogGeneration,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existing.id)
+      } else {
+        await supabase
+          .from('automation_settings')
+          .insert({
+            auto_generation_enabled: settings.automation.blogGeneration,
+            updated_at: new Date().toISOString()
+          })
+      }
+      
+      console.log(`✅ Blog auto-generation: ${settings.automation.blogGeneration ? 'ENABLED' : 'DISABLED'}`)
     }
   } catch (error) {
     console.error('Error updating related settings:', error)
