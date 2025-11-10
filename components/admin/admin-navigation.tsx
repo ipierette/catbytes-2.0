@@ -43,6 +43,12 @@ const adminNavItems: AdminNavItem[] = [
     description: 'Criar e gerenciar posts do blog'
   },
   {
+    title: 'Landing Pages',
+    href: '/admin/landing-pages',
+    icon: Rocket,
+    description: 'Geração automática com IA para captura de leads'
+  },
+  {
     title: 'Analytics',
     href: '/admin/analytics',
     icon: BarChart3,
