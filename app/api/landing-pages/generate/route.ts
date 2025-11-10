@@ -116,9 +116,23 @@ DESIGN:
 - Formulário de captura: nome, email, telefone (opcional), mensagem
 - Footer: logo da desenvolvedora (https://catbytes.site/images/logo-desenvolvedora.webp) pequena + "powered by CATBytes AI"
 
+IMPORTANTE - FORMULÁRIO:
+- Fundo do formulário: BRANCO (#ffffff) ou cinza claro (#f5f5f5)
+- Labels e texto: PRETO (#1a1a1a) ou cinza escuro (#333333) - NUNCA branco!
+- Inputs: borda cinza (#d1d5db), fundo branco, texto preto
+- Botão de envio: gradiente com cores do tema (${theme.primary} para ${theme.secondary}), texto BRANCO
+- Placeholders: cinza médio (#6b7280)
+- Erro/validação: vermelho (#ef4444)
+
+IMPORTANTE - IMAGEM:
+- Use img tag com src="${heroImageUrl}"
+- Adicione alt descritivo
+- Estilo: width: 100%; height: auto; object-fit: cover; border-radius: 12px;
+- Loading: eager (para hero image)
+
 SEGURANÇA & PRIVACIDADE:
 - reCAPTCHA v3 (site key: 6LfDummy_SiteKey_ForPlaceholder)
-- Badge "🔒 Seus dados estão protegidos" visível
+- Badge "🔒 Seus dados estão protegidos" visível perto do formulário
 - Honeypot field (campo invisível "website")
 - Formulário envia POST para /api/landing-pages/submit
 - Incluir campos hidden para tracking: utm_source, utm_medium, utm_campaign, referrer, landingPageSlug, landingPageUrl (capturado via JavaScript: window.location.href)
@@ -129,13 +143,51 @@ SEO:
 - Twitter Cards
 - Schema.org JSON-LD (LocalBusiness ou Service)
 
-IMPORTANTE:
-- Logo deve ter background apropriado (não muito claro nem muito escuro)
-- Badge de segurança destacado perto do formulário
-- Texto: "Seus dados estão protegidos por reCAPTCHA e criptografia SSL"
-- Google Analytics opcional (placeholder)
-- CSS inline para performance
-- Sem dependências externas (exceto reCAPTCHA)
+ESTRUTURA OBRIGATÓRIA:
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${content.headline}</title>
+  <!-- Todos os estilos CSS INLINE no head -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    /* IMPORTANTE: Formulário sempre com fundo claro e texto escuro */
+    form { background: #ffffff; padding: 2rem; border-radius: 12px; }
+    label, p, h1, h2, h3 { color: #1a1a1a; }
+    input, textarea { 
+      background: #ffffff; 
+      color: #1a1a1a; 
+      border: 1px solid #d1d5db; 
+      padding: 12px;
+      border-radius: 8px;
+    }
+    input::placeholder, textarea::placeholder { color: #6b7280; }
+    button { 
+      background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%);
+      color: #ffffff;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <!-- HERO com imagem -->
+  <!-- BENEFÍCIOS -->
+  <!-- FORMULÁRIO com contraste adequado -->
+  <!-- FOOTER com logo -->
+  <script>
+    // reCAPTCHA, validação, captura de UTMs, etc
+  </script>
+</body>
+</html>
+
+CRÍTICO:
+- NÃO use fundo escuro no formulário
+- NÃO use texto branco em labels/inputs
+- A imagem hero DEVE usar a URL fornecida: ${heroImageUrl}
+- Logo no footer: https://catbytes.site/images/logo-desenvolvedora.webp
 
 Retorne APENAS o HTML completo, válido, pronto para deploy.`
         }
