@@ -1,0 +1,227 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase'
+import OpenAI from 'openai'
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
+
+// 12 nichos disponíveis
+export const NICHES = [
+  { value: 'consultorio', label: 'Consultório Médico', emoji: '🏥' },
+  { value: 'academia', label: 'Academia', emoji: '💪' },
+  { value: 'salao', label: 'Salão de Beleza', emoji: '💇' },
+  { value: 'restaurante', label: 'Restaurante', emoji: '🍽️' },
+  { value: 'advogado', label: 'Escritório de Advocacia', emoji: '⚖️' },
+  { value: 'contabilidade', label: 'Contabilidade', emoji: '📊' },
+  { value: 'pet', label: 'Pet Shop / Veterinária', emoji: '🐾' },
+  { value: 'imobiliaria', label: 'Imobiliária', emoji: '🏠' },
+  { value: 'escola', label: 'Escola / Curso', emoji: '📚' },
+  { value: 'ecommerce', label: 'E-commerce', emoji: '🛍️' },
+  { value: 'marketing', label: 'Agência de Marketing', emoji: '📱' },
+  { value: 'outros', label: 'Outros Negócios', emoji: '💼' },
+] as const
+
+// 7 temas de cores
+export const COLOR_THEMES = [
+  { value: 'blue', label: 'Azul Profissional', primary: '#0066CC', secondary: '#004C99', accent: '#FFB800' },
+  { value: 'green', label: 'Verde Crescimento', primary: '#10B981', secondary: '#059669', accent: '#F59E0B' },
+  { value: 'purple', label: 'Roxo Inovação', primary: '#8B5CF6', secondary: '#7C3AED', accent: '#EC4899' },
+  { value: 'orange', label: 'Laranja Energia', primary: '#F97316', secondary: '#EA580C', accent: '#FBBF24' },
+  { value: 'red', label: 'Vermelho Urgência', primary: '#EF4444', secondary: '#DC2626', accent: '#F59E0B' },
+  { value: 'teal', label: 'Turquesa Saúde', primary: '#14B8A6', secondary: '#0D9488', accent: '#F59E0B' },
+  { value: 'indigo', label: 'Índigo Confiança', primary: '#6366F1', secondary: '#4F46E5', accent: '#F59E0B' },
+] as const
+
+interface GenerateRequest {
+  niche: string
+  problem: string
+  solution: string
+  cta_text: string
+  theme_color: string
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body: GenerateRequest = await req.json()
+    const { niche, problem, solution, cta_text, theme_color } = body
+
+    // Validação
+    if (!niche || !problem || !solution || !cta_text || !theme_color) {
+      return NextResponse.json(
+        { error: 'Todos os campos são obrigatórios' },
+        { status: 400 }
+      )
+    }
+
+    // Buscar configuração de tema
+    const theme = COLOR_THEMES.find(t => t.value === theme_color)
+    if (!theme) {
+      return NextResponse.json(
+        { error: 'Tema de cor inválido' },
+        { status: 400 }
+      )
+    }
+
+    // 1. Gerar conteúdo com GPT-4
+    console.log('🤖 Gerando conteúdo com GPT-4...')
+    const contentResponse = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: `Você é um especialista em copywriting para landing pages de conversão.
+Crie conteúdo persuasivo e profissional para capturar leads qualificados.
+Retorne APENAS um JSON válido sem markdown, sem comentários, sem quebras de linha dentro das strings.`
+        },
+        {
+          role: 'user',
+          content: `Crie uma landing page para:
+- Nicho: ${niche}
+- Problema: ${problem}
+- Solução: ${solution}
+- CTA: ${cta_text}
+
+Retorne um JSON com:
+{
+  "headline": "Título principal impactante (máx 60 caracteres)",
+  "subheadline": "Subtítulo complementar (máx 120 caracteres)",
+  "benefits": ["benefício 1", "benefício 2", "benefício 3", "benefício 4"],
+  "social_proof": "Texto de prova social",
+  "urgency": "Texto de urgência/escassez",
+  "image_prompt": "Prompt detalhado para DALL-E 3 gerar uma imagem relacionada ao nicho. IMPORTANTE: peça uma imagem SEM TEXTO, sem palavras, sem letras. Apenas visual representativo do nicho."
+}`
+        }
+      ],
+      temperature: 0.8,
+    })
+
+    const contentText = contentResponse.choices[0].message.content || '{}'
+    const content = JSON.parse(contentText)
+
+    // 2. Gerar imagem com DALL-E 3
+    console.log('🎨 Gerando imagem com DALL-E 3...')
+    const imageResponse = await openai.images.generate({
+      model: 'dall-e-3',
+      prompt: `${content.image_prompt}. Professional, high-quality, modern style. NO TEXT, NO WORDS, NO LETTERS in the image. Pure visual only.`,
+      size: '1792x1024',
+      quality: 'standard',
+      n: 1,
+    })
+
+    const heroImageUrl = imageResponse.data[0].url || ''
+
+    // 3. Gerar HTML completo
+    console.log('📄 Gerando HTML completo...')
+    const htmlResponse = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'system',
+          content: `Você é um desenvolvedor front-end especialista em criar landing pages responsivas e de alta conversão.
+Crie HTML válido, semântico, com CSS inline otimizado para performance.
+Inclua meta tags para SEO e Open Graph.
+Use a logo fornecida no footer com o texto "powered by CATBytes AI".`
+        },
+        {
+          role: 'user',
+          content: `Crie uma landing page HTML completa com:
+
+CONTEÚDO:
+- Headline: ${content.headline}
+- Subheadline: ${content.subheadline}
+- Benefícios: ${content.benefits.join(', ')}
+- Prova social: ${content.social_proof}
+- Urgência: ${content.urgency}
+- CTA: ${cta_text}
+- Imagem hero: ${heroImageUrl}
+
+DESIGN:
+- Cores: ${theme.primary} (primária), ${theme.secondary} (secundária), ${theme.accent} (accent)
+- Responsivo (mobile-first)
+- Formulário de captura: nome, email, telefone (opcional), mensagem
+- Footer: logo da desenvolvedora (https://catbytes.site/images/logo-desenvolvedora.webp) pequena + "powered by CATBytes AI"
+
+IMPORTANTE:
+- Logo deve ter background apropriado (não muito claro nem muito escuro)
+- Formulário envia POST para /api/landing-pages/submit
+- Incluir campos hidden para tracking: utm_source, utm_medium, etc
+- Meta tags para SEO e compartilhamento
+- Google Analytics opcional
+- reCAPTCHA v3 (site key placeholder)
+
+Retorne APENAS o HTML completo, válido, pronto para deploy.`
+        }
+      ],
+      temperature: 0.7,
+    })
+
+    const htmlContent = htmlResponse.choices[0].message.content || ''
+
+    // 4. Gerar slug único
+    const slug = `${niche}-${Date.now()}`
+    const title = content.headline.substring(0, 100)
+
+    // 5. Salvar no banco
+    const supabase = createClient()
+    const { data: landingPage, error: dbError } = await supabase
+      .from('landing_pages')
+      .insert({
+        title,
+        slug,
+        niche,
+        problem,
+        solution,
+        cta_text,
+        theme_color,
+        headline: content.headline,
+        subheadline: content.subheadline,
+        benefits: content.benefits,
+        hero_image_url: heroImageUrl,
+        html_content: htmlContent,
+        status: 'draft',
+        deploy_status: 'pending',
+      })
+      .select()
+      .single()
+
+    if (dbError) {
+      console.error('❌ Erro ao salvar no banco:', dbError)
+      return NextResponse.json(
+        { error: 'Erro ao salvar landing page', details: dbError.message },
+        { status: 500 }
+      )
+    }
+
+    console.log('✅ Landing page gerada com sucesso!')
+
+    return NextResponse.json({
+      success: true,
+      landingPage: {
+        id: landingPage.id,
+        slug: landingPage.slug,
+        title: landingPage.title,
+        headline: content.headline,
+        subheadline: content.subheadline,
+        heroImageUrl,
+        previewUrl: `/lp/${slug}`, // Preview local
+      },
+      cost: {
+        gpt4: 0.03, // ~$0.03 por página
+        dalle3: 0.04, // $0.04 por imagem
+        total: 0.07,
+      }
+    })
+
+  } catch (error: any) {
+    console.error('❌ Erro ao gerar landing page:', error)
+    return NextResponse.json(
+      { 
+        error: 'Erro ao gerar landing page', 
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
+      { status: 500 }
+    )
+  }
+}
