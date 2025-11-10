@@ -255,7 +255,7 @@ export async function GET(request: NextRequest) {
 
       await resend.emails.send({
         from: 'CATBytes Alerts <contato@catbytes.site>',
-        to: 'izadoracury@hotmail.com', // Email do admin
+        to: 'ipierette2@gmail.com', // Email do admin
         subject: `⚠️ Token Instagram ${diffDays === 0 ? 'EXPIRA HOJE' : 'Expira Amanhã'}!`,
         html: emailHtml
       })
