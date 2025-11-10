@@ -77,22 +77,22 @@ export function AdminNavigation({ className, variant = 'sidebar' }: AdminNavigat
       <nav className={cn("flex items-center space-x-2 text-sm", className)}>
         <Link 
           href="/"
-          className="flex items-center gap-1 text-slate-400 hover:text-slate-300 transition-colors"
+          className="flex items-center gap-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
           Home
         </Link>
-        <span className="text-slate-600">/</span>
+        <span className="text-gray-400 dark:text-gray-600">/</span>
         <Link 
           href="/admin/dashboard"
-          className="text-slate-400 hover:text-slate-300 transition-colors"
+          className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
         >
           Admin
         </Link>
         {currentItem && (
           <>
-            <span className="text-slate-600">/</span>
-            <span className="text-slate-100 font-medium">
+            <span className="text-gray-400 dark:text-gray-600">/</span>
+            <span className="text-gray-900 dark:text-gray-100 font-medium">
               {currentItem.title}
             </span>
           </>
@@ -103,7 +103,7 @@ export function AdminNavigation({ className, variant = 'sidebar' }: AdminNavigat
 
   if (variant === 'tabs') {
     return (
-      <nav className={cn("border-b border-slate-700", className)}>
+      <nav className={cn("border-b border-gray-200 dark:border-gray-700", className)}>
         <div className="flex space-x-6">
           {adminNavItems.map((item) => {
             const isActive = pathname === item.href || 
@@ -116,8 +116,8 @@ export function AdminNavigation({ className, variant = 'sidebar' }: AdminNavigat
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 border-b-2 text-sm font-medium transition-colors",
                   isActive
-                    ? "border-emerald-400 text-emerald-400"
-                    : "border-transparent text-slate-400 hover:text-slate-300 hover:border-slate-500"
+                    ? "border-emerald-500 dark:border-emerald-400 text-emerald-600 dark:text-emerald-400"
+                    : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
                 )}
               >
                 <item.icon className="w-4 h-4" />
@@ -144,32 +144,32 @@ export function AdminNavigation({ className, variant = 'sidebar' }: AdminNavigat
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
               isActive
-                ? "bg-emerald-900/40 text-emerald-300 border-l-4 border-emerald-400"
-                : "text-slate-300 hover:bg-slate-700/50 hover:text-slate-100"
+                ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border-l-4 border-emerald-500 dark:border-emerald-400"
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-100"
             )}
           >
             <item.icon className={cn(
               "w-5 h-5",
-              isActive ? "text-emerald-400" : "text-slate-400"
+              isActive ? "text-emerald-600 dark:text-emerald-400" : "text-gray-500 dark:text-gray-400"
             )} />
             <div>
               <div className="font-medium">{item.title}</div>
-              <div className="text-xs text-slate-500">{item.description}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-500">{item.description}</div>
             </div>
           </Link>
         )
       })}
       
       {/* Voltar para o site */}
-      <div className="pt-4 mt-4 border-t border-slate-700">
+      <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
         <Link
           href="/"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700/50 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
         >
-          <ChevronLeft className="w-5 h-5 text-slate-400" />
+          <ChevronLeft className="w-5 h-5 text-gray-500 dark:text-gray-400" />
           <div>
             <div className="font-medium">Voltar ao Site</div>
-            <div className="text-xs text-slate-500">CATBytes Portfolio</div>
+            <div className="text-xs text-gray-500 dark:text-gray-500">CATBytes Portfolio</div>
           </div>
         </Link>
       </div>
@@ -195,19 +195,19 @@ export function AdminLayoutWrapper({
         closeButton
         duration={4000}
       />
-      <div className="min-h-screen bg-slate-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="flex min-h-screen">
         {/* Sidebar */}
         <div className="hidden md:flex md:w-64 md:flex-col fixed left-0 top-[73px] bottom-0 z-10">
-          <div className="flex flex-col flex-grow pt-5 bg-slate-800 border-r border-slate-700 h-full overflow-y-auto">
+          <div className="flex flex-col flex-grow pt-5 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-full overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-emerald-700 rounded-lg flex items-center justify-center">
+                <div className="w-8 h-8 bg-emerald-600 dark:bg-emerald-700 rounded-lg flex items-center justify-center">
                   <User className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-100">Admin</h2>
-                  <p className="text-xs text-slate-400">CATBytes Panel</p>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Admin</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">CATBytes Panel</p>
                 </div>
               </div>
             </div>
@@ -221,15 +221,15 @@ export function AdminLayoutWrapper({
         {/* Main content */}
         <div className="flex-1 flex flex-col md:ml-64">
           {/* Header */}
-          <header className="bg-slate-800 border-b border-slate-700 px-6 py-4">
+          <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
                 <AdminNavigation variant="breadcrumb" />
                 {title && (
                   <div className="mt-2">
-                    <h1 className="text-2xl font-bold text-slate-100">{title}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>
                     {description && (
-                      <p className="text-sm text-slate-400">{description}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
                     )}
                   </div>
                 )}
