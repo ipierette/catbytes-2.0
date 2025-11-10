@@ -102,6 +102,7 @@ export async function POST(req: NextRequest) {
 
     // Criar files para o deploy
     const indexHtml = landingPage.html_content
+    const projectName = `lp-${landingPage.slug}`
 
     // Deploy direto via API (sem Git)
     const deployResponse = await fetch('https://api.vercel.com/v13/deployments', {
