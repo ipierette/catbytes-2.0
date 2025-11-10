@@ -21,12 +21,19 @@ export const supabaseAdmin = isServerConfigured ? createClient(supabaseUrl!, sup
 
 // Debug: Log initialization status (only in browser)
 if (typeof window !== 'undefined') {
-  console.log('[Analytics] 🔧 Initialization:', {
+  console.log('%c[Analytics] 🔧 Initialization:', 'color: #ffa500; font-weight: bold', {
     clientConfigured: isClientConfigured,
-    supabaseUrl: !!supabaseUrl,
-    supabaseAnonKey: !!supabaseAnonKey,
-    supabaseClient: !!supabase
+    supabaseUrl: supabaseUrl || 'MISSING!',
+    supabaseAnonKey: supabaseAnonKey ? '✅ Present' : '❌ MISSING!',
+    supabaseClient: !!supabase ? '✅ Created' : '❌ NULL!'
   })
+  
+  if (!isClientConfigured) {
+    console.error('%c[Analytics] ❌ SUPABASE NOT CONFIGURED!', 'color: #ff0000; font-size: 16px; font-weight: bold')
+    console.error('[Analytics] Missing environment variables:')
+    if (!supabaseUrl) console.error('  - NEXT_PUBLIC_SUPABASE_URL')
+    if (!supabaseAnonKey) console.error('  - NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  }
 }
 
 // =====================================================
