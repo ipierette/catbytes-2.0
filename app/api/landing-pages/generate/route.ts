@@ -515,8 +515,16 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
   <div class="modal" id="leadModal">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal()">&times;</button>
-      <h2>Solicite uma Demonstração</h2>
-      <p>Preencha o formulário e entraremos em contato em breve!</p>
+      
+      <!-- Destaque do E-book -->
+      <div style="background: linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; text-align: center;">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎁</div>
+        <h3 style="color: white; margin-bottom: 0.5rem; font-size: 1.3rem;">Bônus Exclusivo!</h3>
+        <p style="color: rgba(255,255,255,0.95); font-size: 0.95rem; margin: 0;">E-book GRÁTIS: 100 Dicas de Presença Online</p>
+      </div>
+      
+      <h2>[EBOOK_HEADLINE]</h2>
+      <p>[EBOOK_DESCRIPTION]</p>
       
       <form id="leadForm" onsubmit="submitForm(event)">
         <input type="text" class="honeypot" name="website" tabindex="-1">
@@ -524,20 +532,23 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
         <label for="name">Nome completo *</label>
         <input type="text" id="name" name="name" required placeholder="Seu nome">
         
-        <label for="email">E-mail *</label>
+        <label for="email">E-mail * (enviaremos o e-book aqui)</label>
         <input type="email" id="email" name="email" required placeholder="seu@email.com">
         
-        <label for="phone">Telefone</label>
+        <label for="phone">Telefone (opcional)</label>
         <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000">
         
-        <label for="message">Mensagem</label>
-        <textarea id="message" name="message" placeholder="Como podemos ajudar?"></textarea>
+        <label for="message">Como podemos ajudar?</label>
+        <textarea id="message" name="message" placeholder="Conte-nos sobre suas necessidades..."></textarea>
         
-        <button type="submit">Enviar Solicitação</button>
+        <button type="submit">🎁 Receber E-book Grátis + Contato</button>
         
         <div class="security-badge">
           🔒 Seus dados estão protegidos por criptografia SSL
         </div>
+        <p style="text-align: center; font-size: 0.85rem; color: #718096; margin-top: 1rem;">
+          Ao enviar, você receberá o e-book por email instantaneamente!
+        </p>
       </form>
     </div>
   </div>
@@ -584,7 +595,7 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
         });
         
         if (response.ok) {
-          alert('✅ Obrigado! Entraremos em contato em breve.');
+          alert('✅ Sucesso!\\n\\n📧 Verifique seu email para receber:\\n- E-book "100 Dicas de Presença Online"\\n- Informações sobre nossos serviços\\n\\nEntraremos em contato em breve!');
           form.reset();
           closeModal();
         } else {
@@ -617,23 +628,27 @@ AGORA PREENCHA OS MARCADORES COM O CONTEÚDO:
 
 [HEADLINE] = ${content.headline}
 [SUBHEADLINE] = ${content.subheadline}
-[CTA_TEXT] = ${cta_text}
+[CTA_TEXT] = Baixar E-book Grátis + ${cta_text}
 [SOCIAL_PROOF_TITLE] = ${content.social_proof.split('.')[0]}
 [SOCIAL_PROOF_TEXT] = ${content.social_proof}
+[EBOOK_HEADLINE] = 🎁 Bônus Exclusivo: E-book Grátis com 100 Dicas!
+[EBOOK_DESCRIPTION] = Ao preencher o formulário, você receberá GRÁTIS nosso e-book "100 Dicas de Presença Online" + ${cta_text.toLowerCase()}
 
-[BENEFITS_CARDS] = Crie 3-4 cards de benefícios baseados em: ${content.benefits.join(', ')}
-Cada card deve ter:
+[BENEFITS_CARDS] = Crie 4 cards de benefícios baseados em: ${content.benefits.join(', ')}
+Cada card DEVE seguir este formato EXATO:
 <div class="benefit-card">
-  <div class="benefit-icon">[EMOJI]</div>
-  <h3>[TÍTULO DO BENEFÍCIO]</h3>
-  <p>[DESCRIÇÃO]</p>
+  <div class="benefit-icon">[EMOJI_GRANDE]</div>
+  <h3>[TÍTULO_CURTO]</h3>
+  <p>[DESCRIÇÃO_2_LINHAS]</p>
 </div>
+
+Use emojis grandes e impactantes: 🚀 💎 ⚡ 🎯 📈 ✨ 🔥 💰
 
 REGRAS CRÍTICAS:
 1. Use EXATAMENTE o template fornecido
-2. Não adicione header/footer do site
-3. Não mude cores/estrutura
-4. Mantenha o modal do formulário intacto
+2. Modal agora promete E-BOOK + serviço
+3. Formulário menciona envio do ebook por email
+4. Design premium com gradientes modernos
 5. Retorne HTML completo e válido`
         }
       ],

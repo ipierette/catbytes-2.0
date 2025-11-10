@@ -218,15 +218,102 @@ export async function POST(req: NextRequest) {
 </html>
         `
       })
-      console.log('✅ Email de notificação enviado')
+      console.log('✅ Email de notificação enviado para admin')
     } catch (emailError) {
-      console.error('⚠️ Erro ao enviar email (lead foi salvo):', emailError)
-      // Não retorna erro pois o lead já foi salvo
+      console.error('⚠️ Erro ao enviar email admin (lead foi salvo):', emailError)
+    }
+
+    // 9. Enviar e-book para o lead
+    try {
+      await resend.emails.send({
+        from: 'CATBytes AI <noreply@catbytes.site>',
+        to: body.email,
+        subject: `🎁 Seu E-book Grátis: 100 Dicas de Presença Online`,
+        html: `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; }
+    .header h1 { margin: 0 0 10px; font-size: 28px; }
+    .content { padding: 40px 30px; background: #f9fafb; }
+    .gift-box { background: white; padding: 30px; margin: 20px 0; border-radius: 12px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .gift-icon { font-size: 64px; margin-bottom: 20px; }
+    .download-button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 40px; text-decoration: none; border-radius: 50px; font-weight: bold; margin: 20px 0; box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+    .benefits { background: white; padding: 25px; margin: 20px 0; border-radius: 12px; }
+    .benefit-item { padding: 12px 0; border-bottom: 1px solid #e5e7eb; }
+    .benefit-item:last-child { border-bottom: none; }
+    .footer { text-align: center; padding: 30px 20px; color: #6b7280; font-size: 14px; }
+    .footer a { color: #667eea; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎁 Seu E-book Chegou!</h1>
+      <p>Obrigado por se interessar por ${landingPage.title}</p>
+    </div>
+    
+    <div class="content">
+      <div class="gift-box">
+        <div class="gift-icon">📚</div>
+        <h2 style="color: #1a202c; margin: 0 0 10px;">100 Dicas de Presença Online</h2>
+        <p style="color: #4a5568; margin: 0 0 20px;">Seu guia completo para fortalecer sua marca digital</p>
+        
+        <a href="https://catbytes.site/100-dicas-presenca-online-catbytes.pdf" class="download-button" download>
+          📥 Baixar E-book Agora
+        </a>
+        
+        <p style="font-size: 12px; color: #9ca3af; margin-top: 15px;">
+          Ou acesse: <a href="https://catbytes.site/100-dicas-presenca-online-catbytes.pdf" style="color: #667eea;">catbytes.site/100-dicas-presenca-online-catbytes.pdf</a>
+        </p>
+      </div>
+      
+      <div class="benefits">
+        <h3 style="color: #1a202c; margin: 0 0 15px;">📖 O que você vai aprender:</h3>
+        <div class="benefit-item">✓ Estratégias de marketing digital comprovadas</div>
+        <div class="benefit-item">✓ Como criar conteúdo que engaja</div>
+        <div class="benefit-item">✓ Técnicas de SEO para aparecer no Google</div>
+        <div class="benefit-item">✓ Dicas de redes sociais e automação</div>
+        <div class="benefit-item">✓ Ferramentas essenciais para seu negócio</div>
+      </div>
+      
+      <div style="background: #eef2ff; padding: 20px; border-radius: 12px; margin: 20px 0;">
+        <h3 style="color: #667eea; margin: 0 0 10px;">💬 Próximos Passos</h3>
+        <p style="margin: 0; color: #4a5568;">
+          Recebemos sua solicitação sobre <strong>${landingPage.title}</strong>. 
+          Nossa equipe entrará em contato em breve para entender melhor suas necessidades!
+        </p>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <img src="https://catbytes.site/images/logo-desenvolvedora.webp" alt="CATBytes" style="height: 40px; margin-bottom: 10px; opacity: 0.7;">
+      <p>powered by CATBytes AI</p>
+      <p style="margin: 5px 0;">
+        <a href="https://catbytes.site">catbytes.site</a> | 
+        <a href="mailto:ipierette2@gmail.com">ipierette2@gmail.com</a>
+      </p>
+      <p style="font-size: 12px; color: #9ca3af; margin-top: 15px;">
+        Este email foi enviado porque você solicitou informações em nossa landing page.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+        `
+      })
+      console.log('✅ E-book enviado para o lead')
+    } catch (ebookError) {
+      console.error('⚠️ Erro ao enviar e-book (lead foi salvo):', ebookError)
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Obrigado! Entraremos em contato em breve.',
+      message: 'Obrigado! Verifique seu email para receber o e-book.',
       leadId: lead.id,
     })
 
