@@ -1,0 +1,33 @@
+# robots.txt para CatBytes
+User-agent: *
+Allow: /
+Allow: /pt-BR/
+Allow: /en-US/
+Allow: /pt-BR/blog/
+Allow: /en-US/blog/
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /private/
+
+# Sitemap
+Sitemap: https://catbytes.site/sitemap.xml
+Sitemap: https://catbytes.site/pt-BR/sitemap.xml
+Sitemap: https://catbytes.site/en-US/sitemap.xml
+
+# Crawl-delay (opcional, ajuda em sites grandes)
+Crawl-delay: 1
+
+# Googlebot específico
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 0.5
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 0.5
