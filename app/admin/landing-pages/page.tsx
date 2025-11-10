@@ -14,7 +14,9 @@ import {
   TrendingUp,
   Users,
   MousePointerClick,
-  Percent
+  Percent,
+  Rocket,
+  Loader2
 } from 'lucide-react'
 import { NICHES, COLOR_THEMES } from '@/app/api/landing-pages/generate/route'
 import { CreateLandingPageModal } from '@/components/admin/create-landing-page-modal'
@@ -53,6 +55,7 @@ export default function LandingPagesAdminPage() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
+  const [deployingId, setDeployingId] = useState<string | null>(null)
 
   useEffect(() => {
     loadLandingPages()
@@ -106,6 +109,36 @@ export default function LandingPagesAdminPage() {
     }
     const config = variants[status] || variants.pending
     return <Badge variant={config.variant}>{config.label}</Badge>
+  }
+
+  async function handleDeploy(landingPageId: string) {
+    try {
+      setDeployingId(landingPageId)
+      
+      const response = await fetch('/api/landing-pages/deploy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ landingPageId })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao fazer deploy')
+      }
+
+      // Recarregar lista
+      await loadLandingPages()
+      
+      // Mostrar sucesso
+      alert(`✅ Deploy realizado com sucesso!\n\nURL: ${data.deployUrl}`)
+      
+    } catch (error: any) {
+      console.error('Erro ao fazer deploy:', error)
+      alert(`❌ Erro ao fazer deploy: ${error.message}`)
+    } finally {
+      setDeployingId(null)
+    }
   }
 
   if (loading) {
@@ -249,21 +282,45 @@ export default function LandingPagesAdminPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" size="sm" className="flex-1" asChild>
-                    <a href={`/lp/${lp.slug}`} target="_blank">
-                      <Eye className="mr-1 h-4 w-4" />
-                      Preview
-                    </a>
-                  </Button>
-                  
-                  {lp.deploy_url && (
-                    <Button variant="outline" size="sm" asChild>
-                      <a href={lp.deploy_url} target="_blank">
-                        <ExternalLink className="h-4 w-4" />
+                <div className="space-y-2 pt-2">
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex-1" asChild>
+                      <a href={`/lp/${lp.slug}`} target="_blank">
+                        <Eye className="mr-1 h-4 w-4" />
+                        Preview
                       </a>
                     </Button>
-                  )}
+                    
+                    {lp.deploy_url && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={lp.deploy_url} target="_blank">
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Botão Deploy */}
+                  {lp.deploy_status === 'pending' || lp.deploy_status === 'failed' ? (
+                    <Button 
+                      size="sm" 
+                      className="w-full bg-gradient-to-r from-purple-500 to-pink-500"
+                      onClick={() => handleDeploy(lp.id)}
+                      disabled={deployingId === lp.id}
+                    >
+                      {deployingId === lp.id ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Deployando...
+                        </>
+                      ) : (
+                        <>
+                          <Rocket className="mr-2 h-4 w-4" />
+                          Deploy na Vercel
+                        </>
+                      )}
+                    </Button>
+                  ) : null}
                 </div>
               </CardContent>
             </Card>
