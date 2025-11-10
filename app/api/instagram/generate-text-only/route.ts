@@ -106,37 +106,90 @@ export async function POST(request: NextRequest) {
       // Gerar conteúdo com GPT-4
       console.log('🎨 [TEXT-ONLY] Chamando GPT-4 para gerar conteúdo...')
       
-      const prompt = `Você é um especialista em marketing digital e geração de conteúdo para Instagram.
+      const prompt = `Você é um especialista em copywriting persuasivo e vendas de produtos digitais no Instagram.
 
 Tema: ${tema}
 Nicho: ${nicho}
-Estilo: ${estilo || 'Profissional e envolvente'}
-Palavras-chave: ${palavrasChave || 'Tecnologia, IA, Automação'}
+Estilo: ${estilo || 'Comercial e persuasivo'}
+Palavras-chave: ${palavrasChave || 'Produtos digitais, Infoprodutos, Transformação'}
+
+🎯 OBJETIVO PRINCIPAL: VENDER PRODUTOS DIGITAIS
+
+PRIORIDADE DE TEMAS (90% do conteúdo):
+1. Venda direta de produtos digitais (e-books, cursos, templates, planilhas, etc)
+2. Transformação e resultados que o produto oferece
+3. Problema → Solução → Produto
+4. Prova social, depoimentos, cases de sucesso
+5. Urgência e escassez (promoções, bônus limitados)
+6. Autoridade no nicho (expertise que valida o produto)
+
+NICHOS DE PRODUTOS DIGITAIS (variar):
+- Marketing digital e vendas online
+- Finanças pessoais e investimentos
+- Emagrecimento e saúde
+- Desenvolvimento pessoal e mindset
+- Relacionamentos e autoestima
+- Produtividade e organização
+- Beleza e autocuidado
+- Maternidade e criação de filhos
+- Culinária saudável
+- Idiomas e educação
+- Design e criatividade
+- Empreendedorismo digital
+- **Tecnologia e automação (10% - apenas ocasionalmente)**
 
 Gere um post completo para Instagram com:
 
-1. **titulo**: Um título chamativo e direto (máx 60 caracteres)
+1. **titulo**: Título hipnotizante focado em BENEFÍCIO ou DOR (máx 60 caracteres)
+   Exemplos: "R$ 10K/mês com apenas 1 produto" | "Pare de perder dinheiro online"
 
-2. **imagePrompt**: Um prompt DETALHADO EM PORTUGUÊS para geração de imagem (DALL-E, Midjourney, Sora, Stable Diffusion, etc).
-   - Descreva o estilo visual, cores, composição, iluminação
-   - INCLUA o texto que deve aparecer NA IMAGEM (curto e impactante, entre aspas)
-   - Sora e outras IAs entendem PERFEITAMENTE português!
-   - Exemplo: "Design moderno para post do Instagram, fundo gradiente azul e roxo vibrante, formas geométricas limpas, elementos tech abstratos, elementos 3D flutuantes, sombras suaves, iluminação brilhante, com o texto 'Automatize em 24h' em destaque, tipografia profissional, formato quadrado 1:1, alta qualidade"
+2. **imagePrompt**: Prompt DETALHADO EM PORTUGUÊS para criar design vendedor.
+   - Visual profissional e impactante que VENDE
+   - Cores que convertem (vermelho, laranja, dourado, preto)
+   - TEXTO na imagem: curto, direto, provocativo (máx 30 chars)
+   - Incluir elementos de prova social se relevante (números, % crescimento)
+   - Estilo: clean, moderno, com sensação de valor alto
+   - Exemplo: "Design profissional para post comercial, fundo gradiente preto e dourado premium, elementos de luxo discretos, texto em destaque 'Fature 5x Mais' em tipografia bold impactante, ícones minimalistas de crescimento, composição equilibrada, qualidade publicitária, formato quadrado 1:1"
 
-3. **caption**: Legenda completa com:
-   - Hook inicial envolvente
-   - Desenvolvimento do conteúdo (3-5 parágrafos curtos)
-   - Call-to-action
-   - 10-15 hashtags estratégicas relevantes
-   - Máx 2000 caracteres
+3. **caption**: Legenda de VENDA com estrutura persuasiva:
+   
+   📌 ESTRUTURA OBRIGATÓRIA:
+   
+   [HOOK - 1º parágrafo]
+   - Pergunta provocativa OU dado impactante OU história curta
+   - Objetivo: parar o scroll
+   
+   [DOR/PROBLEMA - 2º parágrafo]
+   - Agitar a dor do público-alvo
+   - "Você está cansado de..."
+   
+   [SOLUÇÃO - 3º parágrafo]
+   - Apresentar a transformação possível
+   - "Imagine se você pudesse..."
+   
+   [PRODUTO/OFERTA - 4º parágrafo]
+   - Mencionar o produto digital de forma natural
+   - Benefícios claros e objetivos
+   
+   [CALL-TO-ACTION - 5º parágrafo]
+   - Ação clara: "Link na bio" | "Comente QUERO" | "Chama no direct"
+   - Senso de urgência se aplicável
+   
+   [HASHTAGS - final]
+   - 12-15 hashtags estratégicas
+   - Mix: nicho + comercial + viral
+   - Exemplos: #produtosdigitais #infoprodutos #rendaextra #marketingdigital
+   
+   Máx 2000 caracteres | Tom conversacional mas comercial
 
-REGRAS IMPORTANTES:
-- TUDO deve ser em PORTUGUÊS BRASILEIRO
-- O imagePrompt deve incluir o texto que aparece na imagem (entre aspas)
-- Texto da imagem: curto, impactante, máx 50 caracteres
-- A legenda deve ser conversacional e engajante
-- Hashtags: misture nicho específico + alcance médio + viral
-- Foco em ${nicho}
+REGRAS DE OURO:
+✅ FOCO TOTAL EM VENDER produtos digitais
+✅ Usar gatilhos mentais (escassez, urgência, prova social, autoridade)
+✅ Linguagem direta e persuasiva
+✅ TUDO em português brasileiro
+✅ Promessa clara de transformação
+❌ Evitar conteúdo puramente técnico (a menos que venda algo técnico)
+❌ Evitar teoria sem aplicação comercial
 
 Retorne APENAS um objeto JSON válido:
 {
