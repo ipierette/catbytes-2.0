@@ -8,11 +8,11 @@
 - [ ] Verificar propriedade (DNS ou HTML tag - já está configurado)
 - [ ] Submeter sitemap manualmente:
   - https://catbytes.site/sitemap.xml
-  - https://catbytes.site/pt-BR/sitemap.xml
-  - https://catbytes.site/en-US/sitemap.xml
-- [ ] Solicitar indexação da homepage
+- [ ] Solicitar indexação da homepage (/)
+- [ ] Solicitar indexação de /pt-BR
 - [ ] Solicitar indexação de /pt-BR/sobre
 - [ ] Solicitar indexação de /pt-BR/projetos
+- [ ] Solicitar indexação de /pt-BR/blog
 
 ### 2. Bing Webmaster Tools
 - [ ] Acessar: https://www.bing.com/webmasters

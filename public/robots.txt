@@ -9,11 +9,10 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /_next/
 Disallow: /private/
+Disallow: /test-social-preview
 
-# Sitemap
+# Sitemap principal
 Sitemap: https://catbytes.site/sitemap.xml
-Sitemap: https://catbytes.site/pt-BR/sitemap.xml
-Sitemap: https://catbytes.site/en-US/sitemap.xml
 
 # Crawl-delay (opcional, ajuda em sites grandes)
 Crawl-delay: 1
