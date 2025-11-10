@@ -7,6 +7,7 @@ import { format } from 'date-fns'
 import { ptBR, enUS } from 'date-fns/locale'
 import type { BlogPost } from '@/types/blog'
 import { ViewCounter } from '@/components/blog/view-counter'
+import { AnalyticsTracker } from '@/components/analytics/analytics-tracker'
 
 export const dynamicParams = true
 export const revalidate = 3600
@@ -164,6 +165,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <ViewCounter slug={slug} locale={locale} />
+      <AnalyticsTracker 
+        postId={post.id}
+        postSlug={slug}
+        title={post.title}
+      />
       
       {/* Cover Image Hero */}
       <div className="relative w-full h-[300px] md:h-[400px] bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">

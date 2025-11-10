@@ -95,11 +95,11 @@ export async function trackPageView(data: PageViewData) {
 export async function trackBlogPostView(data: BlogPostViewData) {
   // Skip tracking if Supabase is not configured
   if (!supabase) {
-    console.warn('[Analytics] ❌ Supabase client not initialized - blog tracking disabled')
+    console.error('%c[Analytics] ❌ Supabase client not initialized - blog tracking disabled', 'color: #ff0000; font-weight: bold')
     return
   }
 
-  console.log('[Analytics] 📖 Tracking blog view:', data.postSlug, `(${data.readTime}s read time)`)
+  console.log('%c[Analytics] 📖 Tracking blog view:', 'color: #ff69b4; font-weight: bold', data.postSlug, `(${data.readTime}s read time, ${data.scrollDepth}% scroll)`)
 
   try {
     const { error } = await supabase
@@ -116,12 +116,12 @@ export async function trackBlogPostView(data: BlogPostViewData) {
       })
 
     if (error) {
-      console.error('[Analytics] ❌ Blog view tracking failed:', error)
+      console.error('%c[Analytics] ❌ Blog view tracking failed:', 'color: #ff0000; font-weight: bold', error)
     } else {
-      console.log('[Analytics] ✅ Blog view saved successfully')
+      console.log('%c[Analytics] ✅ Blog view saved successfully!', 'color: #00ff00; font-weight: bold', data.postSlug)
     }
   } catch (error) {
-    console.error('[Analytics] ❌ Blog view tracking error:', error)
+    console.error('%c[Analytics] ❌ Blog view tracking error:', 'color: #ff0000; font-weight: bold', error)
   }
 }
 
