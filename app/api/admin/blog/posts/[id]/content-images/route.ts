@@ -3,7 +3,7 @@ import { verifyAdminCookie } from '@/lib/api-security'
 import { supabaseAdmin } from '@/lib/supabase'
 
 // =====================================================
-// POST /api/admin/blog/posts/[slug]/content-images
+// POST /api/admin/blog/posts/[id]/content-images
 // Upload content images for blog post body
 // Returns URL to insert in markdown
 // =====================================================
@@ -13,11 +13,11 @@ export const maxDuration = 60
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Await params in Next.js 15
-    const { slug } = await context.params
+    const { id } = await context.params
     
     // Verify admin authentication
     const adminVerification = await verifyAdminCookie(request)
@@ -35,7 +35,7 @@ export async function POST(
       )
     }
 
-    console.log('[Content Image Upload] Processing upload for post:', slug)
+    console.log('[Content Image Upload] Processing upload for post:', id)
 
     // Get form data
     const formData = await request.formData()
@@ -73,7 +73,7 @@ export async function POST(
     // Generate file path
     const fileExt = file.name.split('.').pop()
     const timestamp = Date.now()
-    const fileName = `${slug}-content-${timestamp}.${fileExt}`
+    const fileName = `${id}-content-${timestamp}.${fileExt}`
     const filePath = `content/${fileName}`
 
     console.log('[Content Image Upload] Uploading to:', filePath)

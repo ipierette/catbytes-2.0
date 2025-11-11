@@ -131,7 +131,7 @@ function validateTokenFormat(platform: string, token: string): { valid: boolean;
 
   if (platform === 'linkedin') {
     // LinkedIn tokens geralmente começam com AQV, AQW, AQX
-    if (!token.startsWith('AQ') && !token.length > 50) {
+    if (!token.startsWith('AQ') || token.length <= 50) {
       return { valid: false, reason: 'Token LinkedIn suspeito - verifique o formato' }
     }
   }

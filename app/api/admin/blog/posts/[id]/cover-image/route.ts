@@ -3,7 +3,7 @@ import { verifyAdminCookie } from '@/lib/api-security'
 import { supabaseAdmin } from '@/lib/supabase'
 
 // =====================================================
-// POST /api/admin/blog/posts/[slug]/cover-image
+// POST /api/admin/blog/posts/[id]/cover-image
 // Upload cover image for blog post
 // =====================================================
 
@@ -12,11 +12,11 @@ export const maxDuration = 60
 
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Await params in Next.js 15
-    const { slug } = await context.params
+    const { id } = await context.params
     
     // Verify admin authentication
     const adminVerification = await verifyAdminCookie(request)
@@ -34,7 +34,7 @@ export async function POST(
       )
     }
 
-    console.log('[Cover Image Upload] Processing upload for post:', slug)
+    console.log('[Cover Image Upload] Processing upload for post:', id)
 
     // Get form data
     const formData = await request.formData()
@@ -70,7 +70,7 @@ export async function POST(
 
     // Generate file path
     const fileExt = file.name.split('.').pop()
-    const fileName = `${slug}-cover-${Date.now()}.${fileExt}`
+    const fileName = `${id}-cover-${Date.now()}.${fileExt}`
     const filePath = `covers/${fileName}`
 
     console.log('[Cover Image Upload] Uploading to:', filePath)
@@ -104,7 +104,7 @@ export async function POST(
         cover_image_url: publicUrl,
         updated_at: new Date().toISOString()
       })
-      .eq('slug', slug)
+      .eq('id', id)
 
     if (updateError) {
       console.error('[Cover Image Upload] Failed to update post:', updateError)
