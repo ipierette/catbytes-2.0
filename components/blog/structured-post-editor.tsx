@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
-import { Upload, X, Image as ImageIcon, Info, Sparkles } from 'lucide-react'
+import { Upload, X, Image as ImageIcon, Info, Sparkles, Plus, Minus, HelpCircle } from 'lucide-react'
 import Image from 'next/image'
 
 interface StructuredPostEditorProps {
@@ -29,6 +29,9 @@ export function StructuredPostEditor({ isOpen, onClose, onSave }: StructuredPost
   const [middleContent, setMiddleContent] = useState('')
   const [finalContent, setFinalContent] = useState('')
   
+  // FAQ estruturado
+  const [faqItems, setFaqItems] = useState<{question: string, answer: string}[]>([])
+  
   // Imagens
   const [coverImageUrl, setCoverImageUrl] = useState('')
   const [coverImagePreview, setCoverImagePreview] = useState('')
@@ -38,6 +41,33 @@ export function StructuredPostEditor({ isOpen, onClose, onSave }: StructuredPost
   const [image2Preview, setImage2Preview] = useState('')
   
   const [saving, setSaving] = useState(false)
+
+  const addFaqItem = () => {
+    setFaqItems(prev => [...prev, { question: '', answer: '' }])
+  }
+
+  const removeFaqItem = (index: number) => {
+    setFaqItems(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const updateFaqItem = (index: number, field: 'question' | 'answer', value: string) => {
+    setFaqItems(prev => prev.map((item, i) => 
+      i === index ? { ...item, [field]: value } : item
+    ))
+  }
+
+  const generateFaqMarkdown = () => {
+    if (faqItems.length === 0) return ''
+    
+    const validItems = faqItems.filter(item => item.question.trim() && item.answer.trim())
+    if (validItems.length === 0) return ''
+    
+    let faqMarkdown = '\n\n## Perguntas Frequentes\n\n'
+    validItems.forEach((item, index) => {
+      faqMarkdown += `### ${index + 1}. ${item.question}\n\n${item.answer}\n\n`
+    })
+    return faqMarkdown
+  }
 
   const handleImageUpload = async (file: File, type: 'cover' | 'image1' | 'image2') => {
     if (file.size > 5 * 1024 * 1024) {
@@ -142,7 +172,8 @@ export function StructuredPostEditor({ isOpen, onClose, onSave }: StructuredPost
 
     try {
       // Montar conteúdo markdown estruturado de forma proporcional
-      // Layout: Introdução (30%) → Imagem 1 + Texto do Meio (40%) → Imagem 2 → Final (30%)
+      // Layout: Introdução (30%) → Imagem 1 + Texto do Meio (40%) → Imagem 2 → Final (30%) → FAQ
+      const faqMarkdown = generateFaqMarkdown()
       const fullContent = `${introduction.trim()}
 
 ![Imagem 1](${image1Url})
@@ -151,7 +182,7 @@ ${middleContent.trim()}
 
 ![Imagem 2](${image2Url})
 
-${finalContent.trim()}`
+${finalContent.trim()}${faqMarkdown}`
 
       const postData = {
         title: title.trim(),
@@ -188,6 +219,7 @@ ${finalContent.trim()}`
       setIntroduction('')
       setMiddleContent('')
       setFinalContent('')
+      setFaqItems([])
       setCoverImageUrl('')
       setCoverImagePreview('')
       setImage1Url('')
@@ -513,6 +545,96 @@ Resumo final e call-to-action..."
               className="font-mono text-sm"
             />
             <p className="text-xs text-muted-foreground">{finalContent.length} caracteres</p>
+          </div>
+
+          {/* SEÇÃO 8: FAQ (Opcional) */}
+          <div className="border-l-4 border-yellow-500 pl-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold flex items-center gap-2">
+                <HelpCircle className="h-5 w-5 text-yellow-500" />
+                8. FAQ - Perguntas Frequentes (Opcional)
+              </h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addFaqItem}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Adicionar Pergunta
+              </Button>
+            </div>
+            
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <p className="text-sm text-yellow-800 dark:text-yellow-300 flex items-start gap-2">
+                <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <span>
+                  Adicione perguntas e respostas que os leitores podem ter sobre o tema. 
+                  Esta seção aparecerá com estilo especial no final do artigo.
+                </span>
+              </p>
+            </div>
+
+            {faqItems.length === 0 ? (
+              <div className="text-center py-8 border-2 border-dashed border-yellow-300 dark:border-yellow-700 rounded-lg">
+                <HelpCircle className="h-8 w-8 text-yellow-400 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Nenhuma pergunta adicionada ainda</p>
+                <p className="text-xs text-muted-foreground">Clique em "Adicionar Pergunta" para começar</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {faqItems.map((item, index) => (
+                  <div key={index} className="border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-sm text-yellow-800 dark:text-yellow-300">
+                        Pergunta {index + 1}
+                      </h4>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFaqItem(index)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor={`faq-question-${index}`}>Pergunta</Label>
+                      <Input
+                        id={`faq-question-${index}`}
+                        placeholder="Ex: Como posso integrar um chatbot no meu site?"
+                        value={item.question}
+                        onChange={(e) => updateFaqItem(index, 'question', e.target.value)}
+                        className="font-medium"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor={`faq-answer-${index}`}>Resposta</Label>
+                      <Textarea
+                        id={`faq-answer-${index}`}
+                        placeholder="Escreva a resposta detalhada aqui. Pode usar Markdown se quiser."
+                        value={item.answer}
+                        onChange={(e) => updateFaqItem(index, 'answer', e.target.value)}
+                        rows={3}
+                        className="text-sm"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {faqItems.length > 0 && (
+              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                <p className="text-sm text-green-800 dark:text-green-300">
+                  ✅ {faqItems.filter(item => item.question.trim() && item.answer.trim()).length} perguntas válidas serão incluídas no artigo
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

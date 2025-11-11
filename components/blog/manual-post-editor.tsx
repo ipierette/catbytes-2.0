@@ -22,6 +22,7 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
   const [content, setContent] = useState('')
   const [tags, setTags] = useState('')
   const [highlight, setHighlight] = useState('')
+  const [faqItems, setFaqItems] = useState<{question: string, answer: string}[]>([])
   const [coverImage, setCoverImage] = useState<File | null>(null)
   const [coverImagePreview, setCoverImagePreview] = useState<string>('')
   const [coverImageUrl, setCoverImageUrl] = useState<string>('')
@@ -29,6 +30,33 @@ export function ManualPostEditor({ isOpen, onClose, onSave }: ManualPostEditorPr
   const [contentImagePreviews, setContentImagePreviews] = useState<string[]>([])
   const [contentImageUrls, setContentImageUrls] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
+
+  const addFaqItem = () => {
+    setFaqItems(prev => [...prev, { question: '', answer: '' }])
+  }
+
+  const removeFaqItem = (index: number) => {
+    setFaqItems(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const updateFaqItem = (index: number, field: 'question' | 'answer', value: string) => {
+    setFaqItems(prev => prev.map((item, i) => 
+      i === index ? { ...item, [field]: value } : item
+    ))
+  }
+
+  const generateFaqMarkdown = () => {
+    if (faqItems.length === 0) return ''
+    
+    const validItems = faqItems.filter(item => item.question.trim() && item.answer.trim())
+    if (validItems.length === 0) return ''
+    
+    let faqMarkdown = '\n\n## Perguntas Frequentes\n\n'
+    validItems.forEach((item, index) => {
+      faqMarkdown += `### ${index + 1}. ${item.question}\n\n${item.answer}\n\n`
+    })
+    return faqMarkdown
+  }
 
   const handleCoverImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

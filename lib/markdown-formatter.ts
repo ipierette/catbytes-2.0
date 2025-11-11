@@ -64,6 +64,27 @@ export function formatMarkdown(markdown: string): string {
   })
 
   html = html
+    // Code blocks (blocos de código com triple backticks)
+    .replace(/```([a-z]*)\n?([\s\S]*?)```/g, (match, language, code) => {
+      const lang = language || 'text'
+      const escapedCode = code
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/&/g, '&amp;')
+      
+      return `<div class="code-block-wrapper my-6">
+        <div class="code-block-header bg-gray-800 dark:bg-gray-900 px-4 py-2 text-xs font-mono text-gray-300 border-b border-gray-700">
+          <span>${lang}</span>
+        </div>
+        <div class="code-block bg-gray-900 dark:bg-black p-4 overflow-x-auto">
+          <code class="text-sm text-gray-100 whitespace-pre font-mono leading-relaxed">${escapedCode}</code>
+        </div>
+      </div>`
+    })
+    
+    // Inline code (código inline com single backticks)
+    .replace(/`([^`]+)`/g, '<code class="inline-code bg-gray-200 dark:bg-gray-700 text-catbytes-purple dark:text-catbytes-pink px-2 py-1 rounded text-sm font-mono">$1</code>')
+    
     // Imagens markdown para HTML responsivo
     .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
       // Verificar se é uma URL do Supabase ou externa válida

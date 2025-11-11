@@ -26,7 +26,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ManualPostEditor } from '@/components/blog/manual-post-editor'
 import { StructuredPostEditor } from '@/components/blog/structured-post-editor'
 import type { BlogPost as BlogPostType } from '@/types/blog'
 
@@ -68,7 +67,6 @@ export default function BlogAdminPage() {
   const [textOnlyMode, setTextOnlyMode] = useState(false)
   const [customThemeDialogOpen, setCustomThemeDialogOpen] = useState(false)
   const [customTheme, setCustomTheme] = useState('')
-  const [manualEditorOpen, setManualEditorOpen] = useState(false)
   const [structuredEditorOpen, setStructuredEditorOpen] = useState(false)
   // Removed message state - using toast instead
 
@@ -378,15 +376,6 @@ export default function BlogAdminPage() {
               onClick={() => setStructuredEditorOpen(true)}
             >
               ✨ Editor Estruturado (Recomendado)
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="lg"
-              className="gap-2 flex-1 md:flex-initial"
-              onClick={() => setManualEditorOpen(true)}
-            >
-              ✍️ Editor Livre
             </Button>
             
             <DropdownMenu>
@@ -859,13 +848,6 @@ export default function BlogAdminPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Editor Manual de Posts */}
-      <ManualPostEditor
-        isOpen={manualEditorOpen}
-        onClose={() => setManualEditorOpen(false)}
-        onSave={loadData}
-      />
 
       {/* Editor Estruturado de Posts */}
       <StructuredPostEditor
