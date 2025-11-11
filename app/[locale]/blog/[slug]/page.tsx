@@ -9,7 +9,6 @@ import type { BlogPost } from '@/types/blog'
 import { ViewCounter } from '@/components/blog/view-counter'
 import { AnalyticsTracker } from '@/components/analytics/analytics-tracker'
 import { RelatedPosts } from '@/components/blog/related-posts'
-import { ArticleJsonLd, FAQJsonLd, BreadcrumbJsonLd } from 'next-seo'
 
 export const dynamicParams = true
 export const revalidate = 3600
@@ -221,46 +220,86 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Article Schema.org JSON-LD */}
-      <ArticleJsonLd
-        type="BlogPosting"
-        url={canonicalUrl}
-        headline={post.title}
-        image={post.cover_image_url}
-        datePublished={post.created_at}
-        dateModified={post.updated_at}
-        author={post.author}
-        description={post.excerpt}
-        publisher={{
-          name: "CatBytes AI",
-          logo: `${siteUrl}/images/logo-desenvolvedora.webp`
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: post.title,
+            image: post.cover_image_url,
+            datePublished: post.created_at,
+            dateModified: post.updated_at,
+            author: {
+              '@type': 'Person',
+              name: post.author,
+            },
+            publisher: {
+              '@type': 'Organization',
+              name: 'CatBytes AI',
+              logo: {
+                '@type': 'ImageObject',
+                url: `${siteUrl}/images/logo-desenvolvedora.webp`,
+              },
+            },
+            description: post.excerpt,
+            mainEntityOfPage: {
+              '@type': 'WebPage',
+              '@id': canonicalUrl,
+            },
+          }),
         }}
       />
 
       {/* Breadcrumb Schema */}
-      <BreadcrumbJsonLd
-        items={[
-          {
-            name: locale === 'pt-BR' ? 'Início' : 'Home',
-            item: `${siteUrl}/${locale}`,
-          },
-          {
-            name: 'Blog',
-            item: `${siteUrl}/${locale}/blog`,
-          },
-          {
-            name: post.title,
-            item: canonicalUrl,
-          },
-        ]}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: locale === 'pt-BR' ? 'Início' : 'Home',
+                item: `${siteUrl}/${locale}`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Blog',
+                item: `${siteUrl}/${locale}/blog`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: post.title,
+                item: canonicalUrl,
+              },
+            ],
+          }),
+        }}
       />
 
       {/* FAQ Schema (if FAQ section exists) */}
       {faqItems.length > 0 && (
-        <FAQJsonLd
-          questions={faqItems.map(faq => ({
-            name: faq.question,
-            acceptedAnswer: faq.answer,
-          }))}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              mainEntity: faqItems.map(faq => ({
+                '@type': 'Question',
+                name: faq.question,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: faq.answer,
+                },
+              })),
+            }),
+          }}
         />
       )}
 
