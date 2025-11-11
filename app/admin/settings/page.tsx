@@ -23,6 +23,8 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
+import { TokenGeneratorModal } from '@/components/admin/token-generator-modal'
+import { createTokenReminder } from '@/lib/token-utils'
 
 interface SystemSettings {
   automation: {
@@ -35,6 +37,8 @@ interface SystemSettings {
     openaiKey: string
     instagramToken: string
     instagramTokenExpiryDate?: string // Data de expiração do token (60 dias)
+    linkedinToken: string
+    linkedinTokenExpiryDate?: string // Data de expiração do token LinkedIn (60 dias)
     emailService: boolean
     databaseUrl: string
   }
@@ -59,16 +63,26 @@ export default function SettingsPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [showApiKeys, setShowApiKeys] = useState(false)
   const [tokenDaysRemaining, setTokenDaysRemaining] = useState<number | null>(null)
+  const [linkedinTokenDaysRemaining, setLinkedinTokenDaysRemaining] = useState<number | null>(null)
+  const [showTokenGenerator, setShowTokenGenerator] = useState(false)
+  const [tokenGeneratorPlatform, setTokenGeneratorPlatform] = useState<'instagram' | 'linkedin'>('instagram')
+  const [tokenAlerts, setTokenAlerts] = useState<Array<{platform: string, daysRemaining: number, urgency: string}>>([])
+  const [lastReminderCheck, setLastReminderCheck] = useState<string | null>(null)
 
   useEffect(() => {
     loadSettings()
+    // Verificar lembretes pendentes quando carregar a página
+    checkTokenReminders()
   }, [])
 
   useEffect(() => {
     if (settings?.api.instagramTokenExpiryDate) {
       calculateDaysRemaining(settings.api.instagramTokenExpiryDate)
     }
-  }, [settings?.api.instagramTokenExpiryDate])
+    if (settings?.api.linkedinTokenExpiryDate) {
+      calculateLinkedinDaysRemaining(settings.api.linkedinTokenExpiryDate)
+    }
+  }, [settings?.api.instagramTokenExpiryDate, settings?.api.linkedinTokenExpiryDate])
 
   const calculateDaysRemaining = (expiryDate: string) => {
     const expiry = new Date(expiryDate)
@@ -78,11 +92,137 @@ export default function SettingsPage() {
     setTokenDaysRemaining(diffDays)
   }
 
+  const calculateLinkedinDaysRemaining = (expiryDate: string) => {
+    const expiry = new Date(expiryDate)
+    const now = new Date()
+    const diffTime = expiry.getTime() - now.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    setLinkedinTokenDaysRemaining(diffDays)
+  }
+
+  const checkTokenReminders = async () => {
+    try {
+      console.log('🔍 Verificando status dos tokens...')
+      
+      const response = await fetch('/api/admin/token-check')
+      const data = await response.json()
+      
+      if (data.success && data.alerts) {
+        setTokenAlerts(data.alerts)
+        
+        // Marcar verificação realizada
+        const now = new Date().toISOString()
+        setLastReminderCheck(now)
+        localStorage.setItem('lastTokenCheck', now)
+
+        // Se houver alertas críticos, mostrar notificação
+        const criticalAlerts = data.alerts.filter((a: any) => a.urgency === 'critical')
+        if (criticalAlerts.length > 0) {
+          setMessage({
+            type: 'error',
+            text: `⚠️ ${criticalAlerts.length} token(s) expiram em menos de 3 dias! Renove urgentemente.`
+          })
+        } else if (data.alerts.length > 0) {
+          setMessage({
+            type: 'error',
+            text: `📅 ${data.alerts.length} token(s) precisam de atenção nas próximas semanas.`
+          })
+        }
+
+        console.log('✅ Verificação de tokens concluída:', data.summary)
+      } else {
+        console.warn('⚠️ Erro na verificação de tokens:', data.error)
+      }
+    } catch (error) {
+      console.error('❌ Erro ao verificar lembretes:', error)
+      
+      // Fallback: verificação local se API falhar
+      const alerts = []
+      
+      if (settings?.api.instagramTokenExpiryDate) {
+        const daysRemaining = getDaysRemaining(settings.api.instagramTokenExpiryDate)
+        if (daysRemaining <= 30) {
+          alerts.push({
+            platform: 'Instagram',
+            daysRemaining,
+            urgency: daysRemaining <= 3 ? 'critical' : daysRemaining <= 7 ? 'high' : 'medium'
+          })
+        }
+      }
+
+      if (settings?.api.linkedinTokenExpiryDate) {
+        const daysRemaining = getDaysRemaining(settings.api.linkedinTokenExpiryDate)
+        if (daysRemaining <= 30) {
+          alerts.push({
+            platform: 'LinkedIn',
+            daysRemaining,
+            urgency: daysRemaining <= 3 ? 'critical' : daysRemaining <= 7 ? 'high' : 'medium'
+          })
+        }
+      }
+
+      setTokenAlerts(alerts)
+    }
+  }
+
+  const getDaysRemaining = (expiryDate: string): number => {
+    const expiry = new Date(expiryDate)
+    const now = new Date()
+    const diffTime = expiry.getTime() - now.getTime()
+    return Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)))
+  }
+
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case 'critical': return 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 text-red-900 dark:text-red-200'
+      case 'high': return 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800 text-orange-900 dark:text-orange-200'
+      case 'medium': return 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800 text-yellow-900 dark:text-yellow-200'
+      default: return 'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+    }
+  }
+
+  const handleLinkedinTokenRenewal = () => {
+    const newExpiryDate = new Date()
+    newExpiryDate.setDate(newExpiryDate.getDate() + 60)
+    updateSettings('api', 'linkedinTokenExpiryDate', newExpiryDate.toISOString())
+    setMessage({ type: 'success', text: 'Data de expiração do LinkedIn renovada! Lembre-se de atualizar o token no LinkedIn.' })
+  }
+
   const handleTokenRenewal = () => {
     const newExpiryDate = new Date()
     newExpiryDate.setDate(newExpiryDate.getDate() + 60)
     updateSettings('api', 'instagramTokenExpiryDate', newExpiryDate.toISOString())
     setMessage({ type: 'success', text: 'Data de expiração renovada! Lembre-se de atualizar o token no Instagram.' })
+    
+    // Criar lembretes automáticos
+    createTokenReminder('instagram', newExpiryDate.toISOString())
+  }
+
+  const handleOpenTokenGenerator = (platform: 'instagram' | 'linkedin') => {
+    setTokenGeneratorPlatform(platform)
+    setShowTokenGenerator(true)
+  }
+
+  const handleTokenGenerated = async (token: string, expiryDate: string) => {
+    // Atualizar token e data de expiração nas configurações
+    if (tokenGeneratorPlatform === 'instagram') {
+      updateSettings('api', 'instagramToken', token)
+      updateSettings('api', 'instagramTokenExpiryDate', expiryDate)
+    } else {
+      updateSettings('api', 'linkedinToken', token)
+      updateSettings('api', 'linkedinTokenExpiryDate', expiryDate)
+    }
+
+    // Criar lembretes automáticos
+    await createTokenReminder(tokenGeneratorPlatform, expiryDate)
+
+    setMessage({ 
+      type: 'success', 
+      text: `Token ${tokenGeneratorPlatform === 'instagram' ? 'Instagram' : 'LinkedIn'} atualizado com sucesso! Lembretes automáticos criados.` 
+    })
+    
+    // Salvar automaticamente
+    setTimeout(handleSave, 1000)
   }
 
   const loadSettings = async () => {
@@ -112,6 +252,7 @@ export default function SettingsPage() {
         api: {
           openaiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY || '',
           instagramToken: process.env.NEXT_PUBLIC_INSTAGRAM_TOKEN || '',
+          linkedinToken: process.env.NEXT_PUBLIC_LINKEDIN_TOKEN || '',
           emailService: true,
           databaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || ''
         },
@@ -142,6 +283,7 @@ export default function SettingsPage() {
         api: {
           openaiKey: '',
           instagramToken: '',
+          linkedinToken: '',
           emailService: true,
           databaseUrl: ''
         },
@@ -259,6 +401,64 @@ export default function SettingsPage() {
               )}
               <AlertDescription>{message.text}</AlertDescription>
             </Alert>
+          )}
+
+          {/* Token Alerts Panel */}
+          {tokenAlerts.length > 0 && (
+            <Card className="border-orange-200 dark:border-orange-800">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-orange-900 dark:text-orange-200">
+                  <AlertCircle className="h-5 w-5" />
+                  ⚠️ Alertas de Token
+                </CardTitle>
+                <CardDescription>
+                  {tokenAlerts.length} token(s) precisam de atenção
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {tokenAlerts.map((alert, index) => (
+                  <div
+                    key={`${alert.platform}-${index}`}
+                    className={`p-3 rounded-lg border ${getUrgencyColor(alert.urgency)}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">
+                          Token {alert.platform} {alert.daysRemaining <= 0 ? 'EXPIRADO' : `expira em ${alert.daysRemaining} dias`}
+                        </p>
+                        <p className="text-sm opacity-80">
+                          {alert.urgency === 'critical' && '🚨 AÇÃO URGENTE NECESSÁRIA'}
+                          {alert.urgency === 'high' && '⚠️ Renovação recomendada'}
+                          {alert.urgency === 'medium' && '📅 Planeje a renovação'}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleOpenTokenGenerator(alert.platform.toLowerCase() as 'instagram' | 'linkedin')}
+                        className="gap-2"
+                      >
+                        🔄 Renovar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                
+                <div className="pt-2 border-t">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Última verificação: {lastReminderCheck ? new Date(lastReminderCheck).toLocaleString('pt-BR') : 'Agora'}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={checkTokenReminders}
+                      className="gap-1 h-6 px-2 text-xs"
+                    >
+                      🔄 Verificar Novamente
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           {/* Automation Settings */}
@@ -380,6 +580,19 @@ export default function SettingsPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Botão para gerar novo token */}
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenTokenGenerator('instagram')}
+                      className="gap-2 flex-1"
+                    >
+                      <Instagram className="h-4 w-4" />
+                      🚀 Gerar Novo Token (60 dias)
+                    </Button>
+                  </div>
                   
                   {/* Token Expiry Info */}
                   {settings?.api.instagramTokenExpiryDate && tokenDaysRemaining !== null && (
@@ -425,6 +638,83 @@ export default function SettingsPage() {
                         className="gap-2 w-full"
                       >
                         📅 Definir Data de Expiração (60 dias)
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <Label className="font-medium">LinkedIn Access Token</Label>
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      type={showApiKeys ? 'text' : 'password'}
+                      value={settings?.api.linkedinToken}
+                      onChange={(e) => updateSettings('api', 'linkedinToken', e.target.value)}
+                      placeholder="AQX..."
+                    />
+                    <div className="flex items-center gap-1">
+                      {settings?.api.linkedinToken && (
+                        <CheckCircle className="h-5 w-5 text-green-500" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Botão para gerar novo token LinkedIn */}
+                  <div className="mt-3 flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenTokenGenerator('linkedin')}
+                      className="gap-2 flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+                    >
+                      💼 Gerar Novo Token LinkedIn (60 dias)
+                    </Button>
+                  </div>
+                  
+                  {/* LinkedIn Token Expiry Info */}
+                  {settings?.api.linkedinTokenExpiryDate && linkedinTokenDaysRemaining !== null && (
+                    <div className={`mt-3 p-3 rounded-lg border ${
+                      linkedinTokenDaysRemaining <= 1 
+                        ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800' 
+                        : linkedinTokenDaysRemaining <= 7
+                        ? 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800'
+                        : 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">
+                            {linkedinTokenDaysRemaining <= 0 
+                              ? '⚠️ Token LinkedIn Expirado!' 
+                              : linkedinTokenDaysRemaining === 1
+                              ? '⚠️ Expira amanhã!'
+                              : `${linkedinTokenDaysRemaining} dias restantes`}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Expira em: {new Date(settings.api.linkedinTokenExpiryDate).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleLinkedinTokenRenewal}
+                          className="gap-2"
+                        >
+                          🔄 Renovar
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Adicionar data de expiração LinkedIn se não existir */}
+                  {!settings?.api.linkedinTokenExpiryDate && settings?.api.linkedinToken && (
+                    <div className="mt-3">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleLinkedinTokenRenewal}
+                        className="gap-2 w-full"
+                      >
+                        📅 Definir Data de Expiração LinkedIn (60 dias)
                       </Button>
                     </div>
                   )}
@@ -587,6 +877,14 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Token Generator Modal */}
+        <TokenGeneratorModal
+          open={showTokenGenerator}
+          onOpenChange={setShowTokenGenerator}
+          platform={tokenGeneratorPlatform}
+          onTokenGenerated={handleTokenGenerated}
+        />
       </AdminLayoutWrapper>
     </AdminGuard>
   )

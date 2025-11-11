@@ -20,6 +20,7 @@ export async function GET() {
       api: {
         openaiKey: process.env.OPENAI_API_KEY || '',
         instagramToken: process.env.INSTAGRAM_ACCESS_TOKEN || '',
+        linkedinToken: process.env.LINKEDIN_ACCESS_TOKEN || '',
         emailService: true,
         databaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || ''
       },
@@ -92,6 +93,7 @@ export async function GET() {
         api: {
           openaiKey: '',
           instagramToken: '',
+          linkedinToken: '',
           emailService: true,
           databaseUrl: ''
         },
