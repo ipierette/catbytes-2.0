@@ -87,9 +87,63 @@ export async function POST(request: NextRequest) {
     const translatedPost = await db.createPost(enPostData)
     console.log('[Translate] Translation created:', translatedPost.id)
 
+    // Send newsletter to EN-US subscribers
+    if (supabaseAdmin) {
+      try {
+        console.log('[Translate] Sending newsletter to EN-US subscribers...')
+        
+        // Get EN-US subscribers
+        const { data: subscribers } = await supabaseAdmin
+          .from('newsletter_subscribers')
+          .select('email')
+          .eq('confirmed', true)
+          .eq('locale', 'en-US')
+
+        if (subscribers && subscribers.length > 0) {
+          const { Resend } = await import('resend')
+          const resend = new Resend(process.env.RESEND_API_KEY)
+
+          // Import email template
+          const { getTranslationNotificationEmailHTML } = await import('@/lib/email-templates/translation-notification-email')
+
+          const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
+          const htmlContent = getTranslationNotificationEmailHTML(
+            'Dear Reader', // recipientName
+            translatedPost.title, // translatedTitle
+            originalPost.title, // originalTitle
+            translatedPost.excerpt, // excerpt
+            translatedPost.cover_image_url, // coverImageUrl
+            `${baseUrl}/en-US/blog/${translatedPost.slug}`, // postUrl
+            `${baseUrl}/blog/${originalPost.slug}`, // originalUrl
+            'en-US', // locale
+            baseUrl // baseUrl
+          )
+
+          // Send emails in batches of 50
+          const batchSize = 50
+          for (let i = 0; i < subscribers.length; i += batchSize) {
+            const batch = subscribers.slice(i, i + batchSize)
+            
+            await resend.emails.send({
+              from: process.env.RESEND_FROM_EMAIL || 'newsletter@catbytes.com',
+              to: batch.map(sub => sub.email),
+              subject: `🌐 New Translation Available: ${translatedPost.title}`,
+              html: htmlContent,
+            })
+          }
+
+          console.log('[Translate] Newsletter sent to', subscribers.length, 'EN-US subscribers')
+        }
+      } catch (emailError) {
+        console.error('[Translate] Error sending newsletter:', emailError)
+        // Don't fail the translation if email fails
+      }
+    }
+
     return NextResponse.json({
       success: true,
       post: translatedPost,
+      message: 'Post translated successfully and newsletter sent to EN-US subscribers'
     })
   } catch (error) {
     console.error('[Translate] Error:', error)
