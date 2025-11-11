@@ -60,6 +60,7 @@ export default function BlogAdminPage() {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [selectedPosts, setSelectedPosts] = useState<string[]>([])
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft' | 'scheduled'>('all')
+  const [filterPeriod, setFilterPeriod] = useState<string>('')
   // Removed message state - using toast instead
   const [previewModalOpen, setPreviewModalOpen] = useState(false)
   const [previewTheme, setPreviewTheme] = useState('')
@@ -71,10 +72,44 @@ export default function BlogAdminPage() {
   const [structuredEditorOpen, setStructuredEditorOpen] = useState(false)
   // Removed message state - using toast instead
 
-  // Filtrar posts baseado no status selecionado
-  const filteredPosts = filterStatus === 'all' 
-    ? posts 
-    : posts.filter(p => p.status === filterStatus)
+  // Filtrar posts baseado no status e período selecionados
+  const filteredPosts = posts.filter(p => {
+    // Filtro de status
+    if (filterStatus !== 'all' && p.status !== filterStatus) {
+      return false
+    }
+    
+    // Filtro de período
+    if (filterPeriod) {
+      const postDate = new Date(p.created_at)
+      const now = new Date()
+      let dateFrom = new Date()
+      
+      switch (filterPeriod) {
+        case 'last7days':
+          dateFrom.setDate(now.getDate() - 7)
+          break
+        case 'last30days':
+          dateFrom.setDate(now.getDate() - 30)
+          break
+        case 'last3months':
+          dateFrom.setMonth(now.getMonth() - 3)
+          break
+        case 'last6months':
+          dateFrom.setMonth(now.getMonth() - 6)
+          break
+        case 'lastyear':
+          dateFrom.setFullYear(now.getFullYear() - 1)
+          break
+      }
+      
+      if (postDate < dateFrom) {
+        return false
+      }
+    }
+    
+    return true
+  })
 
   useEffect(() => {
     loadData()
@@ -397,12 +432,12 @@ export default function BlogAdminPage() {
                 </DropdownMenuItem>
                 
                 <DropdownMenuItem 
-                  onClick={() => handleGeneratePost('Novidades sobre IA')}
+                  onClick={() => handleGeneratePost('Tech Aleatório')}
                   className="cursor-pointer"
                 >
                   <div className="flex flex-col">
-                    <span className="font-semibold">🤖 Novidades sobre IA</span>
-                    <span className="text-xs text-muted-foreground">Últimas notícias de IA</span>
+                    <span className="font-semibold">🚀 Tech Aleatório</span>
+                    <span className="text-xs text-muted-foreground">Tutoriais, SEO, tendências tech</span>
                   </div>
                 </DropdownMenuItem>
                 
@@ -526,10 +561,10 @@ export default function BlogAdminPage() {
               <div>
                 <h4 className="font-semibold mb-2 text-emerald-400">🗓️ Domingo</h4>
                 <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600">
-                  <p className="font-medium text-sm mb-1 text-slate-200">🤖 Novidades sobre IA</p>
+                  <p className="font-medium text-sm mb-1 text-slate-200">🚀 Tech Aleatório</p>
                   <p className="text-xs text-slate-400">
-                    Últimas notícias sobre inteligência artificial: novos modelos (ChatGPT, Gemini, Claude), 
-                    ferramentas, atualizações e tendências de fontes confiáveis
+                    Tutoriais técnicos, SEO e marketing digital, tendências tech mais atualizadas: 
+                    ferramentas, frameworks, melhores práticas e inovações
                   </p>
                 </div>
               </div>
@@ -568,62 +603,100 @@ export default function BlogAdminPage() {
               )}
             </div>
 
-            {/* Filtro de Status */}
-            <div className="flex gap-2 mt-4 flex-wrap">
-              <button
-                onClick={() => setFilterStatus('all')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  filterStatus === 'all'
-                    ? 'bg-slate-600 text-white'
-                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
-                }`}
-              >
-                Todos ({posts.length})
-              </button>
-              <button
-                onClick={() => setFilterStatus('published')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  filterStatus === 'published'
-                    ? 'bg-green-600 text-white'
-                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
-                }`}
-              >
-                Publicados ({stats?.published || 0})
-              </button>
-              <button
-                onClick={() => setFilterStatus('draft')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  filterStatus === 'draft'
-                    ? 'bg-yellow-600 text-white'
-                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
-                }`}
-              >
-                Rascunhos ({stats?.drafts || 0})
-              </button>
-              <button
-                onClick={() => setFilterStatus('scheduled')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  filterStatus === 'scheduled'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
-                }`}
-              >
-                Agendados ({stats?.scheduled || 0})
-              </button>
+            {/* Filtro de Status e Período */}
+            <div className="flex flex-col gap-4 mt-4">
+              {/* Status Filter */}
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => setFilterStatus('all')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    filterStatus === 'all'
+                      ? 'bg-slate-600 text-white'
+                      : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  Todos ({posts.length})
+                </button>
+                <button
+                  onClick={() => setFilterStatus('published')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    filterStatus === 'published'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  Publicados ({stats?.published || 0})
+                </button>
+                <button
+                  onClick={() => setFilterStatus('draft')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    filterStatus === 'draft'
+                      ? 'bg-yellow-600 text-white'
+                      : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  Rascunhos ({stats?.drafts || 0})
+                </button>
+                <button
+                  onClick={() => setFilterStatus('scheduled')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    filterStatus === 'scheduled'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  Agendados ({stats?.scheduled || 0})
+                </button>
+              </div>
+
+              {/* Period Filter */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Filtrar por Período
+                </label>
+                <select
+                  value={filterPeriod}
+                  onChange={(e) => setFilterPeriod(e.target.value)}
+                  className="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:border-blue-500 outline-none transition-colors"
+                >
+                  <option value="">Todos os períodos</option>
+                  <option value="last7days">Últimos 7 dias</option>
+                  <option value="last30days">Últimos 30 dias</option>
+                  <option value="last3months">Últimos 3 meses</option>
+                  <option value="last6months">Últimos 6 meses</option>
+                  <option value="lastyear">Último ano</option>
+                </select>
+              </div>
+
+              {/* Filter Summary */}
+              {(filterStatus !== 'all' || filterPeriod) && (
+                <div className="flex items-center gap-2 text-sm text-slate-400">
+                  <span>Mostrando {filteredPosts.length} de {posts.length} posts</span>
+                  <button
+                    onClick={() => {
+                      setFilterStatus('all')
+                      setFilterPeriod('')
+                    }}
+                    className="text-blue-400 hover:text-blue-300 underline"
+                  >
+                    Limpar filtros
+                  </button>
+                </div>
+              )}
             </div>
           </CardHeader>
           <CardContent>
             {filteredPosts.length === 0 ? (
               <p className="text-slate-400 text-center py-8">
-                {filterStatus === 'all' 
+                {filterStatus === 'all' && !filterPeriod
                   ? 'Nenhum post encontrado. Gere o primeiro post!'
-                  : `Nenhum post ${filterStatus === 'published' ? 'publicado' : filterStatus === 'draft' ? 'rascunho' : 'agendado'} encontrado.`
+                  : `Nenhum post encontrado com os filtros selecionados.`
                 }
               </p>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
                 {/* Select All */}
-                <div className="flex items-center gap-2 pb-2 border-b border-slate-700">
+                <div className="flex items-center gap-2 pb-2 border-b border-slate-700 sticky top-0 bg-slate-800 z-10">
                   <Checkbox
                     checked={selectedPosts.length === filteredPosts.length && filteredPosts.length > 0}
                     onCheckedChange={toggleSelectAll}

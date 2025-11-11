@@ -1,6 +1,6 @@
 /**
  * Blog Scheduler - Sistema de rotação de temas por dia
- * Segunda: Automação e Negócios | Quinta: Dicas de Programação Web | Sábado: Cuidados Felinos | Domingo: Novidades sobre IA
+ * Segunda: Automação e Negócios | Quinta: Dicas de Programação Web | Sábado: Cuidados Felinos | Domingo: Tech Aleatório
  */
 
 import { BLOG_TOPICS } from '@/types/blog'
@@ -17,7 +17,7 @@ export function getCurrentBlogTheme(): BlogTheme {
   if (dayOfWeek === 1) return 'Automação e Negócios'     // Segunda
   if (dayOfWeek === 4) return 'Programação e IA'         // Quinta (Dicas de Programação Web)
   if (dayOfWeek === 6) return 'Cuidados Felinos'         // Sábado (Gatinhos)
-  if (dayOfWeek === 0) return 'Novidades sobre IA'       // Domingo (Novidades sobre IA)
+  if (dayOfWeek === 0) return 'Tech Aleatório'           // Domingo (Tech Aleatório)
   
   // Para outros dias, determina baseado no próximo dia de postagem
   return getNextScheduledTheme()
@@ -33,7 +33,7 @@ export function getNextScheduledTheme(): BlogTheme {
   // Lógica para determinar próximo tema
   if (dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3) return 'Programação e IA'      // Seg/Ter/Qua -> Quinta
   if (dayOfWeek === 4 || dayOfWeek === 5) return 'Cuidados Felinos'      // Qui/Sex -> Sábado
-  if (dayOfWeek === 6) return 'Novidades sobre IA' // Sábado -> Domingo
+  if (dayOfWeek === 6) return 'Tech Aleatório' // Sábado -> Domingo
   return 'Automação e Negócios' // Domingo -> próxima Segunda
 }
 
@@ -58,7 +58,7 @@ export function generateImagePromptForTheme(theme: BlogTheme, title: string): st
     
     'Cuidados Felinos': `Cena aconchegante e calorosa com gatinhos adoráveis em ambiente seguro e confortável. Iluminação natural suave, plantas, móveis confortáveis para gatos, brinquedos. Atmosfera pacífica e reconfortante. Um ou dois gatinhos fofos (raças diferentes) em foco, mostrando-os felizes e saudáveis. Cores: Tons quentes, pastéis, iluminação natural. Estilo: Reconfortante, acolhedor, estética pet-friendly.`,
     
-    'Novidades sobre IA': `Espaço de trabalho tech moderno com tema de IA. Múltiplos monitores exibindo modelos de IA, redes neurais, sites de notícias tech e interfaces futuristas. Setup elegante com iluminação LED ambiente (brilho azul/roxo). Gadgets tech, visualização de ferramentas de IA mais recentes, manchetes de notícias visíveis. Cores: Azul profundo, roxo, ciano, estética tech. Estilo: Vanguarda, focado em notícias, inovador, profissional. Sem pessoas na imagem.`
+    'Tech Aleatório': `Espaço de trabalho tech moderno e versátil. Múltiplos monitores exibindo código, dashboards de SEO, ferramentas de marketing digital, tutoriais e tendências tech mais recentes. Setup profissional com iluminação LED ambiente (cores vibrantes). Gadgets tech, frameworks modernos, interfaces de ferramentas populares visíveis. Cores: Azul, verde, roxo, laranja, estética tech diversificada. Estilo: Contemporâneo, educacional, inovador, dinâmico. Sem pessoas na imagem.`
   }
   
   // Adiciona elementos de variação para evitar imagens idênticas
@@ -109,14 +109,15 @@ export function getThemeKeywords(theme: BlogTheme): string[] {
       'pets saudáveis',
       'amor felino'
     ],
-    'Novidades sobre IA': [
-      'novidades inteligência artificial',
-      'notícias IA',
-      'novos modelos IA',
-      'ferramentas IA',
-      'atualizações IA',
-      'tecnologia IA',
-      'tendências inteligência artificial'
+    'Tech Aleatório': [
+      'tutoriais técnicos',
+      'SEO otimização',
+      'marketing digital',
+      'tendências tech',
+      'ferramentas tech',
+      'melhores práticas desenvolvimento',
+      'inovações tecnológicas',
+      'frameworks modernos'
     ]
   }
   
@@ -133,7 +134,7 @@ export function isBlogPostDay(date: Date = new Date()): boolean {
 }
 
 /**
- * Retorna informações completas sobre o agendamento de blog
+ * Retorna informações sobre o cronograma de posts
  */
 export function getBlogScheduleInfo() {
   const currentTheme = getCurrentBlogTheme()
@@ -143,12 +144,11 @@ export function getBlogScheduleInfo() {
   return {
     currentTheme,
     isPostDay,
-    nextTheme,
     schedule: {
       monday: 'Automação e Negócios',
       thursday: 'Programação e IA (Dicas para Leigos)',
       saturday: 'Cuidados Felinos (Gatinhos)',
-      sunday: 'Novidades sobre IA'
+      sunday: 'Tech Aleatório'
     }
   }
 }

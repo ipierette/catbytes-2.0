@@ -172,7 +172,7 @@ export const BLOG_CATEGORIES = [
   'Automação e Negócios', // Segunda-feira - Para clientes e recrutadores
   'Programação e IA',     // Quinta-feira - Dicas de programação web fullstack para leigos
   'Cuidados Felinos',     // Sábado - Gatinhos com fotos acolhedoras
-  'Novidades sobre IA',   // Domingo - Notícias e atualizações de IA
+  'Tech Aleatório',       // Domingo - Tutoriais, SEO, marketing digital, tendências tech
 ] as const
 
 export type BlogTheme = typeof BLOG_CATEGORIES[number]
@@ -182,7 +182,7 @@ export const BLOG_SCHEDULE = {
   1: 'Automação e Negócios', // Segunda
   4: 'Programação e IA',     // Quinta
   6: 'Cuidados Felinos',     // Sábado
-  0: 'Novidades sobre IA',   // Domingo
+  0: 'Tech Aleatório',       // Domingo
 } as const
 
 // Topic ideas for each theme
@@ -239,19 +239,26 @@ export const BLOG_TOPICS = {
     'Vacinação felina: cronograma essencial',
     'Plantas tóxicas para gatos: lista de cuidados',
   ],
-  'Novidades sobre IA': [
-    'ChatGPT lança novo modelo: o que mudou?',
-    'Google apresenta Gemini 2.0: principais novidades',
-    'Claude AI: nova atualização traz recursos surpreendentes',
-    'Microsoft Copilot: integrações anunciadas esta semana',
-    'Novas ferramentas de IA para criação de imagens',
-    'IA Open Source: modelos gratuitos que você pode usar',
-    'Atualizações no Midjourney: geração de imagens evolui',
-    'Antropic lança API com recursos inéditos',
-    'IA para desenvolvedores: ferramentas que aceleram código',
-    'Regulamentação de IA: novidades legislativas',
-    'Deepfakes: tecnologia avança e preocupa',
-    'IA em medicina: diagnósticos mais precisos',
-    'Novos plugins e extensões para ferramentas de IA',
+  'Tech Aleatório': [
+    'SEO para iniciantes: rankeie seu site no Google',
+    'Marketing digital: estratégias essenciais para 2024',
+    'Next.js vs Remix: qual framework escolher?',
+    'Tailwind CSS: guia completo de utilitários',
+    'Google Analytics 4: configuração passo a passo',
+    'TypeScript: melhores práticas e padrões',
+    'Docker para desenvolvedores: tutorial prático',
+    'Vercel vs Netlify: qual plataforma de deploy usar?',
+    'Git avançado: rebase, cherry-pick e workflows',
+    'Progressive Web Apps: transforme seu site em app',
+    'Web Vitals: otimize performance para SEO',
+    'Accessibilidade web: WCAG e melhores práticas',
+    'Ferramentas de produtividade para devs em 2024',
+    'React Server Components: o futuro do React',
+    'Database design: SQL vs NoSQL na prática',
+    'CI/CD com GitHub Actions: automatize deploys',
+    'Content Marketing: crie conteúdo que converte',
+    'Email marketing: ferramentas e estratégias',
+    'Headless CMS: Strapi, Sanity e Contentful',
+    'API Security: proteja suas aplicações',
   ]
 } as const

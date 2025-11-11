@@ -8,6 +8,7 @@ import { ptBR, enUS } from 'date-fns/locale'
 import type { BlogPost } from '@/types/blog'
 import { ViewCounter } from '@/components/blog/view-counter'
 import { AnalyticsTracker } from '@/components/analytics/analytics-tracker'
+import { RelatedPosts } from '@/components/blog/related-posts'
 import { ArticleJsonLd, FAQJsonLd, BreadcrumbJsonLd } from 'next-seo'
 
 export const dynamicParams = true
@@ -42,6 +43,33 @@ async function getPost(slug: string, locale: string): Promise<BlogPost | null> {
   } catch (error) {
     console.error('[BlogPostPage] Error fetching post:', error)
     return null
+  }
+}
+
+async function getRelatedPosts(theme: string, locale: string, limit = 3): Promise<BlogPost[]> {
+  try {
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}`
+      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    
+    const response = await fetch(
+      `${baseUrl}/api/blog/posts?theme=${encodeURIComponent(theme)}&locale=${locale}&limit=${limit + 1}`,
+      {
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(10000),
+      }
+    )
+    
+    if (!response.ok) {
+      console.error(`[getRelatedPosts] Failed to fetch related posts:`, response.status)
+      return []
+    }
+    
+    const data = await response.json()
+    return data.posts || []
+  } catch (error) {
+    console.error('[getRelatedPosts] Error fetching related posts:', error)
+    return []
   }
 }
 
@@ -103,6 +131,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const canonicalUrl = `${siteUrl}/${locale}/blog/${post.slug}`
   const shareUrl = canonicalUrl
   const shareText = locale === 'pt-BR' ? `Confira: ${post.title}` : `Check this out: ${post.title}`
+
+  // Buscar posts relacionados baseado na categoria
+  const relatedPosts = post.category ? await getRelatedPosts(post.category, locale, 3) : []
 
   // Extrair FAQ do conteúdo markdown
   const extractFAQFromContent = (content: string): Array<{ question: string; answer: string }> => {
@@ -434,6 +465,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               </Link>
             </div>
           </div>
+
+          {/* Related Posts Section */}
+          {relatedPosts.length > 0 && (
+            <div className="p-8 md:p-12">
+              <RelatedPosts 
+                posts={relatedPosts} 
+                locale={locale} 
+                currentPostSlug={post.slug} 
+              />
+            </div>
+          )}
         </div>
       </article>
 

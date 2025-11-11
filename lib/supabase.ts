@@ -34,17 +34,29 @@ export function createClient() {
 
 // Type-safe database helpers
 export const db = {
-  // Get all published posts with pagination
-  async getPosts(page = 1, pageSize = 10, locale = 'pt-BR') {
+  // Get all published posts with pagination and filters
+  async getPosts(page = 1, pageSize = 10, locale = 'pt-BR', theme = '', dateFrom: Date | null = null) {
     const from = (page - 1) * pageSize
     const to = from + pageSize - 1
 
-    const { data, error, count } = await supabase
+    let query = supabase
       .from('blog_posts')
       .select('*', { count: 'exact' })
       .eq('published', true)
       .eq('locale', locale)
       .is('deleted_at', null) // Exclude soft-deleted posts
+
+    // Apply theme filter if provided
+    if (theme) {
+      query = query.eq('category', theme)
+    }
+
+    // Apply date filter if provided
+    if (dateFrom) {
+      query = query.gte('created_at', dateFrom.toISOString())
+    }
+
+    const { data, error, count } = await query
       .order('created_at', { ascending: false })
       .range(from, to)
 

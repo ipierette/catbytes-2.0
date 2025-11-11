@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { BookOpen, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { BookOpen, ChevronLeft, ChevronRight, Loader2, Filter, X } from 'lucide-react'
 import { PostCard } from '@/components/blog/post-card'
 import type { BlogPost, PaginatedBlogPosts } from '@/types/blog'
 import { blogSync } from '@/lib/blog-sync'
@@ -16,7 +16,24 @@ export default function BlogPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const pageSize = 10
+  const [availableThemes, setAvailableThemes] = useState<string[]>([])
+  const [selectedTheme, setSelectedTheme] = useState<string>('')
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('')
+  const [showFilters, setShowFilters] = useState(false)
+  const pageSize = 9 // Mudou de 10 para 9
+
+  // Fetch available themes
+  const fetchThemes = async () => {
+    try {
+      const response = await fetch(`/api/blog/themes?locale=${locale}`)
+      if (response.ok) {
+        const data = await response.json()
+        setAvailableThemes(data.themes || [])
+      }
+    } catch (err) {
+      console.error('Error fetching themes:', err)
+    }
+  }
 
   // Fetch posts function
   const fetchPosts = async () => {
@@ -24,7 +41,17 @@ export default function BlogPage() {
       setLoading(true)
       setError(null)
 
-      const response = await fetch(`/api/blog/posts?page=${currentPage}&pageSize=${pageSize}&locale=${locale}`)
+      let url = `/api/blog/posts?page=${currentPage}&pageSize=${pageSize}&locale=${locale}`
+      
+      if (selectedTheme) {
+        url += `&theme=${encodeURIComponent(selectedTheme)}`
+      }
+      
+      if (selectedPeriod) {
+        url += `&period=${selectedPeriod}`
+      }
+
+      const response = await fetch(url)
 
       if (!response.ok) {
         throw new Error('Failed to fetch posts')
@@ -40,10 +67,26 @@ export default function BlogPage() {
     }
   }
 
+  // Fetch themes on mount
+  useEffect(() => {
+    fetchThemes()
+  }, [locale])
+
   // Fetch posts
   useEffect(() => {
     fetchPosts()
-  }, [currentPage, locale])
+  }, [currentPage, locale, selectedTheme, selectedPeriod])
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedTheme, selectedPeriod])
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSelectedTheme('')
+    setSelectedPeriod('')
+  }
 
   // Subscribe to blog sync updates
   useEffect(() => {
@@ -88,6 +131,88 @@ export default function BlogPage() {
             <br />
             Conteúdo criado para impulsionar seu negócio digital! 🚀
           </p>
+        </motion.div>
+
+        {/* Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 mx-auto px-6 py-3 bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-catbytes-purple dark:hover:border-catbytes-pink transition-all"
+          >
+            <Filter className="w-5 h-5" />
+            {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+            {(selectedTheme || selectedPeriod) && (
+              <span className="ml-2 px-2 py-1 bg-catbytes-purple text-white text-xs rounded-full">
+                {[selectedTheme, selectedPeriod].filter(Boolean).length}
+              </span>
+            )}
+          </button>
+
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mt-4 p-6 bg-white dark:bg-gray-800 rounded-xl border-2 border-gray-200 dark:border-gray-700"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
+                {/* Theme Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Tema
+                  </label>
+                  <select
+                    value={selectedTheme}
+                    onChange={(e) => setSelectedTheme(e.target.value)}
+                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-catbytes-purple dark:focus:border-catbytes-pink outline-none transition-colors"
+                  >
+                    <option value="">Todos os temas</option>
+                    {availableThemes.map((theme) => (
+                      <option key={theme} value={theme}>
+                        {theme}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Period Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Período
+                  </label>
+                  <select
+                    value={selectedPeriod}
+                    onChange={(e) => setSelectedPeriod(e.target.value)}
+                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-catbytes-purple dark:focus:border-catbytes-pink outline-none transition-colors"
+                  >
+                    <option value="">Todos os períodos</option>
+                    <option value="last7days">Últimos 7 dias</option>
+                    <option value="last30days">Últimos 30 dias</option>
+                    <option value="last3months">Últimos 3 meses</option>
+                    <option value="last6months">Últimos 6 meses</option>
+                    <option value="lastyear">Último ano</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Clear Filters Button */}
+              {(selectedTheme || selectedPeriod) && (
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={clearFilters}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-catbytes-purple dark:hover:text-catbytes-pink transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                    Limpar filtros
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Loading State */}

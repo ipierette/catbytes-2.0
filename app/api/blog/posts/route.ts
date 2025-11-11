@@ -17,6 +17,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1', 10)
     const pageSize = parseInt(searchParams.get('pageSize') || '10', 10)
     const locale = searchParams.get('locale') || 'pt-BR'
+    const theme = searchParams.get('theme') || ''
+    const period = searchParams.get('period') || ''
 
     // Validate pagination
     if (page < 1 || pageSize < 1 || pageSize > 50) {
@@ -26,8 +28,31 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get paginated posts for the specified locale
-    const result = await db.getPosts(page, pageSize, locale)
+    // Calculate date filter if period is specified
+    let dateFrom: Date | null = null
+    if (period) {
+      const now = new Date()
+      switch (period) {
+        case 'last7days':
+          dateFrom = new Date(now.setDate(now.getDate() - 7))
+          break
+        case 'last30days':
+          dateFrom = new Date(now.setDate(now.getDate() - 30))
+          break
+        case 'last3months':
+          dateFrom = new Date(now.setMonth(now.getMonth() - 3))
+          break
+        case 'last6months':
+          dateFrom = new Date(now.setMonth(now.getMonth() - 6))
+          break
+        case 'lastyear':
+          dateFrom = new Date(now.setFullYear(now.getFullYear() - 1))
+          break
+      }
+    }
+
+    // Get paginated posts for the specified locale with filters
+    const result = await db.getPosts(page, pageSize, locale, theme, dateFrom)
 
     return NextResponse.json(result, {
       headers: {
