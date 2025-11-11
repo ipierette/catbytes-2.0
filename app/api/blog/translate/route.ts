@@ -90,18 +90,50 @@ export async function POST(request: NextRequest) {
     // Send newsletter to EN-US subscribers
     if (supabaseAdmin) {
       try {
-        console.log('[Translate] Sending newsletter to EN-US subscribers...')
+        console.log('[Translate] 📧 Starting newsletter process...')
         
         // Get EN-US subscribers
-        const { data: subscribers } = await supabaseAdmin
+        console.log('[Translate] 🔍 Fetching EN-US subscribers...')
+        const { data: subscribers, error: fetchError } = await supabaseAdmin
           .from('newsletter_subscribers')
-          .select('email')
+          .select('email, confirmed, verified, subscribed')
           .eq('confirmed', true)
           .eq('locale', 'en-US')
 
+        if (fetchError) {
+          console.error('[Translate] ❌ Error fetching subscribers:', fetchError)
+          throw fetchError
+        }
+
+        console.log('[Translate] 📊 Found subscribers:', subscribers?.length || 0)
+        
+        if (!subscribers || subscribers.length === 0) {
+          console.log('[Translate] ⚠️ No EN-US subscribers found. Checking all subscribers...')
+          
+          // Debug: check all subscribers
+          const { data: allSubs } = await supabaseAdmin
+            .from('newsletter_subscribers')
+            .select('email, locale, confirmed, verified, subscribed')
+            .limit(10)
+          
+          console.log('[Translate] 🔍 Sample subscribers:', allSubs)
+          return NextResponse.json({
+            success: true,
+            post: translatedPost,
+            message: 'Post translated successfully but no EN-US subscribers found',
+            debug: { totalSampleSubscribers: allSubs?.length, sampleData: allSubs }
+          })
+        }
+
         if (subscribers && subscribers.length > 0) {
+          console.log('[Translate] ✅ Sending to', subscribers.length, 'EN-US subscribers')
           const { Resend } = await import('resend')
           const resend = new Resend(process.env.RESEND_API_KEY)
+
+          if (!process.env.RESEND_API_KEY) {
+            console.error('[Translate] ❌ RESEND_API_KEY not configured')
+            throw new Error('RESEND_API_KEY not configured')
+          }
 
           // Import email template
           const { getTranslationNotificationEmailHTML } = await import('@/lib/email-templates/translation-notification-email')
@@ -121,18 +153,29 @@ export async function POST(request: NextRequest) {
 
           // Send emails in batches of 50
           const batchSize = 50
+          let totalSent = 0
+          
           for (let i = 0; i < subscribers.length; i += batchSize) {
             const batch = subscribers.slice(i, i + batchSize)
             
-            await resend.emails.send({
+            const emailResult = await resend.emails.send({
               from: process.env.RESEND_FROM_EMAIL || 'newsletter@catbytes.com',
               to: batch.map(sub => sub.email),
               subject: `🌐 New Translation Available: ${translatedPost.title}`,
               html: htmlContent,
             })
+            
+            console.log(`[Translate] Batch ${Math.floor(i / batchSize) + 1} result:`, emailResult)
+            
+            if (emailResult.error) {
+              console.error(`[Translate] ❌ Batch ${Math.floor(i / batchSize) + 1} failed:`, emailResult.error)
+            } else {
+              totalSent += batch.length
+              console.log(`[Translate] ✅ Batch ${Math.floor(i / batchSize) + 1} sent to ${batch.length} subscribers`)
+            }
           }
 
-          console.log('[Translate] Newsletter sent to', subscribers.length, 'EN-US subscribers')
+          console.log(`[Translate] ✅ Newsletter sending complete. Total: ${totalSent}/${subscribers.length} subscribers`)
         }
       } catch (emailError) {
         console.error('[Translate] Error sending newsletter:', emailError)

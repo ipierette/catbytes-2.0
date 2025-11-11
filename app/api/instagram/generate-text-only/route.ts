@@ -155,13 +155,40 @@ Gere um post completo para Instagram com:
 1. **titulo**: Título impactante focado no PROBLEMA ou BENEFÍCIO (máx 60 caracteres)
    Exemplos: "Pare de perder clientes por falta de tempo" | "Automatize seu agendamento agora"
 
-2. **imagePrompt**: Prompt DETALHADO EM PORTUGUÊS para criar visual profissional de tecnologia/automação.
-   - Visual clean, moderno e profissional
-   - Cores: azul, roxo, verde ou gradientes tech
-   - Elementos de tecnologia, automação, códigos sutis
-   - TEXTO na imagem: curto e direto (máx 25 chars)
-   - Estilo: profissional, confiável, tecnológico
-   - Exemplo: "Design profissional tech para post comercial, fundo gradiente azul escuro e roxo moderno, elementos de interface digital sutis, ícones de automação minimalistas, texto em destaque 'Automação em 48h' em tipografia moderna e bold, composição limpa e profissional, qualidade premium, formato quadrado 1:1"
+2. **imagePrompt**: Prompt DETALHADO EM PORTUGUÊS para criar visual CORPORATIVO e PROFISSIONAL.
+   
+   🏢 DIRETRIZES OBRIGATÓRIAS PARA IMAGENS CORPORATIVAS:
+   
+   VISUAL PRINCIPAL (escolha 1):
+   - Executiva/secretária ocupada em escritório moderno, múltiplas telas, pilhas de documentos organizadas
+   - Advogado sério com processo jurídicos empilhados na mesa, computador aberto, ambiente profissional
+   - Médico/dentista verificando agenda lotada no tablet, pacientes aguardando ao fundo
+   - Empresário estressado olhando planilhas complexas, calculadora, gráficos impressos
+   - Gerente de loja conferindo estoque manualmente, prancheta, produtos organizados
+   - Contador cercado de documentos fiscais, múltiplas planilhas abertas, ambiente corporativo
+   
+   ELEMENTOS OBRIGATÓRIOS:
+   ✅ Ambiente corporativo limpo e profissional
+   ✅ Pessoa usando roupa social (blazer, camisa social, etc.)
+   ✅ Múltiplas telas/documentos/planilhas visíveis (demonstrando complexidade)
+   ✅ Iluminação profissional (não casa/ambiente casual)
+   ✅ Cores sérias: azul corporativo, cinza, branco, toques de roxo/verde tech
+   ✅ Tecnologia presente mas não dominante (laptop, tablet, smartphone)
+   
+   TEXTO NA IMAGEM:
+   ✅ Frase curta e impactante (máx 20 caracteres)
+   ✅ Exemplos: "Automação em 48h" | "Sem mais planilhas" | "+40h/mês economizadas"
+   ✅ Tipografia moderna, bold, legível
+   ✅ Posicionamento destacado (canto superior ou centro)
+   
+   ESTILO VISUAL:
+   ✅ Fotografia profissional, não ilustração cartoon
+   ✅ Qualidade de stock photo empresarial
+   ✅ Sem excessos: clean, organizado, confiável
+   ✅ Perspectiva ligeiramente de cima (transmite controle)
+   
+   EXEMPLO DE PROMPT IDEAL:
+   "Foto profissional de executiva concentrada em escritório corporativo moderno, vestindo blazer azul marinho, trabalhando com múltiplas planilhas abertas no laptop e documentos organizados na mesa, ambiente iluminação natural, cores azul corporativo e branco, texto em destaque 'Automação em 48h' em tipografia modern bold no canto superior direito, qualidade stock photo empresarial, composição clean e profissional, formato quadrado 1:1"
 
 3. **caption**: Legenda VENDEDORA com estrutura persuasiva:
    

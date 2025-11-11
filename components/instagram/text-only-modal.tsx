@@ -117,24 +117,40 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
     setMessage(null)
 
     try {
-      // Usa o sistema de cache compartilhado
-      const suggestion = await getSuggestions(forceNew)
-
-      // Preencher os campos com a sugestão
-      setNicho(suggestion.nicho)
-      setTema(suggestion.tema)
-      setEstilo(suggestion.estilo)
-      setPalavrasChave(suggestion.palavrasChave.join(', '))
+      console.log('⚡ [MODAL] Gerando post corporativo direto...')
+      
+      // Temas corporativos focados em negócios
+      const corporateThemes = [
+        { nicho: 'Escritórios de Advocacia', tema: 'Automatizar controle de processos jurídicos' },
+        { nicho: 'Clínicas Médicas', tema: 'Sistema de agendamento inteligente 24/7' },
+        { nicho: 'E-commerce', tema: 'Automação de estoque e vendas' },
+        { nicho: 'Restaurantes', tema: 'Delivery automatizado com WhatsApp' },
+        { nicho: 'Academias', tema: 'App de treinos personalizados por IA' },
+        { nicho: 'Salões de Beleza', tema: 'Agendamento online que reduz no-show' },
+        { nicho: 'Consultórios Odontológicos', tema: 'Lembretes automáticos por WhatsApp' },
+        { nicho: 'Contabilidade', tema: 'Dashboard financeiro em tempo real' },
+        { nicho: 'Imobiliárias', tema: 'CRM automático para leads' },
+        { nicho: 'Oficinas Mecânicas', tema: 'Sistema de ordens de serviço digital' }
+      ]
+      
+      // Selecionar tema corporativo aleatório
+      const selectedTheme = corporateThemes[Math.floor(Math.random() * corporateThemes.length)]
+      
+      // Preencher campos
+      setNicho(selectedTheme.nicho)
+      setTema(selectedTheme.tema)
+      setEstilo('Profissional e Persuasivo')
+      setPalavrasChave('Automação, Produtividade, Tecnologia Empresarial, CatBytes')
 
       // Gerar conteúdo completo automaticamente
       const contentResponse = await fetch('/api/instagram/generate-text-only', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nicho: suggestion.nicho,
-          tema: suggestion.tema,
-          estilo: suggestion.estilo,
-          palavrasChave: suggestion.palavrasChave.join(', '),
+          nicho: selectedTheme.nicho,
+          tema: selectedTheme.tema,
+          estilo: 'Profissional e Persuasivo',
+          palavrasChave: 'Automação, Produtividade, Tecnologia Empresarial, CatBytes',
           quantidade: 1
         })
       })
@@ -149,12 +165,12 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
         setGeneratedContent(contentData.posts[0])
         setMessage({ 
           type: 'success', 
-          text: `✨ Post sugerido gerado! Tema: ${suggestion.tema}. Copie o prompt e faça upload da imagem.` 
+          text: `💼 Post corporativo gerado! Nicho: ${selectedTheme.nicho}. Copie o prompt e crie sua imagem empresarial!` 
         })
       }
 
     } catch (error: any) {
-      console.error('Erro ao gerar sugestão:', error)
+      console.error('Erro ao gerar sugestão corporativa:', error)
       setMessage({ type: 'error', text: error.message })
     } finally {
       setGeneratingSuggestion(false)
@@ -374,16 +390,20 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
         <DialogHeader>
-          <DialogTitle className="text-2xl">🎨 Texto IA + Imagem Manual</DialogTitle>
-          <p className="text-sm text-muted-foreground">
+          <DialogTitle className="text-2xl text-gray-900 dark:text-white">🎨 Texto IA + Imagem Manual</DialogTitle>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Gere conteúdo com IA, copie o prompt, gere a imagem onde quiser e faça upload
           </p>
         </DialogHeader>
 
         {message && (
-          <div className={`p-4 rounded-lg ${message.type === 'error' ? 'bg-red-50 text-red-900' : 'bg-green-50 text-green-900'}`}>
+          <div className={`p-4 rounded-lg ${
+            message.type === 'error' 
+              ? 'bg-red-50 dark:bg-red-900/20 text-red-900 dark:text-red-200' 
+              : 'bg-green-50 dark:bg-green-900/20 text-green-900 dark:text-green-200'
+          }`}>
             {message.text}
           </div>
         )}
@@ -392,83 +412,86 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
           {/* Formulário Inicial */}
           {!generatedContent && (
             <div className="space-y-4">
-              {/* Botão de Sugestão Rápida */}
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-4">
-                <p className="text-sm text-gray-700 mb-3">
-                  <strong>💡 Dica:</strong> Deixe a IA sugerir um post completo com tema estratégico e conteúdo pronto!
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleGenerateSuggestedPost(false)}
-                    disabled={generatingSuggestion}
-                    variant="default"
-                    className="flex-1 gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                    size="lg"
-                  >
-                    {generatingSuggestion ? '🤖 Gerando...' : '✨ Post Sugerido por IA'}
-                  </Button>
+              {/* Botão de Geração Rápida SIMPLIFICADO */}
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 border-2 border-purple-200 dark:border-purple-700 rounded-lg p-6">
+                <div className="text-center space-y-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      ⚡ Geração Automática
+                    </h3>
+                    <p className="text-gray-700 dark:text-gray-300">
+                      Clique para gerar um post completo com conteúdo focado em <strong>negócios corporativos</strong>
+                    </p>
+                  </div>
+                  
                   <Button
                     onClick={() => handleGenerateSuggestedPost(true)}
                     disabled={generatingSuggestion}
-                    variant="outline"
-                    className="gap-2 bg-green-600 text-white hover:bg-green-700"
+                    className="w-full gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 text-lg"
                     size="lg"
-                    title="Gerar nova sugestão (ignora cache)"
                   >
-                    🔄
+                    {generatingSuggestion ? '🤖 Gerando Post Corporativo...' : '✨ Gerar Post Corporativo Agora'}
                   </Button>
+                  
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    💼 Foco em: Automação empresarial, produtividade, sistemas corporativos
+                  </p>
                 </div>
               </div>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+                  <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500">Ou preencha manualmente</span>
+                  <span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">Ou preencha manualmente</span>
                 </div>
               </div>
 
               <div>
-                <Label>Nicho *</Label>
+                <Label className="text-gray-900 dark:text-white">Nicho *</Label>
                 <Input
                   value={nicho}
                   onChange={(e) => setNicho(e.target.value)}
-                  placeholder="Ex: Desenvolvimento Web, Automação, IA"
+                  placeholder="Ex: Escritórios de Advocacia, Clínicas Médicas, E-commerce"
+                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                 />
               </div>
 
               <div>
-                <Label>Tema *</Label>
+                <Label className="text-gray-900 dark:text-white">Tema *</Label>
                 <Input
                   value={tema}
                   onChange={(e) => setTema(e.target.value)}
-                  placeholder="Ex: Como automatizar X, Antes vs Depois de Y"
+                  placeholder="Ex: Automatizar agendamentos, Reduzir trabalho manual"
+                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                 />
               </div>
 
               <div>
-                <Label>Estilo</Label>
+                <Label className="text-gray-900 dark:text-white">Estilo</Label>
                 <Input
                   value={estilo}
                   onChange={(e) => setEstilo(e.target.value)}
-                  placeholder="Ex: Profissional, Descontraído, Técnico"
+                  placeholder="Ex: Profissional, Persuasivo, Educativo"
+                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                 />
               </div>
 
               <div>
-                <Label>Palavras-chave</Label>
+                <Label className="text-gray-900 dark:text-white">Palavras-chave</Label>
                 <Input
                   value={palavrasChave}
                   onChange={(e) => setPalavrasChave(e.target.value)}
-                  placeholder="Ex: Tecnologia, IA, Automação, Python"
+                  placeholder="Ex: Automação, Produtividade, Economia de tempo"
+                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                 />
               </div>
 
               <Button
                 onClick={handleGenerate}
                 disabled={generating}
-                className="w-full"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 size="lg"
               >
                 {generating ? '🤔 Gerando conteúdo...' : '✨ Gerar Conteúdo com IA'}
@@ -481,19 +504,23 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
             <div className="space-y-4">
               {/* Título */}
               <div>
-                <Label>Título Gerado</Label>
-                <Input value={generatedContent.titulo} readOnly className="bg-gray-50" />
+                <Label className="text-gray-900 dark:text-white">Título Gerado</Label>
+                <Input 
+                  value={generatedContent.titulo} 
+                  readOnly 
+                  className="bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600" 
+                />
               </div>
 
               {/* Image Prompt com Botão de Copiar */}
               <div>
-                <Label className="flex items-center justify-between">
-                  <span>Prompt de Imagem (copie e use em qualquer IA)</span>
+                <Label className="flex items-center justify-between text-gray-900 dark:text-white">
+                  <span>Prompt de Imagem Corporativa (copie e use em qualquer IA)</span>
                   <Button
                     onClick={handleCopyPrompt}
                     variant="outline"
                     size="sm"
-                    className="gap-2"
+                    className="gap-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
                   >
                     <Copy className="h-4 w-4" />
                     Copiar Prompt
@@ -502,42 +529,42 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
                 <Textarea
                   value={generatedContent.imagePrompt}
                   readOnly
-                  className="bg-gray-50 min-h-[120px]"
+                  className="bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 min-h-[120px]"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  ✨ Use este prompt no DALL-E, Midjourney, Sora, Stable Diffusion, ou qualquer ferramenta de IA.
-                  O prompt já inclui o texto em português que deve aparecer na imagem!
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  💼 Prompt otimizado para imagens corporativas: escritórios, reuniões, tecnologia empresarial.
+                  Use no DALL-E, Midjourney, Sora, Stable Diffusion, etc.
                 </p>
               </div>
 
               {/* Legenda */}
               <div>
-                <Label>Legenda Completa</Label>
+                <Label className="text-gray-900 dark:text-white">Legenda Completa</Label>
                 <Textarea
                   value={generatedContent.caption}
                   readOnly
-                  className="bg-gray-50 min-h-[150px]"
+                  className="bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 min-h-[150px]"
                 />
               </div>
 
               {/* Upload de Imagem */}
-              <div className="border-2 border-dashed rounded-lg p-6 space-y-4">
-                <Label className="text-lg">Fazer Upload da Imagem</Label>
+              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 space-y-4">
+                <Label className="text-lg text-gray-900 dark:text-white">Fazer Upload da Imagem</Label>
                 
                 <Input
                   type="file"
                   accept="image/*"
                   onChange={handleFileSelect}
-                  className="cursor-pointer"
+                  className="cursor-pointer bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                 />
 
                 {previewUrl && (
                   <div className="space-y-2">
-                    <Label>Preview:</Label>
+                    <Label className="text-gray-900 dark:text-white">Preview:</Label>
                     <img
                       src={previewUrl}
                       alt="Preview"
-                      className="w-full max-w-md rounded-lg border"
+                      className="w-full max-w-md rounded-lg border border-gray-300 dark:border-gray-600"
                     />
                   </div>
                 )}
@@ -547,7 +574,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
                     onClick={handleUploadImage}
                     disabled={uploading}
                     variant="secondary"
-                    className="w-full gap-2"
+                    className="w-full gap-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
                   >
                     <Upload className="h-4 w-4" />
                     {uploading ? 'Enviando...' : 'Enviar Imagem para Supabase'}
@@ -555,7 +582,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
                 )}
 
                 {uploadedImageUrl && (
-                  <div className="flex items-center gap-2 text-green-600">
+                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                     <CheckCircle className="h-5 w-5" />
                     <span className="font-medium">Imagem enviada com sucesso!</span>
                   </div>
@@ -569,7 +596,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
                     onClick={handleApprove}
                     disabled={loading}
                     variant="default"
-                    className="flex-1 gap-2"
+                    className="flex-1 gap-2 bg-blue-600 hover:bg-blue-700 text-white"
                     size="lg"
                   >
                     <CheckCircle className="h-4 w-4" />
@@ -580,7 +607,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
                     onClick={handlePostNow}
                     disabled={loading}
                     variant="default"
-                    className="flex-1 gap-2 bg-green-600 hover:bg-green-700"
+                    className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
                     size="lg"
                   >
                     {loading ? 'Postando...' : 'Postar Agora'}
@@ -591,7 +618,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
               <Button
                 onClick={handleReset}
                 variant="outline"
-                className="w-full"
+                className="w-full border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
               >
                 🔄 Começar Novo Post
               </Button>

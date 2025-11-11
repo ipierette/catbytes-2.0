@@ -11,11 +11,11 @@ export const runtime = 'edge'
 
 export async function PATCH(
   request: NextRequest,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Await params in Next.js 15
-    const { slug } = await context.params
+    const { id } = await context.params
     
     // Verify admin authentication
     const adminVerification = await verifyAdminCookie(request)
@@ -36,7 +36,7 @@ export async function PATCH(
     const body = await request.json()
     const { content, cover_image_url } = body
 
-    console.log('[Blog Update] Updating post:', slug)
+    console.log('[Blog Update] Updating post:', id)
 
     // Build update object with only provided fields
     const updateData: any = {
@@ -55,7 +55,7 @@ export async function PATCH(
     const { data, error } = await supabaseAdmin
       .from('blog_posts')
       .update(updateData)
-      .eq('slug', slug)
+      .eq('id', id)
       .select()
       .single()
 
