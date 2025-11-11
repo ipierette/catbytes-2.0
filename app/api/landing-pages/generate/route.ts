@@ -150,6 +150,48 @@ Industry context: ${niche}`,
 
     const heroImageUrl = imageResponse.data?.[0]?.url || ''
 
+    // 2.5. Fazer upload da imagem para Supabase Storage (blog-images bucket)
+    console.log('📤 Fazendo upload da imagem para Supabase...')
+    let permanentImageUrl = heroImageUrl // fallback para URL temporária
+    
+    try {
+      // Baixar imagem temporária do OpenAI
+      const imageRes = await fetch(heroImageUrl)
+      const imageBlob = await imageRes.blob()
+      const arrayBuffer = await imageBlob.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+      
+      // Nome único para arquivo
+      const fileName = `landing-page-${Date.now()}-${Math.random().toString(36).substring(7)}.png`
+      
+      // Upload para Supabase
+      const { supabase: supabaseAdmin } = await import('@/lib/supabase')
+      const { data: uploadData, error: uploadError } = await supabaseAdmin
+        .storage
+        .from('blog-images')
+        .upload(fileName, buffer, {
+          contentType: 'image/png',
+          cacheControl: '31536000', // 1 ano
+        })
+      
+      if (uploadError) {
+        console.error('⚠️ Erro no upload da imagem:', uploadError)
+        // Continua com URL temporária se upload falhar
+      } else {
+        // URL pública permanente
+        const { data: { publicUrl } } = supabaseAdmin
+          .storage
+          .from('blog-images')
+          .getPublicUrl(fileName)
+        
+        permanentImageUrl = publicUrl
+        console.log('✅ Imagem salva permanentemente:', permanentImageUrl)
+      }
+    } catch (error) {
+      console.error('⚠️ Erro ao salvar imagem no Supabase:', error)
+      // Continua com URL temporária se houver erro
+    }
+
     // 3. Gerar HTML completo
     console.log('📄 Gerando HTML completo...')
     const htmlResponse = await openai.chat.completions.create({
@@ -174,7 +216,7 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
   <meta name="description" content="[SUBHEADLINE]">
   <meta property="og:title" content="[HEADLINE]">
   <meta property="og:description" content="[SUBHEADLINE]">
-  <meta property="og:image" content="${heroImageUrl}">
+  <meta property="og:image" content="${permanentImageUrl}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
