@@ -7,6 +7,8 @@ import { AdminProvider } from '@/hooks/use-admin'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { DesktopLayout } from '@/components/layout'
 import { AnalyticsTracker } from '@/components/analytics/analytics-tracker'
+import { SEOTags } from '@/components/seo/seo-tags'
+import type { Metadata } from 'next'
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
@@ -33,28 +35,29 @@ export async function generateMetadata({
   }
 
   const t = translations[locale]
+  const siteUrl = 'https://catbytes.site'
 
   return {
     title: t.title,
     description: t.description,
     alternates: {
-      canonical: `https://catbytes.com/${locale}`,
+      canonical: `${siteUrl}/${locale}`,
       languages: {
-        'pt-BR': 'https://catbytes.com/pt-BR',
-        'en-US': 'https://catbytes.com/en-US'
+        'pt-BR': `${siteUrl}/pt-BR`,
+        'en-US': `${siteUrl}/en-US`
       }
     },
     openGraph: {
       type: 'website',
       locale: locale === 'pt-BR' ? 'pt_BR' : 'en_US',
       alternateLocale: locale === 'pt-BR' ? 'en_US' : 'pt_BR',
-      url: `https://catbytes.com/${locale}`,
+      url: `${siteUrl}/${locale}`,
       title: t.title,
       description: t.description,
       siteName: 'CatBytes',
       images: [
         {
-          url: '/images/og-1200x630-safe.jpg',
+          url: `${siteUrl}/images/og-1200x630-safe.jpg`,
           width: 1200,
           height: 630,
           alt: 'CatBytes Portfolio'
@@ -65,7 +68,7 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title: t.title,
       description: t.description,
-      images: ['/images/og-1200x630-safe.jpg']
+      images: [`${siteUrl}/images/og-1200x630-safe.jpg`]
     }
   }
 }
@@ -98,6 +101,7 @@ export default async function LocaleLayout({
         disableTransitionOnChange
       >
         <AdminProvider>
+          <SEOTags locale={locale} />
           <DesktopLayout>
             <ScrollProgress />
             <AnalyticsTracker />
