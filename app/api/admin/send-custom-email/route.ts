@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { jwtVerify } from 'jose'
 import { getReplyEmailHTML } from '@/lib/email-templates/reply-template'
 
 export const runtime = 'nodejs'
@@ -8,19 +9,29 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY) 
   : null
 
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key-change-this')
+
 /**
  * POST /api/admin/send-custom-email
  * Envia email personalizado para um destinatário
  */
 export async function POST(request: NextRequest) {
   try {
-    // Verificação de autenticação admin
-    const authHeader = request.headers.get('authorization')
-    const adminPassword = process.env.ADMIN_PASSWORD
+    // Verificação de autenticação admin usando cookie JWT
+    const token = request.cookies.get('admin_token')?.value
 
-    if (!adminPassword || authHeader !== `Bearer ${adminPassword}`) {
+    if (!token) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
+        { success: false, error: 'Unauthorized - No token provided' },
+        { status: 401 }
+      )
+    }
+
+    try {
+      await jwtVerify(token, JWT_SECRET)
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized - Invalid token' },
         { status: 401 }
       )
     }

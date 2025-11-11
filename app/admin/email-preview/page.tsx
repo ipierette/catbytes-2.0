@@ -139,8 +139,7 @@ export default function EmailPreviewPage() {
       const response = await fetch('/api/admin/send-custom-email', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PASSWORD || ''}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           ...customEmail,
