@@ -1,6 +1,5 @@
 import { Metadata } from 'next'
 import { Shield, Database, Cookie, Mail, Lock, Eye, Globe, FileText, Calendar, Users, Heart, Lightbulb, Briefcase, MessageCircle, TrendingUp, CheckCircle } from 'lucide-react'
-import { getTranslations } from 'next-intl/server'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -8,11 +7,13 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
-  const t = await getTranslations({ locale, namespace: 'privacyPolicy' })
+  const isEnglish = locale === 'en-US'
   
   return {
-    title: t('metadata.title'),
-    description: t('metadata.description'),
+    title: isEnglish ? 'Privacy Policy | CatBytes' : 'Políticas da CatBytes e Privacidade | CatBytes',
+    description: isEnglish 
+      ? 'Learn about CatBytes culture, values and privacy policy. Transparency, innovation and data protection.'
+      : 'Conheça a cultura, valores e política de privacidade da CatBytes. Transparência, inovação e respeito aos dados.',
     keywords: 'privacy policy, data protection, LGPD, GDPR, catbytes, web development',
     robots: 'index, follow',
     alternates: {
@@ -23,8 +24,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     },
     openGraph: {
-      title: t('metadata.title'),
-      description: t('metadata.description'),
+      title: isEnglish ? 'Privacy Policy | CatBytes' : 'Políticas da CatBytes e Privacidade | CatBytes',
+      description: isEnglish 
+        ? 'Learn about CatBytes culture, values and privacy policy'
+        : 'Conheça a cultura, valores e política de privacidade da CatBytes',
       url: `https://catbytes.site/${locale}/privacy-policy`,
       siteName: 'CatBytes',
       locale: locale,

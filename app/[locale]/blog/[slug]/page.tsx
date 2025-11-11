@@ -15,10 +15,6 @@ export const dynamicParams = true
 export const revalidate = 3600
 export const dynamic = 'force-dynamic'
 
-export async function generateStaticParams() {
-  return []
-}
-
 async function getPost(slug: string, locale: string): Promise<BlogPost | null> {
   try {
     const baseUrl = process.env.VERCEL_URL 

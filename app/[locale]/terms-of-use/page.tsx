@@ -1,7 +1,5 @@
 import { Metadata } from 'next'
-import { Scale, Mail, Shield, FileText, Calendar } from 'lucide-react'
-import { useTranslations } from 'next-intl'
-import { getTranslations } from 'next-intl/server'
+import { Scale, Mail, Shield, FileText, Calendar, PawPrint, MessageCircle, Lock, Settings, AlertTriangle, Ban } from 'lucide-react'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -9,11 +7,13 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
-  const t = await getTranslations({ locale, namespace: 'termsOfUse' })
+  const isEnglish = locale === 'en-US'
   
   return {
-    title: t('metadata.title'),
-    description: t('metadata.description'),
+    title: isEnglish ? 'Terms of Use | CatBytes' : 'Termos de Uso | CatBytes',
+    description: isEnglish 
+      ? 'Terms and conditions of use for the CatBytes website. Learn about our rights, duties and policies.'
+      : 'Termos e condições de uso do site CatBytes. Conheça nossos direitos, deveres e políticas.',
     keywords: 'terms of use, legal, privacy, catbytes, web development',
     robots: 'index, follow',
     alternates: {
@@ -24,8 +24,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     },
     openGraph: {
-      title: t('metadata.title'),
-      description: t('metadata.description'),
+      title: isEnglish ? 'Terms of Use | CatBytes' : 'Termos de Uso | CatBytes',
+      description: isEnglish 
+        ? 'Terms and conditions of use for the CatBytes website'
+        : 'Termos e condições de uso do site CatBytes',
       url: `https://catbytes.site/${locale}/terms-of-use`,
       siteName: 'CatBytes',
       locale: locale,
@@ -69,7 +71,9 @@ export default async function TermsOfUsePage({ params }: Props) {
           {/* Section 1 */}
           <section>
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-3xl">🐾</span>
+              <div className="w-10 h-10 rounded-lg bg-catbytes-purple/10 dark:bg-catbytes-purple/20 flex items-center justify-center flex-shrink-0">
+                <PawPrint className="w-5 h-5 text-catbytes-purple dark:text-catbytes-pink" />
+              </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {isEnglish ? '1. Website Purpose' : '1. Finalidade do Site'}
@@ -87,7 +91,9 @@ export default async function TermsOfUsePage({ params }: Props) {
           {/* Section 2 */}
           <section>
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-3xl">💬</span>
+              <div className="w-10 h-10 rounded-lg bg-catbytes-purple/10 dark:bg-catbytes-purple/20 flex items-center justify-center flex-shrink-0">
+                <MessageCircle className="w-5 h-5 text-catbytes-purple dark:text-catbytes-pink" />
+              </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {isEnglish ? '2. Content and Copyright' : '2. Conteúdo e Direitos Autorais'}
@@ -119,7 +125,9 @@ export default async function TermsOfUsePage({ params }: Props) {
           {/* Section 3 */}
           <section>
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-3xl">✉️</span>
+              <div className="w-10 h-10 rounded-lg bg-catbytes-purple/10 dark:bg-catbytes-purple/20 flex items-center justify-center flex-shrink-0">
+                <Mail className="w-5 h-5 text-catbytes-purple dark:text-catbytes-pink" />
+              </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {isEnglish ? '3. Newsletter and Forms' : '3. Newsletter e Formulários'}
@@ -145,7 +153,9 @@ export default async function TermsOfUsePage({ params }: Props) {
           {/* Section 4 */}
           <section>
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-3xl">🔒</span>
+              <div className="w-10 h-10 rounded-lg bg-catbytes-purple/10 dark:bg-catbytes-purple/20 flex items-center justify-center flex-shrink-0">
+                <Lock className="w-5 h-5 text-catbytes-purple dark:text-catbytes-pink" />
+              </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {isEnglish ? '4. Privacy and Data' : '4. Privacidade e Dados'}
@@ -178,7 +188,9 @@ export default async function TermsOfUsePage({ params }: Props) {
           {/* Section 5 */}
           <section>
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-3xl">⚙️</span>
+              <div className="w-10 h-10 rounded-lg bg-catbytes-purple/10 dark:bg-catbytes-purple/20 flex items-center justify-center flex-shrink-0">
+                <Settings className="w-5 h-5 text-catbytes-purple dark:text-catbytes-pink" />
+              </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {isEnglish ? '5. Tools and Integrations' : '5. Ferramentas e Integrações'}
@@ -204,7 +216,9 @@ export default async function TermsOfUsePage({ params }: Props) {
           {/* Section 6 */}
           <section>
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-3xl">🚫</span>
+              <div className="w-10 h-10 rounded-lg bg-catbytes-purple/10 dark:bg-catbytes-purple/20 flex items-center justify-center flex-shrink-0">
+                <Ban className="w-5 h-5 text-catbytes-purple dark:text-catbytes-pink" />
+              </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {isEnglish ? '6. Limitation of Liability' : '6. Limitação de Responsabilidade'}
@@ -222,7 +236,9 @@ export default async function TermsOfUsePage({ params }: Props) {
           {/* Section 7 */}
           <section>
             <div className="flex items-start gap-3 mb-4">
-              <span className="text-3xl">📅</span>
+              <div className="w-10 h-10 rounded-lg bg-catbytes-purple/10 dark:bg-catbytes-purple/20 flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 text-catbytes-purple dark:text-catbytes-pink" />
+              </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {isEnglish ? '7. Changes' : '7. Alterações'}

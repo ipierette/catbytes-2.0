@@ -119,32 +119,51 @@ export default function FAQClient({ locale }: FAQClientProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-slate-900 dark:to-blue-950 pt-32 pb-20">
       <div className="container mx-auto px-4 max-w-5xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-catbytes-purple to-catbytes-pink rounded-2xl mb-6 shadow-lg">
-            <HelpCircle className="w-10 h-10 text-white" />
+        {/* Hero Section with Cat Image */}
+        <div className="relative mb-16">
+          {/* Background decorative elements */}
+          <div className="absolute inset-0 -z-10">
+            <div className="absolute top-0 left-1/4 w-72 h-72 bg-catbytes-purple/10 dark:bg-catbytes-purple/5 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-catbytes-pink/10 dark:bg-catbytes-pink/5 rounded-full blur-3xl"></div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent mb-4">
-            {faqData.title}
-          </h1>
-          <p className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            {faqData.subtitle}
-          </p>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            {faqData.description}
-          </p>
-        </div>
 
-        {/* FAQ Image */}
-        <div className="flex justify-center mb-12">
-          <div className="relative w-64 h-64 md:w-80 md:h-80">
-            <Image
-              src="/images/gatinho-faq.png"
-              alt={isEnglish ? 'FAQ Cat mascot' : 'Gatinho mascote do FAQ'}
-              fill
-              className="object-contain drop-shadow-2xl"
-              priority
-            />
+          <div className="text-center mb-8">
+            <h1 className="text-5xl md:text-6xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent mb-4">
+              {faqData.title}
+            </h1>
+            <p className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              {faqData.subtitle}
+            </p>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              {faqData.description}
+            </p>
+          </div>
+
+          {/* Cat Image as Hero */}
+          <div className="flex justify-center">
+            <div className="relative">
+              {/* Glow effect behind cat */}
+              <div className="absolute inset-0 bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue opacity-20 dark:opacity-30 blur-2xl scale-110 rounded-full"></div>
+              
+              {/* Cat image */}
+              <div className="relative w-72 h-72 md:w-96 md:h-96">
+                <Image
+                  src="/images/gatinho-faq.png"
+                  alt={isEnglish ? 'FAQ Cat mascot' : 'Gatinho mascote do FAQ'}
+                  fill
+                  className="object-contain drop-shadow-2xl animate-float"
+                  priority
+                />
+              </div>
+
+              {/* Floating question marks decoration */}
+              <div className="absolute -top-4 -left-4 w-12 h-12 bg-catbytes-purple/20 dark:bg-catbytes-purple/30 rounded-full flex items-center justify-center animate-bounce-slow">
+                <HelpCircle className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink" />
+              </div>
+              <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-catbytes-pink/20 dark:bg-catbytes-pink/30 rounded-full flex items-center justify-center animate-bounce-slow" style={{ animationDelay: '0.5s' }}>
+                <HelpCircle className="w-8 h-8 text-catbytes-pink dark:text-catbytes-purple" />
+              </div>
+            </div>
           </div>
         </div>
 
