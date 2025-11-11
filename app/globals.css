@@ -278,60 +278,67 @@ html {
    ======================================== */
 
 /* Container de FAQ com fundo diferenciado */
-.blog-faq-section {
-  background: linear-gradient(135deg, #faf5ff 0%, #fce7f3 100%);
-  padding: 2.5rem 2rem;
-  border-radius: 1.5rem;
-  margin: 3rem 0;
-  box-shadow: 0 8px 30px rgba(168, 85, 247, 0.15);
-  border: 2px solid #e9d5ff;
-  position: relative;
-  overflow: hidden;
+.blog-faq-section,
+.prose .blog-faq-section {
+  background: linear-gradient(135deg, #faf5ff 0%, #fce7f3 100%) !important;
+  padding: 2.5rem 2rem !important;
+  border-radius: 1.5rem !important;
+  margin: 3rem 0 !important;
+  box-shadow: 0 8px 30px rgba(168, 85, 247, 0.15) !important;
+  border: 2px solid #e9d5ff !important;
+  position: relative !important;
+  overflow: hidden !important;
 }
 
-.dark .blog-faq-section {
-  background: linear-gradient(135deg, #1e1b4b 0%, #3b0764 100%);
-  box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4);
-  border-color: #4c1d95;
+.dark .blog-faq-section,
+.dark .prose .blog-faq-section {
+  background: linear-gradient(135deg, #1e1b4b 0%, #3b0764 100%) !important;
+  box-shadow: 0 8px 30px rgba(168, 85, 247, 0.4) !important;
+  border-color: #4c1d95 !important;
 }
 
 /* Efeito decorativo de fundo */
-.blog-faq-section::before {
-  content: "?";
-  position: absolute;
-  right: -20px;
-  top: -20px;
-  font-size: 200px;
-  font-weight: bold;
-  color: rgba(168, 85, 247, 0.05);
-  pointer-events: none;
-  z-index: 0;
+.blog-faq-section::before,
+.prose .blog-faq-section::before {
+  content: "?" !important;
+  position: absolute !important;
+  right: -20px !important;
+  top: -20px !important;
+  font-size: 200px !important;
+  font-weight: bold !important;
+  color: rgba(168, 85, 247, 0.05) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
 }
 
-.dark .blog-faq-section::before {
-  color: rgba(168, 85, 247, 0.1);
+.dark .blog-faq-section::before,
+.dark .prose .blog-faq-section::before {
+  color: rgba(168, 85, 247, 0.1) !important;
 }
 
 /* Título da seção FAQ */
-.blog-faq-section h2 {
+.blog-faq-section h2,
+.prose .blog-faq-section h2 {
   background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%) !important;
   color: white !important;
   padding: 1.25rem 1.75rem !important;
   border-radius: 1rem !important;
   margin: 0 0 2rem 0 !important;
   box-shadow: 0 6px 20px rgba(168, 85, 247, 0.3) !important;
-  position: relative;
-  z-index: 1;
+  position: relative !important;
+  z-index: 1 !important;
   font-size: 1.75rem !important;
 }
 
-.blog-faq-section h2::before {
-  content: "💬 ";
-  font-size: 1.5rem;
+.blog-faq-section h2::before,
+.prose .blog-faq-section h2::before {
+  content: "💬 " !important;
+  font-size: 1.5rem !important;
 }
 
 /* Perguntas (h3) dentro do FAQ */
-.blog-faq-section h3 {
+.blog-faq-section h3,
+.prose .blog-faq-section h3 {
   background: linear-gradient(135deg, #f3e8ff 0%, #fce7f3 100%) !important;
   color: #7c3aed !important;
   padding: 1rem 1.5rem !important;
@@ -340,72 +347,84 @@ html {
   margin: 1.5rem 0 0.75rem 0 !important;
   font-weight: 600 !important;
   transition: all 0.3s ease !important;
-  cursor: pointer;
-  position: relative;
-  z-index: 1;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 1 !important;
   font-size: 1.25rem !important;
 }
 
-.dark .blog-faq-section h3 {
+.dark .blog-faq-section h3,
+.dark .prose .blog-faq-section h3 {
   background: linear-gradient(135deg, #2e1065 0%, #4c0519 100%) !important;
   color: #c084fc !important;
   border-left-color: #c084fc !important;
 }
 
-.blog-faq-section h3:hover {
-  transform: translateX(6px);
-  box-shadow: 0 6px 15px rgba(168, 85, 247, 0.2);
+.blog-faq-section h3:hover,
+.prose .blog-faq-section h3:hover {
+  transform: translateX(6px) !important;
+  box-shadow: 0 6px 15px rgba(168, 85, 247, 0.2) !important;
 }
 
 /* Ícone antes das perguntas */
-.blog-faq-section h3::before {
-  content: "❓ ";
-  margin-right: 0.5rem;
-  font-size: 1.2em;
+.blog-faq-section h3::before,
+.prose .blog-faq-section h3::before {
+  content: "❓ " !important;
+  margin-right: 0.5rem !important;
+  font-size: 1.2em !important;
 }
 
 /* Respostas (parágrafos após h3) */
 .blog-faq-section h3 + p,
-.blog-faq-section h3 + br + p {
+.blog-faq-section h3 + br + p,
+.prose .blog-faq-section h3 + p,
+.prose .blog-faq-section h3 + br + p {
   background: rgba(255, 255, 255, 0.7) !important;
   padding: 1.25rem 1.5rem !important;
   border-radius: 0.75rem !important;
   border-left: 4px solid #e5e7eb !important;
   margin: 0.5rem 0 2rem 0 !important;
   line-height: 1.8 !important;
-  position: relative;
-  z-index: 1;
+  position: relative !important;
+  z-index: 1 !important;
   font-size: 1.05rem !important;
 }
 
 .dark .blog-faq-section h3 + p,
-.dark .blog-faq-section h3 + br + p {
+.dark .blog-faq-section h3 + br + p,
+.dark .prose .blog-faq-section h3 + p,
+.dark .prose .blog-faq-section h3 + br + p {
   background: rgba(30, 22, 37, 0.7) !important;
   border-left-color: #4c1d95 !important;
   color: #e5e7eb !important;
 }
 
 /* Último parágrafo sem margem inferior */
-.blog-faq-section p:last-child {
+.blog-faq-section p:last-child,
+.prose .blog-faq-section p:last-child {
   margin-bottom: 0 !important;
 }
 
 /* Links dentro do FAQ */
-.blog-faq-section a {
-  color: #a855f7;
-  text-decoration: underline;
-  font-weight: 500;
-  transition: color 0.2s ease;
+.blog-faq-section a,
+.prose .blog-faq-section a {
+  color: #a855f7 !important;
+  text-decoration: underline !important;
+  font-weight: 500 !important;
+  transition: color 0.2s ease !important;
 }
 
-.blog-faq-section a:hover {
-  color: #ec4899;
+.blog-faq-section a:hover,
+.prose .blog-faq-section a:hover {
+  color: #ec4899 !important;
 }
 
-.dark .blog-faq-section a {
-  color: #c084fc;
+.dark .blog-faq-section a,
+.dark .prose .blog-faq-section a {
+  color: #c084fc !important;
 }
 
-.dark .blog-faq-section a:hover {
-  color: #f0abfc;
+.dark .blog-faq-section a:hover,
+.dark .prose .blog-faq-section a:hover {
+  color: #f0abfc !important;
 }

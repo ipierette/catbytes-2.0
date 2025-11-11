@@ -497,6 +497,26 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
 
 // Simple markdown to HTML converter
 function formatMarkdown(markdown: string): string {
+  // ========== DETECT FAQ SECTION FIRST (before converting to HTML) ==========
+  const faqPatternsMd = [
+    /^## Perguntas Frequentes$/im,
+    /^## FAQ$/im,
+    /^## Frequently Asked Questions$/im,
+    /^## Dúvidas Frequentes$/im
+  ]
+  
+  let hasFaqSection = false
+  let faqStartIndex = -1
+  
+  for (const pattern of faqPatternsMd) {
+    const match = markdown.match(pattern)
+    if (match && match.index !== undefined) {
+      hasFaqSection = true
+      faqStartIndex = match.index
+      break
+    }
+  }
+
   let html = markdown
     // Headers
     .replace(/^### (.*$)/gim, '<h3>$1</h3>')
@@ -524,40 +544,38 @@ function formatMarkdown(markdown: string): string {
     html = `<p>${html}</p>`
   }
 
-  // ========== DETECT AND WRAP FAQ SECTION ==========
-  // Detecta seção FAQ e envolve com div especial
-  const faqPatterns = [
-    /(<h2>Perguntas Frequentes<\/h2>)/gi,
-    /(<h2>FAQ<\/h2>)/gi,
-    /(<h2>Frequently Asked Questions<\/h2>)/gi,
-    /(<h2>Dúvidas Frequentes<\/h2>)/gi
-  ]
-  
-  for (const pattern of faqPatterns) {
-    if (pattern.test(html)) {
-      // Encontra o início da seção FAQ
-      html = html.replace(pattern, (match) => {
-        return `<div class="blog-faq-section">${match}`
-      })
-      
-      // Fecha a div FAQ antes da próxima h2 ou no final
-      const parts = html.split('<div class="blog-faq-section">')
-      if (parts.length > 1) {
-        const afterFaq = parts[1]
-        const nextH2Index = afterFaq.indexOf('<h2>')
+  // ========== WRAP FAQ SECTION IF DETECTED ==========
+  if (hasFaqSection) {
+    const faqPatterns = [
+      /<h2>Perguntas Frequentes<\/h2>/i,
+      /<h2>FAQ<\/h2>/i,
+      /<h2>Frequently Asked Questions<\/h2>/i,
+      /<h2>Dúvidas Frequentes<\/h2>/i
+    ]
+    
+    for (const pattern of faqPatterns) {
+      const match = html.match(pattern)
+      if (match && match.index !== undefined) {
+        const beforeFaq = html.substring(0, match.index)
+        const fromFaq = html.substring(match.index)
         
-        if (nextH2Index > -1) {
-          // Fecha antes do próximo h2
-          parts[1] = afterFaq.slice(0, nextH2Index) + '</div>' + afterFaq.slice(nextH2Index)
+        // Encontra o próximo h2 (se houver) ou vai até o final
+        const nextH2Match = fromFaq.substring(match[0].length).match(/<h2>/i)
+        
+        let faqContent
+        let afterFaq = ''
+        
+        if (nextH2Match && nextH2Match.index !== undefined) {
+          const endIndex = match[0].length + nextH2Match.index
+          faqContent = fromFaq.substring(0, endIndex)
+          afterFaq = fromFaq.substring(endIndex)
         } else {
-          // Fecha no final
-          parts[1] = afterFaq + '</div>'
+          faqContent = fromFaq
         }
         
-        html = parts.join('<div class="blog-faq-section">')
+        html = beforeFaq + '<div class="blog-faq-section">' + faqContent + '</div>' + afterFaq
+        break
       }
-      
-      break // Apenas processa a primeira ocorrência
     }
   }
 
