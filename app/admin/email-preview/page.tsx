@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { Mail, Eye, Send, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
@@ -28,6 +31,14 @@ export default function EmailPreviewPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [qualityReport, setQualityReport] = useState<QualityReport | null>(null)
   const [showQualityReport, setShowQualityReport] = useState(false)
+
+  // Custom email state
+  const [customEmail, setCustomEmail] = useState({
+    recipientEmail: '',
+    recipientName: '',
+    subject: '',
+    message: '',
+  })
 
   const loadPreview = async (type: EmailType) => {
     try {
@@ -108,6 +119,55 @@ export default function EmailPreviewPage() {
     } catch (error) {
       console.error('Error checking quality:', error)
       setMessage({ type: 'error', text: 'Erro ao verificar qualidade do email' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const sendCustomEmail = async () => {
+    try {
+      setLoading(true)
+      setMessage(null)
+
+      // Validação
+      if (!customEmail.recipientEmail || !customEmail.recipientName || !customEmail.subject || !customEmail.message) {
+        setMessage({ type: 'error', text: 'Preencha todos os campos do formulário' })
+        setLoading(false)
+        return
+      }
+
+      const response = await fetch('/api/admin/send-custom-email', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_ADMIN_PASSWORD || ''}`
+        },
+        body: JSON.stringify({
+          ...customEmail,
+          locale: 'pt-BR'
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setMessage({ 
+          type: 'success', 
+          text: `✅ Email enviado com sucesso para ${customEmail.recipientEmail}!` 
+        })
+        // Limpar form
+        setCustomEmail({
+          recipientEmail: '',
+          recipientName: '',
+          subject: '',
+          message: '',
+        })
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Erro ao enviar email' })
+      }
+    } catch (error) {
+      console.error('Error sending custom email:', error)
+      setMessage({ type: 'error', text: 'Erro ao enviar email customizado' })
     } finally {
       setLoading(false)
     }
@@ -205,6 +265,103 @@ export default function EmailPreviewPage() {
                   <Send className="h-4 w-4 mr-2" />
                   Enviar Teste
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Custom Email Sender */}
+          <Card className="border-purple-200 dark:border-purple-800">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Send className="h-5 w-5 text-purple-600" />
+                Enviar Email Personalizado
+              </CardTitle>
+              <CardDescription>
+                Responda contatos ou envie emails customizados com o template profissional do CatBytes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="recipientEmail">Email do Destinatário *</Label>
+                    <Input
+                      id="recipientEmail"
+                      type="email"
+                      placeholder="exemplo@email.com"
+                      value={customEmail.recipientEmail}
+                      onChange={(e) => setCustomEmail({ ...customEmail, recipientEmail: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="recipientName">Nome do Destinatário *</Label>
+                    <Input
+                      id="recipientName"
+                      type="text"
+                      placeholder="João Silva"
+                      value={customEmail.recipientName}
+                      onChange={(e) => setCustomEmail({ ...customEmail, recipientName: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Assunto do Email *</Label>
+                  <Input
+                    id="subject"
+                    type="text"
+                    placeholder="Re: Seu contato - CatBytes"
+                    value={customEmail.subject}
+                    onChange={(e) => setCustomEmail({ ...customEmail, subject: e.target.value })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="message">Mensagem *</Label>
+                  <Textarea
+                    id="message"
+                    placeholder="Escreva sua mensagem aqui...
+
+A mensagem será formatada com o template profissional do CatBytes, incluindo logo, banner de assinatura e links para redes sociais."
+                    rows={8}
+                    value={customEmail.message}
+                    onChange={(e) => setCustomEmail({ ...customEmail, message: e.target.value })}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    💡 Dica: Escreva de forma natural. O template já inclui saudação, assinatura e design profissional.
+                  </p>
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t">
+                  <Button
+                    onClick={sendCustomEmail}
+                    disabled={loading || !customEmail.recipientEmail || !customEmail.recipientName || !customEmail.subject || !customEmail.message}
+                    className="flex-1 bg-purple-600 hover:bg-purple-700"
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    {loading ? 'Enviando...' : 'Enviar Email Personalizado'}
+                  </Button>
+                  <Button
+                    onClick={() => setCustomEmail({ recipientEmail: '', recipientName: '', subject: '', message: '' })}
+                    variant="outline"
+                    disabled={loading}
+                  >
+                    Limpar
+                  </Button>
+                </div>
+
+                <div className="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                  <h4 className="font-semibold text-sm mb-2 text-purple-900 dark:text-purple-100">
+                    ✨ Template Otimizado
+                  </h4>
+                  <ul className="text-xs text-purple-700 dark:text-purple-300 space-y-1">
+                    <li>✅ Design profissional com logo e banner do CatBytes</li>
+                    <li>✅ Otimizado para evitar spam (HTML simples e limpo)</li>
+                    <li>✅ Responsivo (funciona em mobile e desktop)</li>
+                    <li>✅ Inclui assinatura completa com links sociais</li>
+                    <li>✅ Compatível com Gmail, Outlook e Apple Mail</li>
+                  </ul>
+                </div>
               </div>
             </CardContent>
           </Card>
