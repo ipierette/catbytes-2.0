@@ -378,13 +378,13 @@ export default function PoliticasPage() {
                   </p>
                   <div className="space-y-2 text-gray-700 dark:text-gray-300">
                     <p>
-                      📧 E-mail:{' '}
-                      <a href="mailto:contato2@catbytes.site" className="text-catbytes-purple dark:text-catbytes-pink hover:underline font-semibold">
-                        contato2@catbytes.site
+                      E-mail:{' '}
+                      <a href="mailto:contato@catbytes.site" className="text-catbytes-purple dark:text-catbytes-pink hover:underline font-semibold">
+                        contato@catbytes.site
                       </a>
                     </p>
                     <p>
-                      🌐 Site:{' '}
+                      Site:{' '}
                       <a href="https://catbytes.site" className="text-catbytes-purple dark:text-catbytes-pink hover:underline font-semibold">
                         https://catbytes.site
                       </a>

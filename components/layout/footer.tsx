@@ -182,17 +182,17 @@ export function Footer() {
           {/* Legal Links */}
           <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-500">
             <Link 
-              href={`/${locale}/termos-de-uso`}
+              href={locale === 'en-US' ? `/${locale}/terms-of-use` : `/${locale}/termos-de-uso`}
               className="hover:text-purple-400 transition-colors"
             >
-              Termos de Uso
+              {t('termsOfUse')}
             </Link>
             <span>•</span>
             <Link 
-              href={`/${locale}/politicas-de-privacidade`}
+              href={locale === 'en-US' ? `/${locale}/privacy-policy` : `/${locale}/politicas-de-privacidade`}
               className="hover:text-purple-400 transition-colors"
             >
-              Políticas de Privacidade
+              {t('privacyPolicy')}
             </Link>
           </div>
 
