@@ -502,8 +502,8 @@ export default async function PrivacyPolicyPage({ params }: Props) {
                   <div className="space-y-2 text-gray-700 dark:text-gray-300">
                     <p>
                       📧 {isEnglish ? 'Email' : 'E-mail'}:{' '}
-                      <a href="mailto:contato2@catbytes.site" className="text-catbytes-purple dark:text-catbytes-pink hover:underline font-semibold">
-                        contato2@catbytes.site
+                      <a href="mailto:contato@catbytes.site" className="text-catbytes-purple dark:text-catbytes-pink hover:underline font-semibold">
+                        contato@catbytes.site
                       </a>
                     </p>
                     <p>

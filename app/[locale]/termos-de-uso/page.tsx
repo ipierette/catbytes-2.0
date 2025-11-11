@@ -1,12 +1,45 @@
 import { Metadata } from 'next'
 import { Scale, Mail, Shield, FileText, Calendar } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 
-export const metadata: Metadata = {
-  title: 'Termos de Uso | CatBytes',
-  description: 'Termos e condições de uso do site CatBytes. Conheça nossos direitos, deveres e políticas.',
+type Props = {
+  params: Promise<{ locale: string }>
 }
 
-export default function TermosDeUsoPage() {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  const isEnglish = locale === 'en-US'
+  
+  return {
+    title: isEnglish ? 'Terms of Use | CatBytes' : 'Termos de Uso | CatBytes',
+    description: isEnglish 
+      ? 'Terms and conditions of use for the CatBytes website. Learn about our rights, duties and policies.'
+      : 'Termos e condições de uso do site CatBytes. Conheça nossos direitos, deveres e políticas.',
+    keywords: 'terms of use, legal, privacy, catbytes, web development, termos de uso',
+    robots: 'index, follow',
+    alternates: {
+      canonical: `https://catbytes.site/${locale}/termos-de-uso`,
+      languages: {
+        'pt-BR': 'https://catbytes.site/pt-BR/termos-de-uso',
+        'en-US': 'https://catbytes.site/en-US/termos-de-uso',
+      },
+    },
+    openGraph: {
+      title: isEnglish ? 'Terms of Use | CatBytes' : 'Termos de Uso | CatBytes',
+      description: isEnglish 
+        ? 'Terms and conditions of use for the CatBytes website'
+        : 'Termos e condições de uso do site CatBytes',
+      url: `https://catbytes.site/${locale}/termos-de-uso`,
+      siteName: 'CatBytes',
+      locale: locale,
+      type: 'website',
+    },
+  }
+}
+
+export default async function TermosDeUsoPage({ params }: Props) {
+  const { locale } = await params
+  const isEnglish = locale === 'en-US'
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-slate-900 dark:to-blue-950 pt-32 pb-20">
       <div className="container mx-auto px-4 max-w-4xl">
@@ -16,14 +49,20 @@ export default function TermosDeUsoPage() {
             <Scale className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-comfortaa font-bold bg-gradient-to-r from-catbytes-purple via-catbytes-pink to-catbytes-blue bg-clip-text text-transparent mb-4">
-            Termos de Uso
+            {isEnglish ? 'Terms of Use' : 'Termos de Uso'}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Bem-vindo(a) ao site CatBytes (<a href="https://catbytes.site" className="text-catbytes-purple dark:text-catbytes-pink hover:underline">https://catbytes.site</a>).
+            {isEnglish ? (
+              <>Welcome to CatBytes (<a href="https://catbytes.site" className="text-catbytes-purple dark:text-catbytes-pink hover:underline">https://catbytes.site</a>).</>
+            ) : (
+              <>Bem-vindo(a) ao site CatBytes (<a href="https://catbytes.site" className="text-catbytes-purple dark:text-catbytes-pink hover:underline">https://catbytes.site</a>).</>
+            )}
           </p>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Ao acessar este site, você concorda com os termos e condições abaixo.<br />
-            Caso não concorde, recomendamos que não continue a navegação.
+            {isEnglish 
+              ? 'By accessing this website, you agree to the terms and conditions below. If you do not agree, we recommend that you do not continue browsing.'
+              : 'Ao acessar este site, você concorda com os termos e condições abaixo. Caso não concorde, recomendamos que não continue a navegação.'
+            }
           </p>
         </div>
 
@@ -35,13 +74,15 @@ export default function TermosDeUsoPage() {
               <span className="text-3xl">🐾</span>
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  1. Finalidade do Site
+                  {isEnglish ? '1. Website Purpose' : '1. Finalidade do Site'}
                 </h2>
               </div>
             </div>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              O CatBytes é um projeto independente de desenvolvimento web e automação inteligente.
-              Seu conteúdo tem fins informativos e educacionais, incluindo artigos, materiais autorais e projetos demonstrativos.
+              {isEnglish
+                ? 'CatBytes is an independent web development and intelligent automation project. Its content is for informational and educational purposes, including articles, original materials, and demonstration projects.'
+                : 'O CatBytes é um projeto independente de desenvolvimento web e automação inteligente. Seu conteúdo tem fins informativos e educacionais, incluindo artigos, materiais autorais e projetos demonstrativos.'
+              }
             </p>
           </section>
 

@@ -1,110 +1,62 @@
-'use client'
-
 import { Metadata } from 'next'
-import { ChevronDown, Mail, HelpCircle } from 'lucide-react'
-import { useState } from 'react'
-import Image from 'next/image'
-import { useLocale } from 'next-intl'
+import FAQClient from './faq-client'
 
-export default function FAQPage() {
-  const locale = useLocale()
+type Props = {
+  params: Promise<{ locale: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
   const isEnglish = locale === 'en-US'
-  const [openIndex, setOpenIndex] = useState<number | null>(null)
-
-  const toggleQuestion = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index)
+  
+  return {
+    title: isEnglish ? 'FAQ - Frequently Asked Questions | CatBytes' : 'FAQ - Perguntas Frequentes | CatBytes',
+    description: isEnglish 
+      ? 'Find answers to common questions about CatBytes services, technologies, automation with n8n, AI integration, and web development. Professional support and custom solutions.'
+      : 'Encontre respostas para dúvidas comuns sobre os serviços da CatBytes, tecnologias, automação com n8n, integração de IA e desenvolvimento web. Suporte profissional e soluções personalizadas.',
+    keywords: 'FAQ, frequently asked questions, CatBytes, web development, n8n automation, AI integration, perguntas frequentes, desenvolvimento web, automação, inteligência artificial',
+    robots: 'index, follow',
+    alternates: {
+      canonical: `https://catbytes.site/${locale}/faq`,
+      languages: {
+        'pt-BR': 'https://catbytes.site/pt-BR/faq',
+        'en-US': 'https://catbytes.site/en-US/faq',
+      },
+    },
+    openGraph: {
+      title: isEnglish ? 'FAQ - Frequently Asked Questions | CatBytes' : 'FAQ - Perguntas Frequentes | CatBytes',
+      description: isEnglish 
+        ? 'Find answers to common questions about CatBytes services and technologies'
+        : 'Encontre respostas para dúvidas comuns sobre os serviços e tecnologias da CatBytes',
+      url: `https://catbytes.site/${locale}/faq`,
+      siteName: 'CatBytes',
+      locale: locale,
+      type: 'website',
+      images: [
+        {
+          url: 'https://catbytes.site/images/gatinho-faq.png',
+          width: 800,
+          height: 800,
+          alt: isEnglish ? 'CatBytes FAQ' : 'FAQ CatBytes',
+        }
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: isEnglish ? 'FAQ - Frequently Asked Questions | CatBytes' : 'FAQ - Perguntas Frequentes | CatBytes',
+      description: isEnglish 
+        ? 'Find answers to common questions about CatBytes services and technologies'
+        : 'Encontre respostas para dúvidas comuns sobre os serviços e tecnologias da CatBytes',
+      images: ['https://catbytes.site/images/gatinho-faq.png'],
+    },
   }
+}
 
-  const faqData = isEnglish ? {
-    title: 'FAQ',
-    subtitle: 'Frequently Asked Questions',
-    description: 'Find quick answers to common questions about CatBytes services and technologies',
-    contactTitle: 'Still have questions?',
-    contactText: 'Feel free to reach out!',
-    contactButton: 'Contact Us',
-    questions: [
-      {
-        q: 'What is CatBytes?',
-        a: 'CatBytes is a fullstack web development and intelligent automation company. We create websites, platforms, and systems that combine modern design, AI, and technical performance for professionals and companies seeking real digital presence.'
-      },
-      {
-        q: 'Do you work with ready-made or custom websites?',
-        a: 'All CatBytes projects are customized. Each client receives a website or system tailored to their niche, visual identity, and business objectives.'
-      },
-      {
-        q: 'What is n8n automation?',
-        a: 'n8n automation is the process of connecting tools and platforms to execute automatic tasks without code. CatBytes uses n8n to create intelligent workflows for emails, social media, marketing, customer service, and AI integrations.'
-      },
-      {
-        q: 'Does CatBytes use artificial intelligence in projects?',
-        a: 'Yes. CatBytes integrates generative AI (such as OpenAI and Gemini) into websites, blogs, and automations to generate content, respond to users, and optimize processes.'
-      },
-      {
-        q: 'What technologies is the CatBytes website built with?',
-        a: 'Our projects use modern technologies such as React.js, Next.js, Node.js, Supabase, Tailwind, and integrations with external APIs. We always prioritize performance, accessibility, and security.'
-      },
-      {
-        q: 'Does CatBytes serve clients outside Brazil?',
-        a: 'Yes. All our services are remote and can be contracted from anywhere. We work with companies and professionals in Brazil and abroad.'
-      },
-      {
-        q: 'Is the website design responsive?',
-        a: 'Yes. All layouts are designed to adapt perfectly to different devices, ensuring a good experience on desktops, tablets, and mobile phones.'
-      },
-      {
-        q: 'Can I hire just automation without a website?',
-        a: 'Yes. We also offer independent automation packages and workflows, such as email integration, WhatsApp, social media, and internal systems.'
-      },
-      {
-        q: 'Does CatBytes offer support after delivery?',
-        a: 'Yes. Each project includes a period of technical support and guidance. We also offer continuous maintenance and update plans.'
-      },
-      {
-        q: 'How can I request a quote?',
-        a: 'You can contact us through the website form or send an email to ipierette2@gmail.com. After understanding your needs, we will prepare a customized proposal.'
-      }
-    ]
-  } : {
-    title: 'FAQ',
-    subtitle: 'Perguntas Frequentes',
-    description: 'Encontre respostas rápidas para dúvidas comuns sobre os serviços e tecnologias da CatBytes',
-    contactTitle: 'Ainda tem dúvidas?',
-    contactText: 'Entre em contato conosco!',
-    contactButton: 'Fale Conosco',
-    questions: [
-      {
-        q: 'O que é a CatBytes?',
-        a: 'A CatBytes é uma empresa de desenvolvimento web fullstack e automação inteligente. Criamos sites, plataformas e sistemas que unem design moderno, IA e performance técnica para profissionais e empresas que desejam presença digital real.'
-      },
-      {
-        q: 'Vocês trabalham com sites prontos ou sob medida?',
-        a: 'Todos os projetos da CatBytes são personalizados. Cada cliente recebe um site ou sistema feito de acordo com seu nicho, identidade visual e objetivos de negócio.'
-      },
-      {
-        q: 'O que é automação com n8n?',
-        a: 'Automação com n8n é o processo de conectar ferramentas e plataformas para executar tarefas automáticas sem precisar de código. A CatBytes utiliza o n8n para criar fluxos inteligentes de e-mails, redes sociais, marketing, atendimento e integrações com IA.'
-      },
-      {
-        q: 'A CatBytes usa inteligência artificial nos projetos?',
-        a: 'Sim. A CatBytes integra IA generativa (como OpenAI e Gemini) em sites, blogs e automações, para gerar conteúdo, responder usuários e otimizar processos.'
-      },
-      {
-        q: 'O site da CatBytes é feito com quais tecnologias?',
-        a: 'Nossos projetos utilizam tecnologias modernas como React.js, Next.js, Node.js, Supabase, Tailwind e integrações com APIs externas. Sempre priorizamos desempenho, acessibilidade e segurança.'
-      },
-      {
-        q: 'A CatBytes atende clientes fora do Brasil?',
-        a: 'Sim. Todos os nossos serviços são remotos e podem ser contratados de qualquer lugar. Trabalhamos com empresas e profissionais no Brasil e no exterior.'
-      },
-      {
-        q: 'O design dos sites é responsivo?',
-        a: 'Sim. Todos os layouts são projetados para se adaptar perfeitamente a diferentes dispositivos, garantindo boa experiência em desktops, tablets e celulares.'
-      },
-      {
-        q: 'Posso contratar apenas uma automação, sem um site?',
-        a: 'Sim. Também oferecemos pacotes e fluxos de automação independentes, como integração de e-mail, WhatsApp, redes sociais e sistemas internos.'
-      },
-      {
+export default async function FAQPage({ params }: Props) {
+  const { locale } = await params
+  return <FAQClient locale={locale} />
+}
+
         q: 'A CatBytes oferece suporte após a entrega?',
         a: 'Sim. Cada projeto inclui um período de suporte técnico e orientação. Também oferecemos planos de manutenção e atualização contínua.'
       },
@@ -203,6 +155,25 @@ export default function FAQPage() {
             {faqData.contactButton}
           </a>
         </div>
+
+        {/* Schema.org FAQ Markup */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              "mainEntity": faqData.questions.map(item => ({
+                "@type": "Question",
+                "name": item.q,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": item.a
+                }
+              }))
+            })
+          }}
+        />
       </div>
     </div>
   )
