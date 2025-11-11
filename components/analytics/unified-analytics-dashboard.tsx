@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { TrendingUp, BarChart3, BookOpen } from 'lucide-react'
+import { TrendingUp, BarChart3, BookOpen, Activity } from 'lucide-react'
 import { GoogleAnalyticsSection } from './google-analytics-section'
 import { BlogAnalyticsSection } from './blog-analytics-section'
 import { OverviewSection } from './overview-section'
+import { VercelAnalyticsSection } from './vercel-analytics-section'
 
 export function UnifiedAnalyticsDashboard() {
   const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d')
@@ -37,21 +38,22 @@ export function UnifiedAnalyticsDashboard() {
 
       {/* Tabs principais */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
+        <TabsList className="grid w-full grid-cols-4 lg:w-[800px]">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
-            <span className="hidden sm:inline">Overview Geral</span>
-            <span className="sm:hidden">Overview</span>
+            <span className="hidden sm:inline">Overview</span>
+          </TabsTrigger>
+          <TabsTrigger value="vercel" className="flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            <span className="hidden sm:inline">Vercel</span>
           </TabsTrigger>
           <TabsTrigger value="google" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
-            <span className="hidden sm:inline">Google Analytics</span>
-            <span className="sm:hidden">Google</span>
+            <span className="hidden sm:inline">Google</span>
           </TabsTrigger>
           <TabsTrigger value="blog" className="flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
-            <span className="hidden sm:inline">Blog Detalhado</span>
-            <span className="sm:hidden">Blog</span>
+            <span className="hidden sm:inline">Blog</span>
           </TabsTrigger>
         </TabsList>
 
@@ -60,12 +62,17 @@ export function UnifiedAnalyticsDashboard() {
           <OverviewSection period={period} />
         </TabsContent>
 
-        {/* Tab 2: Google Analytics */}
+        {/* Tab 2: Vercel Analytics */}
+        <TabsContent value="vercel" className="space-y-6">
+          <VercelAnalyticsSection period={period} />
+        </TabsContent>
+
+        {/* Tab 3: Google Analytics */}
         <TabsContent value="google" className="space-y-6">
           <GoogleAnalyticsSection period={period} />
         </TabsContent>
 
-        {/* Tab 3: Blog Analytics Detalhado */}
+        {/* Tab 4: Blog Analytics Detalhado */}
         <TabsContent value="blog" className="space-y-6">
           <BlogAnalyticsSection period={period} />
         </TabsContent>

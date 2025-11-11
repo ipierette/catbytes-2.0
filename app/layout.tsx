@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import { Inter, Comfortaa } from 'next/font/google'
 import { ToastProvider } from '@/components/ui/toast'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const inter = Inter({
@@ -318,6 +319,7 @@ export default async function RootLayout({
         </Script>
         
         <ToastProvider>{children}</ToastProvider>
+        <Analytics />
       </body>
     </html>
   )
