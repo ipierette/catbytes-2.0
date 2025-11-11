@@ -63,7 +63,7 @@ Com **100.000 visitantes/mês**: $500-1.000/mês 💰
 - Dicas de programação
 - Tutoriais técnicos
 - SEO e marketing digital
-- Tendências tech
+- Tendências tech (mais atualizadas possível)
 ```
 
 **Por quê?** Google AdSense rejeita sites com pouco conteúdo.
