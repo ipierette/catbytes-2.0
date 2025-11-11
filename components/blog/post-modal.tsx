@@ -283,155 +283,20 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
                     </div>
                   )}
 
-                  {/* Layout adaptável baseado no número de imagens */}
-                  {contentImages.length >= 2 ? (
-                    // Layout REVISTA COMPLETA (2+ imagens) - Estilo Imagem 1
-                    <div className="space-y-8">
-                      {/* Introdução com caixa colorida */}
-                      <div className="grid md:grid-cols-3 gap-6">
-                        <div className="md:col-span-2">
-                          <div
-                            className="prose prose-lg dark:prose-invert max-w-none magazine-text"
-                            dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
-                          />
-                        </div>
-                        <div className="bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 p-6 rounded-xl border-l-4 border-catbytes-pink">
-                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">💡 Destaque</h3>
-                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                            {post.excerpt}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Primeira imagem com texto ao lado */}
-                      <div className="grid md:grid-cols-2 gap-6 items-center">
-                        <div className="relative h-64 md:h-80 rounded-xl overflow-hidden shadow-lg">
-                          <Image
-                            src={contentImages[0]}
-                            alt="Imagem do artigo 1"
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                          />
-                        </div>
-                        <div
-                          className="prose prose-lg dark:prose-invert max-w-none magazine-text"
-                          dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.middle) }}
-                        />
-                      </div>
-
-                      {/* Segunda imagem com caixa informativa */}
-                      <div className="grid md:grid-cols-3 gap-6">
-                        <div className="md:col-span-2 order-2 md:order-1">
-                          <div className="relative h-64 md:h-96 rounded-xl overflow-hidden shadow-lg">
-                            <Image
-                              src={contentImages[1]}
-                              alt="Imagem do artigo 2"
-                              fill
-                              className="object-cover"
-                              sizes="(max-width: 768px) 100vw, 66vw"
-                            />
-                          </div>
-                        </div>
-                        <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-6 rounded-xl border-l-4 border-catbytes-purple order-1 md:order-2">
-                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">📌 Saiba Mais</h3>
-                          <div
-                            className="prose prose-sm dark:prose-invert max-w-none magazine-text"
-                            dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end.substring(0, 200) + '...') }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Restante do conteúdo */}
-                      <div
-                        className="prose prose-lg dark:prose-invert max-w-none magazine-text"
-                        dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end) }}
-                      />
-                    </div>
-                  ) : contentImages.length === 1 ? (
-                    // Layout REVISTA SIMPLES (1 imagem) - Estilo Imagem 2
-                    <div className="space-y-8">
-                      {/* Introdução com caixa de destaque */}
-                      <div className="grid md:grid-cols-3 gap-6">
-                        <div className="md:col-span-2">
-                          <div
-                            className="prose prose-lg dark:prose-invert max-w-none magazine-text"
-                            dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro) }}
-                          />
-                        </div>
-                        <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 p-6 rounded-xl border-l-4 border-catbytes-purple">
-                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">📌 Resumo</h3>
-                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                            {post.excerpt}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Imagem destacada com moldura */}
-                      <div className="relative">
-                        <div className="absolute -inset-4 bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 rounded-2xl transform rotate-1"></div>
-                        <div className="relative h-64 md:h-96 rounded-xl overflow-hidden shadow-2xl">
-                          <Image
-                            src={contentImages[0]}
-                            alt="Imagem do artigo"
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, 100vw"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Continuação com caixa call-to-action */}
-                      <div className="grid md:grid-cols-3 gap-6">
-                        <div className="md:col-span-2">
-                          <div
-                            className="prose prose-lg dark:prose-invert max-w-none magazine-text"
-                            dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end) }}
-                          />
-                        </div>
-                        <div className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 p-6 rounded-xl h-fit sticky top-4 border-l-4 border-catbytes-pink">
-                          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                            💡 Continue Lendo
-                          </h3>
-                          <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 italic">
-                            "{post.excerpt}"
-                          </p>
-                          <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                            <p>📅 {format(new Date(post.created_at), "dd/MM/yyyy")}</p>
-                            <p>👁️ {post.views} leitores</p>
-                            <p>✍️ {post.author}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    // Layout COM ESTILO REVISTA (sem imagens extras) - Aplicar dropcap e caixas
-                    <div className="space-y-8">
-                      {/* Introdução com dropcap e caixa de destaque */}
-                      <div className="grid md:grid-cols-3 gap-6">
-                        <div className="md:col-span-2">
-                          <div
-                            className="prose prose-lg dark:prose-invert max-w-none magazine-text"
-                            dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
-                          />
-                        </div>
-                        <div className="space-y-6">
-                          {/* Caixa de destaque com excerpt */}
-                          <div className="bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 p-6 rounded-xl border-l-4 border-catbytes-pink sticky top-4">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">💡 Destaque</h3>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                              {post.excerpt}
-                            </p>
-                            <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1 pt-4 border-t border-gray-300 dark:border-gray-600">
-                              <p>📅 {format(new Date(post.created_at), "dd/MM/yyyy")}</p>
-                              <p>👁️ {post.views} visualizações</p>
-                              <p>✍️ Por {post.author}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                  {/* Highlight se existir */}
+                  {post.highlight && post.highlight.trim() !== '' && (
+                    <div className="mb-8 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-6 rounded-lg border-l-4 border-catbytes-purple">
+                      <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                        💡 {post.highlight}
+                      </p>
                     </div>
                   )}
+
+                  {/* Conteúdo com imagens inline */}
+                  <div
+                    className="prose prose-lg dark:prose-invert max-w-none magazine-text"
+                    dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
+                  />
 
                   {/* Share buttons */}
                   <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
@@ -529,6 +394,8 @@ function formatMarkdown(markdown: string): string {
   }
 
   let html = markdown
+    // Imagens markdown para HTML
+    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<div class="my-8"><img src="$2" alt="$1" class="w-full rounded-xl shadow-lg" /></div>')
     // Headers
     .replace(/^### (.*$)/gim, '<h3>$1</h3>')
     .replace(/^## (.*$)/gim, '<h2>$1</h2>')
