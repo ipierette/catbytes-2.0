@@ -127,9 +127,9 @@ export default function BlogPage() {
           </div>
 
           <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Insights sobre tecnologia, IA, automação e desenvolvimento web.
+            Insights sobre tecnologia, IA, automação e desenvolvimento web e curiosidade sobre gatos.
             <br />
-            Conteúdo criado para impulsionar seu negócio digital! 🚀
+            Conteúdo criado para impulsionar seu negócio digital! 🚀 e para melhor entender seus gatinhos!!
           </p>
         </motion.div>
 

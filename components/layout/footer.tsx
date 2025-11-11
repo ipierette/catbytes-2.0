@@ -178,7 +178,25 @@ export function Footer() {
           <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
             {t('madeWith')} <FaHeart className="text-red-500" /> {t('and')} <FaCat className="text-green-400" />
           </p>
-          <div className="flex items-center justify-center gap-4 mt-4">
+          
+          {/* Legal Links */}
+          <div className="flex items-center justify-center gap-4 mt-4 text-xs text-gray-500">
+            <Link 
+              href={`/${locale}/termos-de-uso`}
+              className="hover:text-purple-400 transition-colors"
+            >
+              Termos de Uso
+            </Link>
+            <span>•</span>
+            <Link 
+              href={`/${locale}/politicas-de-privacidade`}
+              className="hover:text-purple-400 transition-colors"
+            >
+              Políticas de Privacidade
+            </Link>
+          </div>
+
+          <div className="flex items-center justify-center gap-4 mt-3">
             <p className="text-xs text-gray-600">
               CatBytes v2.0 | {t('accessibility')}
             </p>
