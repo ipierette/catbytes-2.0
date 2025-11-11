@@ -1,6 +1,6 @@
 /**
  * Blog Scheduler - Sistema de rotação de temas por dia
- * Segunda: Automação e Negócios | Quinta: Dicas de Programação Web | Sábado: Cuidados Felinos | Domingo: Tech Aleatório
+ * Terça: Automação e Negócios | Quinta: Dicas de Programação Web | Sábado: Cuidados Felinos | Domingo: Tech Aleatório
  */
 
 import { BLOG_TOPICS } from '@/types/blog'
@@ -14,7 +14,7 @@ export function getCurrentBlogTheme(): BlogTheme {
   const dayOfWeek = today.getDay() // 0=domingo, 1=segunda, ..., 6=sábado
   
   // Mapeia os dias de postagem para temas
-  if (dayOfWeek === 1) return 'Automação e Negócios'     // Segunda
+  if (dayOfWeek === 2) return 'Automação e Negócios'     // Terça
   if (dayOfWeek === 4) return 'Programação e IA'         // Quinta (Dicas de Programação Web)
   if (dayOfWeek === 6) return 'Cuidados Felinos'         // Sábado (Gatinhos)
   if (dayOfWeek === 0) return 'Tech Aleatório'           // Domingo (Tech Aleatório)
@@ -31,10 +31,10 @@ export function getNextScheduledTheme(): BlogTheme {
   const dayOfWeek = today.getDay()
   
   // Lógica para determinar próximo tema
-  if (dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 3) return 'Programação e IA'      // Seg/Ter/Qua -> Quinta
+  if (dayOfWeek === 2 || dayOfWeek === 3) return 'Programação e IA'      // Ter/Qua -> Quinta
   if (dayOfWeek === 4 || dayOfWeek === 5) return 'Cuidados Felinos'      // Qui/Sex -> Sábado
   if (dayOfWeek === 6) return 'Tech Aleatório' // Sábado -> Domingo
-  return 'Automação e Negócios' // Domingo -> próxima Segunda
+  return 'Automação e Negócios' // Domingo/Segunda -> próxima Terça
 }
 
 /**
@@ -129,8 +129,8 @@ export function getThemeKeywords(theme: BlogTheme): string[] {
  */
 export function isBlogPostDay(date: Date = new Date()): boolean {
   const dayOfWeek = date.getDay()
-  // Segunda (1), Quinta (4), Sábado (6), Domingo (0)
-  return dayOfWeek === 1 || dayOfWeek === 4 || dayOfWeek === 6 || dayOfWeek === 0
+  // Terça (2), Quinta (4), Sábado (6), Domingo (0)
+  return dayOfWeek === 2 || dayOfWeek === 4 || dayOfWeek === 6 || dayOfWeek === 0
 }
 
 /**
@@ -145,7 +145,7 @@ export function getBlogScheduleInfo() {
     currentTheme,
     isPostDay,
     schedule: {
-      monday: 'Automação e Negócios',
+      tuesday: 'Automação e Negócios',
       thursday: 'Programação e IA (Dicas para Leigos)',
       saturday: 'Cuidados Felinos (Gatinhos)',
       sunday: 'Tech Aleatório'

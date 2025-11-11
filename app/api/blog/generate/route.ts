@@ -156,7 +156,14 @@ REQUISITOS:
 - Use dados reais e exemplos práticos de empresas
 - Explique benefícios de ter presença digital profissional
 - Inclua cases de sucesso (pode ser genérico mas realista)
-- Mencione sutilmente como CatBytes ajuda na transformação digital`,
+- Mencione sutilmente como CatBytes ajuda na transformação digital
+
+FONTES SUGERIDAS (use pelo menos 2):
+- Gartner (https://www.gartner.com) - pesquisas sobre tecnologia empresarial
+- McKinsey (https://www.mckinsey.com) - estudos de transformação digital
+- Forrester (https://www.forrester.com) - análises de ROI e automação
+- Harvard Business Review (https://hbr.org) - estratégias de negócios
+- SEBRAE (https://www.sebrae.com.br) - dados sobre pequenas empresas`,
 
       'Programação e IA': `Você é um educador tech que torna programação e IA acessíveis para iniciantes, escrevendo para o blog da CatBytes.
 
@@ -171,7 +178,14 @@ REQUISITOS:
 - Use analogias do dia a dia para explicar tecnologia
 - Inclua exemplos práticos e step-by-step quando possível
 - Inspire pessoas a começarem a programar/usar IA
-- Mostre como a tecnologia está mudando o mundo`,
+- Mostre como a tecnologia está mudando o mundo
+
+FONTES SUGERIDAS (use pelo menos 2):
+- MDN Web Docs (https://developer.mozilla.org) - documentação web oficial
+- Stack Overflow (https://stackoverflow.blog) - insights da comunidade dev
+- freeCodeCamp (https://www.freecodecamp.org/news) - tutoriais e guias
+- Google Developers (https://developers.google.com) - boas práticas
+- GitHub Blog (https://github.blog) - tendências em desenvolvimento`,
 
       'Cuidados Felinos': `Você é um veterinário apaixonado por felinos, escrevendo dicas carinhosas sobre cuidados com gatos para o blog da CatBytes.
 
@@ -187,7 +201,36 @@ REQUISITOS:
 - Inclua dicas práticas e sinais de alerta importantes
 - Promova adoção responsável e cuidados preventivos
 - Seja empático com tutores preocupados
-- NÃO mencione CatBytes (tema totalmente diferente)`
+- NÃO mencione CatBytes (tema totalmente diferente)
+
+FONTES SUGERIDAS (use pelo menos 2):
+- ASPCA (https://www.aspca.org) - organização de proteção animal
+- Cornell Feline Health Center (https://www.vet.cornell.edu/departments-centers-and-institutes/cornell-feline-health-center) - pesquisa veterinária
+- American Veterinary Medical Association (https://www.avma.org) - orientações veterinárias
+- International Cat Care (https://icatcare.org) - bem-estar felino
+- PetMD (https://www.petmd.com) - saúde de pets`,
+
+      'Tech Aleatório': `Você é um especialista tech versátil, escrevendo sobre as últimas tendências e ferramentas do mundo digital para o blog da CatBytes.
+
+TEMA: ${blogTheme} | TÓPICO: "${selectedTopic}"
+
+PÚBLICO-ALVO: Profissionais tech, entusiastas de tecnologia, curiosos sobre inovação
+OBJETIVO: Informar sobre tendências, ferramentas e melhores práticas tech
+
+REQUISITOS:
+- Tom: Profissional mas acessível, atual e informativo
+- Foque em aplicações práticas de tecnologias
+- Explique benefícios e casos de uso reais
+- Inclua dicas práticas e tutoriais quando relevante
+- Mantenha conteúdo atualizado com últimas tendências
+- Seja objetivo e direto ao ponto
+
+FONTES SUGERIDAS (use pelo menos 2):
+- TechCrunch (https://techcrunch.com) - notícias tech
+- Wired (https://www.wired.com) - tecnologia e cultura
+- Ars Technica (https://arstechnica.com) - análises técnicas aprofundadas
+- MIT Technology Review (https://www.technologyreview.com) - inovação
+- Google Search Central (https://developers.google.com/search) - SEO oficial`
     }
 
     const selectedPrompt = themePrompts[blogTheme] || themePrompts['Automação e Negócios']
@@ -199,42 +242,64 @@ REQUISITOS:
     
     const contentPrompt = `${selectedPrompt}${recentTitlesWarning}
 
-ESTRUTURA: Introdução envolvente, 3-4 seções com subtítulos, conclusão inspiradora
-TAMANHO: 700-1000 palavras
+ESTRUTURA OBRIGATÓRIA:
+1. Introdução envolvente (2-3 parágrafos)
+2. 3-4 seções com subtítulos (##)
+3. Seção "## Perguntas Frequentes" (OBRIGATÓRIA - ver detalhes abaixo)
+4. Conclusão inspiradora (1-2 parágrafos)
+
+TAMANHO: 700-1000 palavras (sem contar FAQ)
 SEO: Incluir naturalmente: ${selectedKeywords.join(', ')}
 
-📚 OBRIGATÓRIO - CITAÇÕES DE FONTES:
-- Cite pelo menos 2-3 fontes externas confiáveis (websites, estudos, estatísticas)
-- Formato: "Segundo [Nome da Fonte](URL), [estatística/citação]"
-- Prefira: sites governamentais, universidades, empresas de pesquisa (Gartner, McKinsey, etc), blogs tech renomados
-- Exemplo: "De acordo com [Gartner](https://gartner.com), 75% das empresas..."
-- Adicione as citações no texto onde fazem sentido contextualmente
+📚 OBRIGATÓRIO - MÍNIMO 2 FONTES CONFIÁVEIS:
+- DEVE incluir pelo menos 2-3 citações de fontes externas reais e confiáveis
+- Formato no texto: "Segundo [Nome da Fonte](URL), [estatística/citação]"
+- Use fontes verificáveis: sites governamentais, universidades, empresas de pesquisa reconhecidas (Gartner, McKinsey, Forrester), blogs tech estabelecidos (TechCrunch, Wired, etc)
+- Exemplo real: "De acordo com o [relatório da Gartner](https://www.gartner.com/technology), 75% das empresas..."
+- As citações devem estar integradas naturalmente ao longo do texto
+- IMPORTANTE: URLs devem ser reais e relacionadas ao tema
 
 ❓ OBRIGATÓRIO - FAQ (Perguntas Frequentes):
-- Adicione seção "## Perguntas Frequentes" no final do artigo (antes da conclusão)
-- Inclua 4-6 perguntas e respostas práticas
-- Use formato:
-  ### Pergunta 1?
-  Resposta completa (2-3 linhas)
-  
-  ### Pergunta 2?
-  Resposta completa (2-3 linhas)
-- Perguntas devem ser baseadas em dúvidas reais que leitores teriam sobre o tema
-- Respostas diretas, práticas e objetivas
+- Adicione seção "## Perguntas Frequentes" ANTES da conclusão final
+- MÍNIMO de 4 perguntas e respostas
+- MÁXIMO de 6 perguntas e respostas
+- Formato EXATO (copie este modelo):
 
-FORMATO JSON:
+## Perguntas Frequentes
+
+### Pergunta 1 relevante ao tema?
+
+Resposta completa e prática em 2-4 linhas que realmente ajude o leitor.
+
+### Pergunta 2 relevante ao tema?
+
+Resposta completa e prática em 2-4 linhas que realmente ajude o leitor.
+
+(continue com mais 2-4 perguntas)
+
+- Perguntas DEVEM ser dúvidas reais que leitores teriam sobre o tema
+- Respostas DEVEM ser diretas, práticas e objetivas (não genéricas)
+- Use linguagem acessível e amigável
+
+FORMATO JSON (OBRIGATÓRIO):
 {
   "title": "Título cativante (máx 70 caracteres) - DEVE SER ÚNICO E DIFERENTE DOS LISTADOS ACIMA",
   "excerpt": "Resumo atrativo (150-200 caracteres)", 
-  "content": "Conteúdo completo em Markdown (incluindo citações inline e seção FAQ)",
+  "content": "Conteúdo completo em Markdown COM citações inline e seção FAQ completa",
   "seo_title": "Título SEO (55-60 caracteres)",
   "seo_description": "Meta description (150-160 caracteres)",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
   "sources": [
-    {"name": "Nome da fonte 1", "url": "https://exemplo1.com"},
-    {"name": "Nome da fonte 2", "url": "https://exemplo2.com"}
+    {"name": "Nome completo da fonte 1", "url": "https://url-real-verificavel.com"},
+    {"name": "Nome completo da fonte 2", "url": "https://url-real-verificavel.com"}
   ]
 }
+
+⚠️ VALIDAÇÃO FINAL ANTES DE RESPONDER:
+- [ ] Conteúdo tem pelo menos 2 citações de fontes?
+- [ ] Seção "## Perguntas Frequentes" está presente?
+- [ ] FAQ tem entre 4-6 perguntas?
+- [ ] Array "sources" tem pelo menos 2 fontes?
 
 Responda APENAS com JSON válido.`
 

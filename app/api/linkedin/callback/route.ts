@@ -4,6 +4,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const code = searchParams.get('code')
+    const state = searchParams.get('state')
     const error = searchParams.get('error')
     const errorDescription = searchParams.get('error_description')
 
@@ -28,8 +29,13 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('✅ Código de autorização recebido:', code.substring(0, 20) + '...')
+    console.log('✅ State recebido:', state)
 
-    // Trocar o código pelo access token
+    // NOTA: Para PKCE, o code_verifier deve ser fornecido
+    // Como não temos o code_verifier aqui (ele foi gerado no script),
+    // vamos mostrar uma mensagem útil para o usuário
+    
+    // Tentar trocar o código pelo access token (vai falhar sem code_verifier)
     const tokenResponse = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
       method: 'POST',
       headers: {
@@ -41,16 +47,183 @@ export async function GET(request: NextRequest) {
         client_id: process.env.LINKEDIN_CLIENT_ID!,
         client_secret: process.env.LINKEDIN_CLIENT_SECRET!,
         redirect_uri: process.env.LINKEDIN_REDIRECT_URI!,
+        // code_verifier não está disponível aqui - deve ser fornecido no script
       }),
     })
 
     if (!tokenResponse.ok) {
       const errorData = await tokenResponse.text()
-      console.error('❌ Erro ao trocar código por token:', errorData)
-      return NextResponse.json(
-        { error: 'token_exchange_failed', message: errorData },
-        { status: tokenResponse.status }
-      )
+      console.error('❌ Erro ao trocar código por token (esperado sem code_verifier):', errorData)
+      
+      // Mostrar página com instruções para usar o código manualmente
+      const html = `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>LinkedIn OAuth - Código de Autorização</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              background: linear-gradient(135deg, #0077b5 0%, #00a0dc 100%);
+              min-height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              margin: 0;
+              padding: 20px;
+            }
+            .container {
+              background: white;
+              border-radius: 12px;
+              padding: 40px;
+              max-width: 900px;
+              width: 100%;
+              box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            }
+            h1 {
+              color: #0077b5;
+              margin-top: 0;
+            }
+            .code-box {
+              background: #1e293b;
+              color: #e2e8f0;
+              padding: 20px;
+              border-radius: 8px;
+              margin: 20px 0;
+              font-family: 'Courier New', monospace;
+              font-size: 14px;
+              word-break: break-all;
+              position: relative;
+            }
+            .code-label {
+              color: #94a3b8;
+              font-size: 12px;
+              margin-bottom: 12px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .copy-btn {
+              position: absolute;
+              top: 16px;
+              right: 16px;
+              background: #3b82f6;
+              color: white;
+              border: none;
+              padding: 8px 16px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 13px;
+            }
+            .copy-btn:hover { background: #2563eb; }
+            .copy-btn.copied { background: #10b981; }
+            .instructions {
+              background: #f0f9ff;
+              border-left: 4px solid #0ea5e9;
+              padding: 20px;
+              margin: 20px 0;
+              border-radius: 4px;
+            }
+            .terminal-command {
+              background: #1e293b;
+              color: #10b981;
+              padding: 12px;
+              border-radius: 4px;
+              font-family: 'Courier New', monospace;
+              font-size: 13px;
+              margin: 10px 0;
+              overflow-x: auto;
+            }
+            .warning {
+              background: #fef3c7;
+              border-left: 4px solid: #f59e0b;
+              padding: 16px;
+              margin: 20px 0;
+              border-radius: 4px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>✅ Autorização LinkedIn Concluída!</h1>
+            
+            <div class="instructions">
+              <h3 style="margin-top: 0;">📋 Código de Autorização Recebido</h3>
+              <p>O LinkedIn retornou o código de autorização com sucesso! Agora você precisa trocá-lo por um Access Token usando o script no terminal.</p>
+            </div>
+
+            <div class="code-box">
+              <div class="code-label">Authorization Code</div>
+              <button class="copy-btn" onclick="copyCode('auth_code', this)">Copiar</button>
+              <div id="auth_code">${code}</div>
+            </div>
+
+            ${state ? `
+            <div class="code-box">
+              <div class="code-label">State Parameter</div>
+              <button class="copy-btn" onclick="copyCode('state_param', this)">Copiar</button>
+              <div id="state_param">${state}</div>
+            </div>
+            ` : ''}
+
+            <div class="instructions">
+              <h3 style="margin-top: 0;">🚀 Próximos Passos</h3>
+              <ol>
+                <li>Copie o <strong>Authorization Code</strong> acima (clique no botão "Copiar")</li>
+                <li>Volte para o terminal onde você executou o script</li>
+                <li>Você verá o <strong>code_verifier</strong> que foi gerado</li>
+                <li>Execute o comando de troca de token fornecido</li>
+              </ol>
+              
+              <p><strong>Exemplo do comando:</strong></p>
+              <div class="terminal-command">
+                node scripts/linkedin-exchange-token.js ${code.substring(0, 20)}... SEU_CODE_VERIFIER
+              </div>
+              
+              <p style="margin-top: 16px;">
+                Substitua <code>SEU_CODE_VERIFIER</code> pelo valor que foi mostrado no terminal quando você executou o script inicial.
+              </p>
+            </div>
+
+            <div class="warning">
+              <h3 style="margin-top: 0; color: #92400e;">⚠️ Importante</h3>
+              <ul style="margin: 8px 0; padding-left: 20px; color: #78350f;">
+                <li>O código de autorização expira rapidamente (alguns minutos)</li>
+                <li>Você só pode usá-lo UMA vez</li>
+                <li>O code_verifier está no terminal onde você iniciou o processo</li>
+              </ul>
+            </div>
+          </div>
+
+          <script>
+            function copyCode(elementId, btn) {
+              const element = document.getElementById(elementId);
+              const text = element.textContent;
+              
+              navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copiado!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                  btn.textContent = originalText;
+                  btn.classList.remove('copied');
+                }, 2000);
+              }).catch(err => {
+                alert('Erro ao copiar. Selecione e copie manualmente.');
+              });
+            }
+          </script>
+        </body>
+        </html>
+      `
+      
+      return new NextResponse(html, {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+        },
+      })
     }
 
     const tokenData = await tokenResponse.json()
