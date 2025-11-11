@@ -23,6 +23,11 @@ export interface LinkedInSettings {
  */
 export async function getLinkedInSettings(): Promise<LinkedInSettings | null> {
   try {
+    if (!supabaseAdmin) {
+      console.error('[LinkedIn Settings] Supabase admin client not initialized')
+      return null
+    }
+
     const { data, error } = await supabaseAdmin
       .from('linkedin_settings')
       .select('*')
@@ -52,6 +57,11 @@ export async function updateLinkedInToken(
   expiresIn?: number
 ): Promise<boolean> {
   try {
+    if (!supabaseAdmin) {
+      console.error('[LinkedIn Settings] Supabase admin client not initialized')
+      return false
+    }
+
     const settings = await getLinkedInSettings()
     
     if (!settings) {
@@ -99,6 +109,11 @@ export async function updateLinkedInUrns(
   organizationUrn?: string
 ): Promise<boolean> {
   try {
+    if (!supabaseAdmin) {
+      console.error('[LinkedIn Settings] Supabase admin client not initialized')
+      return false
+    }
+
     const settings = await getLinkedInSettings()
     
     if (!settings) {
@@ -206,6 +221,11 @@ export async function saveLinkedInSettings(data: {
   organization_urn?: string
 }): Promise<boolean> {
   try {
+    if (!supabaseAdmin) {
+      console.error('[LinkedIn Settings] Supabase admin client not initialized')
+      return false
+    }
+
     const settings = await getLinkedInSettings()
     
     const expiresAt = new Date(Date.now() + data.expires_in * 1000)
