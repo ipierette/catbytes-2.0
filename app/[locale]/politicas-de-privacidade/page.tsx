@@ -26,7 +26,6 @@ export default function PoliticasPage() {
         {/* Company Culture Section */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12 mb-8">
           <div className="flex items-center gap-3 mb-8">
-            <span className="text-3xl">🐾</span>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
               Política e Cultura da CatBytes
             </h2>
@@ -39,7 +38,7 @@ export default function PoliticasPage() {
                 <Briefcase className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    💻 Trabalho Remoto e Flexível
+                    Trabalho Remoto e Flexível
                   </h3>
                   <div className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>A CatBytes é uma empresa 100% remota.</p>
@@ -56,7 +55,7 @@ export default function PoliticasPage() {
                 <CheckCircle className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    ⚙️ Autonomia e Responsabilidade
+                    Autonomia e Responsabilidade
                   </h3>
                   <div className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>Confiamos em quem faz parte da CatBytes.</p>
@@ -73,7 +72,7 @@ export default function PoliticasPage() {
                 <Lightbulb className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    🤖 Inovação e Tecnologia
+                    Inovação e Tecnologia
                   </h3>
                   <div className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>Vivemos tecnologia todos os dias — IA, automações e desenvolvimento web fazem parte do nosso DNA.</p>
@@ -89,7 +88,7 @@ export default function PoliticasPage() {
                 <TrendingUp className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    🧠 Crescimento e Conhecimento
+                    Crescimento e Conhecimento
                   </h3>
                   <div className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>A CatBytes acredita que aprender é parte do trabalho.</p>
@@ -106,7 +105,7 @@ export default function PoliticasPage() {
                 <MessageCircle className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    💬 Comunicação e Colaboração
+                    Comunicação e Colaboração
                   </h3>
                   <div className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>Trabalhamos em um ambiente colaborativo, sem hierarquias rígidas.</p>
@@ -123,7 +122,7 @@ export default function PoliticasPage() {
                 <Heart className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    ❤️ Equilíbrio e Bem-Estar
+                    Equilíbrio e Bem-Estar
                   </h3>
                   <div className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>Respeitamos o tempo e o espaço de cada pessoa.</p>
@@ -140,7 +139,7 @@ export default function PoliticasPage() {
                 <Users className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    🌍 Diversidade e Inclusão
+                    Diversidade e Inclusão
                   </h3>
                   <div className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>Na CatBytes, acreditamos que a diversidade impulsiona a inovação.</p>
@@ -156,7 +155,7 @@ export default function PoliticasPage() {
                 <Shield className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                    📈 Ética e Transparência
+                    Ética e Transparência
                   </h3>
                   <div className="space-y-2 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>Trabalhamos com ética, respeito e compromisso.</p>
@@ -171,7 +170,6 @@ export default function PoliticasPage() {
         {/* Privacy Policy Section */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12">
           <div className="flex items-center gap-3 mb-8">
-            <span className="text-3xl">🛡️</span>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
               Política de Privacidade – CatBytes
             </h2>
@@ -194,7 +192,7 @@ export default function PoliticasPage() {
                 <Database className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                    📋 1. Informações que Coletamos
+                    1. Informações que Coletamos
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                     Coletamos apenas os dados necessários para o funcionamento do site e a comunicação com o público.
@@ -215,7 +213,7 @@ export default function PoliticasPage() {
                 <Eye className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                    💬 2. Como Utilizamos Seus Dados
+                    2. Como Utilizamos Seus Dados
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                     Os dados coletados são usados para:
@@ -239,7 +237,7 @@ export default function PoliticasPage() {
                 <Cookie className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                    ⚙️ 3. Ferramentas e Cookies
+                    3. Ferramentas e Cookies
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                     Utilizamos cookies e tecnologias similares para entender como o site é usado e oferecer uma navegação mais eficiente.
@@ -266,7 +264,7 @@ export default function PoliticasPage() {
                 <Mail className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                    ✉️ 4. Newsletter e Comunicação
+                    4. Newsletter e Comunicação
                   </h3>
                   <div className="space-y-3 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>
@@ -287,7 +285,7 @@ export default function PoliticasPage() {
                 <Lock className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                    🔒 5. Proteção dos Dados
+                    5. Proteção dos Dados
                   </h3>
                   <div className="space-y-3 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>
@@ -307,7 +305,7 @@ export default function PoliticasPage() {
                 <Shield className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                    🧾 6. Direitos do Titular (LGPD)
+                    6. Direitos do Titular (LGPD)
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                     Você pode, a qualquer momento:
@@ -334,7 +332,7 @@ export default function PoliticasPage() {
                 <Globe className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                    🌍 7. Links Externos
+                    7. Links Externos
                   </h3>
                   <div className="space-y-3 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>
@@ -352,7 +350,7 @@ export default function PoliticasPage() {
                 <FileText className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                    🧠 8. Alterações desta Política
+                    8. Alterações desta Política
                   </h3>
                   <div className="space-y-3 text-gray-700 dark:text-gray-300 leading-relaxed">
                     <p>
@@ -373,7 +371,7 @@ export default function PoliticasPage() {
                 <Mail className="w-6 h-6 text-catbytes-purple dark:text-catbytes-pink flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                    📫 9. Contato
+                    9. Contato
                   </h3>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                     Para dúvidas ou solicitações sobre esta Política, entre em contato:

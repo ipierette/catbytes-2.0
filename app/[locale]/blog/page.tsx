@@ -7,10 +7,13 @@ import { BookOpen, ChevronLeft, ChevronRight, Loader2, Filter, X } from 'lucide-
 import { PostCard } from '@/components/blog/post-card'
 import type { BlogPost, PaginatedBlogPosts } from '@/types/blog'
 import { blogSync } from '@/lib/blog-sync'
+import { getCategoryDisplayName } from '@/lib/category-mapper'
+import { useTranslations } from 'next-intl'
 
 export default function BlogPage() {
   const params = useParams()
   const locale = (params?.locale as string) || 'pt-BR'
+  const t = useTranslations('blog')
   
   const [posts, setPosts] = useState<PaginatedBlogPosts | null>(null)
   const [loading, setLoading] = useState(true)
@@ -127,9 +130,9 @@ export default function BlogPage() {
           </div>
 
           <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            Insights sobre tecnologia, IA, automação e desenvolvimento web e curiosidade sobre gatos.
+            {t('description')}
             <br />
-            Conteúdo criado para impulsionar seu negócio digital! 🚀 e para melhor entender seus gatinhos!!
+            {t('subtitle')}
           </p>
         </motion.div>
 
@@ -144,7 +147,7 @@ export default function BlogPage() {
             className="flex items-center gap-2 mx-auto px-6 py-3 bg-white dark:bg-gray-800 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-catbytes-purple dark:hover:border-catbytes-pink transition-all"
           >
             <Filter className="w-5 h-5" />
-            {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+            {showFilters ? t('filters.hide') : t('filters.show')}
             {(selectedTheme || selectedPeriod) && (
               <span className="ml-2 px-2 py-1 bg-catbytes-purple text-white text-xs rounded-full">
                 {[selectedTheme, selectedPeriod].filter(Boolean).length}
@@ -163,17 +166,17 @@ export default function BlogPage() {
                 {/* Theme Filter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Tema
+                    {t('filters.theme')}
                   </label>
                   <select
                     value={selectedTheme}
                     onChange={(e) => setSelectedTheme(e.target.value)}
                     className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-catbytes-purple dark:focus:border-catbytes-pink outline-none transition-colors"
                   >
-                    <option value="">Todos os temas</option>
+                    <option value="">{t('filters.allThemes')}</option>
                     {availableThemes.map((theme) => (
                       <option key={theme} value={theme}>
-                        {theme}
+                        {getCategoryDisplayName(theme)}
                       </option>
                     ))}
                   </select>
@@ -182,19 +185,19 @@ export default function BlogPage() {
                 {/* Period Filter */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Período
+                    {t('filters.period')}
                   </label>
                   <select
                     value={selectedPeriod}
                     onChange={(e) => setSelectedPeriod(e.target.value)}
                     className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:border-catbytes-purple dark:focus:border-catbytes-pink outline-none transition-colors"
                   >
-                    <option value="">Todos os períodos</option>
-                    <option value="last7days">Últimos 7 dias</option>
-                    <option value="last30days">Últimos 30 dias</option>
-                    <option value="last3months">Últimos 3 meses</option>
-                    <option value="last6months">Últimos 6 meses</option>
-                    <option value="lastyear">Último ano</option>
+                    <option value="">{t('filters.allPeriods')}</option>
+                    <option value="last7days">{t('filters.last7days')}</option>
+                    <option value="last30days">{t('filters.last30days')}</option>
+                    <option value="last3months">{t('filters.last3months')}</option>
+                    <option value="last6months">{t('filters.last6months')}</option>
+                    <option value="lastyear">{t('filters.lastyear')}</option>
                   </select>
                 </div>
               </div>
@@ -207,7 +210,7 @@ export default function BlogPage() {
                     className="inline-flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-catbytes-purple dark:hover:text-catbytes-pink transition-colors"
                   >
                     <X className="w-4 h-4" />
-                    Limpar filtros
+                    {t('filters.clear')}
                   </button>
                 </div>
               )}
@@ -219,7 +222,7 @@ export default function BlogPage() {
         {loading && (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-12 h-12 text-catbytes-purple dark:text-catbytes-pink animate-spin mb-4" />
-            <p className="text-gray-600 dark:text-gray-400">Carregando artigos...</p>
+            <p className="text-gray-600 dark:text-gray-400">{t('loading')}</p>
           </div>
         )}
 
@@ -227,14 +230,14 @@ export default function BlogPage() {
         {error && !loading && (
           <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl p-8 text-center max-w-2xl mx-auto">
             <p className="text-red-700 dark:text-red-300 font-medium mb-2">
-              Erro ao carregar artigos
+              {t('error.title')}
             </p>
             <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
             <button
               onClick={() => setCurrentPage(1)}
               className="mt-4 px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
             >
-              Tentar novamente
+              {t('error.retry')}
             </button>
           </div>
         )}
@@ -267,7 +270,7 @@ export default function BlogPage() {
                   className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-catbytes-purple dark:hover:border-catbytes-pink disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   <ChevronLeft className="w-5 h-5" />
-                  Anterior
+                  {t('pagination.previous')}
                 </button>
 
                 {/* Page numbers */}
@@ -326,7 +329,7 @@ export default function BlogPage() {
                   disabled={currentPage === posts.totalPages}
                   className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-catbytes-purple dark:hover:border-catbytes-pink disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  Próxima
+                  {t('pagination.next')}
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </motion.div>
@@ -334,15 +337,15 @@ export default function BlogPage() {
 
             {/* Post count info */}
             <p className="text-center text-gray-600 dark:text-gray-400 mt-8">
-              Mostrando{' '}
+              {t('stats.showing')}{' '}
               <strong className="text-catbytes-purple dark:text-catbytes-pink">
                 {posts.posts.length}
               </strong>{' '}
-              de{' '}
+              {t('stats.of')}{' '}
               <strong className="text-catbytes-purple dark:text-catbytes-pink">
                 {posts.total}
               </strong>{' '}
-              artigos
+              {t('stats.articles')}
             </p>
           </>
         )}
@@ -351,10 +354,10 @@ export default function BlogPage() {
         {!loading && !error && posts && posts.posts.length === 0 && (
           <div className="text-center py-20">
             <p className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">
-              Nenhum artigo publicado ainda
+              {t('empty.title')}
             </p>
             <p className="text-gray-600 dark:text-gray-400">
-              Em breve teremos conteúdo incrível por aqui! 🐱
+              {t('empty.message')}
             </p>
           </div>
         )}

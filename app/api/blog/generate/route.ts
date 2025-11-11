@@ -461,22 +461,25 @@ Responda APENAS com JSON válido.`
       try {
         console.log('[Generate] Fetching verified newsletter subscribers...')
         
+        // Filtrar apenas assinantes do mesmo locale do post criado
         const { data: subscribers, error: subError } = await supabaseAdmin
           .from('newsletter_subscribers')
           .select('email, name, locale')
           .eq('verified', true)
           .eq('subscribed', true)
+          .eq('locale', createdPost.locale) // FILTRO POR LOCALE
 
         console.log('[Generate] Subscribers query result:', { 
           count: subscribers?.length || 0, 
           hasError: !!subError,
-          errorDetails: subError 
+          errorDetails: subError,
+          postLocale: createdPost.locale
         })
 
         if (subError) {
           console.error('[Generate] Error fetching subscribers:', subError)
         } else if (subscribers && subscribers.length > 0) {
-          console.log(`[Generate] ✅ Sending new post notification to ${subscribers.length} subscribers...`)
+          console.log(`[Generate] ✅ Sending new post notification to ${subscribers.length} ${createdPost.locale} subscribers...`)
           console.log('[Generate] Post details:', { 
             title: createdPost.title, 
             slug: createdPost.slug 
@@ -490,7 +493,7 @@ Responda APENAS com JSON válido.`
             const batch = subscribers.slice(i, i + batchSize)
             
             const emailPromises = batch.map(subscriber => {
-              const locale = subscriber.locale || 'pt-BR'
+              const locale = subscriber.locale || createdPost.locale
               const isEnglish = locale === 'en-US'
               
               // Use translated post for English subscribers if available

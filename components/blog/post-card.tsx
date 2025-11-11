@@ -6,10 +6,12 @@ import Link from 'next/link'
 import { Calendar, Eye, Tag, ImageOff, Trash2, Globe } from 'lucide-react'
 import type { BlogPost } from '@/types/blog'
 import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { ptBR, enUS } from 'date-fns/locale'
 import { useState } from 'react'
 import { useAdmin } from '@/hooks/use-admin'
 import { useToast } from '@/components/ui/toast'
+import { getCategoryDisplayName } from '@/lib/category-mapper'
+import { useTranslations } from 'next-intl'
 
 interface PostCardProps {
   post: BlogPost
@@ -25,8 +27,10 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
   const [imageError, setImageError] = useState(false)
   const { isAdmin } = useAdmin()
   const { showToast } = useToast()
+  const t = useTranslations('blog.post')
 
   const articleUrl = `/${locale}/blog/${post.slug}`
+  const dateLocale = locale === 'en-US' ? enUS : ptBR
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -117,7 +121,7 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
         {/* Category badge */}
         <div className="absolute top-4 left-4">
           <span className="px-3 py-1 bg-catbytes-purple/90 dark:bg-catbytes-pink/90 text-white text-xs font-bold rounded-full backdrop-blur-sm">
-            {post.category}
+            {getCategoryDisplayName(post.category)}
           </span>
         </div>
 
@@ -137,8 +141,8 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
           <div className="flex items-center gap-1">
             <Calendar className="w-4 h-4" />
             <time dateTime={post.created_at}>
-              {format(new Date(post.created_at), "dd 'de' MMMM, yyyy", {
-                locale: ptBR,
+              {format(new Date(post.created_at), locale === 'en-US' ? "MMMM dd, yyyy" : "dd 'de' MMMM, yyyy", {
+                locale: dateLocale,
               })}
             </time>
           </div>
@@ -172,7 +176,7 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
         {/* Read more button */}
                   {/* Read more button */}
           <div className="w-full mt-2 px-4 py-2 bg-gradient-to-r from-catbytes-purple to-catbytes-blue hover:from-catbytes-blue hover:to-catbytes-purple text-white font-medium rounded-lg transition-all duration-300 transform group-hover:scale-105 text-center">
-            Ler artigo completo
+            {t('readMore')}
           </div>
         </div>
       </Link>

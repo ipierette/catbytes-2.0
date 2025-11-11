@@ -257,16 +257,18 @@ export async function POST(request: NextRequest) {
       try {
         console.log('[Manual Post] Fetching verified newsletter subscribers...')
         
+        // Filtrar apenas assinantes do mesmo locale do post
         const { data: subscribers, error: subError } = await supabaseAdmin
           .from('newsletter_subscribers')
           .select('email, name, locale')
           .eq('verified', true)
           .eq('subscribed', true)
+          .eq('locale', post.locale) // FILTRO POR LOCALE
 
         if (subError) {
           console.error('[Manual Post] Error fetching subscribers:', subError)
         } else if (subscribers && subscribers.length > 0) {
-          console.log(`[Manual Post] ✅ Sending new post notification to ${subscribers.length} subscribers...`)
+          console.log(`[Manual Post] ✅ Sending new post notification to ${subscribers.length} ${post.locale} subscribers...`)
           
           const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
           
@@ -276,7 +278,7 @@ export async function POST(request: NextRequest) {
             const batch = subscribers.slice(i, i + batchSize)
             
             const emailPromises = batch.map(subscriber => {
-              const locale = subscriber.locale || 'pt-BR'
+              const locale = subscriber.locale || post.locale
               const isEnglish = locale === 'en-US'
               const postUrl = `${baseUrl}/${locale}/blog/${post.slug}`
               

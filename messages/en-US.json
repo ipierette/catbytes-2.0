@@ -308,7 +308,8 @@
   },
   "blog": {
     "title": "CatBytes Blog",
-    "subtitle": "Stay up to date with the latest news in technology, AI and automation",
+    "description": "Insights about technology, AI, automation, web development, and cat curiosities.",
+    "subtitle": "Content created to boost your digital business! 🚀 and to better understand your kittens!!",
     "noPosts": "New articles coming soon!",
     "noPostsMessage": "We're preparing amazing content about technology, AI and automation. Subscribe to the newsletter to be notified when we publish!",
     "readMore": "Read more",
@@ -319,6 +320,42 @@
     "newsletterDescription": "Receive exclusive articles about technology, AI and automation",
     "newsletterDescriptionHighlight": "directly in your email",
     "close": "Close",
+    "filters": {
+      "show": "Show Filters",
+      "hide": "Hide Filters",
+      "theme": "Theme",
+      "allThemes": "All themes",
+      "period": "Period",
+      "allPeriods": "All periods",
+      "last7days": "Last 7 days",
+      "last30days": "Last 30 days",
+      "last3months": "Last 3 months",
+      "last6months": "Last 6 months",
+      "lastyear": "Last year",
+      "clear": "Clear filters"
+    },
+    "loading": "Loading articles...",
+    "error": {
+      "title": "Error loading articles",
+      "retry": "Try again"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "stats": {
+      "showing": "Showing",
+      "of": "of",
+      "articles": "articles"
+    },
+    "empty": {
+      "title": "No articles published yet",
+      "message": "We'll have amazing content here soon! 🐱"
+    },
+    "post": {
+      "readMore": "Read full article",
+      "views": "views"
+    },
     "modal": {
       "share": "Share",
       "shareInstagram": "Share on Instagram",
