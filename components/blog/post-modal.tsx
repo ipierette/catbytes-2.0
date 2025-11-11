@@ -9,6 +9,7 @@ import { ptBR, enUS } from 'date-fns/locale'
 import { useEffect, useState } from 'react'
 import { useBlogPostTracking } from '@/components/analytics/analytics-tracker'
 import { blogSync } from '@/lib/blog-sync'
+import { formatMarkdown } from '@/lib/markdown-formatter'
 import { useRouter } from 'next/navigation'
 
 interface PostModalProps {
@@ -369,93 +370,4 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
       )}
     </AnimatePresence>
   )
-}
-
-// Simple markdown to HTML converter
-function formatMarkdown(markdown: string): string {
-  // ========== DETECT FAQ SECTION FIRST (before converting to HTML) ==========
-  const faqPatternsMd = [
-    /^## Perguntas Frequentes$/im,
-    /^## FAQ$/im,
-    /^## Frequently Asked Questions$/im,
-    /^## Dúvidas Frequentes$/im
-  ]
-  
-  let hasFaqSection = false
-  let faqStartIndex = -1
-  
-  for (const pattern of faqPatternsMd) {
-    const match = markdown.match(pattern)
-    if (match && match.index !== undefined) {
-      hasFaqSection = true
-      faqStartIndex = match.index
-      break
-    }
-  }
-
-  let html = markdown
-    // Imagens markdown para HTML
-    .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<div class="my-8"><img src="$2" alt="$1" class="w-full rounded-xl shadow-lg" /></div>')
-    // Headers
-    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-    // Bold
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    // Italic
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-    // Lists
-    .replace(/^\* (.*$)/gim, '<li>$1</li>')
-    .replace(/^- (.*$)/gim, '<li>$1</li>')
-    // Paragraphs
-    .replace(/\n\n/g, '</p><p>')
-    // Line breaks
-    .replace(/\n/g, '<br>')
-
-  // Wrap lists
-  html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>')
-
-  // Wrap in paragraphs
-  if (!html.startsWith('<h') && !html.startsWith('<ul')) {
-    html = `<p>${html}</p>`
-  }
-
-  // ========== WRAP FAQ SECTION IF DETECTED ==========
-  if (hasFaqSection) {
-    const faqPatterns = [
-      /<h2>Perguntas Frequentes<\/h2>/i,
-      /<h2>FAQ<\/h2>/i,
-      /<h2>Frequently Asked Questions<\/h2>/i,
-      /<h2>Dúvidas Frequentes<\/h2>/i
-    ]
-    
-    for (const pattern of faqPatterns) {
-      const match = html.match(pattern)
-      if (match && match.index !== undefined) {
-        const beforeFaq = html.substring(0, match.index)
-        const fromFaq = html.substring(match.index)
-        
-        // Encontra o próximo h2 (se houver) ou vai até o final
-        const nextH2Match = fromFaq.substring(match[0].length).match(/<h2>/i)
-        
-        let faqContent
-        let afterFaq = ''
-        
-        if (nextH2Match && nextH2Match.index !== undefined) {
-          const endIndex = match[0].length + nextH2Match.index
-          faqContent = fromFaq.substring(0, endIndex)
-          afterFaq = fromFaq.substring(endIndex)
-        } else {
-          faqContent = fromFaq
-        }
-        
-        html = beforeFaq + '<div class="blog-faq-section">' + faqContent + '</div>' + afterFaq
-        break
-      }
-    }
-  }
-
-  return html
 }

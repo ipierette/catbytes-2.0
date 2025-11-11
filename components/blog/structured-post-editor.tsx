@@ -211,7 +211,7 @@ ${finalContent.trim()}`
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-500" />
-            ✍️ Editor Estruturado de Artigos
+            Editor Estruturado de Artigos
           </DialogTitle>
           <DialogDescription>
             Preencha cada seção do template. O layout será aplicado automaticamente.

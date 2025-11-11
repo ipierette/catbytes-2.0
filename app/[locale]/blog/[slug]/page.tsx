@@ -9,6 +9,7 @@ import type { BlogPost } from '@/types/blog'
 import { ViewCounter } from '@/components/blog/view-counter'
 import { AnalyticsTracker } from '@/components/analytics/analytics-tracker'
 import { RelatedPosts } from '@/components/blog/related-posts'
+import { formatMarkdown, extractFaqItems } from '@/lib/markdown-formatter'
 
 export const dynamicParams = true
 export const revalidate = 3600
@@ -130,31 +131,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   // Buscar posts relacionados baseado na categoria
   const relatedPosts = post.category ? await getRelatedPosts(post.category, locale, 3) : []
 
-  // Extrair FAQ do conteúdo markdown
-  const extractFAQFromContent = (content: string): Array<{ question: string; answer: string }> => {
-    const faqSection = content.match(/##\s*Perguntas\s+Frequentes[\s\S]*$/i)
-    if (!faqSection) return []
-
-    const faqContent = faqSection[0]
-    const faqItems: Array<{ question: string; answer: string }> = []
-    
-    // Match ###question / answer pairs
-    const regex = /###\s*(.+?)\n([\s\S]+?)(?=###|$)/g
-    let match
-    
-    while ((match = regex.exec(faqContent)) !== null) {
-      const question = match[1].trim().replace(/\?$/, '') + '?'
-      const answer = match[2].trim().replace(/\n+/g, ' ').substring(0, 300)
-      
-      if (question && answer) {
-        faqItems.push({ question, answer })
-      }
-    }
-    
-    return faqItems.slice(0, 6) // Max 6 FAQs for schema
-  }
-
-  const faqItems = extractFAQFromContent(post.content)
+  // Extract FAQ items using centralized function
+  const faqItems = extractFaqItems(post.content)
 
   // Extrair imagens do conteúdo
   const extractImagesFromContent = (content: string): string[] => {

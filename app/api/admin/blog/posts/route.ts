@@ -257,13 +257,20 @@ export async function POST(request: NextRequest) {
       try {
         console.log('[Manual Post] Fetching verified newsletter subscribers...')
         
-        // Filtrar apenas assinantes do mesmo locale do post
-        const { data: subscribers, error: subError } = await supabaseAdmin
+        // Buscar assinantes de AMBOS os idiomas para posts manuais
+        let subscriberQuery = supabaseAdmin
           .from('newsletter_subscribers')
           .select('email, name, locale')
           .eq('verified', true)
           .eq('subscribed', true)
-          .eq('locale', post.locale) // FILTRO POR LOCALE
+        
+        // Para posts manuais, enviar para TODOS os idiomas
+        // Para posts AI, manter filtro por locale
+        if (post.ai_model !== 'manual') {
+          subscriberQuery = subscriberQuery.eq('locale', post.locale)
+        }
+
+        const { data: subscribers, error: subError } = await subscriberQuery
 
         if (subError) {
           console.error('[Manual Post] Error fetching subscribers:', subError)
