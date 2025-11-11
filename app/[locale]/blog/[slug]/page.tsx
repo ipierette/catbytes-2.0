@@ -388,69 +388,25 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             )}
           </header>
 
-          {/* LAYOUT ÚNICO SIMPLIFICADO */}
+          {/* LAYOUT SIMPLIFICADO PARA ARTIGOS DE IA (TEXTO) */}
           <div className="p-8 md:p-12">
-            <div className="space-y-12">
-              {/* Introdução com caixa de destaque */}
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="md:col-span-2">
-                  <div
-                    className="magazine-text-intro"
-                    dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.intro, true) }}
-                  />
+            {/* Se tiver highlight, mostrar no topo */}
+            {post.highlight && post.highlight.trim() !== '' && (
+              <div className="max-w-4xl mx-auto mb-8">
+                <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-6 rounded-lg border-l-4 border-catbytes-purple">
+                  <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                    💡 {post.highlight}
+                  </p>
                 </div>
-                {post.highlight && post.highlight.trim() !== '' && (
-                  <div className="bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 p-8 rounded-2xl border-l-4 border-catbytes-pink shadow-lg h-fit">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">💡 Destaque</h3>
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                      {post.highlight}
-                    </p>
-                  </div>
-                )}
               </div>
+            )}
 
-              {/* Primeira imagem (se existir) */}
-              {contentImages.length >= 1 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                  <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden shadow-2xl order-1 md:order-1">
-                    <Image
-                      src={contentImages[0]}
-                      alt="Imagem do artigo 1"
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      unoptimized
-                    />
-                  </div>
-                  <div
-                    className="order-2 md:order-2"
-                    dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.middle) }}
-                  />
-                </div>
-              )}
-
-              {/* Segunda imagem (se existir) - AGORA SEM CAIXA LATERAL */}
-              {contentImages.length >= 2 && (
-                <div className="max-w-5xl mx-auto">
-                  <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden shadow-2xl">
-                    <Image
-                      src={contentImages[1]}
-                      alt="Imagem do artigo 2"
-                      fill
-                      className="object-cover"
-                      sizes="100vw"
-                      unoptimized
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Restante do conteúdo */}
-              <div className="max-w-4xl mx-auto">
-                <div
-                  dangerouslySetInnerHTML={{ __html: formatMarkdown(sections.end) }}
-                />
-              </div>
+            {/* Conteúdo completo em uma única coluna centralizada */}
+            <div className="max-w-4xl mx-auto">
+              <div
+                className="prose prose-lg dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: formatMarkdown(post.content) }}
+              />
             </div>
           </div>
 
@@ -520,7 +476,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 }
 
 // Simple markdown to HTML converter com estilos aprimorados
-function formatMarkdown(markdown: string, isIntro: boolean = false): string {
+function formatMarkdown(markdown: string): string {
   // PRIMEIRO: Detectar seção FAQ no markdown original (antes de processar)
   const faqPatternsMd = [
     /^## Perguntas Frequentes$/im,
@@ -600,11 +556,7 @@ function formatMarkdown(markdown: string, isIntro: boolean = false): string {
     html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul class="list-disc list-inside space-y-2 mb-6">$1</ul>')
 
     if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<div class="code-block')) {
-      // Se for introdução, adiciona classe especial para capital letter no primeiro parágrafo
-      const pClass = isIntro 
-        ? 'text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6 first-paragraph-dropcap'
-        : 'text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6'
-      html = `<p class="${pClass}">${html}</p>`
+      html = `<p class="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6">${html}</p>`
     }
 
     return html
