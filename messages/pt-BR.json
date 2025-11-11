@@ -266,12 +266,14 @@
     "accessibility": "Desenvolvido com foco em acessibilidade",
     "termsOfUse": "Termos de Uso",
     "privacyPolicy": "Políticas de Privacidade",
+    "faq": "FAQ",
     "links": {
       "about": "Sobre",
       "skills": "Skills",
       "projects": "Projetos",
       "aiFeatures": "IA Felina",
-      "contact": "Contato"
+      "contact": "Contato",
+      "faq": "FAQ"
     }
   },
   "common": {

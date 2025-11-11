@@ -266,12 +266,14 @@
     "accessibility": "Developed with focus on accessibility",
     "termsOfUse": "Terms of Use",
     "privacyPolicy": "Privacy Policy",
+    "faq": "FAQ",
     "links": {
       "about": "About",
       "skills": "Skills",
       "projects": "Projects",
       "aiFeatures": "AI Features",
-      "contact": "Contact"
+      "contact": "Contact",
+      "faq": "FAQ"
     }
   },
   "common": {
