@@ -114,11 +114,17 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
   const extractImagesFromContent = (content: string): string[] => {
     const imageRegex = /!\[.*?\]\((.*?)\)/g
     const matches = content.matchAll(imageRegex)
-    return Array.from(matches, m => m[1])
+    const images = Array.from(matches, m => m[1])
+    console.log('[PostModal] Extracted images from content:', images)
+    console.log('[PostModal] Content:', content.substring(0, 500))
+    return images
   }
 
   const contentImages = extractImagesFromContent(post.content)
   const hasContentImages = contentImages.length > 0
+  
+  console.log('[PostModal] Content images:', contentImages)
+  console.log('[PostModal] Has content images:', hasContentImages)
 
   // Dividir o conteúdo em seções para layout de revista
   const splitContentForMagazineLayout = (content: string) => {
