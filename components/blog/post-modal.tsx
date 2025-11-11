@@ -127,22 +127,27 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
     
     // Divide em parágrafos
     const paragraphs = textContent.split('\n\n').filter(p => p.trim())
+    const totalParagraphs = paragraphs.length
     
-    // Para layout com 2 imagens (revista completa)
+    // Para layout com 2 imagens - divisão proporcional 30%/40%/30%
     if (contentImages.length >= 2) {
+      const introEnd = Math.ceil(totalParagraphs * 0.30)
+      const middleEnd = Math.ceil(totalParagraphs * 0.70)
+      
       return {
-        intro: paragraphs.slice(0, 2).join('\n\n') || '',
-        middle: paragraphs.slice(2, 4).join('\n\n') || '',
-        end: paragraphs.slice(4).join('\n\n') || '',
+        intro: paragraphs.slice(0, introEnd).join('\n\n') || '',
+        middle: paragraphs.slice(introEnd, middleEnd).join('\n\n') || '',
+        end: paragraphs.slice(middleEnd).join('\n\n') || '',
       }
     }
     
-    // Para layout com 1 imagem (revista simples)
+    // Para layout com 1 imagem - divide ao meio
     if (contentImages.length === 1) {
+      const half = Math.ceil(totalParagraphs / 2)
       return {
-        intro: paragraphs.slice(0, 3).join('\n\n') || '',
+        intro: paragraphs.slice(0, half).join('\n\n') || '',
         middle: '',
-        end: paragraphs.slice(3).join('\n\n') || '',
+        end: paragraphs.slice(half).join('\n\n') || '',
       }
     }
     
