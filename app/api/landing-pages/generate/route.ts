@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase'
 import { NICHES, COLOR_THEMES } from '@/lib/landing-pages-constants'
+import { autoSubmitLandingPage } from '@/lib/google-indexing'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
@@ -1042,6 +1043,21 @@ REGRAS CRÍTICAS:
     }
 
     console.log('✅ Landing page gerada com sucesso!')
+
+    // Auto-submit to Google Indexing API
+    try {
+      console.log('[LP Generate] Submitting landing page to Google Indexing API...')
+      const indexingResult = await autoSubmitLandingPage(slug)
+      
+      if (indexingResult.success) {
+        console.log('[LP Generate] ✅ Landing page submitted to Google for indexing!')
+      } else {
+        console.warn('[LP Generate] ⚠️ Google indexing failed:', indexingResult.error)
+      }
+    } catch (indexError) {
+      console.error('[LP Generate] ❌ Error submitting to Google Indexing API:', indexError)
+      // Don't fail LP creation if indexing fails
+    }
 
     return NextResponse.json({
       success: true,

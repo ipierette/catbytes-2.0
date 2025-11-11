@@ -6,6 +6,7 @@ import { SEO_KEYWORDS, BLOG_TOPICS, BLOG_CATEGORIES } from '@/types/blog'
 import type { AIGeneratedPost, BlogPostInsert } from '@/types/blog'
 import { getNewPostEmailHTML } from '@/lib/email-templates'
 import { translatePostToEnglish, estimateTranslationCost } from '@/lib/translation-service'
+import { autoSubmitBlogPost } from '@/lib/google-indexing'
 import { 
   getCurrentBlogTheme, 
   getRandomTopicForTheme, 
@@ -424,6 +425,25 @@ Responda APENAS com JSON válido.`
     if (textOnly && imagePromptSuggestion) {
       console.log('[Generate] Text-only mode: Image prompt saved to database for post:', createdPost.slug)
       console.log('[Generate] Content image prompts saved:', contentImagePrompts.length)
+    }
+
+    // ====== STEP 3.5: Auto-submit to Google Indexing API (only published posts) ======
+    if (createdPost.published) {
+      try {
+        console.log('[Generate] Submitting post to Google Indexing API...')
+        const indexingResult = await autoSubmitBlogPost(createdPost.slug, 'pt-BR')
+        
+        if (indexingResult.success) {
+          console.log('[Generate] ✅ Post submitted to Google for indexing!')
+        } else {
+          console.warn('[Generate] ⚠️ Google indexing failed:', indexingResult.error)
+        }
+      } catch (indexError) {
+        console.error('[Generate] ❌ Error submitting to Google Indexing API:', indexError)
+        // Don't fail post creation if indexing fails
+      }
+    } else {
+      console.log('[Generate] ⚠️ Post is draft (textOnly mode) - skipping Google indexing')
     }
 
     // ====== STEP 3.6: Translate post to English (DISABLED FOR NOW) ======

@@ -8,6 +8,7 @@ import { ptBR, enUS } from 'date-fns/locale'
 import type { BlogPost } from '@/types/blog'
 import { ViewCounter } from '@/components/blog/view-counter'
 import { AnalyticsTracker } from '@/components/analytics/analytics-tracker'
+import { ArticleJsonLd, FAQJsonLd, BreadcrumbJsonLd } from 'next-seo'
 
 export const dynamicParams = true
 export const revalidate = 3600
@@ -98,8 +99,36 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   }
 
   const dateLocale = locale === 'pt-BR' ? ptBR : enUS
-  const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/${locale}/blog/${post.slug}`
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const canonicalUrl = `${siteUrl}/${locale}/blog/${post.slug}`
+  const shareUrl = canonicalUrl
   const shareText = locale === 'pt-BR' ? `Confira: ${post.title}` : `Check this out: ${post.title}`
+
+  // Extrair FAQ do conteúdo markdown
+  const extractFAQFromContent = (content: string): Array<{ question: string; answer: string }> => {
+    const faqSection = content.match(/##\s*Perguntas\s+Frequentes[\s\S]*$/i)
+    if (!faqSection) return []
+
+    const faqContent = faqSection[0]
+    const faqItems: Array<{ question: string; answer: string }> = []
+    
+    // Match ###question / answer pairs
+    const regex = /###\s*(.+?)\n([\s\S]+?)(?=###|$)/g
+    let match
+    
+    while ((match = regex.exec(faqContent)) !== null) {
+      const question = match[1].trim().replace(/\?$/, '') + '?'
+      const answer = match[2].trim().replace(/\n+/g, ' ').substring(0, 300)
+      
+      if (question && answer) {
+        faqItems.push({ question, answer })
+      }
+    }
+    
+    return faqItems.slice(0, 6) // Max 6 FAQs for schema
+  }
+
+  const faqItems = extractFAQFromContent(post.content)
 
   // Extrair imagens do conteúdo
   const extractImagesFromContent = (content: string): string[] => {
@@ -164,6 +193,50 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Article Schema.org JSON-LD */}
+      <ArticleJsonLd
+        type="BlogPosting"
+        url={canonicalUrl}
+        headline={post.title}
+        image={post.cover_image_url}
+        datePublished={post.created_at}
+        dateModified={post.updated_at}
+        author={post.author}
+        description={post.excerpt}
+        publisher={{
+          name: "CatBytes AI",
+          logo: `${siteUrl}/images/logo-desenvolvedora.webp`
+        }}
+      />
+
+      {/* Breadcrumb Schema */}
+      <BreadcrumbJsonLd
+        items={[
+          {
+            name: locale === 'pt-BR' ? 'Início' : 'Home',
+            item: `${siteUrl}/${locale}`,
+          },
+          {
+            name: 'Blog',
+            item: `${siteUrl}/${locale}/blog`,
+          },
+          {
+            name: post.title,
+            item: canonicalUrl,
+          },
+        ]}
+      />
+
+      {/* FAQ Schema (if FAQ section exists) */}
+      {faqItems.length > 0 && (
+        <FAQJsonLd
+          questions={faqItems.map(faq => ({
+            name: faq.question,
+            acceptedAnswer: faq.answer,
+          }))}
+        />
+      )}
+
       <ViewCounter slug={slug} locale={locale} />
       <AnalyticsTracker 
         postId={post.id}
