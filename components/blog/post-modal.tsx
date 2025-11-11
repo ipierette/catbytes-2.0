@@ -524,5 +524,42 @@ function formatMarkdown(markdown: string): string {
     html = `<p>${html}</p>`
   }
 
+  // ========== DETECT AND WRAP FAQ SECTION ==========
+  // Detecta seção FAQ e envolve com div especial
+  const faqPatterns = [
+    /(<h2>Perguntas Frequentes<\/h2>)/gi,
+    /(<h2>FAQ<\/h2>)/gi,
+    /(<h2>Frequently Asked Questions<\/h2>)/gi,
+    /(<h2>Dúvidas Frequentes<\/h2>)/gi
+  ]
+  
+  for (const pattern of faqPatterns) {
+    if (pattern.test(html)) {
+      // Encontra o início da seção FAQ
+      html = html.replace(pattern, (match) => {
+        return `<div class="blog-faq-section">${match}`
+      })
+      
+      // Fecha a div FAQ antes da próxima h2 ou no final
+      const parts = html.split('<div class="blog-faq-section">')
+      if (parts.length > 1) {
+        const afterFaq = parts[1]
+        const nextH2Index = afterFaq.indexOf('<h2>')
+        
+        if (nextH2Index > -1) {
+          // Fecha antes do próximo h2
+          parts[1] = afterFaq.slice(0, nextH2Index) + '</div>' + afterFaq.slice(nextH2Index)
+        } else {
+          // Fecha no final
+          parts[1] = afterFaq + '</div>'
+        }
+        
+        html = parts.join('<div class="blog-faq-section">')
+      }
+      
+      break // Apenas processa a primeira ocorrência
+    }
+  }
+
   return html
 }
