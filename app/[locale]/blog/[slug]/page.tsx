@@ -521,49 +521,110 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
 // Simple markdown to HTML converter com estilos aprimorados
 function formatMarkdown(markdown: string, isIntro: boolean = false): string {
-  let html = markdown
-    
-    // Blocos de código com múltiplas linhas (```código```)
-    .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, language, code) => {
-      const lang = language || 'code'
-      return `<div class="code-block-wrapper my-6">
-        <div class="code-block-header bg-gray-800 dark:bg-gray-900 text-gray-300 px-4 py-2 text-sm font-mono rounded-t-lg flex items-center justify-between">
-          <span class="text-catbytes-purple dark:text-catbytes-pink font-semibold">${lang}</span>
-          <span class="text-xs opacity-60">código</span>
-        </div>
-        <pre class="code-block bg-gray-900 dark:bg-black text-gray-100 p-4 rounded-b-lg overflow-x-auto"><code class="language-${lang} text-sm leading-relaxed">${escapeHtml(code.trim())}</code></pre>
-      </div>`
-    })
-    
-    // Código inline (`código`)
-    .replace(/`([^`]+)`/g, '<code class="inline-code bg-gray-100 dark:bg-gray-800 text-catbytes-purple dark:text-catbytes-pink px-2 py-1 rounded text-sm font-mono border border-gray-300 dark:border-gray-700">$1</code>')
-    
-    // Títulos dentro do conteúdo - sempre ## (nível 2) em negrito
-    .replace(/^### (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h2>')
-    .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h2>')
-    .replace(/^# (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h2>')
-    // Formatação inline
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900 dark:text-white">$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-catbytes-purple dark:text-catbytes-pink font-semibold hover:underline">$1</a>')
-    // Listas
-    .replace(/^\* (.*$)/gim, '<li class="text-lg text-gray-700 dark:text-gray-300 mb-2">$1</li>')
-    .replace(/^- (.*$)/gim, '<li class="text-lg text-gray-700 dark:text-gray-300 mb-2">$1</li>')
-    // Parágrafos
-    .replace(/\n\n/g, '</p><p class="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6">')
-    .replace(/\n/g, '<br>')
+  // PRIMEIRO: Detectar seção FAQ no markdown original (antes de processar)
+  const faqPatternsMd = [
+    /^## Perguntas Frequentes$/im,
+    /^## FAQ$/im,
+    /^## Frequently Asked Questions$/im,
+    /^## Dúvidas Frequentes$/im
+  ]
+  
+  let faqStartIndex = -1
+  let faqEndIndex = -1
+  
+  // Procurar onde começa a seção FAQ
+  for (const pattern of faqPatternsMd) {
+    const match = markdown.match(pattern)
+    if (match && match.index !== undefined) {
+      faqStartIndex = match.index
+      
+      // Encontrar onde termina a seção FAQ (próximo ## ou fim do conteúdo)
+      const afterFaq = markdown.slice(faqStartIndex)
+      const nextHeadingMatch = afterFaq.slice(afterFaq.indexOf('\n') + 1).match(/^## [^#]/m)
+      
+      if (nextHeadingMatch && nextHeadingMatch.index !== undefined) {
+        faqEndIndex = faqStartIndex + afterFaq.indexOf('\n') + 1 + nextHeadingMatch.index
+      } else {
+        faqEndIndex = markdown.length
+      }
+      
+      break
+    }
+  }
+  
+  // Se encontrou FAQ, separar o conteúdo
+  let beforeFaq = markdown
+  let faqContent = ''
+  let afterFaq = ''
+  
+  if (faqStartIndex !== -1) {
+    beforeFaq = markdown.slice(0, faqStartIndex)
+    faqContent = markdown.slice(faqStartIndex, faqEndIndex)
+    afterFaq = markdown.slice(faqEndIndex)
+  }
+  
+  // Função auxiliar para processar markdown em HTML
+  const processMarkdown = (md: string) => {
+    let html = md
+      
+      // Blocos de código com múltiplas linhas (```código```)
+      .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, language, code) => {
+        const lang = language || 'code'
+        return `<div class="code-block-wrapper my-6">
+          <div class="code-block-header bg-gray-800 dark:bg-gray-900 text-gray-300 px-4 py-2 text-sm font-mono rounded-t-lg flex items-center justify-between">
+            <span class="text-catbytes-purple dark:text-catbytes-pink font-semibold">${lang}</span>
+            <span class="text-xs opacity-60">código</span>
+          </div>
+          <pre class="code-block bg-gray-900 dark:bg-black text-gray-100 p-4 rounded-b-lg overflow-x-auto"><code class="language-${lang} text-sm leading-relaxed">${escapeHtml(code.trim())}</code></pre>
+        </div>`
+      })
+      
+      // Código inline (`código`)
+      .replace(/`([^`]+)`/g, '<code class="inline-code bg-gray-100 dark:bg-gray-800 text-catbytes-purple dark:text-catbytes-pink px-2 py-1 rounded text-sm font-mono border border-gray-300 dark:border-gray-700">$1</code>')
+      
+      // Títulos dentro do conteúdo - sempre ## (nível 2) em negrito
+      .replace(/^### (.*$)/gim, '<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3 mt-6">$1</h3>')
+      .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h2>')
+      .replace(/^# (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 mt-8">$1</h2>')
+      // Formatação inline
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-gray-900 dark:text-white">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-catbytes-purple dark:text-catbytes-pink font-semibold hover:underline">$1</a>')
+      // Listas
+      .replace(/^\* (.*$)/gim, '<li class="text-lg text-gray-700 dark:text-gray-300 mb-2">$1</li>')
+      .replace(/^- (.*$)/gim, '<li class="text-lg text-gray-700 dark:text-gray-300 mb-2">$1</li>')
+      // Parágrafos
+      .replace(/\n\n/g, '</p><p class="text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6">')
+      .replace(/\n/g, '<br>')
 
-  html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul class="list-disc list-inside space-y-2 mb-6">$1</ul>')
+    html = html.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul class="list-disc list-inside space-y-2 mb-6">$1</ul>')
 
-  if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<div class="code-block')) {
-    // Se for introdução, adiciona classe especial para capital letter no primeiro parágrafo
-    const pClass = isIntro 
-      ? 'text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6 first-paragraph-dropcap'
-      : 'text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6'
-    html = `<p class="${pClass}">${html}</p>`
+    if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<div class="code-block')) {
+      // Se for introdução, adiciona classe especial para capital letter no primeiro parágrafo
+      const pClass = isIntro 
+        ? 'text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6 first-paragraph-dropcap'
+        : 'text-lg leading-relaxed text-gray-700 dark:text-gray-300 mb-6'
+      html = `<p class="${pClass}">${html}</p>`
+    }
+
+    return html
+  }
+  
+  // Processar cada parte
+  let finalHtml = processMarkdown(beforeFaq)
+  
+  // Se tem FAQ, processar e envolver em div especial
+  if (faqContent) {
+    const faqHtml = processMarkdown(faqContent)
+    finalHtml += `<div class="blog-faq-section">${faqHtml}</div>`
+  }
+  
+  // Adicionar conteúdo depois do FAQ (se houver)
+  if (afterFaq) {
+    finalHtml += processMarkdown(afterFaq)
   }
 
-  return html
+  return finalHtml
 }
 
 // Helper para escapar HTML dentro de blocos de código
