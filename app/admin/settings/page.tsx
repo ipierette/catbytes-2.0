@@ -851,6 +851,94 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
+          {/* Newsletter EN-US Testing */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                📧 Newsletter EN-US Testing
+              </CardTitle>
+              <CardDescription>
+                Verificar assinantes EN-US e testar envio de newsletter de tradução
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/admin/newsletter/test-en-subscribers')
+                      const data = await response.json()
+                      
+                      if (data.success) {
+                        setMessage({
+                          type: 'success',
+                          text: `✅ ${data.stats.eligible.enUS} assinantes EN-US encontrados (${data.stats.total} total)`
+                        })
+                        console.log('Newsletter stats:', data)
+                      } else {
+                        setMessage({
+                          type: 'error',
+                          text: `❌ ${data.message}`
+                        })
+                      }
+                    } catch (error) {
+                      setMessage({
+                        type: 'error',
+                        text: '❌ Erro ao verificar assinantes EN-US'
+                      })
+                    }
+                  }}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  🔍 Verificar Assinantes EN-US
+                </Button>
+
+                <Button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/admin/newsletter/test-en-subscribers', {
+                        method: 'POST'
+                      })
+                      const data = await response.json()
+                      
+                      if (data.success) {
+                        setMessage({
+                          type: 'success',
+                          text: `✅ Email de teste enviado para ${data.recipients} assinantes EN-US`
+                        })
+                      } else {
+                        setMessage({
+                          type: 'error',
+                          text: `❌ ${data.message}`
+                        })
+                      }
+                    } catch (error) {
+                      setMessage({
+                        type: 'error',
+                        text: '❌ Erro ao enviar teste de newsletter'
+                      })
+                    }
+                  }}
+                  variant="default"
+                  className="gap-2"
+                >
+                  🧪 Enviar Teste EN-US
+                </Button>
+              </div>
+
+              <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                <h4 className="font-medium mb-2">ℹ️ Como funciona o sistema de Newsletter EN-US:</h4>
+                <ol className="text-sm space-y-1 list-decimal list-inside text-muted-foreground">
+                  <li>Usuários se inscrevem na newsletter com locale "en-US"</li>
+                  <li>Quando você traduz um post manualmente via <code>/api/blog/translate</code></li>
+                  <li>O sistema automaticamente envia newsletter para todos assinantes EN-US verificados</li>
+                  <li>Email usa template específico de notificação de tradução</li>
+                </ol>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* System Info */}
           <Card>
             <CardHeader>
