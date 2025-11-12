@@ -89,10 +89,10 @@ export function BlogLanguageToggle({ currentSlug }: BlogLanguageToggleProps) {
     console.log('[BlogLanguageToggle] Switching language to:', targetLocale)
 
     if (isBlogListingPage) {
-      // For blog listing page, just switch locale
+      // For blog listing page, just switch locale using replace
       console.log('[BlogLanguageToggle] Navigating to blog listing in:', targetLocale)
       startTransition(() => {
-        router.push(`/${targetLocale}/blog`)
+        router.replace(`/blog`, { locale: targetLocale })
       })
       return
     }
@@ -178,7 +178,6 @@ export function BlogLanguageToggle({ currentSlug }: BlogLanguageToggleProps) {
 
       {/* Language Toggle */}
       <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-full p-1">
-        <Globe className="w-4 h-4 text-gray-500 ml-2" />
         {languages.map((lang) => {
           const status = getButtonStatus(lang.code)
           const isDisabled = (status === 'unavailable' && isIndividualPostPage) || isPending || (status === 'loading' && isIndividualPostPage)
