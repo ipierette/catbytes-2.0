@@ -4,13 +4,29 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { TypeAnimation } from 'react-type-animation'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { AnimatedParticles } from '@/components/ui/animated-particles'
 import { GitHubStats } from '@/components/ui/github-stats'
 
 export function Hero() {
   const t = useTranslations('hero')
   const [showCatMessage, setShowCatMessage] = useState(false)
+  const touchHideTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Memoized handlers to avoid re-creating functions every render
+  const handleMouseEnter = useCallback(() => setShowCatMessage(true), [])
+  const handleMouseLeave = useCallback(() => setShowCatMessage(false), [])
+  const handleTouchStart = useCallback(() => {
+    if (touchHideTimeoutRef.current) {
+      clearTimeout(touchHideTimeoutRef.current)
+      touchHideTimeoutRef.current = null
+    }
+    setShowCatMessage(true)
+  }, [])
+  const handleTouchEnd = useCallback(() => {
+    if (touchHideTimeoutRef.current) clearTimeout(touchHideTimeoutRef.current)
+    touchHideTimeoutRef.current = setTimeout(() => setShowCatMessage(false), 2000)
+  }, [])
 
   return (
     <section
@@ -94,8 +110,8 @@ export function Hero() {
         >
           <div
             className="relative w-full max-w-md mx-auto cursor-pointer flex items-end group"
-            onMouseEnter={() => setShowCatMessage(true)}
-            onMouseLeave={() => setShowCatMessage(false)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
             <div className="w-full flex justify-center transition-all duration-300 hover:scale-105 hover:brightness-110">
               <Image
@@ -198,8 +214,8 @@ export function Hero() {
               damping: 15
             }}
             className="absolute -bottom-20 -right-8 z-0 w-[55%] h-[100%] overflow-visible"
-            onTouchStart={() => setShowCatMessage(true)}
-            onTouchEnd={() => setTimeout(() => setShowCatMessage(false), 2000)}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
             <div className="relative w-full h-full">
               {/* Cat positioned to PEEK from right, sitting at bottom with butt at floor */}

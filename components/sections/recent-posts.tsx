@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BookOpen, ArrowRight, Loader2, Mail, X, ImageOff, Eye } from 'lucide-react'
 import Image from 'next/image'
@@ -22,30 +22,30 @@ export function RecentPosts() {
   const t = useTranslations('blog')
   const dateLocale = locale === 'en-US' ? enUS : ptBR
 
-  const handleImageError = (postId: string) => {
+  const handleImageError = useCallback((postId: string) => {
     setImageErrors(prev => new Set(prev).add(postId))
-  }
+  }, [])
+
+  const fetchRecentPosts = useCallback(async () => {
+    try {
+      const response = await fetch('/api/blog/posts?page=1&pageSize=2')
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts')
+      }
+
+      const data = await response.json()
+      setPosts(data.posts || [])
+    } catch (error) {
+      console.error('Error fetching recent posts:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
-    const fetchRecentPosts = async () => {
-      try {
-        const response = await fetch('/api/blog/posts?page=1&pageSize=2')
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts')
-        }
-
-        const data = await response.json()
-        setPosts(data.posts || [])
-      } catch (error) {
-        console.error('Error fetching recent posts:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchRecentPosts()
-  }, [])
+  }, [fetchRecentPosts])
 
   return (
     <section
@@ -164,7 +164,6 @@ export function RecentPosts() {
                         className="object-cover group-hover:scale-110 transition-transform duration-500"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px"
                         loading="lazy"
-                        unoptimized
                         onError={() => handleImageError(post.id)}
                       />
                     )}

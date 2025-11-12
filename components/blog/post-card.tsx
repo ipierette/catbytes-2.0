@@ -7,7 +7,7 @@ import { Calendar, Eye, Tag, ImageOff, Trash2, Globe } from 'lucide-react'
 import type { BlogPost } from '@/types/blog'
 import { format } from 'date-fns'
 import { ptBR, enUS } from 'date-fns/locale'
-import { useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { useAdmin } from '@/hooks/use-admin'
 import { useToast } from '@/components/ui/toast'
 import { getCategoryDisplayName } from '@/lib/category-mapper'
@@ -23,7 +23,7 @@ interface PostCardProps {
   showAdminButtons?: boolean
 }
 
-export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTranslate, onEdit, showAdminButtons = false }: PostCardProps) {
+function PostCardComponent({ post, locale = 'pt-BR', index = 0, onDelete, onTranslate, onEdit, showAdminButtons = false }: PostCardProps) {
   const [imageError, setImageError] = useState(false)
   const { isAdmin } = useAdmin()
   const { showToast } = useToast()
@@ -32,7 +32,7 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
   const articleUrl = `/${locale}/blog/${post.slug}`
   const dateLocale = locale === 'en-US' ? enUS : ptBR
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation()
     
     if (!confirm('Tem certeza que deseja deletar este post?')) return
@@ -52,9 +52,9 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
       showToast('Erro ao deletar post', 'error')
       console.error(error)
     }
-  }
+  }, [post.id, onDelete, showToast])
 
-  const handleTranslate = async (e: React.MouseEvent) => {
+  const handleTranslate = useCallback(async (e: React.MouseEvent) => {
     e.stopPropagation()
 
     if (!confirm('Deseja traduzir este post para inglês?')) return
@@ -76,7 +76,7 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
       showToast('Erro ao traduzir post', 'error')
       console.error(error)
     }
-  }
+  }, [post.id, onTranslate, showToast])
 
   return (
     <motion.article
@@ -106,7 +106,6 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
             className="object-cover group-hover:scale-110 transition-transform duration-500"
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 400px"
             loading={index > 2 ? 'lazy' : 'eager'}
-            unoptimized
             onError={() => setImageError(true)}
           />
         )}
@@ -227,3 +226,5 @@ export function PostCard({ post, locale = 'pt-BR', index = 0, onDelete, onTransl
     </motion.article>
   )
 }
+
+export const PostCard = memo(PostCardComponent)

@@ -2,7 +2,7 @@
 import { FaRobot } from 'react-icons/fa'
 
 import { motion, useInView } from 'framer-motion'
-import { useRef, useState } from 'react'
+import { memo, useCallback, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Home, Camera, Heart, Loader2, AlertCircle, CheckCircle2, ExternalLink } from 'lucide-react'
 
@@ -659,6 +659,11 @@ export function AIFeatures() {
   const isInView = useInView(ref, { once: true, amount: 0.2 })
   const [activeTab, setActiveTab] = useState<'adopt' | 'identify' | 'donate'>('adopt')
 
+  // Memoized handler to avoid re-creating on each render
+  const handleTabChange = useCallback((tab: 'adopt' | 'identify' | 'donate') => {
+    setActiveTab(tab)
+  }, [])
+
   const tabs = [
     { id: 'adopt' as const, label: t('tabs.adopt'), icon: Home },
     { id: 'identify' as const, label: t('tabs.identify'), icon: Camera },
@@ -702,7 +707,7 @@ export function AIFeatures() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabChange(tab.id)}
                   aria-label={tab.label}
                   className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 font-semibold transition-colors ${
                     activeTab === tab.id
@@ -719,12 +724,17 @@ export function AIFeatures() {
 
           {/* Tab Content */}
           <div className="p-8">
-            {activeTab === 'adopt' && <AdoptCatForm />}
-            {activeTab === 'identify' && <IdentifyCatForm />}
-            {activeTab === 'donate' && <DonateCatForm />}
+            {activeTab === 'adopt' && <MemoizedAdoptForm />}
+            {activeTab === 'identify' && <MemoizedIdentifyForm />}
+            {activeTab === 'donate' && <MemoizedDonateForm />}
           </div>
         </motion.div>
       </div>
     </section>
   )
 }
+
+// Memoized versions to reduce re-renders when switching tabs
+const MemoizedAdoptForm = memo(AdoptCatForm)
+const MemoizedIdentifyForm = memo(IdentifyCatForm)
+const MemoizedDonateForm = memo(DonateCatForm)

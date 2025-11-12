@@ -13,7 +13,6 @@ import { formatMarkdown as formatMarkdownContent, extractFaqItems } from '@/lib/
 
 export const dynamicParams = true
 export const revalidate = 3600
-export const dynamic = 'force-dynamic'
 
 async function getPost(slug: string, locale: string): Promise<BlogPost | null> {
   try {
@@ -128,8 +127,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const shareUrl = canonicalUrl
   const shareText = locale === 'pt-BR' ? `Confira: ${post.title}` : `Check this out: ${post.title}`
 
-  // Buscar posts relacionados baseado na categoria
-  const relatedPosts = post.category ? await getRelatedPosts(post.category, locale, 3) : []
+  // Inicia a busca por posts relacionados assim que o post existir
+  const relatedPostsPromise: Promise<BlogPost[]> = post.category
+    ? getRelatedPosts(post.category, locale, 3)
+    : Promise.resolve([])
 
   // Extract FAQ items using centralized function
   const faqItems = extractFaqItems(post.content)
@@ -184,6 +185,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   }
 
   const sections = splitContentForLayout(post.content)
+
+  // Aguarda os relacionados após processar o restante
+  const relatedPosts = await relatedPostsPromise
 
   const handleShare = (platform: string) => {
     const urls = {
@@ -298,7 +302,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             className="object-cover object-center"
             sizes="100vw"
             priority
-            unoptimized
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">

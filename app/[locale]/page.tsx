@@ -1,8 +1,8 @@
 'use client'
 
 import { Hero } from '@/components/sections/hero'
-import { About } from '@/components/sections/about'
-import { Skills } from '@/components/sections/skills'
+import { AboutLazy } from '@/components/sections/about-lazy'
+import { SkillsLazy } from '@/components/sections/skills-lazy'
 import { Projects } from '@/components/sections/projects'
 import { Curiosities } from '@/components/sections/curiosities'
 import { AIFeaturesLazy } from '@/components/sections/ai-features-lazy'
@@ -15,11 +15,11 @@ export default function Home() {
     <>
       <SEOContent />
       <Hero />
-      <About />
-      <Skills />
+      <AboutLazy />
+      <SkillsLazy />
       <Projects />
       <Curiosities />
-  <AIFeaturesLazy />
+      <AIFeaturesLazy />
       <RecentPosts />
       <Contact />
     </>
