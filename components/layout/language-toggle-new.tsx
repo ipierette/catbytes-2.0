@@ -16,22 +16,53 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
     setMounted(true)
   }, [])
 
-  // Navegação instantânea sem router - usando window.location
-  const switchLanguage = (newLocale: 'pt-BR' | 'en-US') => {
+  // Navegação inteligente - verifica se é artigo e se tem tradução
+  const switchLanguage = async (newLocale: 'pt-BR' | 'en-US') => {
     if (!mounted || newLocale === locale) return
     
     setIsAnimating(true)
     
-    // Breve delay para mostrar a animação do toggle antes da navegação
-    setTimeout(() => {
-      // Navegação instantânea sem router delays
+    try {
+      const currentPath = window.location.pathname
+      const pathWithoutLocale = currentPath.replace(/^\/(en-US|pt-BR)/, '') || '/'
+      
+      // Verificar se estamos em um artigo de blog (/blog/slug)
+      const blogPostMatch = pathWithoutLocale.match(/^\/blog\/(.+)$/)
+      
+      if (blogPostMatch) {
+        const currentSlug = blogPostMatch[1]
+        
+        // Buscar tradução do artigo
+        try {
+          const response = await fetch(`/api/blog/posts/${currentSlug}/translation?targetLocale=${newLocale}`)
+          const translationData = await response.json()
+          
+          if (translationData.exists && !translationData.isSame) {
+            // Artigo tem tradução, navegar para ela
+            window.location.href = `/${newLocale}/blog/${translationData.slug}`
+            return
+          }
+        } catch (error) {
+          console.warn('Erro ao buscar tradução:', error)
+        }
+        
+        // Se chegou aqui, não tem tradução - vai para home do idioma
+        window.location.href = `/${newLocale}`
+        return
+      }
+      
+      // Para outras páginas, apenas trocar o idioma mantendo o path
+      const newPath = `/${newLocale}${pathWithoutLocale}`
+      window.location.href = newPath
+      
+    } catch (error) {
+      console.error('Erro na troca de idioma:', error)
+      // Fallback: navegação simples
       const currentPath = window.location.pathname
       const pathWithoutLocale = currentPath.replace(/^\/(en-US|pt-BR)/, '') || '/'
       const newPath = `/${newLocale}${pathWithoutLocale}`
-      
-      // Navegação imediata
       window.location.href = newPath
-    }, 150) // Tempo suficiente para ver a animação
+    }
   }
 
   const isPt = locale === 'pt-BR'
@@ -69,7 +100,9 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
           <div className="relative flex">
             {/* Botão Português */}
             <button
-              onClick={() => switchLanguage('pt-BR')}
+              onClick={() => {
+                switchLanguage('pt-BR')
+              }}
               disabled={isAnimating}
               className={`
                 relative z-10 flex items-center justify-center w-[60px] h-10 rounded-xl
@@ -87,7 +120,9 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
 
             {/* Botão English */}
             <button
-              onClick={() => switchLanguage('en-US')}
+              onClick={() => {
+                switchLanguage('en-US')
+              }}
               disabled={isAnimating}
               className={`
                 relative z-10 flex items-center justify-center w-[60px] h-10 rounded-xl
