@@ -307,29 +307,28 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         )}
         
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-        
-        <div className="absolute top-6 left-6 z-10">
-          <Link 
-            href={`/${locale}`}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm text-gray-900 dark:text-white font-medium rounded-lg transition-all transform hover:scale-105 shadow-lg border border-gray-200 dark:border-gray-700"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>{locale === 'pt-BR' ? 'Voltar' : 'Back'}</span>
-          </Link>
-        </div>
-        
-        <div className="absolute top-6 right-6 z-10">
-          <span className="px-4 py-2 bg-catbytes-purple/90 dark:bg-catbytes-pink/90 backdrop-blur-sm text-white font-bold text-sm rounded-full shadow-lg">
-            {post.category}
-          </span>
-        </div>
       </div>
 
       {/* Article Content */}
       <article className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10">
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
+          {/* Navigation and Category Buttons - Positioned before title */}
+          <div className="flex items-center justify-between p-6 pb-0">
+            <Link 
+              href={`/${locale}`}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg transition-all transform hover:scale-105 shadow-md border border-gray-200 dark:border-gray-600"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>{locale === 'pt-BR' ? 'Voltar' : 'Back'}</span>
+            </Link>
+            
+            <span className="px-4 py-2 bg-catbytes-purple dark:bg-catbytes-pink text-white font-bold text-sm rounded-full shadow-lg">
+              {post.category}
+            </span>
+          </div>
+
           {/* Header */}
-          <header className="p-8 md:p-12 border-b border-gray-200 dark:border-gray-700">
+          <header className="p-8 md:p-12 pt-6 border-b border-gray-200 dark:border-gray-700">
             <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white mb-6 leading-tight">
               {post.title}
             </h1>
