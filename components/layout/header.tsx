@@ -7,7 +7,7 @@ import { Menu, X, Moon, Sun, Lock } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useTranslations, useLocale } from 'next-intl'
 import { LanguageToggle } from './language-toggle'
-import { BlogPostLanguageToggle } from '@/components/blog/blog-post-language-toggle'
+import { BlogLanguageToggle } from '@/components/blog/blog-language-toggle'
 import { Link } from '@/i18n/routing'
 import Image from 'next/image'
 import { usePathname, useRouter, useParams } from 'next/navigation'
@@ -28,9 +28,10 @@ export function Header() {
   const params = useParams()
   const { login, logout, isAdmin } = useAdmin()
 
-  // Check if we're on a blog post page
+  // Check if we're on a blog page (listing or individual post)
+  const isBlogPage = pathname.includes('/blog')
   const isBlogPostPage = pathname.includes('/blog/') && params?.slug
-  const currentSlug = typeof params?.slug === 'string' ? params.slug : null
+  const currentSlug = typeof params?.slug === 'string' ? params.slug : undefined
 
   useEffect(() => {
     setMounted(true)
@@ -133,8 +134,8 @@ export function Header() {
             </button>
 
             {/* Language Toggle */}
-            {isBlogPostPage && currentSlug ? (
-              <BlogPostLanguageToggle currentSlug={currentSlug} />
+            {isBlogPage ? (
+              <BlogLanguageToggle currentSlug={currentSlug} />
             ) : (
               <LanguageToggle />
             )}
@@ -181,8 +182,8 @@ export function Header() {
                   </a>
                 ))}
                 <div className="pt-4">
-                  {isBlogPostPage && currentSlug ? (
-                    <BlogPostLanguageToggle currentSlug={currentSlug} />
+                  {isBlogPage ? (
+                    <BlogLanguageToggle currentSlug={currentSlug} />
                   ) : (
                     <LanguageToggle />
                   )}
