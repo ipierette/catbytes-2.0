@@ -7,6 +7,7 @@ import { Menu, X, Moon, Sun, Lock } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useTranslations, useLocale } from 'next-intl'
 import { LanguageToggle } from './language-toggle'
+import { BlogPostLanguageToggle } from '@/components/blog/blog-post-language-toggle'
 import { Link } from '@/i18n/routing'
 import Image from 'next/image'
 import { usePathname, useRouter, useParams } from 'next/navigation'
@@ -24,7 +25,12 @@ export function Header() {
   const locale = useLocale()
   const pathname = usePathname()
   const router = useRouter()
+  const params = useParams()
   const { login, logout, isAdmin } = useAdmin()
+
+  // Check if we're on a blog post page
+  const isBlogPostPage = pathname.includes('/blog/') && params?.slug
+  const currentSlug = typeof params?.slug === 'string' ? params.slug : null
 
   useEffect(() => {
     setMounted(true)
@@ -127,7 +133,11 @@ export function Header() {
             </button>
 
             {/* Language Toggle */}
-            <LanguageToggle />
+            {isBlogPostPage && currentSlug ? (
+              <BlogPostLanguageToggle currentSlug={currentSlug} />
+            ) : (
+              <LanguageToggle />
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -171,7 +181,11 @@ export function Header() {
                   </a>
                 ))}
                 <div className="pt-4">
-                  <LanguageToggle />
+                  {isBlogPostPage && currentSlug ? (
+                    <BlogPostLanguageToggle currentSlug={currentSlug} />
+                  ) : (
+                    <LanguageToggle />
+                  )}
                 </div>
               </div>
             </motion.div>

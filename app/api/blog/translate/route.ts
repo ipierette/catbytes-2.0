@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
         // Get EN-US subscribers
         const { data: subscribers, error: fetchError } = await supabaseAdmin
           .from('newsletter_subscribers')
-          .select('email, verified, subscribed')
+          .select('id, email, verified, subscribed')
           .eq('verified', true)
           .eq('subscribed', true)
           .eq('locale', 'en-US')
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
               
               try {
                 const emailResult = await resend.emails.send({
-                  from: process.env.RESEND_FROM_EMAIL || 'newsletter@catbytes.com',
+                  from: process.env.RESEND_FROM_EMAIL || 'CatBytes <contato@catbytes.site>',
                   to: batch.map(sub => sub.email),
                   subject: `🌐 New Translation Available: ${translatedPost.title}`,
                   html: htmlContent,
@@ -174,6 +174,28 @@ export async function POST(request: NextRequest) {
             }
 
             console.log(`[Translate] ✅ Newsletter complete: ${totalSent}/${subscribers.length} sent`)
+            
+            // Update last_email_sent_at timestamp for successfully sent emails
+            if (totalSent > 0) {
+              try {
+                console.log('[Translate] 📝 Updating subscriber timestamps...')
+                const subscriberIds = subscribers.slice(0, totalSent).map(sub => sub.id)
+                
+                const { data: updateData, error: updateError } = await supabaseAdmin
+                  .from('newsletter_subscribers')
+                  .update({ last_email_sent_at: new Date().toISOString() })
+                  .in('id', subscriberIds)
+                  .select()
+
+                if (updateError) {
+                  console.error('[Translate] ❌ Error updating timestamps:', updateError)
+                } else {
+                  console.log(`[Translate] ✅ Updated timestamps for ${updateData?.length || 0} subscribers`)
+                }
+              } catch (updateTimestampError) {
+                console.error('[Translate] ❌ Timestamp update error:', updateTimestampError)
+              }
+            }
             
             return NextResponse.json({
               success: true,

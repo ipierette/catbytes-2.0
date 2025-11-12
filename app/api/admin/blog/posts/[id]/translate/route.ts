@@ -106,7 +106,7 @@ export async function POST(
       seo_title: title,
       seo_description: excerpt || content.substring(0, 160),
       keywords: originalPost.keywords || [],
-      original_post_id: originalPost.id, // Link to original
+      translated_from: originalPost.id, // Link to original
     }
 
     console.log('[Translation] Creating translated post:', JSON.stringify(translatedPost, null, 2))
@@ -158,7 +158,7 @@ export async function POST(
               const isEnglish = targetLocale === 'en-US'
               
               return resend.emails.send({
-                from: 'CatBytes <contato@catbytes.site>',
+                from: process.env.RESEND_FROM_EMAIL || 'CatBytes <contato@catbytes.site>',
                 to: subscriber.email,
                 subject: isEnglish 
                   ? `📝 New Translation Available: ${newPost.title}`
