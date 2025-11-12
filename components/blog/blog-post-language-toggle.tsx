@@ -33,18 +33,25 @@ export function BlogPostLanguageToggle({ currentSlug }: BlogPostLanguageTogglePr
   // Check for translations when component mounts
   useEffect(() => {
     const checkTranslations = async () => {
+      console.log('[BlogLanguageToggle] Checking translations for slug:', currentSlug, 'current locale:', locale)
+      
       for (const lang of languages) {
         if (lang.code !== locale) {
           try {
-            const response = await fetch(`/api/blog/posts/${currentSlug}/translation?targetLocale=${lang.code}`)
+            const apiUrl = `/api/blog/posts/${currentSlug}/translation?targetLocale=${lang.code}`
+            console.log('[BlogLanguageToggle] Calling API:', apiUrl)
+            
+            const response = await fetch(apiUrl)
             const data: TranslationResponse = await response.json()
+            
+            console.log('[BlogLanguageToggle] Translation check result for', lang.code, ':', data)
             
             setTranslationStatus(prev => ({
               ...prev,
               [lang.code]: data
             }))
           } catch (error) {
-            console.error(`Error checking translation for ${lang.code}:`, error)
+            console.error(`[BlogLanguageToggle] Error checking translation for ${lang.code}:`, error)
             setTranslationStatus(prev => ({
               ...prev,
               [lang.code]: { exists: false, locale: lang.code, message: 'Error checking translation' }
@@ -64,20 +71,23 @@ export function BlogPostLanguageToggle({ currentSlug }: BlogPostLanguageTogglePr
     
     if (translationInfo?.exists && translationInfo.slug && !translationInfo.isSame) {
       // Translation exists, redirect to translated post
+      console.log('[BlogLanguageToggle] Navigating to translation:', `/${targetLocale}/blog/${translationInfo.slug}`)
       startTransition(() => {
         router.push(`/${targetLocale}/blog/${translationInfo.slug}`)
       })
     } else if (!translationInfo?.exists) {
       // No translation available, show message
       const languageName = targetLocale === 'en-US' ? 'English' : 'Português'
+      console.log('[BlogLanguageToggle] No translation available for:', targetLocale)
       setShowNoTranslationMessage(languageName)
       
       // Hide message after 3 seconds
       setTimeout(() => setShowNoTranslationMessage(null), 3000)
     } else {
-      // Fallback to regular language switch (shouldn't happen for same locale)
+      // Fallback: try to navigate anyway, but log it
+      console.log('[BlogLanguageToggle] Fallback navigation to:', `/${targetLocale}/blog/${currentSlug}`)
       startTransition(() => {
-        router.replace(`/${targetLocale}/blog/${currentSlug}`)
+        router.push(`/${targetLocale}/blog/${currentSlug}`)
       })
     }
   }

@@ -15,11 +15,15 @@ export async function GET(
     const { searchParams } = new URL(request.url)
     const targetLocale = searchParams.get('targetLocale')
 
+    console.log('[Translation API] Request for slug:', slug, 'targetLocale:', targetLocale)
+
     if (!slug) {
+      console.log('[Translation API] Missing slug')
       return NextResponse.json({ error: 'Slug is required' }, { status: 400 })
     }
 
     if (!targetLocale) {
+      console.log('[Translation API] Missing targetLocale')
       return NextResponse.json({ error: 'targetLocale query param is required' }, { status: 400 })
     }
 
@@ -31,7 +35,10 @@ export async function GET(
       .eq('published', true)
       .single()
 
+    console.log('[Translation API] Current post query result:', { currentPost, currentError })
+
     if (currentError || !currentPost) {
+      console.log('[Translation API] Current post not found for slug:', slug)
       return NextResponse.json({ error: 'Current post not found' }, { status: 404 })
     }
 
