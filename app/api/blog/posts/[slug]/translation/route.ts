@@ -56,21 +56,29 @@ export async function GET(
 
     // Case 1: Current post is original (PT), looking for translation (EN)
     if (currentPost.locale === 'pt-BR' && targetLocale === 'en-US') {
+      console.log('[Translation API] Case 1: Looking for EN translation of PT post', currentPost.id)
+      
       const { data: translation, error: translationError } = await supabase
         .from('blog_posts')
         .select('slug')
         .eq('translated_from', currentPost.id)
         .eq('locale', 'en-US')
         .eq('published', true)
-        .single()
 
-      if (!translationError && translation) {
-        translationSlug = translation.slug
+      console.log('[Translation API] Case 1 query result:', { translation, translationError })
+
+      if (!translationError && translation && translation.length > 0) {
+        translationSlug = translation[0].slug
+        console.log('[Translation API] Case 1: Found translation slug:', translationSlug)
+      } else {
+        console.log('[Translation API] Case 1: No translation found or error:', translationError)
       }
     }
     
     // Case 2: Current post is translation (EN), looking for original (PT)
     else if (currentPost.locale === 'en-US' && targetLocale === 'pt-BR' && currentPost.translated_from) {
+      console.log('[Translation API] Case 2: Looking for PT original of EN post')
+      
       const { data: original, error: originalError } = await supabase
         .from('blog_posts')
         .select('slug')
@@ -79,8 +87,13 @@ export async function GET(
         .eq('published', true)
         .single()
 
+      console.log('[Translation API] Case 2 query result:', { original, originalError })
+
       if (!originalError && original) {
         translationSlug = original.slug
+        console.log('[Translation API] Case 2: Found original slug:', translationSlug)
+      } else {
+        console.log('[Translation API] Case 2: No original found or error:', originalError)
       }
     }
     
@@ -116,6 +129,7 @@ export async function GET(
     }
 
     if (translationSlug) {
+      console.log('[Translation API] SUCCESS: Found translation slug:', translationSlug)
       return NextResponse.json({
         exists: true,
         slug: translationSlug,
@@ -123,6 +137,7 @@ export async function GET(
         isSame: false
       })
     } else {
+      console.log('[Translation API] NO TRANSLATION: Post', slug, 'has no translation for', targetLocale)
       return NextResponse.json({
         exists: false,
         locale: targetLocale,
