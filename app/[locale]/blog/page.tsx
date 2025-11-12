@@ -130,8 +130,6 @@ export default function BlogPage() {
           </div>
 
           <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            {t('description')}
-            <br />
             {t('subtitle')}
           </p>
         </motion.div>
