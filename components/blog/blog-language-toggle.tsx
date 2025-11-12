@@ -48,11 +48,18 @@ export function BlogLanguageToggle({ currentSlug }: BlogLanguageToggleProps) {
   useEffect(() => {
     if (!isIndividualPostPage || !currentSlug) {
       console.log('[BlogLanguageToggle] Not checking translations - not an individual post page')
+      // Clear any previous translation status when leaving individual post pages
+      setTranslationStatus({})
       return
     }
 
+    // Reset translation status when slug changes
+    setTranslationStatus({})
+
     const checkTranslations = async () => {
       console.log('[BlogLanguageToggle] Checking translations for slug:', currentSlug, 'current locale:', locale)
+      
+      const newStatus: Record<string, TranslationResponse> = {}
       
       for (const lang of languages) {
         if (lang.code !== locale) {
@@ -61,23 +68,30 @@ export function BlogLanguageToggle({ currentSlug }: BlogLanguageToggleProps) {
             console.log('[BlogLanguageToggle] Calling API:', apiUrl)
             
             const response = await fetch(apiUrl)
+            
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`)
+            }
+            
             const data: TranslationResponse = await response.json()
             
             console.log('[BlogLanguageToggle] Translation check result for', lang.code, ':', data)
             
-            setTranslationStatus(prev => ({
-              ...prev,
-              [lang.code]: data
-            }))
+            newStatus[lang.code] = data
           } catch (error) {
             console.error(`[BlogLanguageToggle] Error checking translation for ${lang.code}:`, error)
-            setTranslationStatus(prev => ({
-              ...prev,
-              [lang.code]: { exists: false, locale: lang.code, message: 'Error checking translation' }
-            }))
+            newStatus[lang.code] = { 
+              exists: false, 
+              locale: lang.code, 
+              message: 'Error checking translation' 
+            }
           }
         }
       }
+      
+      // Update all statuses at once
+      setTranslationStatus(newStatus)
+      console.log('[BlogLanguageToggle] All translations loaded:', newStatus)
     }
 
     checkTranslations()
@@ -87,6 +101,7 @@ export function BlogLanguageToggle({ currentSlug }: BlogLanguageToggleProps) {
     if (targetLocale === locale) return
     
     console.log('[BlogLanguageToggle] Switching language to:', targetLocale)
+    console.log('[BlogLanguageToggle] Current translation status:', translationStatus)
 
     if (isBlogListingPage) {
       // For blog listing page, just switch locale using replace
@@ -100,25 +115,27 @@ export function BlogLanguageToggle({ currentSlug }: BlogLanguageToggleProps) {
     if (isIndividualPostPage) {
       const translationInfo = translationStatus[targetLocale]
       
+      console.log('[BlogLanguageToggle] Translation info for', targetLocale, ':', translationInfo)
+      
+      // If we have translation info and it exists, navigate to it
       if (translationInfo?.exists && translationInfo.slug && !translationInfo.isSame) {
-        // Translation exists, redirect to translated post
-        console.log('[BlogLanguageToggle] Navigating to translation:', `/${targetLocale}/blog/${translationInfo.slug}`)
+        console.log('[BlogLanguageToggle] ✅ Navigating to translation:', translationInfo.slug)
         startTransition(() => {
-          router.push(`/${targetLocale}/blog/${translationInfo.slug}`)
+          router.push(`/blog/${translationInfo.slug}`, { locale: targetLocale })
         })
-      } else if (!translationInfo?.exists) {
-        // No translation available, show message
+      } 
+      // If we explicitly know there's no translation, show message
+      else if (translationInfo && !translationInfo.exists) {
         const languageName = targetLocale === 'en-US' ? 'English' : 'Português'
-        console.log('[BlogLanguageToggle] No translation available for:', targetLocale)
+        console.log('[BlogLanguageToggle] ❌ No translation available for:', targetLocale)
         setShowNoTranslationMessage(languageName)
-        
-        // Hide message after 3 seconds
         setTimeout(() => setShowNoTranslationMessage(null), 3000)
-      } else {
-        // Fallback: try to navigate anyway, but log it
-        console.log('[BlogLanguageToggle] Fallback navigation to:', `/${targetLocale}/blog/${currentSlug}`)
+      } 
+      // If we don't have translation info yet (still loading), just try the fallback
+      else {
+        console.log('[BlogLanguageToggle] ⚠️ No translation info available, using fallback for:', currentSlug)
         startTransition(() => {
-          router.push(`/${targetLocale}/blog/${currentSlug}`)
+          router.push(`/blog/${currentSlug}`, { locale: targetLocale })
         })
       }
     }
@@ -132,6 +149,8 @@ export function BlogLanguageToggle({ currentSlug }: BlogLanguageToggleProps) {
     
     // For individual posts, check translation status
     const translation = translationStatus[langCode]
+    console.log('[BlogLanguageToggle] Button status check for', langCode, ':', translation)
+    
     if (!translation) return 'loading'
     if (translation.exists) return 'available'
     return 'unavailable'
