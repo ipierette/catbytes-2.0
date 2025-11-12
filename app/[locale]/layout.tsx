@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/providers/theme-provider'
 import { AdminProvider } from '@/hooks/use-admin'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { DesktopLayout } from '@/components/layout'
-import { AnalyticsTracker } from '@/components/analytics/analytics-tracker'
+import { DeferredAnalytics } from '@/components/analytics/deferred-analytics'
 import { SEOTags } from '@/components/seo/seo-tags'
 import type { Metadata } from 'next'
 
@@ -104,7 +104,7 @@ export default async function LocaleLayout({
           <SEOTags locale={locale} />
           <DesktopLayout>
             <ScrollProgress />
-            <AnalyticsTracker />
+            <DeferredAnalytics />
             <main>{children}</main>
           </DesktopLayout>
         </AdminProvider>
