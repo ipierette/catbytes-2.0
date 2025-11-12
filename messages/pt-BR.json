@@ -312,7 +312,8 @@
   },
   "blog": {
     "title": "Blog CatBytes",
-    "subtitle": "Fique por dentro das últimas novidades em tecnologia, IA e automação",
+    "description": "Insights sobre tecnologia, IA, automação e desenvolvimento web e curiosidade sobre gatos.",
+    "subtitle": "Conteúdo criado para impulsionar seu negócio digital! 🚀 e para melhor entender seus gatinhos!!",
     "noPosts": "Em breve, novos artigos!",
     "noPostsMessage": "Estamos preparando conteúdos incríveis sobre tecnologia, IA e automação. Inscreva-se na newsletter para ser notificado quando publicarmos!",
     "readMore": "Ler mais",
@@ -323,6 +324,42 @@
     "newsletterDescription": "Receba artigos exclusivos sobre tecnologia, IA e automação",
     "newsletterDescriptionHighlight": "diretamente no seu email",
     "close": "Fechar",
+    "filters": {
+      "show": "Mostrar Filtros",
+      "hide": "Ocultar Filtros",
+      "theme": "Tema",
+      "allThemes": "Todos os temas",
+      "period": "Período",
+      "allPeriods": "Todos os períodos",
+      "last7days": "Últimos 7 dias",
+      "last30days": "Últimos 30 dias",
+      "last3months": "Últimos 3 meses",
+      "last6months": "Últimos 6 meses",
+      "lastyear": "Último ano",
+      "clear": "Limpar filtros"
+    },
+    "loading": "Carregando artigos...",
+    "error": {
+      "title": "Erro ao carregar artigos",
+      "retry": "Tentar novamente"
+    },
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Próxima"
+    },
+    "stats": {
+      "showing": "Mostrando",
+      "of": "de",
+      "articles": "artigos"
+    },
+    "empty": {
+      "title": "Nenhum artigo publicado ainda",
+      "message": "Em breve teremos conteúdo incrível por aqui! 🐱"
+    },
+    "post": {
+      "readMore": "Ler artigo completo",
+      "views": "visualizações"
+    },
     "modal": {
       "share": "Compartilhar",
       "shareInstagram": "Compartilhar no Instagram",
@@ -372,47 +409,6 @@
       "title": "Vamos trabalhar juntos?",
       "description": "Entre em contato para discutir seu projeto",
       "button": "Ver Perfil Completo"
-    }
-  },
-  "blog": {
-    "title": "Blog CatBytes",
-    "description": "Insights sobre tecnologia, IA, automação e desenvolvimento web e curiosidade sobre gatos.",
-    "subtitle": "Conteúdo criado para impulsionar seu negócio digital! 🚀 e para melhor entender seus gatinhos!!",
-    "filters": {
-      "show": "Mostrar Filtros",
-      "hide": "Ocultar Filtros",
-      "theme": "Tema",
-      "allThemes": "Todos os temas",
-      "period": "Período",
-      "allPeriods": "Todos os períodos",
-      "last7days": "Últimos 7 dias",
-      "last30days": "Últimos 30 dias",
-      "last3months": "Últimos 3 meses",
-      "last6months": "Últimos 6 meses",
-      "lastyear": "Último ano",
-      "clear": "Limpar filtros"
-    },
-    "loading": "Carregando artigos...",
-    "error": {
-      "title": "Erro ao carregar artigos",
-      "retry": "Tentar novamente"
-    },
-    "pagination": {
-      "previous": "Anterior",
-      "next": "Próxima"
-    },
-    "stats": {
-      "showing": "Mostrando",
-      "of": "de",
-      "articles": "artigos"
-    },
-    "empty": {
-      "title": "Nenhum artigo publicado ainda",
-      "message": "Em breve teremos conteúdo incrível por aqui! 🐱"
-    },
-    "post": {
-      "readMore": "Ler artigo completo",
-      "views": "visualizações"
     }
   }
 }

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     // Buscar estatísticas do blog
     const { data: blogPosts, error: blogError } = await supabase
       .from('blog_posts')
-      .select('status, created_at, published_at')
+      .select('published, created_at')
       .order('created_at', { ascending: false })
 
     if (blogError) {
@@ -41,16 +41,16 @@ export async function GET(request: NextRequest) {
 
     const blogStats = {
       total: blogPosts?.length || 0,
-      published: blogPosts?.filter(p => p.status === 'published').length || 0,
-      drafts: blogPosts?.filter(p => p.status === 'draft').length || 0,
-      scheduled: blogPosts?.filter(p => p.status === 'scheduled').length || 0,
+      published: blogPosts?.filter(p => p.published === true).length || 0,
+      drafts: blogPosts?.filter(p => p.published === false).length || 0,
+      scheduled: 0, // Campo não usado atualmente
       lastGenerated: lastBlogGenerated
     }
 
     // Buscar estatísticas do Instagram
     const { data: instagramPosts, error: instagramError } = await supabase
       .from('instagram_posts')
-      .select('status, created_at, published_at')
+      .select('status, created_at')
       .order('created_at', { ascending: false })
 
     if (instagramError) {
