@@ -117,7 +117,62 @@ const nextConfig = {
 
   // Experimental features para performance
   experimental: {
-    optimizePackageImports: ['framer-motion', 'lucide-react'],
+    optimizePackageImports: ['framer-motion', 'lucide-react', '@supabase/supabase-js', 'date-fns'],
+  },
+
+  // Configurações de build para prevenir out of memory
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Otimizar memory usage durante build
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        minSize: 20000,
+        maxSize: 244000,
+        cacheGroups: {
+          default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+          vendors: {
+            test: /[\\/]node_modules[\\/]/,
+            priority: -10,
+            reuseExistingChunk: true,
+            chunks: 'all',
+            name: 'vendors',
+          },
+          framer: {
+            test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+            name: 'framer',
+            chunks: 'all',
+            priority: 30,
+          },
+          supabase: {
+            test: /[\\/]node_modules[\\/]@supabase[\\/]/,
+            name: 'supabase',
+            chunks: 'all',
+            priority: 25,
+          },
+          icons: {
+            test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+            name: 'icons',
+            chunks: 'all',
+            priority: 20,
+          },
+        },
+      }
+    }
+
+    // Reduzir memory footprint
+    config.optimization.minimize = !dev
+    
+    // Tree shaking mais agressivo
+    if (!dev) {
+      config.optimization.usedExports = true
+      config.optimization.sideEffects = false
+    }
+
+    return config
   },
 }
 

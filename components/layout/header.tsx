@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Moon, Sun, Lock } from 'lucide-react'
@@ -27,16 +27,19 @@ export function Header() {
   const params = useParams()
   const { login, logout, isAdmin } = useAdmin()
 
-  // Check if we're on a blog page (listing or individual post)
-  const isBlogPage = pathname.includes('/blog')
-  const isBlogPostPage = pathname.includes('/blog/') && params?.slug
-  const currentSlug = typeof params?.slug === 'string' ? params.slug : undefined
+  // Memoizar computações caras
+  const pathInfo = useMemo(() => ({
+    isBlogPage: pathname.includes('/blog'),
+    isBlogPostPage: pathname.includes('/blog/') && params?.slug,
+    currentSlug: typeof params?.slug === 'string' ? params.slug : undefined,
+    isHomePage: pathname === `/${locale}` || pathname === '/'
+  }), [pathname, params?.slug, locale])
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const handleAdminLogin = async (e: React.FormEvent) => {
+  const handleAdminLogin = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
@@ -56,27 +59,25 @@ export function Header() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [login, password, router])
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout()
     setShowAdminModal(false)
     router.push('/')
-  }
+  }, [logout, router])
 
-  // Check if we're on the home page
-  const isHomePage = pathname === `/${locale}` || pathname === '/'
-
-  const navItems = [
-    { href: isHomePage ? '#hero' : `/${locale}#hero`, label: t('home') },
-    { href: isHomePage ? '#about' : `/${locale}#about`, label: t('about') },
-    { href: isHomePage ? '#skills' : `/${locale}#skills`, label: t('skills') },
-    { href: isHomePage ? '#projects' : `/${locale}#projects`, label: t('projects') },
-    { href: isHomePage ? '#curiosities' : `/${locale}#curiosities`, label: t('curiosities') },
-    { href: isHomePage ? '#ai-features' : `/${locale}#ai-features`, label: t('aiFeatures') },
-    { href: isHomePage ? '#blog' : `/${locale}#blog`, label: 'Blog' },
-    { href: isHomePage ? '#contact' : `/${locale}#contact`, label: t('contact') },
-  ]
+  // Memoizar items de navegação
+  const navItems = useMemo(() => [
+    { href: pathInfo.isHomePage ? '#hero' : `/${locale}#hero`, label: t('home') },
+    { href: pathInfo.isHomePage ? '#about' : `/${locale}#about`, label: t('about') },
+    { href: pathInfo.isHomePage ? '#skills' : `/${locale}#skills`, label: t('skills') },
+    { href: pathInfo.isHomePage ? '#projects' : `/${locale}#projects`, label: t('projects') },
+    { href: pathInfo.isHomePage ? '#curiosities' : `/${locale}#curiosities`, label: t('curiosities') },
+    { href: pathInfo.isHomePage ? '#ai-features' : `/${locale}#ai-features`, label: t('aiFeatures') },
+    { href: pathInfo.isHomePage ? '#blog' : `/${locale}#blog`, label: 'Blog' },
+    { href: pathInfo.isHomePage ? '#contact' : `/${locale}#contact`, label: t('contact') },
+  ], [pathInfo.isHomePage, locale, t])
 
   // Previne hydration mismatch
   if (!mounted) {
