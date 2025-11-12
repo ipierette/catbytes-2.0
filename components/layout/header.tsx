@@ -6,8 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Moon, Sun, Lock } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useTranslations, useLocale } from 'next-intl'
-import { LanguageToggle } from './language-toggle'
-import { BlogLanguageToggle } from '@/components/blog/blog-language-toggle'
+import LanguageToggle from '@/components/layout/language-toggle-new'
 import { Link } from '@/i18n/routing'
 import Image from 'next/image'
 import { usePathname, useRouter, useParams } from 'next/navigation'
@@ -134,11 +133,7 @@ export function Header() {
             </button>
 
             {/* Language Toggle */}
-            {isBlogPage ? (
-              <BlogLanguageToggle currentSlug={currentSlug} />
-            ) : (
-              <LanguageToggle />
-            )}
+            <LanguageToggle />
           </div>
 
           {/* Mobile Menu Button */}
@@ -181,12 +176,8 @@ export function Header() {
                     {item.label}
                   </a>
                 ))}
-                <div className="pt-4">
-                  {isBlogPage ? (
-                    <BlogLanguageToggle currentSlug={currentSlug} />
-                  ) : (
-                    <LanguageToggle />
-                  )}
+                <div className="pt-4 flex justify-center">
+                  <LanguageToggle />
                 </div>
               </div>
             </motion.div>
