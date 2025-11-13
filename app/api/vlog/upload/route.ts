@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import OpenAI from 'openai'
 
 /**
  * API para upload e processamento de vídeos
@@ -16,7 +16,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! })
 
 export async function POST(request: NextRequest) {
   try {
@@ -144,8 +144,6 @@ export async function POST(request: NextRequest) {
  */
 async function improveDescription(userDescription: string): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
-
     const prompt = `
 Você é um social media manager profissional. Melhore esta descrição de vídeo para redes sociais:
 
@@ -176,8 +174,14 @@ ESTRUTURA:
 Retorne APENAS a descrição melhorada, sem título ou formatação extra.
 `
 
-    const result = await model.generateContent(prompt)
-    return result.response.text().trim()
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.8,
+      max_tokens: 1500
+    })
+
+    return completion.choices[0]?.message?.content?.trim() || userDescription
   } catch (error) {
     console.error('[Improve Description] Erro:', error)
     // Retornar descrição original em caso de erro

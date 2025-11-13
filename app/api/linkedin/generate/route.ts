@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import OpenAI from 'openai'
 import { supabaseAdmin } from '@/lib/supabase'
 
 /**
@@ -12,11 +12,27 @@ import { supabaseAdmin } from '@/lib/supabase'
  * }
  */
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+
+if (!OPENAI_API_KEY) {
+  console.error('[LinkedIn Generate] OPENAI_API_KEY não configurada')
+}
+
+const openai = OPENAI_API_KEY ? new OpenAI({ apiKey: OPENAI_API_KEY }) : null
 
 export async function POST(request: NextRequest) {
   try {
+    if (!openai) {
+      console.error('[LinkedIn Generate] OpenAI não inicializado')
+      return NextResponse.json(
+        { error: 'Serviço de IA não disponível. Verifique OPENAI_API_KEY.' },
+        { status: 500 }
+      )
+    }
+
     const { type, articleSlug } = await request.json()
+
+    console.log('[LinkedIn Generate] Tipo:', type, 'Slug:', articleSlug)
 
     if (!type || !['blog-article', 'fullstack-random'].includes(type)) {
       return NextResponse.json(
@@ -100,7 +116,7 @@ export async function POST(request: NextRequest) {
  * Gera post sobre um artigo do blog
  */
 async function generateBlogArticlePost(article: any) {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  if (!openai) throw new Error('OpenAI não inicializado')
 
   const prompt = `
 Você é um social media manager criando um post para o LinkedIn.
@@ -132,11 +148,21 @@ ESTRUTURA:
 Retorne APENAS o texto do post, sem título ou formatação extra.
 `
 
-  const result = await model.generateContent(prompt)
-  const postText = result.response.text()
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.8,
+    max_tokens: 800
+  })
+
+  const postText = completion.choices[0]?.message?.content || ''
 
   // Gerar prompt para imagem
-  const imagePromptResult = await model.generateContent(`
+  const imagePromptCompletion = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [{ 
+      role: 'user', 
+      content: `
 Crie um prompt em inglês para gerar uma imagem moderna e profissional para este post do LinkedIn:
 
 "${postText}"
@@ -149,9 +175,13 @@ O prompt deve:
 - Máximo 150 palavras
 
 Retorne APENAS o prompt da imagem, sem explicações.
-`)
+`
+    }],
+    temperature: 0.7,
+    max_tokens: 200
+  })
 
-  const imagePrompt = imagePromptResult.response.text()
+  const imagePrompt = imagePromptCompletion.choices[0]?.message?.content || ''
 
   return {
     text: postText.trim(),
@@ -163,7 +193,7 @@ Retorne APENAS o prompt da imagem, sem explicações.
  * Gera post aleatório sobre benefícios do fullstack em diferentes nichos
  */
 async function generateFullstackPost() {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  if (!openai) throw new Error('OpenAI não inicializado')
 
   const nichos = [
     'escritórios de advocacia',
@@ -210,11 +240,21 @@ ESTRUTURA:
 Retorne APENAS o texto do post.
 `
 
-  const result = await model.generateContent(prompt)
-  const postText = result.response.text()
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.8,
+    max_tokens: 1000
+  })
+
+  const postText = completion.choices[0]?.message?.content || ''
 
   // Gerar prompt para imagem
-  const imagePromptResult = await model.generateContent(`
+  const imagePromptCompletion = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [{
+      role: 'user',
+      content: `
 Crie um prompt em inglês para gerar uma imagem moderna e profissional para este post do LinkedIn sobre fullstack development:
 
 "${postText.substring(0, 500)}"
@@ -227,9 +267,13 @@ O prompt deve:
 - Máximo 150 palavras
 
 Retorne APENAS o prompt da imagem.
-`)
+`
+    }],
+    temperature: 0.7,
+    max_tokens: 200
+  })
 
-  const imagePrompt = imagePromptResult.response.text()
+  const imagePrompt = imagePromptCompletion.choices[0]?.message?.content || ''
 
   return {
     text: postText.trim(),

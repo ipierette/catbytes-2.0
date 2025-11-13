@@ -70,8 +70,11 @@ export function getWelcomeEmailHTML(name: string, token: string, locale: string 
                 <!--<![endif]-->
               </div>
               <div style="background:${c.bg};border:2px dashed ${c.border};padding:15px;margin:20px 0;border-radius:8px;text-align:center;">
-                <p style="margin:0 0 10px;font-size:13px;color:${c.textLight};font-weight:600;">${isPortuguese ? '📱 Link não funciona? Copie e cole no navegador:' : '📱 Link not working? Copy and paste in browser:'}</p>
-                <p style="margin:0;font-size:12px;color:${c.primary};word-break:break-all;font-family:monospace;">${verifyUrl}</p>
+                <p style="margin:0 0 10px;font-size:13px;color:${c.textLight};font-weight:600;">${isPortuguese ? '📱 Link não funciona? Copie este link:' : '📱 Link not working? Copy this link:'}</p>
+                <div style="background:#ffffff;border:1px solid ${c.border};padding:10px;border-radius:6px;margin:10px 0;">
+                  <a href="${verifyUrl}" style="color:${c.primary};text-decoration:none;word-break:break-all;font-family:monospace;font-size:11px;display:block;">${verifyUrl}</a>
+                </div>
+                <p style="margin:5px 0 0;font-size:11px;color:${c.textLight};">${isPortuguese ? '👆 Toque para selecionar e copiar' : '👆 Tap to select and copy'}</p>
               </div>
               <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:${c.textLight};text-align:center;">${t.goodbye}<br><strong style="color:${c.text};">${t.signature}</strong></p>
             </td></tr>
