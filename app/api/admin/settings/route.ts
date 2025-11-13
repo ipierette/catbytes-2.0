@@ -6,9 +6,62 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// Helper para salvar credenciais sensíveis de forma segura
+async function saveSecureCredential(key: string, value: string) {
+  try {
+    const { data: existing } = await supabase
+      .from('secure_credentials')
+      .select('id')
+      .eq('key', key)
+      .single()
+
+    if (existing) {
+      await supabase
+        .from('secure_credentials')
+        .update({
+          value: value,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existing.id)
+    } else {
+      await supabase
+        .from('secure_credentials')
+        .insert({
+          key: key,
+          value: value,
+          updated_at: new Date().toISOString()
+        })
+    }
+    console.log(`✅ Secure credential saved: ${key}`)
+  } catch (error) {
+    console.error(`❌ Error saving secure credential ${key}:`, error)
+  }
+}
+
+// Helper para buscar credencial segura
+async function getSecureCredential(key: string): Promise<string | null> {
+  try {
+    const { data } = await supabase
+      .from('secure_credentials')
+      .select('value')
+      .eq('key', key)
+      .single()
+    
+    return data?.value || null
+  } catch (error) {
+    return null
+  }
+}
+
 // GET - Buscar configurações
 export async function GET() {
   try {
+    // Buscar tokens salvos de forma segura
+    const linkedinToken = await getSecureCredential('linkedin_access_token') || process.env.LINKEDIN_ACCESS_TOKEN || ''
+    const linkedinTokenExpiry = await getSecureCredential('linkedin_token_expiry')
+    const instagramToken = await getSecureCredential('instagram_access_token') || process.env.INSTAGRAM_ACCESS_TOKEN || ''
+    const instagramTokenExpiry = await getSecureCredential('instagram_token_expiry')
+
     // Configurações padrão
     const defaultSettings = {
       automation: {
@@ -19,8 +72,10 @@ export async function GET() {
       },
       api: {
         openaiKey: process.env.OPENAI_API_KEY || '',
-        instagramToken: process.env.INSTAGRAM_ACCESS_TOKEN || '',
-        linkedinToken: process.env.LINKEDIN_ACCESS_TOKEN || '',
+        instagramToken: instagramToken,
+        instagramTokenExpiryDate: instagramTokenExpiry || undefined,
+        linkedinToken: linkedinToken,
+        linkedinTokenExpiryDate: linkedinTokenExpiry || undefined,
         emailService: true,
         databaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || ''
       },
@@ -72,9 +127,21 @@ export async function GET() {
       })
     }
 
+    // Mesclar configurações do banco com tokens do banco seguro
+    const mergedSettings = {
+      ...settings.config,
+      api: {
+        ...settings.config.api,
+        instagramToken: instagramToken,
+        instagramTokenExpiryDate: instagramTokenExpiry || settings.config.api?.instagramTokenExpiryDate,
+        linkedinToken: linkedinToken,
+        linkedinTokenExpiryDate: linkedinTokenExpiry || settings.config.api?.linkedinTokenExpiryDate
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      settings: settings.config,
+      settings: mergedSettings,
       isDefault: false
     })
   } catch (error) {
@@ -188,6 +255,25 @@ export async function POST(request: NextRequest) {
 // Atualizar configurações relacionadas em outras tabelas
 async function updateRelatedSettings(settings: any) {
   try {
+    // Salvar tokens sensíveis de forma segura (separado das config gerais)
+    if (settings.api) {
+      // Salvar token do LinkedIn
+      if (settings.api.linkedinToken) {
+        await saveSecureCredential('linkedin_access_token', settings.api.linkedinToken)
+      }
+      if (settings.api.linkedinTokenExpiryDate) {
+        await saveSecureCredential('linkedin_token_expiry', settings.api.linkedinTokenExpiryDate)
+      }
+
+      // Salvar token do Instagram
+      if (settings.api.instagramToken) {
+        await saveSecureCredential('instagram_access_token', settings.api.instagramToken)
+      }
+      if (settings.api.instagramTokenExpiryDate) {
+        await saveSecureCredential('instagram_token_expiry', settings.api.instagramTokenExpiryDate)
+      }
+    }
+
     // Atualizar instagram_settings (controla geração automática de posts)
     if (settings.automation?.instagramGeneration !== undefined) {
       const { data: existing } = await supabase
