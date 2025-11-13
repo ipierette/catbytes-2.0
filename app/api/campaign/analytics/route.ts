@@ -89,9 +89,9 @@ async function getInstagramMetrics(): Promise<PlatformMetrics['instagram']> {
     // Dados do banco local
     const stats = await instagramDB.getStats()
 
-    // Garantir que os valores sejam números
-    const totalPosts = typeof stats.total === 'number' ? stats.total : (Array.isArray(stats.total) ? stats.total.length : 0)
-    const publishedPosts = typeof stats.published === 'number' ? stats.published : (Array.isArray(stats.published) ? stats.published.length : 0)
+    // getStats() sempre retorna números, mas TypeScript precisa de type assertion
+    const totalPosts = Number(stats.total) || 0
+    const publishedPosts = Number(stats.published) || 0
 
     return {
       posts: totalPosts,
@@ -104,9 +104,9 @@ async function getInstagramMetrics(): Promise<PlatformMetrics['instagram']> {
     console.error('Error fetching Instagram metrics:', error)
     const stats = await instagramDB.getStats()
     
-    // Garantir que os valores sejam números
-    const totalPosts = typeof stats.total === 'number' ? stats.total : (Array.isArray(stats.total) ? stats.total.length : 0)
-    const publishedPosts = typeof stats.published === 'number' ? stats.published : (Array.isArray(stats.published) ? stats.published.length : 0)
+    // getStats() sempre retorna números, mas TypeScript precisa de type assertion
+    const totalPosts = Number(stats.total) || 0
+    const publishedPosts = Number(stats.published) || 0
     
     return {
       posts: totalPosts,
