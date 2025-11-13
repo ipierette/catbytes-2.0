@@ -21,23 +21,26 @@ async function getPersonURN() {
   console.log('🔍 Buscando Person URN...')
   
   try {
-    const response = await fetch('https://api.linkedin.com/v2/userinfo', {
+    // Usando /v2/me que funciona apenas com w_member_social
+    const response = await fetch('https://api.linkedin.com/v2/me', {
       headers: {
         'Authorization': `Bearer ${ACCESS_TOKEN}`,
-        'Content-Type': 'application/json'
+        'LinkedIn-Version': '202405'
       }
     })
 
     if (!response.ok) {
       const error = await response.text()
-      throw new Error(`Erro ao buscar userinfo: ${response.status} - ${error}`)
+      throw new Error(`Erro ao buscar perfil: ${response.status} - ${error}`)
     }
 
     const data = await response.json()
     console.log('✅ Person URN encontrado!')
     console.log('📋 Dados do usuário:', JSON.stringify(data, null, 2))
     
-    return data.sub // O 'sub' é o Person URN
+    // O ID retornado é o Person URN no formato: urn:li:person:XXXXX
+    const personUrn = data.id
+    return personUrn
   } catch (error) {
     console.error('❌ Erro ao buscar Person URN:', error.message)
     return null

@@ -55,50 +55,33 @@ supabase/migrations/20251113_create_vlogs_table.sql
 1. **Acesse:** https://www.linkedin.com/developers/apps/229306421
 
 2. **Aba "Products"** - Certifique-se que está marcado:
-   - ✅ Sign In with LinkedIn using OpenID Connect
    - ✅ Share on LinkedIn
 
-3. **Aba "Auth"** - Verifique os OAuth 2.0 scopes:
-   - ✅ `profile`
-   - ✅ `email`
-   - ✅ `openid`
-   - ✅ `w_member_social`
+3. **Aba "Auth"** - Verifique o OAuth 2.0 scope:
+   - ✅ `w_member_social` (único necessário)
 
-### Passo 3: Obter Novo Token com Escopos Corretos
+> **Nota:** Se você usa apenas o escopo `w_member_social`, você consegue postar no LinkedIn tanto como perfil pessoal quanto como página (se tiver permissões de admin na página).
 
-O token atual no `.env.local` **NÃO tem as permissões necessárias**. Você precisa gerar um novo:
+### Passo 3: Obter Person URN com Token Atual
+
+Como você já tem um token com `w_member_social`, vamos apenas buscar seu Person URN:
 
 1. **Execute no terminal:**
-```bash
-node scripts/linkedin-oauth-complete.js
-```
-
-2. **Copie a URL gerada** e abra no navegador
-
-3. **Autorize o aplicativo** no LinkedIn
-
-4. **Você será redirecionado** para `https://catbytes.site/api/linkedin/callback`
-
-5. **A página mostrará:**
-   - `LINKEDIN_ACCESS_TOKEN` (novo token)
-   - `LINKEDIN_PERSON_URN` (seu ID pessoal)
-
-6. **Atualize o `.env.local`:**
-```env
-LINKEDIN_ACCESS_TOKEN=<novo_token_aqui>
-LINKEDIN_PERSON_URN=<person_urn_aqui>
-```
-
-### Passo 4: Obter Organization URN (Opcional)
-
-Se você quer postar como **página da empresa CatBytes**:
-
-1. Após atualizar o token no `.env.local`, execute:
 ```bash
 node scripts/get-linkedin-urns.js
 ```
 
-2. O script tentará buscar páginas onde você é admin
+2. **O script irá:**
+   - Buscar seu Person URN usando a API `/v2/me`
+   - Tentar buscar organizações onde você é admin (se tiver)
+   - Atualizar automaticamente o `.env.local` com os URNs encontrados
+
+3. **Verifique o `.env.local`** - deve ter:
+```env
+LINKEDIN_ACCESS_TOKEN=<seu_token_atual>
+LINKEDIN_PERSON_URN=<urn_encontrado>
+LINKEDIN_ORGANIZATION_URN=<urn_da_página_se_existir>
+```
 
 3. Se encontrar, atualizará automaticamente:
 ```env
