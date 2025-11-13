@@ -25,13 +25,13 @@ export const maxDuration = 60 // 1 minuto (limite do Vercel free tier)
  * Função auxiliar para gerar posts em background
  */
 async function generatePostsInBackground(batchSize: number) {
-  const nichos: Niche[] = ['advogados', 'medicos', 'terapeutas', 'nutricionistas']
   const generated: any[] = []
   const errors: any[] = []
 
   for (let i = 0; i < batchSize; i++) {
     try {
-      const nicho = nichos[i % nichos.length]
+      // Busca o próximo nicho na rotação global (respeita o banco de dados)
+      const nicho = await instagramDB.getNextNiche()
       console.log(`\n[${i + 1}/${batchSize}] Generating post for: ${nicho}`)
 
       const content = await generatePostContent(nicho)

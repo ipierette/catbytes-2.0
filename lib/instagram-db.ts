@@ -180,11 +180,13 @@ export const instagramDB = {
 
   /**
    * Busca a última postagem para determinar o próximo nicho
+   * Considera apenas posts gerados (qualquer status exceto failed)
    */
   async getLastPost(): Promise<InstagramPost | null> {
     const { data, error } = await supabaseAdmin
       .from('instagram_posts')
       .select('*')
+      .neq('status', 'failed') // Ignora posts que falharam
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
@@ -199,6 +201,7 @@ export const instagramDB = {
 
   /**
    * Retorna o próximo nicho na rotação
+   * Alterna entre: advogados → médicos → terapeutas → nutricionistas
    */
   async getNextNiche(): Promise<Niche> {
     const nichos: Niche[] = ['advogados', 'medicos', 'terapeutas', 'nutricionistas']
@@ -206,13 +209,17 @@ export const instagramDB = {
     const lastPost = await this.getLastPost()
     
     if (!lastPost) {
+      console.log('[getNextNiche] No previous posts found, starting with:', nichos[0])
       return nichos[0] // Primeira postagem: advogados
     }
 
     const currentIndex = nichos.indexOf(lastPost.nicho)
     const nextIndex = (currentIndex + 1) % nichos.length
+    const nextNiche = nichos[nextIndex]
     
-    return nichos[nextIndex]
+    console.log(`[getNextNiche] Last post was ${lastPost.nicho}, next will be ${nextNiche}`)
+    
+    return nextNiche
   },
 
   /**
@@ -246,29 +253,30 @@ export const instagramDB = {
    * Estatísticas das postagens
    */
   async getStats() {
-    const { data: publishedCount } = await supabaseAdmin
+    // Busca contagens com count correto
+    const { count: publishedCount } = await supabaseAdmin
       .from('instagram_posts')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .eq('status', 'published')
 
-    const { data: pendingCount } = await supabaseAdmin
+    const { count: pendingCount } = await supabaseAdmin
       .from('instagram_posts')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .eq('status', 'pending')
 
-    const { data: approvedCount } = await supabaseAdmin
+    const { count: approvedCount } = await supabaseAdmin
       .from('instagram_posts')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .eq('status', 'approved')
 
-    const { data: failedCount } = await supabaseAdmin
+    const { count: failedCount } = await supabaseAdmin
       .from('instagram_posts')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .eq('status', 'failed')
 
-    const { data: totalCount } = await supabaseAdmin
+    const { count: totalCount } = await supabaseAdmin
       .from('instagram_posts')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
 
     const { data: byNiche } = await supabaseAdmin
       .from('instagram_posts')
@@ -281,11 +289,11 @@ export const instagramDB = {
     }, {} as Record<string, number>) || {}
 
     return {
-      total: totalCount || 0,
-      published: publishedCount || 0,
-      pending: pendingCount || 0,
-      approved: approvedCount || 0,
-      failed: failedCount || 0,
+      total: totalCount ?? 0,
+      published: publishedCount ?? 0,
+      pending: pendingCount ?? 0,
+      approved: approvedCount ?? 0,
+      failed: failedCount ?? 0,
       byNiche: nicheStats
     }
   },

@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
         console.log('[Simple-Cron] Publishing scheduled Instagram posts...')
         
         try {
-          const publishResponse = await fetch(`${baseUrl}/api/instagram/publish-scheduled-DISABLED`, {
+          const publishResponse = await fetch(`${baseUrl}/api/instagram/publish-scheduled`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
           if (publishResponse.ok) {
             const publishResult = await publishResponse.json()
             results.instagram_publish = { success: true, data: publishResult }
-            console.log('[Simple-Cron] Instagram posts published')
+            console.log('[Simple-Cron] Instagram posts published:', publishResult.published || 0, 'posts')
           } else {
             results.instagram_publish = { success: false, error: `Status ${publishResponse.status}` }
           }
