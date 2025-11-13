@@ -89,9 +89,13 @@ async function getInstagramMetrics(): Promise<PlatformMetrics['instagram']> {
     // Dados do banco local
     const stats = await instagramDB.getStats()
 
+    // Garantir que os valores sejam números
+    const totalPosts = typeof stats.total === 'number' ? stats.total : (Array.isArray(stats.total) ? stats.total.length : 0)
+    const publishedPosts = typeof stats.published === 'number' ? stats.published : (Array.isArray(stats.published) ? stats.published.length : 0)
+
     return {
-      posts: typeof stats.total === 'number' ? stats.total : stats.total.length,
-      published: typeof stats.published === 'number' ? stats.published : stats.published.length,
+      posts: totalPosts,
+      published: publishedPosts,
       engagement: Math.round(engagement),
       followers: accountData.followers_count
     }
@@ -99,9 +103,14 @@ async function getInstagramMetrics(): Promise<PlatformMetrics['instagram']> {
   } catch (error) {
     console.error('Error fetching Instagram metrics:', error)
     const stats = await instagramDB.getStats()
+    
+    // Garantir que os valores sejam números
+    const totalPosts = typeof stats.total === 'number' ? stats.total : (Array.isArray(stats.total) ? stats.total.length : 0)
+    const publishedPosts = typeof stats.published === 'number' ? stats.published : (Array.isArray(stats.published) ? stats.published.length : 0)
+    
     return {
-      posts: typeof stats.total === 'number' ? stats.total : stats.total.length,
-      published: typeof stats.published === 'number' ? stats.published : stats.published.length
+      posts: totalPosts,
+      published: publishedPosts
     }
   }
 }
