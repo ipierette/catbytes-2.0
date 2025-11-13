@@ -367,9 +367,9 @@ export async function GET() {
           '📊 SEO otimizado'
         ],
         lastRun: new Date().toISOString(), // Mock data
-        totalPosts: typeof stats.total === 'number' ? stats.total : stats.total.length,
-        approvedPosts: typeof stats.approved === 'number' ? stats.approved : stats.approved.length,
-        publishedPosts: typeof stats.published === 'number' ? stats.published : stats.published.length
+        totalPosts: Number(stats.total) || 0,
+        approvedPosts: Number(stats.approved) || 0,
+        publishedPosts: Number(stats.published) || 0
       },
       credentials: {
         instagram: !!process.env.INSTAGRAM_ACCESS_TOKEN,
