@@ -126,10 +126,9 @@ export default function VlogAdminPage() {
         })
       })
 
-      const data = await response.json()
-
       if (!response.ok) {
-        throw new Error(data.error || 'Erro ao publicar')
+        const error = await response.json()
+        throw new Error(error.error || 'Erro ao publicar')
       }
 
       const data = await response.json()
