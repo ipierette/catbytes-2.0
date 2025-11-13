@@ -38,6 +38,13 @@ export async function POST(request: NextRequest) {
       }
 
       // Buscar artigo no banco
+      if (!supabaseAdmin) {
+        return NextResponse.json(
+          { error: 'Erro ao conectar com o banco de dados' },
+          { status: 500 }
+        )
+      }
+
       const { data, error } = await supabaseAdmin
         .from('blog_posts')
         .select('title, excerpt, slug, content')
