@@ -285,6 +285,14 @@ export function NewsletterSignup({ variant = 'blog' }: NewsletterSignupProps) {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Seu nome"
+            className="w-full px-3 py-2 border border-gray-600 rounded-lg focus:border-purple-400 focus:outline-none bg-gray-800 text-white text-sm"
+          />
+          
+          <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
