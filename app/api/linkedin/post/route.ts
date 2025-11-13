@@ -197,7 +197,7 @@ async function uploadImageToLinkedIn(
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/octet-stream'
       },
-      body: imageBuffer
+      body: new Uint8Array(imageBuffer)
     })
 
     if (!uploadResponse.ok) {
