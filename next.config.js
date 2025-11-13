@@ -111,6 +111,19 @@ const nextConfig = {
             value: 'text/plain; charset=utf-8'
           }
         ]
+      },
+      {
+        source: '/.well-known/apple-app-site-association',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/json'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400'
+          }
+        ]
       }
     ]
   },

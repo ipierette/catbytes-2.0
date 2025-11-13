@@ -5,7 +5,10 @@
 
 export function getWelcomeEmailHTML(name: string, token: string, locale: string = 'pt-BR'): string {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
+  // Link direto para página
   const verifyUrl = `${baseUrl}/${locale}/newsletter/verify?token=${token}`
+  // Link de API (mais compatível com iOS Mail)
+  const apiRedirectUrl = `${baseUrl}/api/newsletter/redirect-verify?token=${token}&locale=${locale}`
   const isPortuguese = locale === 'pt-BR'
   
   const c = { primary: '#06B6D4', dark: '#1F2937', darkHover: '#374151', text: '#111827', textLight: '#6B7280', bg: '#F9FAFB', border: '#E5E7EB' }
@@ -56,7 +59,19 @@ export function getWelcomeEmailHTML(name: string, token: string, locale: string 
                 <p style="margin:0;font-size:14px;color:${c.textLight};"><strong style="color:${c.text};">${t.important}</strong><br>${t.spamWarning}</p>
               </div>
               <div style="text-align:center;margin:40px 0;">
-                <a href="${verifyUrl}" style="display:inline-block;background:linear-gradient(135deg,${c.primary} 0%,${c.primary}dd 100%);color:#ffffff;text-decoration:none;padding:18px 45px;border-radius:8px;font-weight:700;font-size:16px;box-shadow:0 4px 15px ${c.primary}40;">${t.confirmButton}</a>
+                <!--[if mso]>
+                <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${apiRedirectUrl}" style="height:54px;v-text-anchor:middle;width:280px;" arcsize="15%" strokecolor="${c.primary}" fillcolor="${c.primary}">
+                  <w:anchorlock/>
+                  <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">${t.confirmButton}</center>
+                </v:roundrect>
+                <![endif]-->
+                <!--[if !mso]><!-->
+                <a href="${apiRedirectUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:linear-gradient(135deg,${c.primary} 0%,${c.primary}dd 100%);color:#ffffff;text-decoration:none;padding:18px 45px;border-radius:8px;font-weight:700;font-size:16px;box-shadow:0 4px 15px ${c.primary}40;mso-hide:all;">${t.confirmButton}</a>
+                <!--<![endif]-->
+              </div>
+              <div style="background:${c.bg};border:2px dashed ${c.border};padding:15px;margin:20px 0;border-radius:8px;text-align:center;">
+                <p style="margin:0 0 10px;font-size:13px;color:${c.textLight};font-weight:600;">${isPortuguese ? '📱 Link não funciona? Copie e cole no navegador:' : '📱 Link not working? Copy and paste in browser:'}</p>
+                <p style="margin:0;font-size:12px;color:${c.primary};word-break:break-all;font-family:monospace;">${verifyUrl}</p>
               </div>
               <p style="margin:30px 0 0;font-size:16px;line-height:1.6;color:${c.textLight};text-align:center;">${t.goodbye}<br><strong style="color:${c.text};">${t.signature}</strong></p>
             </td></tr>

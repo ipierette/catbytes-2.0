@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "CATBYTES.site",
+        "paths": [
+          "/*/newsletter/verify",
+          "/api/newsletter/redirect-verify"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "CATBYTES.site"
+    ]
+  }
+}
