@@ -7,10 +7,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Upload, Sparkles, Send, Video, CheckCircle2, AlertCircle } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+import { useToast } from '@/components/ui/toast'
 
 export default function VlogAdminPage() {
-  const { toast } = useToast()
+  const { showToast } = useToast()
   
   // Estado
   const [file, setFile] = useState<File | null>(null)
@@ -39,22 +39,14 @@ export default function VlogAdminPage() {
     // Validar tamanho
     const maxSize = 10 * 1024 * 1024 // 10MB
     if (selectedFile.size > maxSize) {
-      toast({
-        title: 'Arquivo muito grande',
-        description: 'O vídeo deve ter no máximo 10MB',
-        variant: 'destructive'
-      })
+      showToast('O vídeo deve ter no máximo 10MB', 'error')
       return
     }
 
     // Validar tipo
     const allowedTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm']
     if (!allowedTypes.includes(selectedFile.type)) {
-      toast({
-        title: 'Formato inválido',
-        description: 'Use MP4, MOV, AVI ou WEBM',
-        variant: 'destructive'
-      })
+      showToast('Use MP4, MOV, AVI ou WEBM', 'error')
       return
     }
 
@@ -64,20 +56,12 @@ export default function VlogAdminPage() {
   // Upload e processamento
   const handleUpload = async () => {
     if (!file) {
-      toast({
-        title: 'Atenção',
-        description: 'Selecione um vídeo para fazer upload',
-        variant: 'destructive'
-      })
+      showToast('Selecione um vídeo para fazer upload', 'error')
       return
     }
 
     if (!userDescription.trim()) {
-      toast({
-        title: 'Atenção',
-        description: 'Adicione uma descrição para o vídeo',
-        variant: 'destructive'
-      })
+      showToast('Adicione uma descrição para o vídeo', 'error')
       return
     }
 
@@ -103,16 +87,12 @@ export default function VlogAdminPage() {
       setVideoUrl(data.vlog.videoUrl)
       setImprovedDescription(data.vlog.improvedDescription)
 
-      toast({
-        title: '✅ Upload concluído!',
-        description: 'Vídeo processado e descrição melhorada pela IA'
-      })
+      showToast('✅ Upload concluído! Vídeo processado e descrição melhorada pela IA', 'success')
     } catch (error) {
-      toast({
-        title: 'Erro no upload',
-        description: error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: 'destructive'
-      })
+      showToast(
+        error instanceof Error ? error.message : 'Erro no upload',
+        'error'
+      )
     } finally {
       setUploading(false)
     }
@@ -125,20 +105,12 @@ export default function VlogAdminPage() {
       .map(([platform]) => platform)
 
     if (selectedPlatforms.length === 0) {
-      toast({
-        title: 'Atenção',
-        description: 'Selecione pelo menos uma plataforma',
-        variant: 'destructive'
-      })
+      showToast('Selecione pelo menos uma plataforma', 'error')
       return
     }
 
     if (!vlogId) {
-      toast({
-        title: 'Atenção',
-        description: 'Faça upload do vídeo primeiro',
-        variant: 'destructive'
-      })
+      showToast('Faça upload do vídeo primeiro', 'error')
       return
     }
 
@@ -160,10 +132,9 @@ export default function VlogAdminPage() {
         throw new Error(data.error || 'Erro ao publicar')
       }
 
-      toast({
-        title: '🎉 Publicado com sucesso!',
-        description: data.message
-      })
+      const data = await response.json()
+
+      showToast('🎉 Publicado com sucesso! ' + data.message, 'success')
 
       // Resetar formulário
       setFile(null)
@@ -178,11 +149,10 @@ export default function VlogAdminPage() {
       })
 
     } catch (error) {
-      toast({
-        title: 'Erro ao publicar',
-        description: error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: 'destructive'
-      })
+      showToast(
+        error instanceof Error ? error.message : 'Erro ao publicar',
+        'error'
+      )
     } finally {
       setPublishing(false)
     }

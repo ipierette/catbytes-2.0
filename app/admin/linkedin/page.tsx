@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Sparkles, Send, Image as ImageIcon, RefreshCw, ExternalLink } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+import { useToast } from '@/components/ui/toast'
 import Image from 'next/image'
 
 interface BlogArticle {
@@ -18,7 +18,7 @@ interface BlogArticle {
 }
 
 export default function LinkedInAdminPage() {
-  const { toast } = useToast()
+  const { showToast } = useToast()
   
   // Estado
   const [postType, setPostType] = useState<'blog-article' | 'fullstack-random'>('fullstack-random')
@@ -51,11 +51,7 @@ export default function LinkedInAdminPage() {
       const data = await response.json()
       setArticles(data.posts || [])
     } catch (error) {
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar os artigos',
-        variant: 'destructive'
-      })
+      showToast('Não foi possível carregar os artigos', 'error')
     } finally {
       setLoadingArticles(false)
     }
@@ -64,11 +60,7 @@ export default function LinkedInAdminPage() {
   // Gerar conteúdo do post
   const handleGenerate = async () => {
     if (postType === 'blog-article' && !selectedArticle) {
-      toast({
-        title: 'Atenção',
-        description: 'Selecione um artigo do blog',
-        variant: 'destructive'
-      })
+      showToast('Selecione um artigo do blog', 'error')
       return
     }
 
@@ -90,16 +82,9 @@ export default function LinkedInAdminPage() {
       setImagePrompt(data.imagePrompt)
       setImageUrl('') // Limpar imagem anterior
 
-      toast({
-        title: '✨ Post gerado!',
-        description: 'Revise o conteúdo e gere a imagem se desejar'
-      })
+      showToast('✨ Post gerado! Revise o conteúdo e gere a imagem se desejar', 'success')
     } catch (error) {
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível gerar o post',
-        variant: 'destructive'
-      })
+      showToast('Não foi possível gerar o post', 'error')
     } finally {
       setGenerating(false)
     }
@@ -108,11 +93,7 @@ export default function LinkedInAdminPage() {
   // Gerar imagem com DALL-E
   const handleGenerateImage = async () => {
     if (!imagePrompt.trim()) {
-      toast({
-        title: 'Atenção',
-        description: 'Prompt de imagem está vazio',
-        variant: 'destructive'
-      })
+      showToast('Prompt de imagem está vazio', 'error')
       return
     }
 
@@ -132,16 +113,9 @@ export default function LinkedInAdminPage() {
       const data = await response.json()
       setImageUrl(data.url)
 
-      toast({
-        title: '🎨 Imagem gerada!',
-        description: 'Imagem pronta para publicação'
-      })
+      showToast('🎨 Imagem gerada! Pronta para publicação', 'success')
     } catch (error) {
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível gerar a imagem',
-        variant: 'destructive'
-      })
+      showToast('Não foi possível gerar a imagem', 'error')
     } finally {
       setGeneratingImage(false)
     }
@@ -150,11 +124,7 @@ export default function LinkedInAdminPage() {
   // Publicar no LinkedIn
   const handlePublish = async () => {
     if (!postText.trim()) {
-      toast({
-        title: 'Atenção',
-        description: 'O texto do post não pode estar vazio',
-        variant: 'destructive'
-      })
+      showToast('O texto do post não pode estar vazio', 'error')
       return
     }
 
@@ -177,10 +147,7 @@ export default function LinkedInAdminPage() {
 
       const data = await response.json()
 
-      toast({
-        title: '🎉 Post publicado!',
-        description: 'Seu post foi publicado com sucesso no LinkedIn'
-      })
+      showToast('🎉 Post publicado com sucesso no LinkedIn!', 'success')
 
       // Limpar formulário
       setPostText('')
@@ -188,11 +155,10 @@ export default function LinkedInAdminPage() {
       setImageUrl('')
       setSelectedArticle('')
     } catch (error) {
-      toast({
-        title: 'Erro ao publicar',
-        description: error instanceof Error ? error.message : 'Erro desconhecido',
-        variant: 'destructive'
-      })
+      showToast(
+        error instanceof Error ? error.message : 'Erro ao publicar',
+        'error'
+      )
     } finally {
       setPublishing(false)
     }
