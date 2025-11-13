@@ -13,7 +13,9 @@ import {
   Rocket,
   ChevronLeft,
   User,
-  Mail
+  Mail,
+  Linkedin,
+  Video
 } from 'lucide-react'
 
 interface AdminNavItem {
@@ -35,6 +37,18 @@ const adminNavItems: AdminNavItem[] = [
     href: '/admin/instagram', 
     icon: Instagram,
     description: 'Gerenciar posts do Instagram'
+  },
+  {
+    title: 'LinkedIn',
+    href: '/admin/linkedin', 
+    icon: Linkedin,
+    description: 'Posts profissionais no LinkedIn'
+  },
+  {
+    title: 'Vlog',
+    href: '/admin/vlog', 
+    icon: Video,
+    description: 'Upload e publicação de vídeos'
   },
   {
     title: 'Blog',
