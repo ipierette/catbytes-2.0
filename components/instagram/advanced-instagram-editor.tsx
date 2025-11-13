@@ -342,6 +342,7 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
                 value={editedPost.titulo}
                 onChange={(e) => setEditedPost({ ...editedPost, titulo: e.target.value })}
                 placeholder="Título para identificação interna"
+                autoComplete="off"
               />
             </div>
 
@@ -354,6 +355,7 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
                 placeholder="Escreva a legenda do seu post..."
                 className="min-h-[400px] font-sans"
                 maxLength={charLimit}
+                autoComplete="off"
               />
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>Use emojis 😊 e quebras de linha para melhor visualização</span>
@@ -448,6 +450,7 @@ export function AdvancedInstagramEditor({ post, isOpen, onClose, onSave }: Advan
                         onChange={(e) => updateLayer(selectedLayerData.id, { text: e.target.value })}
                         rows={2}
                         placeholder="Digite o texto..."
+                        autoComplete="off"
                       />
                     </div>
 

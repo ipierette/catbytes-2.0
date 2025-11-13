@@ -91,6 +91,7 @@ export function InstagramEditModal({ post, isOpen, onClose, onSave }: InstagramE
                 value={editedPost.titulo}
                 onChange={(e) => setEditedPost({ ...editedPost, titulo: e.target.value })}
                 placeholder="Título para identificação interna"
+                autoComplete="off"
               />
               <p className="text-xs text-muted-foreground mt-1">
                 Usado apenas para organização interna
@@ -106,6 +107,7 @@ export function InstagramEditModal({ post, isOpen, onClose, onSave }: InstagramE
                 placeholder="Escreva a legenda do seu post..."
                 className="min-h-[300px] font-sans"
                 maxLength={charLimit}
+                autoComplete="off"
               />
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>Use emojis 😊 e quebras de linha para melhor visualização</span>
