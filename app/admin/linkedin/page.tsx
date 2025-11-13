@@ -82,9 +82,13 @@ export default function LinkedInAdminPage() {
       const data = await response.json()
       setPostText(data.postText)
       setImagePrompt(data.imagePrompt)
-      setImageUrl('') // Limpar imagem anterior
+      setImageUrl(data.imageUrl || '') // Imagem já gerada pelo backend
 
-      showToast('✨ Post gerado! Revise o conteúdo e gere a imagem se desejar', 'success')
+      if (data.imageUrl) {
+        showToast('✨ Post e imagem gerados com sucesso!', 'success')
+      } else {
+        showToast('✨ Post gerado! (Imagem não foi gerada)', 'success')
+      }
     } catch (error) {
       showToast('Não foi possível gerar o post', 'error')
     } finally {

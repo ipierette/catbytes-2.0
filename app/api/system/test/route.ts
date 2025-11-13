@@ -166,10 +166,17 @@ async function testDatabase(): Promise<any> {
   const stats = await instagramDB.getStats()
   const nextNiche = await instagramDB.getNextNiche()
   
+  // Converter stats para números de forma segura
+  const getCount = (value: any): number => {
+    if (typeof value === 'number') return value
+    if (Array.isArray(value)) return value.length
+    return 0
+  }
+  
   return {
-    totalPosts: typeof stats.total === 'number' ? stats.total : stats.total.length,
-    publishedPosts: typeof stats.published === 'number' ? stats.published : stats.published.length,
-    approvedPosts: typeof stats.approved === 'number' ? stats.approved : stats.approved.length,
+    totalPosts: getCount(stats.total),
+    publishedPosts: getCount(stats.published),
+    approvedPosts: getCount(stats.approved),
     nextNiche
   }
 }

@@ -20,6 +20,46 @@ if (!OPENAI_API_KEY) {
 
 const openai = OPENAI_API_KEY ? new OpenAI({ apiKey: OPENAI_API_KEY }) : null
 
+/**
+ * Gera imagem com DALL-E 3
+ */
+async function generateImageWithDALLE(prompt: string): Promise<string | null> {
+  try {
+    if (!openai) throw new Error('OpenAI não inicializado')
+
+    console.log('[LinkedIn Generate] 🎨 Gerando imagem com DALL-E...')
+    console.log('[LinkedIn Generate] Prompt:', prompt)
+
+    const response = await openai.images.generate({
+      model: 'dall-e-3',
+      prompt: prompt,
+      n: 1,
+      size: '1024x1024',
+      quality: 'standard',
+      style: 'natural'
+    })
+
+    if (!response.data || response.data.length === 0) {
+      console.log('[LinkedIn Generate] ⚠️ DALL-E não retornou dados')
+      return null
+    }
+
+    const imageUrl = response.data[0]?.url
+    
+    if (imageUrl) {
+      console.log('[LinkedIn Generate] ✅ Imagem gerada com sucesso')
+      return imageUrl
+    }
+
+    console.log('[LinkedIn Generate] ⚠️ DALL-E não retornou URL da imagem')
+    return null
+
+  } catch (error) {
+    console.error('[LinkedIn Generate] ❌ Erro ao gerar imagem:', error)
+    return null
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     if (!openai) {
@@ -77,8 +117,9 @@ export async function POST(request: NextRequest) {
 
       article = data
 
-      // Gerar post sobre o artigo
-      const result = await generateBlogArticlePost(article)
+      // Gerar post sobre o artigo (com URL incluída)
+      const articleUrl = `https://www.catbytes.site/pt-BR/blog/${article.slug}`
+      const result = await generateBlogArticlePost(article, articleUrl)
       postText = result.text
       imagePrompt = result.imagePrompt
 
@@ -89,14 +130,19 @@ export async function POST(request: NextRequest) {
       imagePrompt = result.imagePrompt
     }
 
+    // Gerar imagem com DALL-E
+    console.log('[LinkedIn Generate] Gerando imagem com DALL-E...')
+    const generatedImageUrl = await generateImageWithDALLE(imagePrompt)
+
     return NextResponse.json({
       success: true,
       postText,
       imagePrompt,
+      imageUrl: generatedImageUrl,
       article: article ? {
         title: article.title,
         slug: article.slug,
-        url: `https://catbytes.site/blog/${article.slug}`
+        url: `https://www.catbytes.site/pt-BR/blog/${article.slug}`
       } : null
     })
 
@@ -115,7 +161,7 @@ export async function POST(request: NextRequest) {
 /**
  * Gera post sobre um artigo do blog
  */
-async function generateBlogArticlePost(article: any) {
+async function generateBlogArticlePost(article: any, articleUrl: string) {
   if (!openai) throw new Error('OpenAI não inicializado')
 
   const prompt = `
@@ -124,12 +170,14 @@ Você é um social media manager criando um post para o LinkedIn.
 ARTIGO DO BLOG:
 Título: ${article.title}
 Resumo: ${article.excerpt || 'Sem resumo'}
+URL: ${articleUrl}
 
 OBJETIVO:
 Criar um post chamativo que:
 1. Apresente o artigo de forma interessante
 2. Convide as pessoas a lerem no site
 3. Incentive a inscrição na newsletter
+4. INCLUA a URL do artigo no final do post
 
 REGRAS:
 - Tom profissional mas acessível
@@ -138,12 +186,14 @@ REGRAS:
 - Inclua call-to-action claro
 - Máximo 1300 caracteres
 - Não use hashtags demais (máximo 3)
+- OBRIGATÓRIO: Adicione um emoji de link (👉 ou 🔗) seguido da URL completa do artigo no final
 
 ESTRUTURA:
 1. Hook inicial (pergunta ou afirmação impactante)
 2. Resumo do conteúdo do artigo
 3. Call-to-action (ler no site + inscrever newsletter)
-4. Hashtags relevantes
+4. URL do artigo (com emoji de link)
+5. Hashtags relevantes
 
 Retorne APENAS o texto do post, sem título ou formatação extra.
 `
