@@ -56,16 +56,24 @@ export const getInstagramTokenInstructions = () => {
  * Instruções para gerar novo token do LinkedIn
  */
 export const getLinkedInTokenInstructions = () => {
-  const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || 'SEU_CLIENT_ID'
-  const redirectUri = encodeURIComponent(process.env.NEXT_PUBLIC_SITE_URL + '/admin/settings/linkedin-callback')
+  const clientId = process.env.LINKEDIN_CLIENT_ID || process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || ''
+  const redirectUri = process.env.LINKEDIN_REDIRECT_URI || 'https://catbytes.site/api/linkedin/callback'
   const state = Math.random().toString(36).substring(7) // Estado aleatório para segurança
+  
+  // Escopos corretos do LinkedIn para compartilhamento de conteúdo
+  const scopes = [
+    'openid',
+    'profile',
+    'email',
+    'w_member_social' // Permite postar em nome do usuário
+  ].join('%20')
   
   return {
     step1: {
       title: "Passo 1: Autorização do Usuário",
       description: "Acesse esta URL no navegador para autorizar:",
-      url: `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&scope=r_liteprofile%20r_emailaddress%20w_member_social`,
-      note: "Você será redirecionado de volta com um código de autorização"
+      url: `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${scopes}`,
+      note: `Você será redirecionado para ${redirectUri}?code=CODIGO&state=${state} - copie o valor do parâmetro "code"`
     },
     step2: {
       title: "Passo 2: Trocar código por token",
@@ -80,9 +88,19 @@ export const getLinkedInTokenInstructions = () => {
         code: "CODIGO_RECEBIDO_NO_PASSO_1",
         redirect_uri: redirectUri,
         client_id: clientId,
-        client_secret: "SEU_CLIENT_SECRET"
+        client_secret: process.env.LINKEDIN_CLIENT_SECRET || "SEU_CLIENT_SECRET"
       },
-      note: "O token do LinkedIn tem validade de 60 dias"
+      note: "O token do LinkedIn tem validade de 60 dias. Use curl ou Postman para fazer a requisição."
+    },
+    step3: {
+      title: "Passo 3: Obter URNs do usuário e organização",
+      description: "Use o token para obter informações de perfil:",
+      endpoint: "https://api.linkedin.com/v2/userinfo",
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer SEU_TOKEN_AQUI"
+      },
+      note: "Copie o 'sub' (Person URN). Para Organization URN, você precisa acessar: https://www.linkedin.com/developers/apps e verificar suas organizações autorizadas."
     }
   }
 }

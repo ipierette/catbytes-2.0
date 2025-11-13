@@ -14,16 +14,32 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
 .instagram-token.txt
+
+# Exemplos de configuração com segredos
+.env.linkedin.example
+.env.*.example
 
 # Scripts com tokens configurados
 scripts/generate-long-lived-instagram-token.js
+scripts/get-linkedin-urns.sh
 
 # Google Cloud Service Account JSON - NUNCA comitar!
 *-credentials.json
 *-service-account.json
 *analytics*.json
 service-account-*.json
+google-indexing-key.json
+
+# Tokens e chaves
+*token*.txt
+*secret*.txt
+*password*.txt
+*.pem
+*.key
+*.cert
 
 # Arquivos de Sistema Operacional
 .DS_Store

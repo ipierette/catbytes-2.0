@@ -204,57 +204,109 @@ export function TokenGeneratorModal({
     </div>
   )
 
-  const renderStep2 = () => (
-    <div className="space-y-4">
-      <div className="text-center">
-        <div className="text-2xl mb-2">🔑</div>
-        <h3 className="text-xl font-semibold">Código de Autorização</h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          Cole aqui o código que você recebeu após autorizar
-        </p>
-      </div>
+  const renderStep2 = () => {
+    // Gerar comando curl para o LinkedIn
+    const curlCommand = instructions?.step2 ? 
+      `curl -X POST '${instructions.step2.endpoint}' \\
+  -H 'Content-Type: application/x-www-form-urlencoded' \\
+  -d 'grant_type=${instructions.step2.parameters.grant_type}' \\
+  -d 'code=${authCode || 'SEU_CODIGO_AQUI'}' \\
+  -d 'redirect_uri=${instructions.step2.parameters.redirect_uri}' \\
+  -d 'client_id=${instructions.step2.parameters.client_id}' \\
+  -d 'client_secret=${instructions.step2.parameters.client_secret}'` : ''
 
-      <div>
-        <Label>Código de Autorização:</Label>
-        <Input
-          value={authCode}
-          onChange={(e) => setAuthCode(e.target.value)}
-          placeholder="Cole o código aqui..."
-          className="mt-2"
-        />
-      </div>
+    return (
+      <div className="space-y-4">
+        <div className="text-center">
+          <div className="text-2xl mb-2">🔑</div>
+          <h3 className="text-xl font-semibold">Código de Autorização</h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Cole aqui o código que você recebeu após autorizar
+          </p>
+        </div>
 
-      {instructions?.step2 && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Próximo passo:</strong> Use este código para fazer uma requisição para:
-            <br />
-            <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">
-              {instructions.step2.endpoint}
-            </code>
-          </AlertDescription>
-        </Alert>
-      )}
+        <div>
+          <Label>Código de Autorização:</Label>
+          <Input
+            value={authCode}
+            onChange={(e) => setAuthCode(e.target.value)}
+            placeholder="Cole o código aqui..."
+            className="mt-2"
+          />
+        </div>
 
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          onClick={() => setStep(1)}
-          className="flex-1"
-        >
-          ← Voltar
-        </Button>
-        <Button
-          onClick={() => setStep(3)}
-          disabled={!authCode.trim()}
-          className="flex-1"
-        >
-          Continuar →
-        </Button>
+        {instructions?.step2 && (
+          <>
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>{instructions.step2.title}</strong><br />
+                {instructions.step2.description}
+                <br />
+                <code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">
+                  {instructions.step2.endpoint}
+                </code>
+              </AlertDescription>
+            </Alert>
+
+            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Comando curl (copie e execute no terminal):</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard(curlCommand)}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <Textarea
+                value={curlCommand}
+                readOnly
+                className="font-mono text-xs"
+                rows={8}
+              />
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                💡 Cole este comando no terminal para obter o token. O token aparecerá como "access_token" na resposta JSON.
+              </p>
+            </div>
+
+            {instructions.step3 && (
+              <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+                <AlertCircle className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-sm">
+                  <strong className="text-blue-900 dark:text-blue-100">Depois de obter o token:</strong>
+                  <br />
+                  Você também precisará obter o Person URN executando:
+                  <br />
+                  <code className="text-xs bg-blue-100 dark:bg-blue-900 px-1 py-0.5 rounded mt-1 inline-block">
+                    curl -X GET 'https://api.linkedin.com/v2/userinfo' -H 'Authorization: Bearer SEU_TOKEN'
+                  </code>
+                </AlertDescription>
+              </Alert>
+            )}
+          </>
+        )}
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setStep(1)}
+            className="flex-1"
+          >
+            ← Voltar
+          </Button>
+          <Button
+            onClick={() => setStep(3)}
+            disabled={!authCode.trim()}
+            className="flex-1"
+          >
+            Continuar →
+          </Button>
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const renderStep3 = () => (
     <div className="space-y-4">
