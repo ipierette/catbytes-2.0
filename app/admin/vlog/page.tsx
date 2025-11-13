@@ -8,6 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Upload, Sparkles, Send, Video, CheckCircle2, AlertCircle } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
+import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
+import { AdminGuard } from '@/components/admin/admin-guard'
 
 export default function VlogAdminPage() {
   const { showToast } = useToast()
@@ -160,6 +162,8 @@ export default function VlogAdminPage() {
   const fileSize = file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : null
 
   return (
+    <AdminGuard>
+    <AdminLayoutWrapper>
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -402,5 +406,7 @@ export default function VlogAdminPage() {
         </div>
       </div>
     </div>
+    </AdminLayoutWrapper>
+    </AdminGuard>
   )
 }

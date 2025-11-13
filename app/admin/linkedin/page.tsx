@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Sparkles, Send, Image as ImageIcon, RefreshCw, ExternalLink } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
+import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
+import { AdminGuard } from '@/components/admin/admin-guard'
 import Image from 'next/image'
 
 interface BlogArticle {
@@ -165,6 +167,8 @@ export default function LinkedInAdminPage() {
   }
 
   return (
+    <AdminGuard>
+    <AdminLayoutWrapper>
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
         <div>
@@ -386,5 +390,7 @@ export default function LinkedInAdminPage() {
         </div>
       </div>
     </div>
+    </AdminLayoutWrapper>
+    </AdminGuard>
   )
 }
