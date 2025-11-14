@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       tokenPrefix: settings?.access_token?.substring(0, 10) + '...',
       personUrn: settings?.person_urn,
       organizationUrn: settings?.organization_urn,
-      expiresAt: settings?.expires_at
+      expiresAt: settings?.token_expires_at
     })
     
     if (!settings || !settings.access_token || settings.access_token === 'PENDING_OAUTH') {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se o token expirou
-    if (settings.expires_at && new Date(settings.expires_at) < new Date()) {
+    if (settings.token_expires_at && new Date(settings.token_expires_at) < new Date()) {
       return NextResponse.json(
         { error: 'Token do LinkedIn expirado. Por favor, renove o token.' },
         { status: 401 }
