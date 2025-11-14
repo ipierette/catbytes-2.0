@@ -2,12 +2,12 @@
 
 <table border="0" cellpadding="0" cellspacing="0">
   <tr>
-    <td align="center" valign="middle">
-      <img src="./public/images/catbytes-logo.webp" width="150" alt="CatBytes Logo" />
+    <td align="center" valign="middle" style="background-color: #1a1a1a; padding: 20px; border-radius: 12px;">
+      <img src="./public/images/catbytes-logo.webp" width="150" alt="CatBytes Logo" style="display: block;" />
     </td>
     <td width="40"></td>
-    <td align="center" valign="middle">
-      <img src="./public/images/logo-desenvolvedora.webp" width="150" alt="Logo Desenvolvedora" />
+    <td align="center" valign="middle" style="background-color: #1a1a1a; padding: 20px; border-radius: 12px;">
+      <img src="./public/images/logo-desenvolvedora.webp" width="150" alt="Logo Desenvolvedora" style="display: block;" />
     </td>
   </tr>
 </table>
