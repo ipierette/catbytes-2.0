@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Script completo para obter tokens do LinkedIn com escopo w_member_social
- * Este é o único escopo necessário para publicar no LinkedIn
+ * Script para gerar novo token do LinkedIn
+ * Gera URL de autorização OAuth 2.0 corretamente formatada
  */
 
 require('dotenv').config({ path: '.env.local' })
@@ -17,41 +17,55 @@ if (!CLIENT_ID || !CLIENT_SECRET) {
   process.exit(1)
 }
 
-// Gerar state para segurança
-const state = crypto.randomBytes(16).toString('hex')
+// Gerar state aleatório para segurança CSRF
+const state = 'catbytes-' + crypto.randomBytes(8).toString('hex')
 
-// Escopo necessário para postar
+// Escopo necessário para publicar posts
 const scopes = 'w_member_social'
 
-console.log('🚀 LinkedIn OAuth - Share on LinkedIn')
-console.log('=' .repeat(60))
-console.log('\n📋 Escopo solicitado:')
-console.log('   • w_member_social - Publicar posts no LinkedIn')
-console.log('\n✅ Este escopo permite postar como perfil pessoal e como página')
+console.log('\n' + '='.repeat(70))
+console.log('🚀 GERADOR DE TOKEN DO LINKEDIN - CatBytes')
+console.log('='.repeat(70))
 
-const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&state=${state}&scope=${encodeURIComponent(scopes)}`
+console.log('\n📋 CONFIGURAÇÕES DETECTADAS:')
+console.log('   Client ID:     ' + CLIENT_ID)
+console.log('   Redirect URI:  ' + REDIRECT_URI)
+console.log('   Escopo:        ' + scopes + ' (publicar posts)')
+console.log('   State:         ' + state)
 
-console.log('\n' + '='.repeat(60))
-console.log('🔗 URL DE AUTORIZAÇÃO')
-console.log('='.repeat(60))
-console.log('\n' + authUrl)
-console.log('\n' + '='.repeat(60))
+// Construir URL usando URLSearchParams para encoding correto
+const params = new URLSearchParams({
+  response_type: 'code',
+  client_id: CLIENT_ID,
+  redirect_uri: REDIRECT_URI,
+  scope: scopes,
+  state: state
+})
 
-console.log('\n📝 INSTRUÇÕES:')
-console.log('\n1️⃣  Copie a URL acima e abra no navegador')
+const authUrl = `https://www.linkedin.com/oauth/v2/authorization?${params.toString()}`
 
-console.log('\n2️⃣  Autorize o aplicativo no LinkedIn')
+console.log('\n' + '='.repeat(70))
+console.log('🔗 URL DE AUTORIZAÇÃO (COPIE E COLE NO NAVEGADOR)')
+console.log('='.repeat(70))
+console.log('\n' + authUrl + '\n')
+console.log('='.repeat(70))
 
-console.log('\n3️⃣  Você será redirecionado para:', REDIRECT_URI)
-console.log('   A página mostrará o access token')
+console.log('\n📝 PASSO A PASSO:')
+console.log('\n1️⃣  Copie a URL acima')
+console.log('\n2️⃣  Cole no navegador e faça login no LinkedIn')
+console.log('\n3️⃣  Autorize o aplicativo "CatBytes" a postar em seu perfil')
+console.log('\n4️⃣  Após autorizar, você será redirecionado para:')
+console.log('   ' + REDIRECT_URI)
+console.log('\n5️⃣  A página exibirá o ACCESS TOKEN automaticamente')
+console.log('\n6️⃣  Copie o token e cole no .env.local:')
+console.log('   LINKEDIN_ACCESS_TOKEN=AQUIRk...')
+console.log('\n7️⃣  Teste a publicação no painel admin/linkedin')
 
-console.log('\n4️⃣  Copie o token e cole no .env.local:')
-console.log('   LINKEDIN_ACCESS_TOKEN=...')
-
-console.log('\n5️⃣  Execute o script para obter os URNs:')
-console.log('   node scripts/get-linkedin-urns.js')
-
-console.log('\n' + '='.repeat(60))
-console.log('💾 State gerado para esta sessão:', state)
-console.log('='.repeat(60))
-console.log('\n')
+console.log('\n' + '='.repeat(70))
+console.log('⚠️  IMPORTANTE: ')
+console.log('='.repeat(70))
+console.log('• O token expira em ~60 dias')
+console.log('• Quando expirar, execute este script novamente')
+console.log('• O redirect_uri deve estar cadastrado no LinkedIn Developer App')
+console.log('• Verifique se sua aplicação tem o escopo "Share on LinkedIn"')
+console.log('='.repeat(70) + '\n')
