@@ -20,6 +20,19 @@ interface BlogArticle {
   created_at: string
 }
 
+interface LinkedInPost {
+  id: string
+  text: string
+  image_url: string | null
+  status: 'draft' | 'pending' | 'approved' | 'published' | 'failed'
+  scheduled_for: string | null
+  published_at: string | null
+  post_type: string
+  article_slug: string | null
+  as_organization: boolean
+  created_at: string
+}
+
 export default function LinkedInAdminPage() {
   const { showToast } = useToast()
   
@@ -34,6 +47,11 @@ export default function LinkedInAdminPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [uploadingFile, setUploadingFile] = useState(false)
   
+  // Posts salvos
+  const [savedPosts, setSavedPosts] = useState<LinkedInPost[]>([])
+  const [loadingSavedPosts, setLoadingSavedPosts] = useState(false)
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
+  
   // Loading states
   const [loadingArticles, setLoadingArticles] = useState(false)
   const [generating, setGenerating] = useState(false)
@@ -46,6 +64,26 @@ export default function LinkedInAdminPage() {
       fetchArticles()
     }
   }, [postType])
+
+  // Carregar posts salvos ao iniciar
+  useEffect(() => {
+    loadSavedPosts()
+  }, [])
+
+  const loadSavedPosts = async () => {
+    setLoadingSavedPosts(true)
+    try {
+      const response = await fetch('/api/linkedin/posts')
+      if (!response.ok) throw new Error('Erro ao buscar posts salvos')
+      
+      const data = await response.json()
+      setSavedPosts(data.posts || [])
+    } catch (error) {
+      console.error('Erro ao buscar posts salvos:', error)
+    } finally {
+      setLoadingSavedPosts(false)
+    }
+  }
 
   const fetchArticles = async () => {
     setLoadingArticles(true)
@@ -171,6 +209,39 @@ export default function LinkedInAdminPage() {
     }
   }
 
+  // Carregar post salvo
+  const handleLoadPost = (post: LinkedInPost) => {
+    setPostText(post.text)
+    setImageUrl(post.image_url || '')
+    setAsOrganization(post.as_organization)
+    setPostType(post.post_type as 'blog-article' | 'fullstack-random')
+    if (post.article_slug) {
+      setSelectedArticle(post.article_slug)
+    }
+    showToast('Post carregado! Você pode editá-lo ou publicá-lo', 'success')
+  }
+
+  // Deletar post salvo
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm('Tem certeza que deseja deletar este post?')) return
+
+    setDeletingPostId(postId)
+    try {
+      const response = await fetch(`/api/linkedin/posts?id=${postId}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) throw new Error('Erro ao deletar post')
+
+      showToast('Post deletado com sucesso', 'success')
+      loadSavedPosts()
+    } catch (error) {
+      showToast('Não foi possível deletar o post', 'error')
+    } finally {
+      setDeletingPostId(null)
+    }
+  }
+
   return (
     <AdminGuard>
     <AdminLayoutWrapper>
@@ -186,6 +257,98 @@ export default function LinkedInAdminPage() {
           {asOrganization ? '🏢 Como Página' : '👤 Como Perfil'}
         </Badge>
       </div>
+
+      {/* Posts Salvos */}
+      {savedPosts.length > 0 && (
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>📝 Posts Salvos ({savedPosts.length})</CardTitle>
+                <CardDescription>
+                  Reutilize posts sem gastar créditos de API
+                </CardDescription>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={loadSavedPosts}
+                disabled={loadingSavedPosts}
+              >
+                {loadingSavedPosts ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 max-h-[400px] overflow-y-auto">
+              {savedPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant={
+                          post.status === 'published' ? 'default' :
+                          post.status === 'approved' ? 'secondary' :
+                          post.status === 'failed' ? 'destructive' : 'outline'
+                        }>
+                          {post.status === 'published' ? '✓ Publicado' :
+                           post.status === 'approved' ? '⏰ Agendado' :
+                           post.status === 'failed' ? '✗ Falhou' : '📝 Rascunho'}
+                        </Badge>
+                        {post.image_url && (
+                          <Badge variant="outline">
+                            <ImageIcon className="h-3 w-3 mr-1" />
+                            Com imagem
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm line-clamp-2 text-muted-foreground">
+                        {post.text}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {new Date(post.created_at).toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleLoadPost(post)}
+                      >
+                        Usar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDeletePost(post.id)}
+                        disabled={deletingPostId === post.id}
+                      >
+                        {deletingPostId === post.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          '🗑️'
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Coluna Esquerda - Configuração */}
