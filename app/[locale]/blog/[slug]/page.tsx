@@ -10,6 +10,7 @@ import { ViewCounter } from '@/components/blog/view-counter'
 import { AnalyticsTracker } from '@/components/analytics/analytics-tracker'
 import { RelatedPosts } from '@/components/blog/related-posts'
 import { ShareButtons } from '@/components/blog/share-buttons'
+import { ManifestoButton } from '@/components/blog/manifesto-modal'
 import { formatMarkdown as formatMarkdownContent, extractFaqItems } from '@/lib/markdown-formatter'
 
 export const dynamicParams = true
@@ -354,6 +355,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 excerpt={post.excerpt}
                 size="lg"
               />
+              
+              {/* Manifesto Button */}
+              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 flex justify-center">
+                <ManifestoButton variant="outline" />
+              </div>
             </div>
           </div>
 

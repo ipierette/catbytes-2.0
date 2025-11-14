@@ -9,6 +9,7 @@ import Image from 'next/image'
 import { FaHeart, FaCat, FaLinkedin, FaGithub, FaEnvelope, FaInstagram } from 'react-icons/fa'
 import { Lock } from 'lucide-react'
 import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
+import { ManifestoLinkFooter } from '@/components/blog/manifesto-modal'
 import { useAdmin } from '@/hooks/use-admin'
 
 export function Footer() {
@@ -170,6 +171,11 @@ export function Footer() {
             <p className="text-sm text-gray-400 mt-4">
               ipierette2@gmail.com
             </p>
+            
+            {/* Manifesto Link */}
+            <div className="mt-6 pt-4 border-t border-gray-800">
+              <ManifestoLinkFooter />
+            </div>
           </div>
 
           {/* Newsletter Section */}
