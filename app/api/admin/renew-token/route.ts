@@ -144,12 +144,16 @@ function getExpiryDate(expiresIn: number): string {
 }
 
 /**
- * Cria lembretes de renovação no banco
+ * Cria lembretes de renovação no banco (opcional)
  */
 async function createRenewalReminders(expiryDate: Date) {
   try {
-    const { createClient } = await import('@/lib/supabase/server');
-    const supabase = await createClient();
+    const { supabaseAdmin } = await import('@/lib/supabase');
+    
+    if (!supabaseAdmin) {
+      console.warn('Supabase admin não configurado, lembretes não criados');
+      return;
+    }
     
     const reminderDays = [30, 14, 7, 3, 1];
     
@@ -157,7 +161,7 @@ async function createRenewalReminders(expiryDate: Date) {
       const reminderDate = new Date(expiryDate);
       reminderDate.setDate(reminderDate.getDate() - days);
       
-      await supabase.from('token_reminders').insert({
+      await supabaseAdmin.from('token_reminders').insert({
         token_type: 'linkedin',
         reminder_date: reminderDate.toISOString(),
         days_before: days,
@@ -165,7 +169,8 @@ async function createRenewalReminders(expiryDate: Date) {
       });
     }
   } catch (error) {
-    console.error('Erro ao criar lembretes:', error);
+    // Lembretes são opcionais, não falha o processo
+    console.warn('Aviso ao criar lembretes (não crítico):', error);
   }
 }
 
