@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Sparkles, Send, Image as ImageIcon, RefreshCw, ExternalLink, Calendar } from 'lucide-react'
+import { Loader2, Sparkles, Send, Image as ImageIcon, RefreshCw, ExternalLink, Calendar, Upload } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
@@ -31,6 +31,8 @@ export default function LinkedInAdminPage() {
   const [imagePrompt, setImagePrompt] = useState('')
   const [imageUrl, setImageUrl] = useState('')
   const [asOrganization, setAsOrganization] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [uploadingFile, setUploadingFile] = useState(false)
   
   // Loading states
   const [loadingArticles, setLoadingArticles] = useState(false)
@@ -91,6 +93,50 @@ export default function LinkedInAdminPage() {
       showToast('Não foi possível gerar o post', 'error')
     } finally {
       setGenerating(false)
+    }
+  }
+
+  // Upload de imagem externa
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      showToast('Por favor, selecione um arquivo de imagem', 'error')
+      return
+    }
+
+    // Validar tamanho (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Imagem muito grande. Máximo 10MB', 'error')
+      return
+    }
+
+    setUploadingFile(true)
+    try {
+      // Fazer upload para o Supabase Storage
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('bucket', 'blog-images')
+      formData.append('folder', 'linkedin-posts')
+
+      const response = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) throw new Error('Erro ao fazer upload')
+
+      const data = await response.json()
+      setImageUrl(data.url)
+      setSelectedFile(file)
+
+      showToast('✅ Imagem enviada com sucesso!', 'success')
+    } catch (error) {
+      showToast('Erro ao fazer upload da imagem', 'error')
+    } finally {
+      setUploadingFile(false)
     }
   }
 
@@ -265,24 +311,53 @@ export default function LinkedInAdminPage() {
                 />
               </div>
 
-              <Button
-                onClick={handleGenerateImage}
-                disabled={generatingImage || !imagePrompt.trim()}
-                className="w-full"
-                variant="outline"
-              >
-                {generatingImage ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Gerando Imagem...
-                  </>
-                ) : (
-                  <>
-                    <ImageIcon className="mr-2 h-4 w-4" />
-                    Gerar Imagem com DALL-E
-                  </>
-                )}
-              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  onClick={handleGenerateImage}
+                  disabled={generatingImage || !imagePrompt.trim()}
+                  className="w-full"
+                  variant="outline"
+                >
+                  {generatingImage ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Gerando...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      DALL-E
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  onClick={() => document.getElementById('linkedin-file-upload')?.click()}
+                  disabled={uploadingFile}
+                  className="w-full"
+                  variant="outline"
+                >
+                  {uploadingFile ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <input
+                id="linkedin-file-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
 
               {imageUrl && (
                 <div className="border rounded-lg overflow-hidden">

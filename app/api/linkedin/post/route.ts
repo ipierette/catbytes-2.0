@@ -26,9 +26,25 @@ export async function POST(request: NextRequest) {
     // Buscar credenciais do banco
     const settings = await getLinkedInSettings()
     
+    console.log('[LinkedIn Post] Settings:', {
+      hasToken: !!settings?.access_token,
+      tokenPrefix: settings?.access_token?.substring(0, 10) + '...',
+      personUrn: settings?.person_urn,
+      organizationUrn: settings?.organization_urn,
+      expiresAt: settings?.expires_at
+    })
+    
     if (!settings || !settings.access_token || settings.access_token === 'PENDING_OAUTH') {
       return NextResponse.json(
         { error: 'Token do LinkedIn não configurado. Execute o fluxo OAuth primeiro.' },
+        { status: 401 }
+      )
+    }
+
+    // Verificar se o token expirou
+    if (settings.expires_at && new Date(settings.expires_at) < new Date()) {
+      return NextResponse.json(
+        { error: 'Token do LinkedIn expirado. Por favor, renove o token.' },
         { status: 401 }
       )
     }
@@ -104,7 +120,24 @@ export async function POST(request: NextRequest) {
     const responseData = await response.json()
 
     if (!response.ok) {
-      console.error('[LinkedIn Post] Erro na API:', responseData)
+      console.error('[LinkedIn Post] Erro na API:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: responseData,
+        postData
+      })
+      
+      // Se for erro de autenticação, dar mensagem mais clara
+      if (response.status === 401) {
+        return NextResponse.json(
+          { 
+            error: 'Token do LinkedIn inválido ou expirado. Por favor, renove o token nas configurações.',
+            details: responseData 
+          },
+          { status: 401 }
+        )
+      }
+      
       return NextResponse.json(
         { 
           error: 'Erro ao criar post no LinkedIn',
