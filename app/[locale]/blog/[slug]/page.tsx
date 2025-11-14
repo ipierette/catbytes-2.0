@@ -81,36 +81,70 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
   const canonicalUrl = `${siteUrl}/${locale}/blog/${post.slug}`
+  
+  // Enhanced keywords: combine post keywords with category and tags
+  const enhancedKeywords = [
+    ...(post.keywords || []),
+    ...(post.tags || []),
+    post.category,
+    'CatBytes',
+    'Izadora Pierette',
+    locale === 'pt-BR' ? 'blog tecnologia' : 'tech blog'
+  ].filter(Boolean)
 
   return {
     title: post.seo_title || post.title,
     description: post.seo_description || post.excerpt,
-    keywords: post.keywords,
-    authors: [{ name: post.author }],
+    keywords: enhancedKeywords,
+    authors: [{ name: post.author || 'Izadora Cury Pierette', url: siteUrl }],
+    creator: 'Izadora Cury Pierette',
+    publisher: 'CatBytes',
+    robots: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
     openGraph: {
       title: post.seo_title || post.title,
       description: post.seo_description || post.excerpt,
       url: canonicalUrl,
       siteName: 'CatBytes',
-      images: [{ url: post.cover_image_url, width: 1200, height: 630, alt: post.title }],
+      images: [
+        { 
+          url: post.cover_image_url, 
+          width: 1200, 
+          height: 630, 
+          alt: post.title,
+          type: 'image/webp'
+        }
+      ],
       locale: locale === 'pt-BR' ? 'pt_BR' : 'en_US',
       type: 'article',
       publishedTime: post.created_at,
       modifiedTime: post.updated_at,
-      authors: [post.author],
-      tags: post.tags,
+      authors: [post.author || 'Izadora Cury Pierette'],
+      tags: post.tags || [],
+      section: post.category,
     },
     twitter: {
       card: 'summary_large_image',
       title: post.seo_title || post.title,
       description: post.seo_description || post.excerpt,
       images: [post.cover_image_url],
-      creator: '@catbytes_izadora_pierette',
+      creator: '@catbytes',
+      site: '@catbytes',
     },
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        'pt-BR': `${siteUrl}/pt-BR/blog/${post.slug}`,
+        'en-US': `${siteUrl}/en-US/blog/${post.slug}`,
+        'x-default': `${siteUrl}/pt-BR/blog/${post.slug}`,
+      },
     },
   }
 }
@@ -124,17 +158,90 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   }
 
   const dateLocale = locale === 'pt-BR' ? ptBR : enUS
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
   const canonicalUrl = `${siteUrl}/${locale}/blog/${post.slug}`
   const shareUrl = canonicalUrl
+  
+  // Extract FAQ items from content for FAQ Schema
+  const faqItems = extractFaqItems(post.content)
+  
+  // JSON-LD Structured Data for Article
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: post.title,
+    description: post.excerpt || post.seo_description,
+    image: post.cover_image_url,
+    datePublished: post.created_at,
+    dateModified: post.updated_at || post.created_at,
+    author: {
+      '@type': 'Person',
+      name: post.author || 'Izadora Cury Pierette',
+      url: siteUrl,
+      jobTitle: 'Full Stack Developer & AI Specialist',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'CatBytes',
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/images/og-1200x630-safe.webp`,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': shareUrl,
+    },
+    keywords: (post.keywords || []).join(', '),
+    articleSection: post.category,
+    inLanguage: locale,
+    wordCount: post.content ? post.content.split(/\s+/).length : 0,
+  }
+  
+  // Breadcrumb JSON-LD
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: `${siteUrl}/${locale}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: locale === 'pt-BR' ? 'Blog' : 'Blog',
+        item: `${siteUrl}/${locale}/blog`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: post.title,
+        item: shareUrl,
+      },
+    ],
+  }
+  
+  // FAQ JSON-LD (if FAQs exist in content)
+  const faqJsonLd = faqItems.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map((faq: { question: string; answer: string }) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  } : null
 
   // Inicia a busca por posts relacionados assim que o post existir
   const relatedPostsPromise: Promise<BlogPost[]> = post.category
     ? getRelatedPosts(post.category, locale, 3)
     : Promise.resolve([])
-
-  // Extract FAQ items using centralized function
-  const faqItems = extractFaqItems(post.content)
 
   // Extrair imagens do conteúdo
   const extractImagesFromContent = (content: string): string[] => {
@@ -147,99 +254,66 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   // Aguarda os relacionados após processar o restante
   const relatedPosts = await relatedPostsPromise
+  
+  const formattedDate = format(new Date(post.created_at), 'dd MMMM yyyy', { locale: dateLocale })
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Article Schema.org JSON-LD */}
+      {/* Article JSON-LD */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            headline: post.title,
-            image: post.cover_image_url,
-            datePublished: post.created_at,
-            dateModified: post.updated_at,
-            author: {
-              '@type': 'Person',
-              name: post.author,
-            },
-            publisher: {
-              '@type': 'Organization',
-              name: 'CatBytes AI',
-              logo: {
-                '@type': 'ImageObject',
-                url: `${siteUrl}/images/logo-desenvolvedora.webp`,
-              },
-            },
-            description: post.excerpt,
-            mainEntityOfPage: {
-              '@type': 'WebPage',
-              '@id': canonicalUrl,
-            },
-          }),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
-
-      {/* Breadcrumb Schema */}
+      
+      {/* Breadcrumb JSON-LD */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'BreadcrumbList',
-            itemListElement: [
-              {
-                '@type': 'ListItem',
-                position: 1,
-                name: locale === 'pt-BR' ? 'Início' : 'Home',
-                item: `${siteUrl}/${locale}`,
-              },
-              {
-                '@type': 'ListItem',
-                position: 2,
-                name: 'Blog',
-                item: `${siteUrl}/${locale}/blog`,
-              },
-              {
-                '@type': 'ListItem',
-                position: 3,
-                name: post.title,
-                item: canonicalUrl,
-              },
-            ],
-          }),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-
-      {/* FAQ Schema (if FAQ section exists) */}
-      {faqItems.length > 0 && (
+      
+      {/* FAQ JSON-LD (if exists) */}
+      {faqJsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'FAQPage',
-              mainEntity: faqItems.map(faq => ({
-                '@type': 'Question',
-                name: faq.question,
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: faq.answer,
-                },
-              })),
-            }),
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       )}
-
+      
       <ViewCounter slug={slug} locale={locale} />
       <AnalyticsTracker 
         postId={post.id}
         postSlug={slug}
         title={post.title}
       />
+      
+      {/* Breadcrumb Navigation */}
+      <nav aria-label="Breadcrumb" className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          <ol className="flex items-center space-x-2 text-sm">
+            <li>
+              <Link 
+                href={`/${locale}`}
+                className="text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 transition-colors"
+              >
+                {locale === 'pt-BR' ? 'Início' : 'Home'}
+              </Link>
+            </li>
+            <li className="text-gray-400">/</li>
+            <li>
+              <Link 
+                href={`/${locale}/blog`}
+                className="text-gray-500 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 transition-colors"
+              >
+                Blog
+              </Link>
+            </li>
+            <li className="text-gray-400">/</li>
+            <li className="text-gray-900 dark:text-white font-medium truncate max-w-md">
+              {post.title}
+            </li>
+          </ol>
+        </div>
+      </nav>
       
       {/* Cover Image Hero */}
       <div className="relative w-full h-[300px] md:h-[400px] bg-gradient-to-br from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600">

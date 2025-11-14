@@ -5,19 +5,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://catbytes.site'
   const lastModified = new Date()
 
-  // Static pages
+  // Static pages with optimized priorities
   const routes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified,
       changeFrequency: 'daily',
-      priority: 1,
+      priority: 1.0,
     },
     {
       url: `${baseUrl}/pt-BR`,
       lastModified,
       changeFrequency: 'daily',
-      priority: 1,
+      priority: 1.0,
     },
     {
       url: `${baseUrl}/en-US`,
@@ -65,13 +65,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/pt-BR/blog`,
       lastModified,
       changeFrequency: 'daily',
-      priority: 0.9,
+      priority: 0.95,
     },
     {
       url: `${baseUrl}/en-US/blog`,
       lastModified,
       changeFrequency: 'daily',
-      priority: 0.8,
+      priority: 0.85,
     },
   ]
 
@@ -82,20 +82,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    // Blog posts
+    // Blog posts with dynamic priorities based on recency
     const { data: posts } = await supabase
       .from('blog_posts')
-      .select('slug, language, updated_at, created_at')
-      .eq('status', 'published')
+      .select('slug, locale, updated_at, created_at, published')
+      .eq('published', true)
       .order('created_at', { ascending: false })
 
     if (posts && posts.length > 0) {
-      const blogPosts: MetadataRoute.Sitemap = posts.map((post) => ({
-        url: `${baseUrl}/${post.language}/blog/${post.slug}`,
-        lastModified: new Date(post.updated_at || post.created_at),
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      }))
+      const now = new Date().getTime()
+      const oneWeek = 7 * 24 * 60 * 60 * 1000
+      const oneMonth = 30 * 24 * 60 * 60 * 1000
+      
+      const blogPosts: MetadataRoute.Sitemap = posts.map((post, index) => {
+        const postDate = new Date(post.updated_at || post.created_at).getTime()
+        const age = now - postDate
+        
+        // Dynamic priority based on age and position
+        let priority = 0.7
+        if (index < 5) priority = 0.9 // Most recent posts
+        else if (age < oneWeek) priority = 0.85 // Posts from last week
+        else if (age < oneMonth) priority = 0.75 // Posts from last month
+        
+        // More frequent updates for recent posts
+        const changeFreq = age < oneWeek ? 'daily' : age < oneMonth ? 'weekly' : 'monthly'
+        
+        return {
+          url: `${baseUrl}/${post.locale || 'pt-BR'}/blog/${post.slug}`,
+          lastModified: new Date(post.updated_at || post.created_at),
+          changeFrequency: changeFreq as 'daily' | 'weekly' | 'monthly',
+          priority,
+        }
+      })
 
       routes.push(...blogPosts)
     }
@@ -103,7 +121,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Landing pages
     const { data: landingPages } = await supabase
       .from('landing_pages')
-      .select('slug, updated_at, created_at')
+      .select('slug, updated_at, created_at, status')
       .eq('status', 'published')
       .order('created_at', { ascending: false })
 
@@ -118,7 +136,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       routes.push(...lpPages)
     }
   } catch (error) {
-    console.error('Error fetching blog posts for sitemap:', error)
+    console.error('[Sitemap] Error fetching dynamic routes:', error)
   }
 
   return routes
