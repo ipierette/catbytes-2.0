@@ -343,24 +343,41 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
     setMessage(null)
 
     try {
-      const { error } = await supabase
+      // 1. Primeiro salvar o post como aprovado e agendado para agora
+      const { data: savedPost, error: saveError } = await supabase
         .from('instagram_posts')
         .insert({
           nicho: generatedContent.nicho,
           titulo: generatedContent.titulo,
-          texto_imagem: generatedContent.titulo.substring(0, 100), // Título truncado para max 100 chars
+          texto_imagem: generatedContent.titulo.substring(0, 100),
           caption: generatedContent.caption,
           image_url: uploadedImageUrl,
-          status: 'published',
+          status: 'approved',
           scheduled_for: new Date().toISOString(),
+          approved_at: new Date().toISOString(),
+          approved_by: 'admin',
           generation_method: 'text-only-manual'
         })
+        .select()
+        .single()
 
-      if (error) {
-        throw error
+      if (saveError) throw saveError
+
+      // 2. Publicar imediatamente no Instagram
+      const publishResponse = await fetch('/api/instagram/publish-now', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postId: savedPost.id
+        })
+      })
+
+      if (!publishResponse.ok) {
+        const errorData = await publishResponse.json()
+        throw new Error(errorData.error || 'Erro ao publicar no Instagram')
       }
 
-      setMessage({ type: 'success', text: 'Post publicado imediatamente! 🚀' })
+      setMessage({ type: 'success', text: '🎉 Post publicado com sucesso no Instagram!' })
       
       setTimeout(() => {
         onSuccess?.()
@@ -370,7 +387,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
 
     } catch (error: any) {
       console.error('Erro ao postar:', error)
-      setMessage({ type: 'error', text: error.message })
+      setMessage({ type: 'error', text: error.message || 'Erro ao postar no Instagram' })
     } finally {
       setLoading(false)
     }
