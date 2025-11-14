@@ -7,6 +7,7 @@ import type { AIGeneratedPost, BlogPostInsert } from '@/types/blog'
 import { getNewPostEmailHTML } from '@/lib/email-templates'
 import { translatePostToEnglish, estimateTranslationCost } from '@/lib/translation-service'
 import { autoSubmitBlogPost } from '@/lib/google-indexing'
+import { promoteArticle } from '@/lib/blog-social-promoter'
 import { 
   getCurrentBlogTheme, 
   getRandomTopicForTheme, 
@@ -600,6 +601,56 @@ Responda APENAS com JSON válido.`
       console.log('[Generate] ⚠️ Post is draft (textOnly mode) - skipping newsletter')
     } else {
       console.log('[Generate] ⚠️ Resend not configured - skipping newsletter')
+    }
+
+    // ====== STEP 4.5: Promote on social media (Instagram & LinkedIn) ======
+    if (createdPost.published && coverImageUrl && !textOnly) {
+      try {
+        console.log('[Generate] 📱 Promoting article on social media...')
+        
+        const promotionResults = await promoteArticle(
+          {
+            id: createdPost.id,
+            title: createdPost.title,
+            excerpt: createdPost.excerpt || '',
+            slug: createdPost.slug,
+            cover_image_url: coverImageUrl,
+            category: selectedCategory,
+            tags: selectedKeywords
+          },
+          ['instagram', 'linkedin']
+        )
+        
+        const successes: string[] = []
+        const failures: string[] = []
+        
+        if (promotionResults.instagram?.success) {
+          successes.push('Instagram')
+        } else if (promotionResults.instagram?.error) {
+          failures.push(`Instagram: ${promotionResults.instagram.error}`)
+        }
+        
+        if (promotionResults.linkedin?.success) {
+          successes.push('LinkedIn')
+        } else if (promotionResults.linkedin?.error) {
+          failures.push(`LinkedIn: ${promotionResults.linkedin.error}`)
+        }
+        
+        if (successes.length > 0) {
+          console.log(`[Generate] ✅ Article promoted on: ${successes.join(', ')}`)
+        }
+        if (failures.length > 0) {
+          console.log(`[Generate] ⚠️ Failed to promote on: ${failures.join(', ')}`)
+        }
+        
+      } catch (promoError) {
+        console.error('[Generate] ❌ Error promoting on social media:', promoError)
+        // Não falha a geração do post se a promoção falhar
+      }
+    } else if (!createdPost.published) {
+      console.log('[Generate] ⚠️ Post is draft - skipping social media promotion')
+    } else if (!coverImageUrl || textOnly) {
+      console.log('[Generate] ⚠️ No cover image - skipping social media promotion')
     }
 
     // ====== STEP 5: Log generation ======

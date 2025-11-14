@@ -3,6 +3,7 @@ import { verifyAdminCookie } from '@/lib/api-security'
 import { supabaseAdmin, generateSlug } from '@/lib/supabase'
 import { Resend } from 'resend'
 import { getNewPostEmailHTML } from '@/lib/email-templates'
+import { promoteArticle } from '@/lib/blog-social-promoter'
 
 const resend = process.env.RESEND_API_KEY 
   ? new Resend(process.env.RESEND_API_KEY) 
@@ -316,6 +317,54 @@ export async function POST(request: NextRequest) {
       console.log('[Manual Post] ⚠️ Post is draft - skipping newsletter')
     } else {
       console.log('[Manual Post] ⚠️ Resend not configured - skipping newsletter')
+    }
+
+    // ====== PROMOVER NAS REDES SOCIAIS ======
+    if (post.published && post.cover_image_url) {
+      try {
+        console.log('[Manual Post] 📱 Promoting article on social media...')
+        
+        const promotionResults = await promoteArticle(
+          {
+            id: post.id,
+            title: post.title,
+            excerpt: post.excerpt || '',
+            slug: post.slug,
+            cover_image_url: post.cover_image_url,
+            category: post.category,
+            tags: post.tags
+          },
+          ['instagram', 'linkedin']
+        )
+        
+        const successes: string[] = []
+        const failures: string[] = []
+        
+        if (promotionResults.instagram?.success) {
+          successes.push('Instagram')
+        } else if (promotionResults.instagram?.error) {
+          failures.push(`Instagram: ${promotionResults.instagram.error}`)
+        }
+        
+        if (promotionResults.linkedin?.success) {
+          successes.push('LinkedIn')
+        } else if (promotionResults.linkedin?.error) {
+          failures.push(`LinkedIn: ${promotionResults.linkedin.error}`)
+        }
+        
+        if (successes.length > 0) {
+          console.log(`[Manual Post] ✅ Article promoted on: ${successes.join(', ')}`)
+        }
+        if (failures.length > 0) {
+          console.log(`[Manual Post] ⚠️ Failed to promote on: ${failures.join(', ')}`)
+        }
+        
+      } catch (promoError) {
+        console.error('[Manual Post] ❌ Error promoting on social media:', promoError)
+        // Não falha a criação do post se a promoção falhar
+      }
+    } else if (!post.cover_image_url) {
+      console.log('[Manual Post] ⚠️ No cover image - skipping social media promotion')
     }
 
     return NextResponse.json({ 
