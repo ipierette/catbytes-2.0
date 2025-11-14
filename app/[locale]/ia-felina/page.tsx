@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { AIFeatures } from '@/components/sections/ai-features'
+import { BreadcrumbStructuredData } from '@/components/seo/breadcrumb-structured-data'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -20,16 +21,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: `https://catbytes.com/${locale}/ia-felina`,
+      canonical: `https://catbytes.site/${locale}/ia-felina`,
       languages: {
-        'pt-BR': 'https://catbytes.com/pt-BR/ia-felina',
-        'en-US': 'https://catbytes.com/en-US/feline-ai'
+        'pt-BR': 'https://catbytes.site/pt-BR/ia-felina',
+        'en-US': 'https://catbytes.site/en-US/feline-ai'
       }
     },
     openGraph: {
       type: 'website',
       locale: locale === 'pt-BR' ? 'pt_BR' : 'en_US',
-      url: `https://catbytes.com/${locale}/ia-felina`,
+      url: `https://catbytes.site/${locale}/ia-felina`,
       title,
       description,
       siteName: 'CatBytes',
@@ -84,7 +85,7 @@ function generateAIFeaturesStructuredData(locale: string) {
     author: {
       '@type': 'Person',
       name: 'Izadora Cury Pierette',
-      url: 'https://catbytes.com'
+      url: 'https://catbytes.site'
     },
     featureList: locale === 'pt-BR'
       ? 'Identificar raça de gatos, Gerar anúncios de adoção, Encontrar gatos para adotar'
@@ -95,9 +96,15 @@ function generateAIFeaturesStructuredData(locale: string) {
 export default async function IAFelinaPage({ params }: Props) {
   const { locale } = await params
   const structuredData = generateAIFeaturesStructuredData(locale)
+  
+  const breadcrumbItems = [
+    { name: 'Home', url: 'https://catbytes.site' },
+    { name: locale === 'pt-BR' ? 'IA Felina' : 'Feline AI', url: `https://catbytes.site/${locale}/ia-felina` },
+  ]
 
   return (
     <>
+      <BreadcrumbStructuredData items={breadcrumbItems} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

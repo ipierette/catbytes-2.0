@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { About } from '@/components/sections/about'
 import { Skills } from '@/components/sections/skills'
 import { Contact } from '@/components/sections/contact'
+import { BreadcrumbStructuredData } from '@/components/seo/breadcrumb-structured-data'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -22,16 +23,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: `https://catbytes.com/${locale}/sobre`,
+      canonical: `https://catbytes.site/${locale}/sobre`,
       languages: {
-        'pt-BR': 'https://catbytes.com/pt-BR/sobre',
-        'en-US': 'https://catbytes.com/en-US/about'
+        'pt-BR': 'https://catbytes.site/pt-BR/sobre',
+        'en-US': 'https://catbytes.site/en-US/about'
       }
     },
     openGraph: {
       type: 'profile',
       locale: locale === 'pt-BR' ? 'pt_BR' : 'en_US',
-      url: `https://catbytes.com/${locale}/sobre`,
+      url: `https://catbytes.site/${locale}/sobre`,
       title,
       description,
       siteName: 'CatBytes',
@@ -77,8 +78,8 @@ function generatePersonStructuredData(locale: string) {
     description: locale === 'pt-BR' 
       ? 'Desenvolvedora front-end especializada em React, Next.js e TypeScript'
       : 'Front-end developer specialized in React, Next.js and TypeScript',
-    url: 'https://catbytes.com',
-    image: 'https://catbytes.com/images/izadora-pierette.jpg',
+    url: 'https://catbytes.site',
+    image: 'https://catbytes.site/images/izadora-pierette.jpg',
     sameAs: [
       'https://github.com/ipierette',
       'https://linkedin.com/in/izadora-pierette',
@@ -119,9 +120,15 @@ function generatePersonStructuredData(locale: string) {
 export default async function SobrePage({ params }: Props) {
   const { locale } = await params
   const structuredData = generatePersonStructuredData(locale)
+  
+  const breadcrumbItems = [
+    { name: 'Home', url: 'https://catbytes.site' },
+    { name: locale === 'pt-BR' ? 'Sobre' : 'About', url: `https://catbytes.site/${locale}/sobre` },
+  ]
 
   return (
     <>
+      <BreadcrumbStructuredData items={breadcrumbItems} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

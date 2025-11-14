@@ -260,41 +260,6 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         
-        {/* Meta tags adicionais para redes sociais */}
-        <meta property="og:image" content="https://catbytes.site/images/og-1200x630.jpg" />
-        <meta property="og:image:secure_url" content="https://catbytes.site/images/og-1200x630.jpg" />
-        <meta property="og:image:type" content="image/jpeg" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="CatBytes - Portfólio de Izadora Cury Pierette - Desenvolvimento Web, React, Next.js e IA" />
-        
-        {/* Twitter/X Cards */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@catbytes" />
-        <meta name="twitter:creator" content="@catbytes" />
-        <meta name="twitter:title" content="CatBytes - Izadora Cury Pierette | Desenvolvimento Web, IA e Automação" />
-        <meta name="twitter:description" content="Portfólio de Izadora Cury Pierette: projetos que unem design moderno, código limpo e soluções com inteligência artificial." />
-        <meta name="twitter:image" content="https://catbytes.site/images/og-twitter-800x418.jpg" />
-        <meta name="twitter:image:alt" content="CatBytes - Portfólio de Izadora Pierette" />
-        
-        {/* LinkedIn */}
-        <meta property="og:image" content="https://catbytes.site/images/og-linkedin-1200x600.jpg" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="600" />
-        
-        {/* WhatsApp (usa og:image square) */}
-        <link rel="image_src" href="https://catbytes.site/images/og-whatsapp-1200x1200.jpg" />
-        
-        {/* Instagram/Facebook */}
-        <meta property="og:image" content="https://catbytes.site/images/og-instagram-1080x1080.jpg" />
-        <meta property="og:image:width" content="1080" />
-        <meta property="og:image:height" content="1080" />
-        
-        {/* Favicon e touch icons */}
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=2" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=2" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=2" />
-        
         {/* Preconnect para performance */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />

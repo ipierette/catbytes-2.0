@@ -1,6 +1,21 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
+/**
+ * Dynamic Sitemap for CatBytes
+ * Generates sitemap with optimized priorities based on content freshness
+ * 
+ * Priority Strategy:
+ * - Homepage: 1.0 (highest)
+ * - Main pages (pt-BR): 1.0
+ * - Main pages (en-US): 0.9
+ * - Blog page: 0.95
+ * - Recent blog posts (top 5): 0.9
+ * - Posts < 1 week: 0.85
+ * - Posts < 1 month: 0.75
+ * - Older posts: 0.7
+ * - Landing pages: 0.8
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://catbytes.site'
   const lastModified = new Date()

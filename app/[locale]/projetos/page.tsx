@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { Projects } from '@/components/sections/projects'
+import { BreadcrumbStructuredData } from '@/components/seo/breadcrumb-structured-data'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -20,16 +21,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: `https://catbytes.com/${locale}/projetos`,
+      canonical: `https://catbytes.site/${locale}/projetos`,
       languages: {
-        'pt-BR': 'https://catbytes.com/pt-BR/projetos',
-        'en-US': 'https://catbytes.com/en-US/projects'
+        'pt-BR': 'https://catbytes.site/pt-BR/projetos',
+        'en-US': 'https://catbytes.site/en-US/projects'
       }
     },
     openGraph: {
       type: 'website',
       locale: locale === 'pt-BR' ? 'pt_BR' : 'en_US',
-      url: `https://catbytes.com/${locale}/projetos`,
+      url: `https://catbytes.site/${locale}/projetos`,
       title,
       description,
       siteName: 'CatBytes',
@@ -71,17 +72,17 @@ function generateProjectsStructuredData(locale: string) {
     description: locale === 'pt-BR' 
       ? 'Portfolio de projetos de desenvolvimento web'
       : 'Web development projects portfolio',
-    url: `https://catbytes.com/${locale}/projetos`,
+    url: `https://catbytes.site/${locale}/projetos`,
     author: {
       '@type': 'Person',
       name: 'Izadora Cury Pierette',
       jobTitle: 'Front-end Developer',
-      url: 'https://catbytes.com'
+      url: 'https://catbytes.site'
     },
     isPartOf: {
       '@type': 'WebSite',
       name: 'CatBytes',
-      url: 'https://catbytes.com'
+      url: 'https://catbytes.site'
     }
   }
 }
@@ -89,9 +90,15 @@ function generateProjectsStructuredData(locale: string) {
 export default async function ProjetosPage({ params }: Props) {
   const { locale } = await params
   const structuredData = generateProjectsStructuredData(locale)
+  
+  const breadcrumbItems = [
+    { name: 'Home', url: 'https://catbytes.site' },
+    { name: locale === 'pt-BR' ? 'Projetos' : 'Projects', url: `https://catbytes.site/${locale}/projetos` },
+  ]
 
   return (
     <>
+      <BreadcrumbStructuredData items={breadcrumbItems} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

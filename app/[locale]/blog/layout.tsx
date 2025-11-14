@@ -48,6 +48,17 @@ export async function generateMetadata({
     title: t.title,
     description: t.description,
     keywords: t.keywords,
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      }
+    },
     openGraph: {
       type: 'website',
       locale: locale === 'pt-BR' ? 'pt_BR' : 'en_US',
