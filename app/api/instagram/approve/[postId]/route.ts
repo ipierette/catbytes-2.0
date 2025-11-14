@@ -7,6 +7,10 @@ export async function POST(
 ) {
   try {
     const { postId } = await params
+    
+    // Ler body da requisição para pegar data customizada (se houver)
+    const body = await request.json().catch(() => ({}))
+    const customScheduledFor = body.scheduled_for
 
     // Buscar o post usando supabaseAdmin
     const { data: post, error: fetchError } = await supabaseAdmin
@@ -22,8 +26,23 @@ export async function POST(
       }, { status: 404 })
     }
 
-    // Calcular próxima data de publicação
-    const scheduledDate = calculateNextPublicationDate(new Date())
+    // Usar data customizada se fornecida, senão calcular próxima data automática
+    let scheduledDate: Date
+    
+    if (customScheduledFor) {
+      scheduledDate = new Date(customScheduledFor)
+      
+      // Validar que a data está no futuro
+      if (scheduledDate <= new Date()) {
+        return NextResponse.json({
+          success: false,
+          error: 'A data de agendamento deve ser no futuro'
+        }, { status: 400 })
+      }
+    } else {
+      // Calcular próxima data de publicação automática
+      scheduledDate = calculateNextPublicationDate(new Date())
+    }
 
     // ✅ USAR método approvePost que já salva approved_by
     // Futuramente: extrair email do token de autenticação

@@ -11,6 +11,7 @@ import { AdminGuard } from '@/components/admin/admin-guard'
 import { InstagramEditModal } from '@/components/instagram/instagram-edit-modal'
 import { DALLEConfigModal } from '@/components/instagram/dalle-config-modal'
 import { TextOnlyModal } from '@/components/instagram/text-only-modal'
+import { ScheduleInstagramModal } from '@/components/instagram/schedule-instagram-modal'
 
 interface InstagramPost {
   id: string
@@ -49,6 +50,7 @@ export default function InstagramAdminPage() {
   const [bulkMode, setBulkMode] = useState(false)
   const [editingPost, setEditingPost] = useState<InstagramPost | null>(null)
   const [publishingPostId, setPublishingPostId] = useState<string | null>(null)
+  const [postToSchedule, setPostToSchedule] = useState<InstagramPost | null>(null)
   
   // Novos estados
   const [showDALLEModal, setShowDALLEModal] = useState(false)
@@ -861,6 +863,37 @@ export default function InstagramAdminPage() {
                   <div className="p-4">
                     <h3 className="font-semibold text-sm mb-1 line-clamp-2">{post.titulo}</h3>
                     <p className="text-xs text-muted-foreground line-clamp-2">{post.texto_imagem}</p>
+                    
+                    {/* Data de Agendamento */}
+                    {post.scheduled_for && post.status === 'approved' && (
+                      <div className="mt-2 flex items-center gap-1 text-xs text-blue-600">
+                        <Calendar className="h-3 w-3" />
+                        <span>
+                          {new Date(post.scheduled_for).toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Data de Publicação */}
+                    {post.published_at && post.status === 'published' && (
+                      <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
+                        <CheckCircle className="h-3 w-3" />
+                        <span>
+                          Publicado em {new Date(post.published_at).toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                    )}
+                    
                     {!bulkMode && (
                       <div className="mt-3 flex gap-2">
                         <Button
@@ -881,7 +914,7 @@ export default function InstagramAdminPage() {
                           className="flex-1 gap-1"
                           onClick={(e) => {
                             e.stopPropagation()
-                            handleApprove(post.id)
+                            setPostToSchedule(post)
                           }}
                         >
                           <CheckCircle className="h-3 w-3" />
@@ -982,7 +1015,10 @@ export default function InstagramAdminPage() {
                 </Button>
                 <Button
                   className="flex-1 gap-2 min-w-[140px]"
-                  onClick={() => handleApprove(selectedPost.id)}
+                  onClick={() => {
+                    setPostToSchedule(selectedPost)
+                    setSelectedPost(null)
+                  }}
                 >
                   <CheckCircle className="h-4 w-4" />
                   Aprovar
@@ -1025,6 +1061,16 @@ export default function InstagramAdminPage() {
         onOpenChange={setShowTextOnlyModal}
         onSuccess={loadData}
       />
+      
+      {/* Modal de Agendamento */}
+      {postToSchedule && (
+        <ScheduleInstagramModal
+          open={!!postToSchedule}
+          onOpenChange={(open) => !open && setPostToSchedule(null)}
+          post={postToSchedule}
+          onSuccess={loadData}
+        />
+      )}
       </div>
     </AdminLayoutWrapper>
     </AdminGuard>
