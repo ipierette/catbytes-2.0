@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { Scale, Mail, Shield, FileText, Calendar } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
+import { BreadcrumbStructuredData } from '@/components/seo/breadcrumb-structured-data'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -16,7 +17,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? 'Terms and conditions of use for the CatBytes website. Learn about our rights, duties and policies.'
       : 'Termos e condições de uso do site CatBytes. Conheça nossos direitos, deveres e políticas.',
     keywords: 'terms of use, legal, privacy, catbytes, web development, termos de uso',
-    robots: 'index, follow',
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      }
+    },
     alternates: {
       canonical: `https://catbytes.site/${locale}/termos-de-uso`,
       languages: {
@@ -40,7 +51,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function TermosDeUsoPage({ params }: Props) {
   const { locale } = await params
   const isEnglish = locale === 'en-US'
+  
+  const breadcrumbItems = [
+    { name: 'Home', url: 'https://catbytes.site' },
+    { name: isEnglish ? 'Terms of Use' : 'Termos de Uso', url: `https://catbytes.site/${locale}/termos-de-uso` },
+  ]
+  
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: isEnglish ? 'Terms of Use' : 'Termos de Uso',
+    description: isEnglish 
+      ? 'Terms and conditions of use for the CatBytes website'
+      : 'Termos e condições de uso do site CatBytes',
+    url: `https://catbytes.site/${locale}/termos-de-uso`,
+    inLanguage: locale,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'CatBytes',
+      url: 'https://catbytes.site'
+    }
+  }
+  
   return (
+    <>
+      <BreadcrumbStructuredData items={breadcrumbItems} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-slate-900 dark:to-blue-950 pt-32 pb-20">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
@@ -238,5 +277,6 @@ export default async function TermosDeUsoPage({ params }: Props) {
         </div>
       </div>
     </div>
+    </>
   )
 }

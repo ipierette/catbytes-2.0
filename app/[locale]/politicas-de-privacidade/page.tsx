@@ -1,13 +1,57 @@
 import { Metadata } from 'next'
 import { Shield, Database, Cookie, Mail, Lock, Eye, Globe, FileText, Calendar, Users, Heart, Lightbulb, Briefcase, MessageCircle, TrendingUp, CheckCircle } from 'lucide-react'
+import { BreadcrumbStructuredData } from '@/components/seo/breadcrumb-structured-data'
 
 export const metadata: Metadata = {
   title: 'Políticas da CatBytes e Privacidade | CatBytes',
   description: 'Conheça a cultura, valores e política de privacidade da CatBytes. Transparência, inovação e respeito aos dados.',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    }
+  },
+  alternates: {
+    canonical: 'https://catbytes.site/pt-BR/politicas-de-privacidade',
+    languages: {
+      'pt-BR': 'https://catbytes.site/pt-BR/politicas-de-privacidade',
+      'en-US': 'https://catbytes.site/en-US/privacy-policy',
+    },
+  },
 }
 
 export default function PoliticasPage() {
+  const breadcrumbItems = [
+    { name: 'Home', url: 'https://catbytes.site' },
+    { name: 'Políticas e Privacidade', url: 'https://catbytes.site/pt-BR/politicas-de-privacidade' },
+  ]
+  
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: 'Políticas da CatBytes e Privacidade',
+    description: 'Políticas da empresa, cultura organizacional e política de privacidade da CatBytes',
+    url: 'https://catbytes.site/pt-BR/politicas-de-privacidade',
+    inLanguage: 'pt-BR',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'CatBytes',
+      url: 'https://catbytes.site'
+    }
+  }
+  
   return (
+    <>
+      <BreadcrumbStructuredData items={breadcrumbItems} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+      />
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-slate-900 dark:to-blue-950 pt-32 pb-20">
       <div className="container mx-auto px-4 max-w-5xl">
         {/* Header */}
@@ -397,5 +441,6 @@ export default function PoliticasPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

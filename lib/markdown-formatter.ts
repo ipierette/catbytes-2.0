@@ -168,12 +168,12 @@ export function formatMarkdown(markdown: string): string {
 export function extractFaqItems(markdown: string): Array<{ question: string; answer: string }> {
   const faqItems: Array<{ question: string; answer: string }> = []
   
-  // Encontrar seção FAQ
+  // Encontrar seção FAQ (mais flexível)
   const faqPatterns = [
-    /## Perguntas Frequentes\s*([\s\S]*?)(?=##|$)/i,
-    /## FAQ\s*([\s\S]*?)(?=##|$)/i,
-    /## Frequently Asked Questions\s*([\s\S]*?)(?=##|$)/i,
-    /## Dúvidas Frequentes\s*([\s\S]*?)(?=##|$)/i
+    /##\s*Perguntas?\s*Frequentes?\s*([\s\S]*?)(?=##|$)/i,
+    /##\s*FAQ\s*([\s\S]*?)(?=##|$)/i,
+    /##\s*Frequently Asked Questions\s*([\s\S]*?)(?=##|$)/i,
+    /##\s*Dúvidas?\s*Frequentes?\s*([\s\S]*?)(?=##|$)/i,
   ]
   
   let faqSection = ''
@@ -185,21 +185,50 @@ export function extractFaqItems(markdown: string): Array<{ question: string; ans
     }
   }
   
-  if (faqSection) {
-    // Extrair perguntas numeradas (formato: 1. Pergunta?)
-    const questionMatches = faqSection.match(/(\d+\.\s*[^?]+\?)\s*([\s\S]*?)(?=\d+\.|$)/g)
-    
-    if (questionMatches) {
-      questionMatches.forEach(match => {
-        const [, question, answer] = match.match(/(\d+\.\s*[^?]+\?)\s*([\s\S]*)/) || []
-        if (question && answer) {
-          faqItems.push({
-            question: question.replace(/^\d+\.\s*/, '').trim(),
-            answer: answer.trim()
-          })
-        }
-      })
-    }
+  if (!faqSection) return []
+  
+  // Pattern 1: Perguntas com ### (H3)
+  const h3Pattern = /###\s*([^\n]+\?)\s*\n+([\s\S]*?)(?=###|$)/g
+  let matches = [...faqSection.matchAll(h3Pattern)]
+  
+  if (matches.length > 0) {
+    matches.forEach(match => {
+      const question = match[1].trim()
+      const answer = match[2].trim().split('\n\n')[0].trim() // Pega primeiro parágrafo
+      if (question && answer) {
+        faqItems.push({ question, answer })
+      }
+    })
+    return faqItems
+  }
+  
+  // Pattern 2: Perguntas numeradas (1. Pergunta?)
+  const numberedPattern = /(\d+\.\s*[^\n?]+\?)\s*\n+([\s\S]*?)(?=\d+\.|$)/g
+  matches = [...faqSection.matchAll(numberedPattern)]
+  
+  if (matches.length > 0) {
+    matches.forEach(match => {
+      const question = match[1].replace(/^\d+\.\s*/, '').trim()
+      const answer = match[2].trim().split('\n\n')[0].trim()
+      if (question && answer) {
+        faqItems.push({ question, answer })
+      }
+    })
+    return faqItems
+  }
+  
+  // Pattern 3: Perguntas em negrito (**Pergunta?**)
+  const boldPattern = /\*\*([^\*]+\?)\*\*\s*\n+([\s\S]*?)(?=\*\*|$)/g
+  matches = [...faqSection.matchAll(boldPattern)]
+  
+  if (matches.length > 0) {
+    matches.forEach(match => {
+      const question = match[1].trim()
+      const answer = match[2].trim().split('\n\n')[0].trim()
+      if (question && answer) {
+        faqItems.push({ question, answer })
+      }
+    })
   }
   
   return faqItems

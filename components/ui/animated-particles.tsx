@@ -15,6 +15,7 @@ interface Particle {
 
 export function AnimatedParticles() {
   const [particles, setParticles] = useState<Particle[]>([])
+  const [isMobile, setIsMobile] = useState(false)
 
   const neonColors = [
     'rgba(74, 222, 128, 0.4)', // green-400
@@ -35,14 +36,20 @@ export function AnimatedParticles() {
 
     const width = window.innerWidth
     const height = window.innerHeight
+    const mobile = width < 768
+    setIsMobile(mobile)
 
-    const newParticles: Particle[] = Array.from({ length: 50 }, (_, i) => ({
+    // Reduzir drasticamente partículas no mobile: 50 → 15
+    const particleCount = mobile ? 15 : 50
+
+    const newParticles: Particle[] = Array.from({ length: particleCount }, (_, i) => ({
       id: i,
       color: neonColors[i % neonColors.length],
       initialX: Math.random() * width,
       initialY: Math.random() * height,
       targetY: Math.random() * height,
-      duration: Math.random() * 20 + 10,
+      // Animações mais rápidas no mobile para economizar recursos
+      duration: mobile ? Math.random() * 10 + 8 : Math.random() * 20 + 10,
       delay: Math.random() * 2,
     }))
 
@@ -58,8 +65,12 @@ export function AnimatedParticles() {
           className="absolute w-2 h-2 rounded-full"
           style={{
             backgroundColor: particle.color,
-            filter: 'blur(2px)',
-            boxShadow: `0 0 4px ${particle.color}`,
+            // Reduzir blur no mobile
+            filter: isMobile ? 'blur(1px)' : 'blur(2px)',
+            boxShadow: isMobile ? `0 0 2px ${particle.color}` : `0 0 4px ${particle.color}`,
+            // GPU acceleration
+            willChange: 'transform',
+            transform: 'translateZ(0)',
           }}
           initial={{
             x: particle.initialX,

@@ -4,6 +4,7 @@ import { Inter, Comfortaa } from 'next/font/google'
 import { ToastProvider } from '@/components/ui/toast'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
+import './mobile-performance.css'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -263,14 +264,23 @@ export default async function RootLayout({
         {/* Preconnect para performance */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        
+        {/* Preload critical assets */}
+        <link 
+          rel="preload" 
+          href="/images/gato-sentado.webp" 
+          as="image" 
+          type="image/webp"
+          fetchPriority="high"
+        />
       </head>
       <body className="bg-background text-foreground" suppressHydrationWarning>
-        {/* Google Analytics */}
+        {/* Google Analytics - Carregamento otimizado */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-3P34NX4KV8"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}

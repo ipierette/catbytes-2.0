@@ -121,7 +121,8 @@ export function Hero() {
                 height={250}
                 className="w-48 sm:w-56 md:w-64 lg:w-56 h-auto drop-shadow-2xl"
                 priority
-                fetchPriority="high"
+                loading="eager"
+                quality={90}
               />
             </div>
 
@@ -226,7 +227,9 @@ export function Hero() {
                 height={500}
                 className="absolute -right-12 bottom-0 w-auto h-full object-contain object-bottom drop-shadow-2xl"
                 priority
-                fetchPriority="high"
+                loading="eager"
+                quality={85}
+                sizes="(max-width: 768px) 55vw, 500px"
               />
             </div>
 

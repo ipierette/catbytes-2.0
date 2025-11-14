@@ -1,0 +1,172 @@
+/**
+ * Mobile Performance Optimizations
+ * Criticamente importantes para LCP e FCP
+ */
+
+/* ========================================
+   Critical Mobile Optimizations
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* 1. GPU Acceleration para elementos animados */
+  .motion-div,
+  [class*="motion-"],
+  .animate-float,
+  .animate-bounce-slow {
+    transform: translateZ(0);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  /* 2. Reduzir complexidade de animações */
+  * {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.15s !important;
+  }
+
+  /* 3. Otimizar rendering de imagens */
+  img {
+    content-visibility: auto;
+    will-change: auto;
+  }
+
+  /* 4. Lazy loading nativo para elementos fora da viewport */
+  .lazy-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+  }
+
+  /* 5. Reduzir backdrop-blur (muito pesado no mobile) */
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl {
+    backdrop-filter: blur(4px) !important;
+  }
+
+  .backdrop-blur-md {
+    backdrop-filter: blur(2px) !important;
+  }
+
+  .backdrop-blur-sm {
+    backdrop-filter: blur(1px) !important;
+  }
+
+  /* 6. Simplificar shadows no mobile */
+  .shadow-2xl,
+  .shadow-xl {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+  }
+
+  .drop-shadow-2xl {
+    filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.1)) !important;
+  }
+
+  /* 7. Desabilitar hover effects no mobile */
+  .hover\:scale-105:hover,
+  .hover\:scale-110:hover,
+  .hover\:brightness-110:hover {
+    transform: none !important;
+    filter: none !important;
+  }
+
+  /* 8. Otimizar gradientes (simpler fallbacks) */
+  .bg-gradient-to-br,
+  .bg-gradient-to-r {
+    background-attachment: scroll !important;
+  }
+}
+
+/* ========================================
+   Prevent Layout Shifts (CLS)
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* Reservar espaço para imagens antes de carregar */
+  .hero-section {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height */
+  }
+
+  /* Prevent text reflow */
+  h1, h2, h3, h4, h5, h6 {
+    text-rendering: optimizeSpeed;
+  }
+
+  /* Font display swap para evitar FOIT */
+  @font-face {
+    font-display: swap;
+  }
+}
+
+/* ========================================
+   Reduce Motion (Accessibility + Performance)
+   ======================================== */
+
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========================================
+   Connection Speed Optimizations
+   ======================================== */
+
+/* Desabilitar animações pesadas em conexões lentas */
+@media (max-width: 768px) and (prefers-reduced-data: reduce) {
+  .animate-float,
+  .animate-bounce-slow,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl,
+  .shadow-2xl,
+  .drop-shadow-2xl {
+    animation: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+}
+
+/* ========================================
+   Battery Level Optimizations
+   ======================================== */
+
+/* Reduzir animações quando bateria está baixa */
+@media (max-width: 768px) {
+  /* Detecção via JavaScript, aplica classe .low-battery */
+  .low-battery * {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+  }
+
+  .low-battery .backdrop-blur-lg,
+  .low-battery .backdrop-blur-xl,
+  .low-battery .backdrop-blur-2xl {
+    backdrop-filter: none !important;
+  }
+}
+
+/* ========================================
+   Critical Render Path Optimization
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* Priorizar conteúdo above-the-fold */
+  .below-fold {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 400px;
+  }
+
+  /* Lazy load de seções não críticas */
+  section:not(#hero):not(#about) {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 600px;
+  }
+}

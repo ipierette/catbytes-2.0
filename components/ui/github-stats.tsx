@@ -16,38 +16,43 @@ export function GitHubStats() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchGitHubStats = async () => {
-      try {
-        console.log('[GitHubStats] Fetching data from API...')
+    // Lazy load stats - só carregar após 2s para priorizar LCP
+    const timer = setTimeout(() => {
+      const fetchGitHubStats = async () => {
+        try {
+          console.log('[GitHubStats] Fetching data from API...')
 
-        // Fetch stats from our secure API route
-        const response = await fetch('/api/github-stats')
+          // Fetch stats from our secure API route
+          const response = await fetch('/api/github-stats')
 
-        if (!response.ok) {
-          throw new Error(`API failed: ${response.status}`)
+          if (!response.ok) {
+            throw new Error(`API failed: ${response.status}`)
+          }
+
+          const statsData = await response.json()
+          console.log('[GitHubStats] Stats received:', statsData)
+
+          setStats(statsData)
+        } catch (error) {
+          console.error('[GitHubStats] Error fetching:', error)
+          // Fallback values
+          const fallbackStats = {
+            totalCommits: 250,
+            publicRepos: 18,
+            totalStars: 12,
+            topLanguage: 'TypeScript',
+          }
+          console.log('[GitHubStats] Using fallback:', fallbackStats)
+          setStats(fallbackStats)
+        } finally {
+          setLoading(false)
         }
-
-        const statsData = await response.json()
-        console.log('[GitHubStats] Stats received:', statsData)
-
-        setStats(statsData)
-      } catch (error) {
-        console.error('[GitHubStats] Error fetching:', error)
-        // Fallback values
-        const fallbackStats = {
-          totalCommits: 250,
-          publicRepos: 18,
-          totalStars: 12,
-          topLanguage: 'TypeScript',
-        }
-        console.log('[GitHubStats] Using fallback:', fallbackStats)
-        setStats(fallbackStats)
-      } finally {
-        setLoading(false)
       }
-    }
 
-    fetchGitHubStats()
+      fetchGitHubStats()
+    }, 2000) // Delay 2s para priorizar conteúdo crítico
+
+    return () => clearTimeout(timer)
   }, [])
 
   if (loading) {
