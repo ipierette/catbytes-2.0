@@ -185,7 +185,7 @@ REGRAS:
 - Destaque o principal benefício/aprendizado do artigo
 - Inclua call-to-action claro
 - Máximo 1300 caracteres
-- Não use hashtags demais (máximo 3)
+- OBRIGATÓRIO: Incluir NO MÍNIMO 10 hashtags relevantes e validadas
 - OBRIGATÓRIO: Adicione um emoji de link (👉 ou 🔗) seguido da URL completa do artigo no final
 
 ESTRUTURA:
@@ -193,7 +193,14 @@ ESTRUTURA:
 2. Resumo do conteúdo do artigo
 3. Call-to-action (ler no site + inscrever newsletter)
 4. URL do artigo (com emoji de link)
-5. Hashtags relevantes
+5. NO MÍNIMO 10 hashtags relevantes (separadas por espaço)
+
+HASHTAGS:
+- Devem ser específicas ao tema do artigo
+- Mix de hashtags populares e de nicho
+- Em português e inglês quando aplicável
+- Exemplos de categorias: tecnologia, desenvolvimento, carreira, produtividade, setor específico
+- SEMPRE incluir: #DesenvolvimentoWeb #Tecnologia #Programação
 
 Retorne APENAS o texto do post, sem título ou formatação extra.
 `
@@ -290,14 +297,22 @@ REGRAS:
 - Seja específico sobre como a tecnologia resolve problemas reais
 - Inclua call-to-action sutil
 - Máximo 1500 caracteres
-- Use hashtags relevantes (máximo 4)
+- OBRIGATÓRIO: Incluir NO MÍNIMO 10 hashtags relevantes e validadas
 
 ESTRUTURA:
 1. Hook sobre um desafio comum do nicho
 2. Como o fullstack resolve esse desafio
 3. Benefícios práticos (performance, custos, integração)
 4. Call-to-action (conheça nosso trabalho / visite o site)
-5. Hashtags
+5. NO MÍNIMO 10 hashtags relevantes (separadas por espaço)
+
+HASHTAGS:
+- Devem ser específicas ao tema do post e ao nicho (${nicho})
+- Mix de hashtags populares e de nicho
+- Em português e inglês quando aplicável
+- Categorias: desenvolvimento fullstack, setor específico, tecnologia, negócios
+- SEMPRE incluir: #DesenvolvimentoFullstack #DesenvolvimentoWeb #Tecnologia
+- Incluir hashtags específicas do nicho (ex: #Advocacia #Saúde #Ecommerce)
 
 Retorne APENAS o texto do post.
 `
