@@ -48,15 +48,13 @@ export async function GET(request: NextRequest) {
         since = now - (30 * 24 * 60 * 60 * 1000)
     }
 
-    // URL correta da API do Vercel Analytics
-    const baseUrl = VERCEL_TEAM_ID 
-      ? `https://api.vercel.com/v1/analytics`
-      : `https://api.vercel.com/v1/analytics`
+    // Construir URL com teamId se disponível
+    let baseUrl = `https://vercel.com/api/web/insights/stats`
     
     const params = new URLSearchParams({
       projectId: VERCEL_PROJECT_ID,
-      since: since.toString(),
-      until: now.toString(),
+      from: since.toString(),
+      to: now.toString(),
     })
     
     if (VERCEL_TEAM_ID) {
@@ -65,21 +63,49 @@ export async function GET(request: NextRequest) {
 
     const url = `${baseUrl}?${params.toString()}`
 
-    console.log('[Vercel Analytics] Fetching from:', url.replace(VERCEL_TOKEN!, 'REDACTED'))
+    console.log('[Vercel Analytics] Fetching:', {
+      projectId: VERCEL_PROJECT_ID,
+      teamId: VERCEL_TEAM_ID,
+      period,
+      hasToken: !!VERCEL_TOKEN
+    })
 
     const response = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${VERCEL_TOKEN}`,
+        'Content-Type': 'application/json'
       }
     })
 
     if (!response.ok) {
-      const error = await response.text()
-      console.error('[Vercel Analytics] API Error:', response.status, error)
+      const errorText = await response.text()
+      console.error('[Vercel Analytics] API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      })
+      
+      // Se for 404, a API pode não estar disponível para este plano
+      if (response.status === 404) {
+        return NextResponse.json({
+          error: 'Endpoint não encontrado',
+          message: 'O Vercel Analytics pode não estar disponível para o seu plano atual. Use o dashboard do Vercel para ver os dados.',
+          configured: true,
+          apiError: true,
+          debug: {
+            status: response.status,
+            endpoint: baseUrl,
+            hasToken: !!VERCEL_TOKEN,
+            hasProjectId: !!VERCEL_PROJECT_ID,
+            hasTeamId: !!VERCEL_TEAM_ID,
+            errorDetails: errorText
+          }
+        }, { status: 200 })
+      }
       
       return NextResponse.json({
         error: 'Erro ao buscar dados do Vercel',
-        message: `Status ${response.status}: ${error}`,
+        message: `Status ${response.status}: ${errorText}`,
         configured: true,
         apiError: true,
         debug: {
