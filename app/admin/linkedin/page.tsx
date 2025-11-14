@@ -36,6 +36,7 @@ export default function LinkedInAdminPage() {
   const [generating, setGenerating] = useState(false)
   const [generatingImage, setGeneratingImage] = useState(false)
   const [publishing, setPublishing] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   // Buscar artigos do blog
   useEffect(() => {
@@ -82,13 +83,10 @@ export default function LinkedInAdminPage() {
       const data = await response.json()
       setPostText(data.postText)
       setImagePrompt(data.imagePrompt)
-      setImageUrl(data.imageUrl || '') // Imagem já gerada pelo backend
+      // NÃO gerar imagem automaticamente
+      setImageUrl('')
 
-      if (data.imageUrl) {
-        showToast('✨ Post e imagem gerados com sucesso!', 'success')
-      } else {
-        showToast('✨ Post gerado! (Imagem não foi gerada)', 'success')
-      }
+      showToast('✨ Post gerado! Clique em "Gerar Imagem" se desejar adicionar uma imagem.', 'success')
     } catch (error) {
       showToast('Não foi possível gerar o post', 'error')
     } finally {
@@ -127,8 +125,54 @@ export default function LinkedInAdminPage() {
     }
   }
 
-  // Publicar no LinkedIn
-  const handlePublish = async () => {
+  // Salvar post na fila
+  const handleSavePost = async () => {
+    if (!postText.trim()) {
+      showToast('O texto do post não pode estar vazio', 'error')
+      return
+    }
+
+    setSaving(true)
+    try {
+      const response = await fetch('/api/linkedin/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save',
+          text: postText,
+          image_url: imageUrl || null,
+          post_type: postType,
+          article_slug: postType === 'blog-article' ? selectedArticle : null,
+          as_organization: asOrganization
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Erro ao salvar')
+      }
+
+      const data = await response.json()
+
+      showToast('💾 ' + data.message, 'success')
+
+      // Limpar formulário
+      setPostText('')
+      setImagePrompt('')
+      setImageUrl('')
+      setSelectedArticle('')
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : 'Erro ao salvar',
+        'error'
+      )
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Publicar imediatamente no LinkedIn
+  const handlePublishNow = async () => {
     if (!postText.trim()) {
       showToast('O texto do post não pode estar vazio', 'error')
       return
@@ -364,29 +408,51 @@ export default function LinkedInAdminPage() {
                 </Button>
               </div>
 
-              <Button
-                onClick={handlePublish}
-                disabled={publishing || !postText.trim()}
-                className="w-full"
-                size="lg"
-              >
-                {publishing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Publicando...
-                  </>
-                ) : (
-                  <>
-                    <Send className="mr-2 h-4 w-4" />
-                    Publicar no LinkedIn
-                  </>
-                )}
-              </Button>
+              <div className="space-y-3">
+                <Button
+                  onClick={handleSavePost}
+                  disabled={saving || !postText.trim()}
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  size="lg"
+                >
+                  {saving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      💾 Salvar na Fila
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  onClick={handlePublishNow}
+                  disabled={publishing || !postText.trim()}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  size="lg"
+                  variant="default"
+                >
+                  {publishing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Publicando...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Postar Agora no LinkedIn
+                    </>
+                  )}
+                </Button>
+              </div>
 
               <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg text-sm text-blue-900 dark:text-blue-100">
                 <p className="font-medium mb-1">💡 Dica</p>
                 <p className="text-xs leading-relaxed">
-                  Revise sempre o conteúdo antes de publicar. Posts com imagem têm ~2x mais engajamento!
+                  <strong>Salvar na Fila:</strong> Armazena o post para agendar depois<br />
+                  <strong>Postar Agora:</strong> Publica imediatamente no LinkedIn
                 </p>
               </div>
             </CardContent>
