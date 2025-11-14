@@ -342,23 +342,30 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           {/* Share Section */}
           <div className="p-8 md:p-12 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
             <div className="max-w-4xl mx-auto">
-              <div className="flex items-center gap-3 mb-6">
-                <Share2 className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-                <h3 className="font-bold text-xl text-gray-900 dark:text-white">
-                  {locale === 'pt-BR' ? 'Compartilhar este artigo' : 'Share this article'}
-                </h3>
-              </div>
-              
-              <ShareButtons 
-                url={shareUrl}
-                title={post.title}
-                excerpt={post.excerpt}
-                size="lg"
-              />
-              
-              {/* Manifesto Button */}
-              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 flex justify-center">
-                <ManifestoButton variant="outline" />
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+                {/* Left: Share */}
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-6">
+                    <Share2 className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+                    <h3 className="font-bold text-xl text-gray-900 dark:text-white">
+                      {locale === 'pt-BR' ? 'Compartilhar este artigo' : 'Share this article'}
+                    </h3>
+                  </div>
+                  
+                  <ShareButtons 
+                    url={shareUrl}
+                    title={post.title}
+                    excerpt={post.excerpt}
+                    size="lg"
+                  />
+                </div>
+
+                {/* Right: Manifesto */}
+                <div className="flex-shrink-0 lg:w-auto">
+                  <div className="flex flex-col items-center lg:items-end gap-4 pt-0 lg:pt-2">
+                    <ManifestoButton />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
