@@ -33,6 +33,14 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Verificar se supabaseAdmin está configurado
+    if (!supabaseAdmin) {
+      return NextResponse.json({
+        success: false,
+        error: 'Supabase admin client not configured'
+      }, { status: 500 })
+    }
+
     // Buscar o artigo
     const { data: post, error: fetchError } = await supabaseAdmin
       .from('blog_posts')
