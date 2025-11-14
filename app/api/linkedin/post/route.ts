@@ -53,9 +53,15 @@ export async function POST(request: NextRequest) {
     let authorUrn: string
     
     if (asOrganization && settings.organization_urn) {
-      authorUrn = settings.organization_urn
+      // Garantir formato correto: urn:li:organization:ID
+      authorUrn = settings.organization_urn.startsWith('urn:li:') 
+        ? settings.organization_urn 
+        : `urn:li:organization:${settings.organization_urn}`
     } else if (settings.person_urn) {
-      authorUrn = settings.person_urn
+      // Garantir formato correto: urn:li:person:ID
+      authorUrn = settings.person_urn.startsWith('urn:li:') 
+        ? settings.person_urn 
+        : `urn:li:person:${settings.person_urn}`
     } else {
       return NextResponse.json(
         { error: 'Person URN não configurado. Execute scripts/get-linkedin-urns.js' },
@@ -64,8 +70,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[LinkedIn Post] Criando post como:', authorUrn)
+    console.log('[LinkedIn Post] Criando post como:', authorUrn)
+    console.log('[LinkedIn Post] Tipo:', asOrganization ? 'Organization' : 'Person')
 
-    // Montar payload do post
+    // Montar payload do post seguindo exatamente a documentação do LinkedIn
     const postData: any = {
       author: authorUrn,
       lifecycleState: 'PUBLISHED',
@@ -74,7 +82,7 @@ export async function POST(request: NextRequest) {
           shareCommentary: {
             text: text
           },
-          shareMediaCategory: imageUrl ? 'IMAGE' : 'NONE'
+          shareMediaCategory: 'NONE'
         }
       },
       visibility: {
@@ -82,12 +90,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log('[LinkedIn Post] Payload inicial:', JSON.stringify(postData, null, 2))
+
     // Se houver imagem, fazer upload primeiro
     if (imageUrl) {
       try {
+        console.log('[LinkedIn Post] Iniciando upload de imagem:', imageUrl)
         const uploadedImageUrn = await uploadImageToLinkedIn(imageUrl, settings.access_token, authorUrn)
         
         if (uploadedImageUrn) {
+          console.log('[LinkedIn Post] Imagem enviada com sucesso:', uploadedImageUrn)
+          postData.specificContent['com.linkedin.ugc.ShareContent'].shareMediaCategory = 'IMAGE'
           postData.specificContent['com.linkedin.ugc.ShareContent'].media = [
             {
               status: 'READY',
@@ -95,15 +108,15 @@ export async function POST(request: NextRequest) {
             }
           ]
         } else {
-          console.warn('[LinkedIn Post] Falha no upload da imagem, postando apenas texto')
-          postData.specificContent['com.linkedin.ugc.ShareContent'].shareMediaCategory = 'NONE'
+          console.warn('[LinkedIn Post] ⚠️ Falha no upload da imagem, postando apenas texto')
         }
       } catch (error) {
-        console.error('[LinkedIn Post] Erro ao fazer upload da imagem:', error)
+        console.error('[LinkedIn Post] ❌ Erro ao fazer upload da imagem:', error)
         // Continua e posta só o texto
-        postData.specificContent['com.linkedin.ugc.ShareContent'].shareMediaCategory = 'NONE'
       }
     }
+
+    console.log('[LinkedIn Post] Payload final:', JSON.stringify(postData, null, 2))
 
     // Criar o post
     const response = await fetch('https://api.linkedin.com/v2/ugcPosts', {
@@ -120,14 +133,14 @@ export async function POST(request: NextRequest) {
     const responseData = await response.json()
 
     if (!response.ok) {
-      console.error('[LinkedIn Post] Erro na API:', {
+      console.error('[LinkedIn Post] ❌ Erro na API do LinkedIn:', {
         status: response.status,
         statusText: response.statusText,
         error: responseData,
-        postData
+        postData: JSON.stringify(postData, null, 2)
       })
       
-      // Se for erro de autenticação, dar mensagem mais clara
+      // Mensagens de erro mais específicas
       if (response.status === 401) {
         return NextResponse.json(
           { 
@@ -135,6 +148,18 @@ export async function POST(request: NextRequest) {
             details: responseData 
           },
           { status: 401 }
+        )
+      }
+
+      if (response.status === 422) {
+        return NextResponse.json(
+          { 
+            error: 'Erro de validação no LinkedIn. Verifique se o URN está correto e se você tem permissão para postar.',
+            details: responseData,
+            authorUrn: authorUrn,
+            asOrganization: asOrganization
+          },
+          { status: 422 }
         )
       }
       

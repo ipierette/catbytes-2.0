@@ -24,7 +24,30 @@ export async function GET(request: NextRequest) {
     if (platform === 'instagram') {
       instructions = getInstagramTokenInstructions()
     } else if (platform === 'linkedin') {
-      instructions = getLinkedInTokenInstructions()
+      // Usar novo fluxo OAuth com Sign In
+      const clientId = process.env.LINKEDIN_CLIENT_ID
+      const redirectUri = process.env.LINKEDIN_REDIRECT_URI
+      const crypto = require('crypto')
+      const state = crypto.randomBytes(16).toString('hex')
+      
+      const scopes = 'openid profile email w_member_social'
+      const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri || 'https://catbytes.site/api/linkedin/callback')}&state=${state}&scope=${encodeURIComponent(scopes)}`
+      
+      instructions = {
+        step1: {
+          title: '🔐 Autorizar LinkedIn com Sign In',
+          description: 'Clique no link abaixo para autorizar o aplicativo com os scopes corretos (openid, profile, email, w_member_social)',
+          url: authUrl,
+          note: 'Após autorizar, você receberá um código na URL de redirecionamento. Copie apenas o código.'
+        },
+        step2: {
+          title: '🔄 Cole o código de autorização',
+          description: 'O sistema automaticamente trocará o código por um token válido e atualizará tudo',
+          endpoint: '/api/admin/renew-token',
+          method: 'POST',
+          parameters: { authCode: 'CÓDIGO_DA_URL' }
+        }
+      }
     } else {
       return NextResponse.json({
         success: false,

@@ -21,8 +21,8 @@ async function getPersonURN() {
   console.log('🔍 Buscando Person URN...')
   
   try {
-    // Usando /v2/me que funciona apenas com w_member_social
-    const response = await fetch('https://api.linkedin.com/v2/me', {
+    // Usando /v2/userinfo para obter o ID numérico correto
+    const response = await fetch('https://api.linkedin.com/v2/userinfo', {
       headers: {
         'Authorization': `Bearer ${ACCESS_TOKEN}`,
         'LinkedIn-Version': '202405'
@@ -30,16 +30,51 @@ async function getPersonURN() {
     })
 
     if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Erro ao buscar perfil: ${response.status} - ${error}`)
+      // Se userinfo não funcionar, tentar com /v2/me
+      console.log('⚠️  Endpoint /userinfo falhou, tentando /v2/me...')
+      
+      const meResponse = await fetch('https://api.linkedin.com/v2/me', {
+        headers: {
+          'Authorization': `Bearer ${ACCESS_TOKEN}`,
+          'LinkedIn-Version': '202405'
+        }
+      })
+
+      if (!meResponse.ok) {
+        const error = await meResponse.text()
+        throw new Error(`Erro ao buscar perfil: ${meResponse.status} - ${error}`)
+      }
+
+      const meData = await meResponse.json()
+      console.log('✅ Person URN encontrado via /v2/me!')
+      console.log('📋 Dados do usuário:', JSON.stringify(meData, null, 2))
+      
+      // Extrair apenas o ID numérico se vier no formato errado
+      let personUrn = meData.id
+      
+      // Se o ID vier com vanity name (formato: urn:li:person:nome-sobrenome-123456)
+      // precisamos converter para o formato correto
+      if (personUrn && personUrn.includes('-')) {
+        console.log('⚠️  URN retornado parece ser vanity name:', personUrn)
+        console.log('💡 Você precisa obter o ID numérico manualmente')
+        console.log('   Acesse: https://www.linkedin.com/developers/tools/profile-inspector')
+      }
+      
+      return personUrn
     }
 
     const data = await response.json()
-    console.log('✅ Person URN encontrado!')
+    console.log('✅ Person URN encontrado via /userinfo!')
     console.log('📋 Dados do usuário:', JSON.stringify(data, null, 2))
     
-    // O ID retornado é o Person URN no formato: urn:li:person:XXXXX
-    const personUrn = data.id
+    // O campo 'sub' contém o ID numérico no formato correto
+    // Exemplo: sub = "ABC123XYZ" -> personUrn = "urn:li:person:ABC123XYZ"
+    const personUrn = data.sub ? `urn:li:person:${data.sub}` : null
+    
+    if (!personUrn) {
+      throw new Error('Campo "sub" não encontrado na resposta do /userinfo')
+    }
+    
     return personUrn
   } catch (error) {
     console.error('❌ Erro ao buscar Person URN:', error.message)
