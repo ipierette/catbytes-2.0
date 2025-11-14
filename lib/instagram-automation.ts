@@ -22,6 +22,7 @@ export interface InstagramPost {
   texto_imagem: string
   caption: string
   image_url: string
+  carousel_images?: string[] // Array de URLs para posts em carrossel
   instagram_post_id?: string
   status: 'pending' | 'approved' | 'rejected' | 'published' | 'failed'
   error_message?: string

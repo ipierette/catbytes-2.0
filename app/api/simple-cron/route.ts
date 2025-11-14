@@ -75,30 +75,52 @@ export async function GET(request: NextRequest) {
       } catch (error) {
         results.instagram_batch = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
       }
+    }
 
-      // Instagram publish scheduled posts - seg, qua, sex, dom às 13h
-      if ([1, 3, 5, 0].includes(dayOfWeek)) {
-        console.log('[Simple-Cron] Publishing scheduled Instagram posts...')
-        
-        try {
-          const publishResponse = await fetch(`${baseUrl}/api/instagram/publish-scheduled`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': authHeader || `Bearer ${cronSecret}`,
-            },
-          })
+    // Publicar posts agendados do Instagram e LinkedIn - todos os dias às 13h
+    if (hour === 13) {
+      console.log('[Simple-Cron] Publishing scheduled posts (Instagram & LinkedIn)...')
+      
+      // Instagram scheduled posts
+      try {
+        const publishInstagramResponse = await fetch(`${baseUrl}/api/cron/publish-scheduled-instagram`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authHeader || `Bearer ${cronSecret}`,
+          },
+        })
 
-          if (publishResponse.ok) {
-            const publishResult = await publishResponse.json()
-            results.instagram_publish = { success: true, data: publishResult }
-            console.log('[Simple-Cron] Instagram posts published:', publishResult.published || 0, 'posts')
-          } else {
-            results.instagram_publish = { success: false, error: `Status ${publishResponse.status}` }
-          }
-        } catch (error) {
-          results.instagram_publish = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+        if (publishInstagramResponse.ok) {
+          const publishResult = await publishInstagramResponse.json()
+          results.instagram_scheduled = { success: true, data: publishResult }
+          console.log('[Simple-Cron] Instagram posts published:', publishResult.published || 0, 'posts')
+        } else {
+          results.instagram_scheduled = { success: false, error: `Status ${publishInstagramResponse.status}` }
         }
+      } catch (error) {
+        results.instagram_scheduled = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+      }
+
+      // LinkedIn scheduled posts
+      try {
+        const publishLinkedInResponse = await fetch(`${baseUrl}/api/cron/publish-scheduled-linkedin`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authHeader || `Bearer ${cronSecret}`,
+          },
+        })
+
+        if (publishLinkedInResponse.ok) {
+          const publishResult = await publishLinkedInResponse.json()
+          results.linkedin_scheduled = { success: true, data: publishResult }
+          console.log('[Simple-Cron] LinkedIn posts published:', publishResult.published || 0, 'posts')
+        } else {
+          results.linkedin_scheduled = { success: false, error: `Status ${publishLinkedInResponse.status}` }
+        }
+      } catch (error) {
+        results.linkedin_scheduled = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
       }
     }
 

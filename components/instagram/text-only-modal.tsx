@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Copy, Upload, Image as ImageIcon, CheckCircle } from 'lucide-react'
+import { Copy, Upload, Image as ImageIcon, CheckCircle, Calendar } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getSuggestions, hasCachedSuggestions } from '@/lib/instagram-suggestions-cache'
+import { ScheduleInstagramModal } from '@/components/admin/schedule-instagram-modal'
 
 interface GeneratedContent {
   titulo: string
@@ -31,6 +32,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
   const [generating, setGenerating] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [generatingSuggestion, setGeneratingSuggestion] = useState(false)
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
   
   // Form inicial
   const [nicho, setNicho] = useState('')
@@ -608,28 +610,15 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
 
               {/* Ações Finais */}
               {uploadedImageUrl && (
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleApprove}
-                    disabled={loading}
-                    variant="default"
-                    className="flex-1 gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                    size="lg"
-                  >
-                    <CheckCircle className="h-4 w-4" />
-                    {loading ? 'Aprovando...' : 'Aprovar (Adicionar à Fila)'}
-                  </Button>
-                  
-                  <Button
-                    onClick={handlePostNow}
-                    disabled={loading}
-                    variant="default"
-                    className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
-                    size="lg"
-                  >
-                    {loading ? 'Postando...' : 'Postar Agora'}
-                  </Button>
-                </div>
+                <Button
+                  onClick={() => setShowScheduleModal(true)}
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  size="lg"
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Agendar ou Publicar
+                </Button>
               )}
 
               <Button
@@ -643,6 +632,22 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
           )}
         </div>
       </DialogContent>
+
+      {/* Modal de Agendamento */}
+      {generatedContent && uploadedImageUrl && (
+        <ScheduleInstagramModal
+          open={showScheduleModal}
+          onOpenChange={setShowScheduleModal}
+          post={{
+            caption: generatedContent.caption,
+            image_url: uploadedImageUrl
+          }}
+          onSuccess={() => {
+            handleReset()
+            onSuccess?.()
+          }}
+        />
+      )}
     </Dialog>
   )
 }

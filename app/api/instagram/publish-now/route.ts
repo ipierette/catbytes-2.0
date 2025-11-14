@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { instagramDB } from '@/lib/instagram-db'
-import { publishInstagramPost } from '@/lib/instagram-automation'
 
 /**
  * POST - Publica um post imediatamente no Instagram
@@ -29,24 +28,86 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Publicar no Instagram
+    // Publicar no Instagram via API
     console.log('[Instagram Publish Now] Publishing post:', postId)
     
-    const result = await publishInstagramPost(post)
+    const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN
+    const accountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID
 
-    if (!result.success) {
-      throw new Error(result.error || 'Erro ao publicar no Instagram')
+    if (!accessToken || !accountId) {
+      throw new Error('Instagram API não configurada')
     }
 
-    console.log('[Instagram Publish Now] ✅ Post published:', result.instagramId)
+    // Criar container
+    let containerParams: any
+
+    if (post.carousel_images && post.carousel_images.length > 0) {
+      // Carrossel
+      const childrenIds = await createCarouselChildren(post.carousel_images, accessToken, accountId)
+      containerParams = {
+        caption: post.caption,
+        media_type: 'CAROUSEL',
+        children: childrenIds,
+        access_token: accessToken
+      }
+    } else {
+      // Imagem única
+      containerParams = {
+        image_url: post.image_url,
+        caption: post.caption,
+        access_token: accessToken
+      }
+    }
+
+    const containerResponse = await fetch(
+      `https://graph.facebook.com/v21.0/${accountId}/media`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(containerParams)
+      }
+    )
+
+    if (!containerResponse.ok) {
+      const errorData = await containerResponse.json()
+      throw new Error(errorData.error?.message || 'Erro ao criar container')
+    }
+
+    const { id: containerId } = await containerResponse.json()
+
+    // Publicar container
+    const publishResponse = await fetch(
+      `https://graph.facebook.com/v21.0/${accountId}/media_publish`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creation_id: containerId,
+          access_token: accessToken
+        })
+      }
+    )
+
+    if (!publishResponse.ok) {
+      const errorData = await publishResponse.json()
+      throw new Error(errorData.error?.message || 'Erro ao publicar')
+    }
+
+    const { id: instagramPostId } = await publishResponse.json()
+
+    // Marcar como publicado
+    await instagramDB.markAsPublished(postId, instagramPostId)
+
+    console.log('[Instagram Publish Now] ✅ Post published:', instagramPostId)
 
     return NextResponse.json({
       success: true,
       message: 'Post publicado com sucesso no Instagram!',
-      instagramId: result.instagramId
+      instagramId: instagramPostId
     })
   } catch (error) {
     console.error('[Instagram Publish Now] Error:', error)
+
     return NextResponse.json(
       { 
         error: 'Erro ao publicar no Instagram',
@@ -55,4 +116,33 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+async function createCarouselChildren(imageUrls: string[], accessToken: string, accountId: string) {
+  const childrenIds: string[] = []
+
+  for (const imageUrl of imageUrls) {
+    const response = await fetch(
+      `https://graph.facebook.com/v21.0/${accountId}/media`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          image_url: imageUrl,
+          is_carousel_item: true,
+          access_token: accessToken
+        })
+      }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(`Erro ao criar item do carrossel: ${error.error?.message}`)
+    }
+
+    const { id } = await response.json()
+    childrenIds.push(id)
+  }
+
+  return childrenIds
 }

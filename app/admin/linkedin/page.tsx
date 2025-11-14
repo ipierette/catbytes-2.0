@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Sparkles, Send, Image as ImageIcon, RefreshCw, ExternalLink } from 'lucide-react'
+import { Loader2, Sparkles, Send, Image as ImageIcon, RefreshCw, ExternalLink, Calendar } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
+import { ScheduleLinkedInModal } from '@/components/admin/schedule-linkedin-modal'
 import Image from 'next/image'
 
 interface BlogArticle {
@@ -35,8 +36,7 @@ export default function LinkedInAdminPage() {
   const [loadingArticles, setLoadingArticles] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [generatingImage, setGeneratingImage] = useState(false)
-  const [publishing, setPublishing] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
 
   // Buscar artigos do blog
   useEffect(() => {
@@ -122,95 +122,6 @@ export default function LinkedInAdminPage() {
       showToast('Não foi possível gerar a imagem', 'error')
     } finally {
       setGeneratingImage(false)
-    }
-  }
-
-  // Salvar post na fila
-  const handleSavePost = async () => {
-    if (!postText.trim()) {
-      showToast('O texto do post não pode estar vazio', 'error')
-      return
-    }
-
-    setSaving(true)
-    try {
-      const response = await fetch('/api/linkedin/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'save',
-          text: postText,
-          image_url: imageUrl || null,
-          post_type: postType,
-          article_slug: postType === 'blog-article' ? selectedArticle : null,
-          as_organization: asOrganization
-        })
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Erro ao salvar')
-      }
-
-      const data = await response.json()
-
-      showToast('💾 ' + data.message, 'success')
-
-      // Limpar formulário
-      setPostText('')
-      setImagePrompt('')
-      setImageUrl('')
-      setSelectedArticle('')
-    } catch (error) {
-      showToast(
-        error instanceof Error ? error.message : 'Erro ao salvar',
-        'error'
-      )
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  // Publicar imediatamente no LinkedIn
-  const handlePublishNow = async () => {
-    if (!postText.trim()) {
-      showToast('O texto do post não pode estar vazio', 'error')
-      return
-    }
-
-    setPublishing(true)
-    try {
-      const response = await fetch('/api/linkedin/post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: postText,
-          imageUrl: imageUrl || undefined,
-          asOrganization
-        })
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Erro ao publicar')
-      }
-
-      const data = await response.json()
-
-      showToast('🎉 Post publicado com sucesso no LinkedIn!', 'success')
-
-      // Limpar formulário
-      setPostText('')
-      setImagePrompt('')
-      setImageUrl('')
-      setSelectedArticle('')
-    } catch (error) {
-      showToast(
-        error instanceof Error ? error.message : 'Erro ao publicar',
-        'error'
-      )
-    } finally {
-      setPublishing(false)
     }
   }
 
@@ -408,51 +319,20 @@ export default function LinkedInAdminPage() {
                 </Button>
               </div>
 
-              <div className="space-y-3">
-                <Button
-                  onClick={handleSavePost}
-                  disabled={saving || !postText.trim()}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                  size="lg"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Salvando...
-                    </>
-                  ) : (
-                    <>
-                      💾 Salvar na Fila
-                    </>
-                  )}
-                </Button>
-
-                <Button
-                  onClick={handlePublishNow}
-                  disabled={publishing || !postText.trim()}
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  size="lg"
-                  variant="default"
-                >
-                  {publishing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Publicando...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-4 w-4" />
-                      Postar Agora no LinkedIn
-                    </>
-                  )}
-                </Button>
-              </div>
+              <Button
+                onClick={() => setShowScheduleModal(true)}
+                disabled={!postText.trim()}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                size="lg"
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                Agendar ou Publicar
+              </Button>
 
               <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg text-sm text-blue-900 dark:text-blue-100">
-                <p className="font-medium mb-1">💡 Dica</p>
+                <p className="font-medium mb-1">📅 Publicação</p>
                 <p className="text-xs leading-relaxed">
-                  <strong>Salvar na Fila:</strong> Armazena o post para agendar depois<br />
-                  <strong>Postar Agora:</strong> Publica imediatamente no LinkedIn
+                  Escolha uma data/hora específica ou publique imediatamente no LinkedIn
                 </p>
               </div>
             </CardContent>
@@ -460,6 +340,27 @@ export default function LinkedInAdminPage() {
         </div>
       </div>
     </div>
+
+    {/* Modal de Agendamento */}
+    <ScheduleLinkedInModal
+      open={showScheduleModal}
+      onOpenChange={setShowScheduleModal}
+      post={{
+        text: postText,
+        imageUrl: imageUrl,
+        postType: postType,
+        articleSlug: postType === 'blog-article' ? selectedArticle : undefined,
+        asOrganization: asOrganization
+      }}
+      onSuccess={() => {
+        // Limpar formulário após sucesso
+        setPostText('')
+        setImagePrompt('')
+        setImageUrl('')
+        setSelectedArticle('')
+        showToast('✅ Operação realizada com sucesso!', 'success')
+      }}
+    />
     </AdminLayoutWrapper>
     </AdminGuard>
   )
