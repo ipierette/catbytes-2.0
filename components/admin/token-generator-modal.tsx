@@ -101,6 +101,41 @@ export function TokenGeneratorModal({
   }
 
   const validateAndSaveToken = async () => {
+    // Para LinkedIn, usa renovação automática via authCode
+    if (platform === 'linkedin' && authCode.trim()) {
+      setLoading(true)
+      try {
+        const response = await fetch('/api/admin/renew-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ authCode: authCode.trim() })
+        })
+
+        const data = await response.json()
+
+        if (data.success) {
+          setMessage({ 
+            type: 'success', 
+            text: `✅ ${data.message}\n📅 Válido até: ${data.expiryDate}\n${data.vercelUpdated ? '☁️ Vercel atualizada automaticamente!' : '⚠️ Atualize a Vercel manualmente'}` 
+          })
+          onTokenGenerated(data.token, data.expiryDate)
+          
+          setTimeout(() => {
+            onOpenChange(false)
+            window.location.reload() // Recarrega para mostrar novo token
+          }, 3000)
+        } else {
+          setMessage({ type: 'error', text: data.error })
+        }
+      } catch (error) {
+        setMessage({ type: 'error', text: 'Erro ao renovar token automaticamente' })
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+
+    // Para Instagram ou token manual
     if (!generatedToken.trim()) {
       setMessage({ type: 'error', text: 'Por favor, insira o token' })
       return
@@ -205,23 +240,15 @@ export function TokenGeneratorModal({
   )
 
   const renderStep2 = () => {
-    // Gerar comando curl para o LinkedIn
-    const curlCommand = instructions?.step2 ? 
-      `curl -X POST '${instructions.step2.endpoint}' \\
-  -H 'Content-Type: application/x-www-form-urlencoded' \\
-  -d 'grant_type=${instructions.step2.parameters.grant_type}' \\
-  -d 'code=${authCode || 'SEU_CODIGO_AQUI'}' \\
-  -d 'redirect_uri=${instructions.step2.parameters.redirect_uri}' \\
-  -d 'client_id=${instructions.step2.parameters.client_id}' \\
-  -d 'client_secret=${instructions.step2.parameters.client_secret}'` : ''
-
     return (
       <div className="space-y-4">
         <div className="text-center">
           <div className="text-2xl mb-2">🔑</div>
           <h3 className="text-xl font-semibold">Código de Autorização</h3>
           <p className="text-gray-600 dark:text-gray-400">
-            Cole aqui o código que você recebeu após autorizar
+            {platform === 'linkedin' 
+              ? 'Cole o código e o sistema fará tudo automaticamente!' 
+              : 'Cole aqui o código que você recebeu após autorizar'}
           </p>
         </div>
 
@@ -235,7 +262,23 @@ export function TokenGeneratorModal({
           />
         </div>
 
-        {instructions?.step2 && (
+        {platform === 'linkedin' && (
+          <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+            <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <AlertDescription className="text-green-800 dark:text-green-200">
+              <strong>🤖 Renovação Automática Habilitada!</strong><br />
+              Ao confirmar, o sistema irá:
+              <ul className="list-disc ml-4 mt-2 space-y-1 text-sm">
+                <li>Trocar o código por um token válido</li>
+                <li>Atualizar o arquivo .env.local</li>
+                <li>Atualizar a Vercel automaticamente</li>
+                <li>Criar lembretes de renovação</li>
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {platform === 'instagram' && instructions?.step2 && (
           <>
             <Alert>
               <AlertCircle className="h-4 w-4" />
@@ -255,13 +298,27 @@ export function TokenGeneratorModal({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => copyToClipboard(curlCommand)}
+                  onClick={() => copyToClipboard(instructions?.step2 ? 
+                    `curl -X POST '${instructions.step2.endpoint}' \\
+  -H 'Content-Type: application/x-www-form-urlencoded' \\
+  -d 'grant_type=${instructions.step2.parameters.grant_type}' \\
+  -d 'code=${authCode || 'SEU_CODIGO_AQUI'}' \\
+  -d 'redirect_uri=${instructions.step2.parameters.redirect_uri}' \\
+  -d 'client_id=${instructions.step2.parameters.client_id}' \\
+  -d 'client_secret=${instructions.step2.parameters.client_secret}'` : '')}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
               <Textarea
-                value={curlCommand}
+                value={instructions?.step2 ? 
+                  `curl -X POST '${instructions.step2.endpoint}' \\
+  -H 'Content-Type: application/x-www-form-urlencoded' \\
+  -d 'grant_type=${instructions.step2.parameters.grant_type}' \\
+  -d 'code=${authCode || 'SEU_CODIGO_AQUI'}' \\
+  -d 'redirect_uri=${instructions.step2.parameters.redirect_uri}' \\
+  -d 'client_id=${instructions.step2.parameters.client_id}' \\
+  -d 'client_secret=${instructions.step2.parameters.client_secret}'` : ''}
                 readOnly
                 className="font-mono text-xs"
                 rows={8}
@@ -297,11 +354,18 @@ export function TokenGeneratorModal({
             ← Voltar
           </Button>
           <Button
-            onClick={() => setStep(3)}
-            disabled={!authCode.trim()}
+            onClick={platform === 'linkedin' ? validateAndSaveToken : () => setStep(3)}
+            disabled={!authCode.trim() || loading}
             className="flex-1"
           >
-            Continuar →
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                {platform === 'linkedin' ? 'Renovando...' : 'Processando...'}
+              </>
+            ) : (
+              platform === 'linkedin' ? '🤖 Renovar Automaticamente' : 'Continuar →'
+            )}
           </Button>
         </div>
       </div>
