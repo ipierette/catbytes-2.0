@@ -207,28 +207,40 @@ Retorne APENAS o texto do post, sem título ou formatação extra.
 
   const postText = completion.choices[0]?.message?.content || ''
 
-  // Gerar prompt para imagem
+  // Gerar prompt para imagem contextualizado com o artigo
   const imagePromptCompletion = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ 
       role: 'user', 
       content: `
-Crie um prompt em inglês para gerar uma imagem moderna e profissional para este post do LinkedIn:
+Analise este artigo do blog:
 
+Título: "${article.title}"
+Resumo: "${article.excerpt || 'Sem resumo'}"
+
+E o post criado:
 "${postText}"
 
-O prompt deve:
-- Ser em inglês
-- Descrever uma cena ou conceito visual relacionado ao tema
-- Incluir estilo: "modern, professional, tech, gradient background"
-- Ser adequado para redes sociais (16:9 ou 1:1)
-- Máximo 150 palavras
+Crie um prompt em inglês para DALL-E 3 que gere uma imagem profissional que:
 
-Retorne APENAS o prompt da imagem, sem explicações.
+1. REPRESENTE VISUALMENTE O TEMA PRINCIPAL do artigo
+2. Seja relacionada ao conteúdo específico, não apenas "tecnologia genérica"
+3. Inclua elementos visuais que remetam ao assunto tratado
+4. Tenha estilo moderno, profissional e limpo
+5. Use cores adequadas para LinkedIn (gradientes azul/roxo ou tons profissionais)
+6. Proporção: 1:1 (quadrado)
+
+IMPORTANTE:
+- O prompt deve ser específico para o tema do artigo
+- Evite termos genéricos como "coding" ou "web development" se não forem o tema central
+- Foque no BENEFÍCIO ou CONCEITO principal do artigo
+- Máximo 200 caracteres
+
+Retorne APENAS o prompt da imagem em inglês, sem explicações.
 `
     }],
     temperature: 0.7,
-    max_tokens: 200
+    max_tokens: 250
   })
 
   const imagePrompt = imagePromptCompletion.choices[0]?.message?.content || ''
@@ -299,28 +311,38 @@ Retorne APENAS o texto do post.
 
   const postText = completion.choices[0]?.message?.content || ''
 
-  // Gerar prompt para imagem
+  // Gerar prompt para imagem contextualizado
   const imagePromptCompletion = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{
       role: 'user',
       content: `
-Crie um prompt em inglês para gerar uma imagem moderna e profissional para este post do LinkedIn sobre fullstack development:
+Analise este post do LinkedIn sobre desenvolvimento fullstack para ${nicho}:
 
-"${postText.substring(0, 500)}"
+"${postText}"
 
-O prompt deve:
-- Ser em inglês
-- Representar visualmente: tecnologia, desenvolvimento web, fullstack, modernidade
-- Incluir: "professional, modern tech illustration, coding, fullstack development, gradient purple and blue background, clean design"
-- Adequado para LinkedIn (proporção 1:1 ou 16:9)
-- Máximo 150 palavras
+Crie um prompt em inglês para DALL-E 3 que gere uma imagem profissional e moderna que:
 
-Retorne APENAS o prompt da imagem.
+1. REPRESENTE VISUALMENTE O CONTEXTO: ${nicho} + tecnologia
+2. Mostre a integração entre o setor (${nicho}) e soluções tecnológicas
+3. Elementos visuais que podem incluir:
+   - Símbolos/ícones relacionados a ${nicho}
+   - Interface de software/dashboard
+   - Conceito de integração e eficiência
+   - Cores modernas (gradientes azul/roxo ou tons profissionais)
+
+IMPORTANTE:
+- O prompt deve ser específico para ${nicho}, NÃO genérico sobre "fullstack development"
+- Use vocabulário visual relacionado ao contexto do nicho
+- Estilo: profissional, moderno, limpo, adequado para LinkedIn
+- Proporção: 1:1 (quadrado)
+- Máximo 200 caracteres
+
+Retorne APENAS o prompt da imagem em inglês, sem explicações.
 `
     }],
     temperature: 0.7,
-    max_tokens: 200
+    max_tokens: 250
   })
 
   const imagePrompt = imagePromptCompletion.choices[0]?.message?.content || ''

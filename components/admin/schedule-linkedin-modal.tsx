@@ -29,6 +29,7 @@ export function ScheduleLinkedInModal({
   const [scheduledFor, setScheduledFor] = useState<Date>(new Date())
   const [saving, setSaving] = useState(false)
   const [publishing, setPublishing] = useState(false)
+  const [savingDraft, setSavingDraft] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const handleSchedule = async () => {
@@ -133,6 +134,49 @@ export function ScheduleLinkedInModal({
     }
   }
 
+  const handleSaveDraft = async () => {
+    setSavingDraft(true)
+    setMessage(null)
+
+    try {
+      const response = await fetch('/api/linkedin/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save',
+          text: post.text,
+          image_url: post.imageUrl,
+          post_type: post.postType,
+          article_slug: post.articleSlug,
+          as_organization: post.asOrganization
+        })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Erro ao salvar rascunho')
+      }
+
+      setMessage({ 
+        type: 'success', 
+        text: '💾 Rascunho salvo! Você pode editá-lo e publicar depois.' 
+      })
+
+      setTimeout(() => {
+        onSuccess()
+        onOpenChange(false)
+      }, 2000)
+
+    } catch (error) {
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Erro ao salvar rascunho'
+      })
+    } finally {
+      setSavingDraft(false)
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -188,50 +232,81 @@ export function ScheduleLinkedInModal({
         />
 
         {/* Ações */}
-        <div className="flex gap-3">
+        <div className="space-y-3">
+          {/* Primeira linha: Salvar Rascunho */}
           <Button
-            onClick={handleSchedule}
-            disabled={saving || publishing}
-            className="flex-1 bg-blue-600 hover:bg-blue-700"
+            onClick={handleSaveDraft}
+            disabled={saving || publishing || savingDraft}
+            className="w-full bg-gray-600 hover:bg-gray-700"
             size="lg"
+            variant="secondary"
           >
-            {saving ? (
+            {savingDraft ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Agendando...
+                Salvando...
               </>
             ) : (
               <>
-                <Calendar className="mr-2 h-4 w-4" />
-                Agendar Post
+                💾 Salvar Rascunho
               </>
             )}
           </Button>
 
-          <Button
-            onClick={handlePublishNow}
-            disabled={saving || publishing}
-            className="flex-1 bg-green-600 hover:bg-green-700"
-            size="lg"
-            variant="default"
-          >
-            {publishing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Publicando...
-              </>
-            ) : (
-              <>
-                <Send className="mr-2 h-4 w-4" />
-                Publicar Agora
-              </>
-            )}
-          </Button>
+          {/* Segunda linha: Agendar e Publicar */}
+          <div className="flex gap-3">
+            <Button
+              onClick={handleSchedule}
+              disabled={saving || publishing || savingDraft}
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              size="lg"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Agendando...
+                </>
+              ) : (
+                <>
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Agendar Post
+                </>
+              )}
+            </Button>
+
+            <Button
+              onClick={handlePublishNow}
+              disabled={saving || publishing || savingDraft}
+              className="flex-1 bg-green-600 hover:bg-green-700"
+              size="lg"
+              variant="default"
+            >
+              {publishing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Publicando...
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  Publicar Agora
+                </>
+              )}
+            </Button>
+          </div>
         </div>
 
-        <p className="text-xs text-center text-muted-foreground">
-          Posts agendados serão publicados automaticamente na data/hora escolhida
-        </p>
+        <div className="space-y-2 text-xs text-muted-foreground">
+          <p className="text-center">
+            💾 <strong>Salvar Rascunho:</strong> Guarda o post sem publicar (economiza créditos nos testes)
+          </p>
+          <p className="text-center">
+            📅 <strong>Agendar:</strong> Publica automaticamente na data/hora escolhida
+          </p>
+          <p className="text-center">
+            🚀 <strong>Publicar Agora:</strong> Publica imediatamente no LinkedIn
+          </p>
+        </div>
       </DialogContent>
     </Dialog>
   )
