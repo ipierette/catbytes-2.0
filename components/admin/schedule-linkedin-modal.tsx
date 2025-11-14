@@ -17,6 +17,7 @@ interface ScheduleLinkedInModalProps {
     articleSlug?: string
     asOrganization: boolean
   }
+  postId?: string // ID do rascunho para descartar após publicação
   onSuccess: () => void
 }
 
@@ -24,6 +25,7 @@ export function ScheduleLinkedInModal({
   open, 
   onOpenChange, 
   post,
+  postId,
   onSuccess 
 }: ScheduleLinkedInModalProps) {
   const [scheduledFor, setScheduledFor] = useState<Date>(new Date())
@@ -112,6 +114,19 @@ export function ScheduleLinkedInModal({
       if (!response.ok) {
         const error = await response.json()
         throw new Error(error.error || 'Erro ao publicar')
+      }
+
+      // Descartar rascunho se foi carregado de um post salvo
+      if (postId) {
+        try {
+          await fetch('/api/linkedin/posts', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ post_id: postId })
+          })
+        } catch (err) {
+          console.error('Erro ao descartar rascunho:', err)
+        }
       }
 
       setMessage({ 

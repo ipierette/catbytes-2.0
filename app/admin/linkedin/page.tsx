@@ -51,6 +51,8 @@ export default function LinkedInAdminPage() {
   const [savedPosts, setSavedPosts] = useState<LinkedInPost[]>([])
   const [loadingSavedPosts, setLoadingSavedPosts] = useState(false)
   const [deletingPostId, setDeletingPostId] = useState<string | null>(null)
+  const [loadedPostId, setLoadedPostId] = useState<string | null>(null) // ID do post carregado para descartar após publicação
+  const [filterStatus, setFilterStatus] = useState<'all' | 'draft' | 'approved' | 'published'>('all')
   
   // Loading states
   const [loadingArticles, setLoadingArticles] = useState(false)
@@ -215,6 +217,7 @@ export default function LinkedInAdminPage() {
     setImageUrl(post.image_url || '')
     setAsOrganization(post.as_organization)
     setPostType(post.post_type as 'blog-article' | 'fullstack-random')
+    setLoadedPostId(post.id) // Salvar ID para descartar após publicação
     if (post.article_slug) {
       setSelectedArticle(post.article_slug)
     }
@@ -262,37 +265,72 @@ export default function LinkedInAdminPage() {
       {savedPosts.length > 0 && (
         <Card className="mb-6">
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div>
-                <CardTitle>📝 Posts Salvos ({savedPosts.length})</CardTitle>
+                <CardTitle>📝 Posts Salvos ({savedPosts.filter(p => filterStatus === 'all' || p.status === filterStatus).length})</CardTitle>
                 <CardDescription>
                   Reutilize posts sem gastar créditos de API
                 </CardDescription>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={loadSavedPosts}
-                disabled={loadingSavedPosts}
-              >
-                {loadingSavedPosts ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="h-4 w-4" />
-                )}
-              </Button>
+              <div className="flex items-center gap-2">
+                {/* Filtros de Status */}
+                <div className="flex gap-1">
+                  <Button
+                    variant={filterStatus === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('all')}
+                  >
+                    Todos ({savedPosts.length})
+                  </Button>
+                  <Button
+                    variant={filterStatus === 'draft' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('draft')}
+                  >
+                    Rascunhos ({savedPosts.filter(p => p.status === 'draft').length})
+                  </Button>
+                  <Button
+                    variant={filterStatus === 'approved' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('approved')}
+                  >
+                    Agendados ({savedPosts.filter(p => p.status === 'approved').length})
+                  </Button>
+                  <Button
+                    variant={filterStatus === 'published' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilterStatus('published')}
+                  >
+                    Publicados ({savedPosts.filter(p => p.status === 'published').length})
+                  </Button>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={loadSavedPosts}
+                  disabled={loadingSavedPosts}
+                >
+                  {loadingSavedPosts ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 max-h-[400px] overflow-y-auto">
-              {savedPosts.map((post) => (
+            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-slate-800">
+              {savedPosts
+                .filter(p => filterStatus === 'all' || p.status === filterStatus)
+                .map((post) => (
                 <div
                   key={post.id}
                   className="p-4 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
                         <Badge variant={
                           post.status === 'published' ? 'default' :
                           post.status === 'approved' ? 'secondary' :
@@ -308,20 +346,40 @@ export default function LinkedInAdminPage() {
                             Com imagem
                           </Badge>
                         )}
+                        {post.as_organization && (
+                          <Badge variant="outline">
+                            🏢 Como Página
+                          </Badge>
+                        )}
                       </div>
-                      <p className="text-sm line-clamp-2 text-muted-foreground">
+                      <p className="text-sm line-clamp-3 text-muted-foreground mb-2">
                         {post.text}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {new Date(post.created_at).toLocaleDateString('pt-BR', {
-                          day: '2-digit',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </p>
+                      <div className="flex gap-2 text-xs text-muted-foreground flex-wrap">
+                        <span>
+                          {new Date(post.created_at).toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                        {post.scheduled_for && (
+                          <>
+                            <span>•</span>
+                            <span>
+                              📅 {new Date(post.scheduled_for).toLocaleDateString('pt-BR', {
+                                day: '2-digit',
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                          </>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-shrink-0">
                       <Button
                         size="sm"
                         variant="outline"
@@ -590,12 +648,15 @@ export default function LinkedInAdminPage() {
         articleSlug: postType === 'blog-article' ? selectedArticle : undefined,
         asOrganization: asOrganization
       }}
+      postId={loadedPostId || undefined}
       onSuccess={() => {
         // Limpar formulário após sucesso
         setPostText('')
         setImagePrompt('')
         setImageUrl('')
         setSelectedArticle('')
+        setLoadedPostId(null)
+        loadSavedPosts() // Recarregar lista de posts
         showToast('✅ Operação realizada com sucesso!', 'success')
       }}
     />
