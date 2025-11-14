@@ -167,10 +167,19 @@ export async function generateInstagramPost(
     blogPost.tags
   )
   
+  // Verificar se é categoria "cuidados felinos" (case-insensitive)
+  const isFelineCare = blogPost.category?.toLowerCase().includes('cuidados felinos') || 
+                       blogPost.category?.toLowerCase().includes('felino')
+  
+  // Mensagem social para artigos de cuidados felinos
+  const socialMessage = isFelineCare 
+    ? `\n\n🐱💙 Este portfólio tem também uma missão social: incentivar a adoção responsável e promover o bem-estar de felinos domésticos. Por isso, dedicamos parte da nossa produção a artigos informativos sobre saúde, cuidado e proteção de gatinhos.\n`
+    : ''
+  
   // Construir conteúdo principal (Instagram tem limite de caracteres)
   const mainContent = `📝 ${blogPost.title}
 
-${blogPost.excerpt}
+${blogPost.excerpt}${socialMessage}
 
 🔗 Leia o artigo completo no link da bio!
 
@@ -207,6 +216,15 @@ export async function generateLinkedInPost(
     blogPost.tags
   )
   
+  // Verificar se é categoria "cuidados felinos" (case-insensitive)
+  const isFelineCare = blogPost.category?.toLowerCase().includes('cuidados felinos') || 
+                       blogPost.category?.toLowerCase().includes('felino')
+  
+  // Mensagem social para artigos de cuidados felinos
+  const socialMessage = isFelineCare 
+    ? `\n\n🐱💙 Missão Social\nEste portfólio tem também uma missão social: incentivar a adoção responsável e promover o bem-estar de felinos domésticos. Por isso, dedicamos parte da nossa produção a artigos informativos sobre saúde, cuidado e proteção de gatinhos.\n`
+    : ''
+  
   // LinkedIn permite posts mais longos e profissionais
   const articleUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${blogPost.slug}`
   
@@ -214,7 +232,7 @@ export async function generateLinkedInPost(
 
 ${blogPost.title}
 
-${blogPost.excerpt}
+${blogPost.excerpt}${socialMessage}
 
 🔗 Leia o artigo completo: ${articleUrl}
 
