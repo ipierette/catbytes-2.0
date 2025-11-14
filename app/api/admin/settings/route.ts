@@ -53,6 +53,21 @@ async function getSecureCredential(key: string): Promise<string | null> {
   }
 }
 
+// Helper para extrair data de expiração do .env.local
+function getTokenExpiryFromEnv(): { linkedin: string | null; instagram: string | null } {
+  // LinkedIn expira em 12/01/2026 (do comentário no .env.local)
+  const linkedinExpiry = '2026-01-12T00:00:00.000Z' // 12/01/2026
+  
+  // Instagram - calcular baseado no token atual (60 dias de vida típica)
+  // Você pode atualizar isso manualmente quando renovar
+  const instagramExpiry = null // Defina quando tiver a data
+  
+  return {
+    linkedin: linkedinExpiry,
+    instagram: instagramExpiry
+  }
+}
+
 // GET - Buscar configurações
 export async function GET() {
   try {
@@ -61,6 +76,11 @@ export async function GET() {
     const linkedinTokenExpiry = await getSecureCredential('linkedin_token_expiry')
     const instagramToken = await getSecureCredential('instagram_access_token') || process.env.INSTAGRAM_ACCESS_TOKEN || ''
     const instagramTokenExpiry = await getSecureCredential('instagram_token_expiry')
+
+    // Pegar datas de expiração do .env se não estiverem no banco
+    const envExpiry = getTokenExpiryFromEnv()
+    const finalLinkedinExpiry = linkedinTokenExpiry || envExpiry.linkedin
+    const finalInstagramExpiry = instagramTokenExpiry || envExpiry.instagram
 
     // Configurações padrão
     const defaultSettings = {
@@ -73,9 +93,9 @@ export async function GET() {
       api: {
         openaiKey: process.env.OPENAI_API_KEY || '',
         instagramToken: instagramToken,
-        instagramTokenExpiryDate: instagramTokenExpiry || undefined,
+        instagramTokenExpiryDate: finalInstagramExpiry || undefined,
         linkedinToken: linkedinToken,
-        linkedinTokenExpiryDate: linkedinTokenExpiry || undefined,
+        linkedinTokenExpiryDate: finalLinkedinExpiry || undefined,
         emailService: true,
         databaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || ''
       },
@@ -133,9 +153,9 @@ export async function GET() {
       api: {
         ...settings.config.api,
         instagramToken: instagramToken,
-        instagramTokenExpiryDate: instagramTokenExpiry || settings.config.api?.instagramTokenExpiryDate,
+        instagramTokenExpiryDate: finalInstagramExpiry || settings.config.api?.instagramTokenExpiryDate,
         linkedinToken: linkedinToken,
-        linkedinTokenExpiryDate: linkedinTokenExpiry || settings.config.api?.linkedinTokenExpiryDate
+        linkedinTokenExpiryDate: finalLinkedinExpiry || settings.config.api?.linkedinTokenExpiryDate
       }
     }
 
