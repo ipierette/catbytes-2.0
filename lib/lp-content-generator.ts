@@ -14,6 +14,12 @@ const openai = new OpenAI({
 // TIPOS
 // =====================================================
 
+export interface LeadMagnetItem {
+  titulo: string
+  descricao: string
+  icon?: string // emoji ou nome do ícone
+}
+
 export interface LPContentTemplate {
   tipo: 'guia' | 'calculadora' | 'checklist' | 'comparativo' | 'case-study'
   titulo: string
@@ -42,6 +48,17 @@ export interface LPRichContent {
     tipo: 'calculadora' | 'checklist' | 'infografico' | 'quiz'
     titulo: string
     descricao: string
+  }
+  
+  // Lead Magnet (Checklist/Guia/eBook)
+  leadMagnet: {
+    tipo: 'checklist' | 'guia' | 'ebook' | 'template' | 'kit' | 'planilha'
+    titulo: string
+    subtitulo: string
+    estatistica?: string // Ex: "78% das implementações falham por pular estas etapas"
+    items: LeadMagnetItem[]
+    ctaTitulo: string
+    ctaDescricao: string
   }
   
   // Link Building Interno
@@ -266,6 +283,21 @@ GERE UM JSON com a seguinte estrutura:
     "titulo": "Título do recurso",
     "descricao": "Descrição do valor que o recurso oferece"
   },
+  "leadMagnet": {
+    "tipo": "checklist" ou "guia" ou "ebook" ou "template" ou "kit" ou "planilha",
+    "titulo": "Título do lead magnet (ex: 'Checklist Rápido de Preparação')",
+    "subtitulo": "Subtítulo persuasivo que cria urgência (ex: 'Os 6 pontos essenciais que separam empresas que FALHAM das que LUCRAM')",
+    "estatistica": "Estatística de medo/urgência (ex: '⚠️ 78% das implementações falham por pular estas etapas')",
+    "items": [
+      {
+        "titulo": "📊 Nome do item (use emoji relevante)",
+        "descricao": "Descrição que gera curiosidade SEM entregar a solução completa (mencione 'método específico', 'matriz decisória', etc)"
+      }
+      // 5-7 items que mencionam ferramentas/métodos secretos sem revelar
+    ],
+    "ctaTitulo": "🎁 Quer o [Tipo] Completo?",
+    "ctaDescricao": "Promessa de valor adicional (ex: 'templates, planilhas e scripts prontos')"
+  },
   "linksInternos": [
     {
       "texto": "texto âncora natural",
@@ -303,6 +335,14 @@ DIRETRIZES CRÍTICAS:
 8. Use storytelling quando possível (caso de sucesso real ou hipotético)
 9. Termos de Uso e Política de Privacidade devem ser COMPLETOS e específicos para automação com IA
 10. Structured Data (JSON-LD) deve seguir schema.org perfeitamente
+
+**LEAD MAGNET - REGRAS DE OURO:**
+- NUNCA entregue a solução completa - apenas mencione que existe
+- Use verbos como: "Descubra", "Aprenda o método", "Receba o framework"
+- Mencione ferramentas proprietárias: "nossa matriz de ROI", "checklist de compatibilidade", "template validado"
+- Crie FOMO: estatísticas de falha, urgência, escassez implícita
+- Gatilhos: Curiosidade + Autoridade + Promessa de Atalho
+- Tipo do leadMagnet deve variar: checklist para processos, guia para conceitos, ebook para estratégias, planilha para cálculos
 
 ADICIONE TAMBÉM:
 

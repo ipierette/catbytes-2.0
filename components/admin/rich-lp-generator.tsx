@@ -29,6 +29,111 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
 
   // Converte conteúdo rico para HTML
   const convertToHTML = (content: LPRichContent, heroImage?: string | null): string => {
+    // Determina tema baseado no nicho
+    const nichoLowerCase = nicho?.toLowerCase() || 'automacao'
+    
+    // Mapeamento de temas por nicho
+    const themes: Record<string, any> = {
+      automacao: {
+        gradient: 'linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)',
+        heroGradient: 'linear-gradient(135deg, #581C87 0%, #9333EA 100%)',
+        demoGradient: 'linear-gradient(135deg, #6B21A8 0%, #BE185D 100%)',
+        checklistGradient: 'linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%)',
+        primaryColor: '#8B5CF6',
+        iconColor: '#8B5CF6',
+      },
+      ecommerce: {
+        gradient: 'linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%)',
+        heroGradient: 'linear-gradient(135deg, #1E3A8A 0%, #0C4A6E 100%)',
+        demoGradient: 'linear-gradient(135deg, #1E40AF 0%, #075985 100%)',
+        checklistGradient: 'linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%)',
+        primaryColor: '#3B82F6',
+        iconColor: '#3B82F6',
+      },
+      saude: {
+        gradient: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
+        heroGradient: 'linear-gradient(135deg, #115E59 0%, #0C4A6E 100%)',
+        demoGradient: 'linear-gradient(135deg, #0F766E 0%, #075985 100%)',
+        checklistGradient: 'linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%)',
+        primaryColor: '#14B8A6',
+        iconColor: '#14B8A6',
+      },
+      educacao: {
+        gradient: 'linear-gradient(135deg, #F59E0B 0%, #F97316 100%)',
+        heroGradient: 'linear-gradient(135deg, #92400E 0%, #9A3412 100%)',
+        demoGradient: 'linear-gradient(135deg, #B45309 0%, #C2410C 100%)',
+        checklistGradient: 'linear-gradient(135deg, #F59E0B 0%, #F97316 100%)',
+        primaryColor: '#F59E0B',
+        iconColor: '#F59E0B',
+      },
+      financas: {
+        gradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+        heroGradient: 'linear-gradient(135deg, #065F46 0%, #064E3B 100%)',
+        demoGradient: 'linear-gradient(135deg, #047857 0%, #065F46 100%)',
+        checklistGradient: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+        primaryColor: '#10B981',
+        iconColor: '#10B981',
+      },
+      marketing: {
+        gradient: 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)',
+        heroGradient: 'linear-gradient(135deg, #9F1239 0%, #881337 100%)',
+        demoGradient: 'linear-gradient(135deg, #BE123C 0%, #9F1239 100%)',
+        checklistGradient: 'linear-gradient(135deg, #EC4899 0%, #F43F5E 100%)',
+        primaryColor: '#EC4899',
+        iconColor: '#EC4899',
+      },
+      logistica: {
+        gradient: 'linear-gradient(135deg, #6366F1 0%, #3B82F6 100%)',
+        heroGradient: 'linear-gradient(135deg, #3730A3 0%, #1E3A8A 100%)',
+        demoGradient: 'linear-gradient(135deg, #4338CA 0%, #1E40AF 100%)',
+        checklistGradient: 'linear-gradient(135deg, #6366F1 0%, #3B82F6 100%)',
+        primaryColor: '#6366F1',
+        iconColor: '#6366F1',
+      },
+      tecnologia: {
+        gradient: 'linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%)',
+        heroGradient: 'linear-gradient(135deg, #0E7490 0%, #1E40AF 100%)',
+        demoGradient: 'linear-gradient(135deg, #0891B2 0%, #2563EB 100%)',
+        checklistGradient: 'linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%)',
+        primaryColor: '#06B6D4',
+        iconColor: '#06B6D4',
+      },
+      energia: {
+        gradient: 'linear-gradient(135deg, #84CC16 0%, #10B981 100%)',
+        heroGradient: 'linear-gradient(135deg, #4D7C0F 0%, #047857 100%)',
+        demoGradient: 'linear-gradient(135deg, #65A30D 0%, #059669 100%)',
+        checklistGradient: 'linear-gradient(135deg, #84CC16 0%, #10B981 100%)',
+        primaryColor: '#84CC16',
+        iconColor: '#84CC16',
+      },
+      manufatura: {
+        gradient: 'linear-gradient(135deg, #64748B 0%, #475569 100%)',
+        heroGradient: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
+        demoGradient: 'linear-gradient(135deg, #334155 0%, #1E293B 100%)',
+        checklistGradient: 'linear-gradient(135deg, #64748B 0%, #475569 100%)',
+        primaryColor: '#64748B',
+        iconColor: '#64748B',
+      },
+      construcao: {
+        gradient: 'linear-gradient(135deg, #F97316 0%, #F59E0B 100%)',
+        heroGradient: 'linear-gradient(135deg, #9A3412 0%, #92400E 100%)',
+        demoGradient: 'linear-gradient(135deg, #C2410C 0%, #B45309 100%)',
+        checklistGradient: 'linear-gradient(135deg, #F97316 0%, #F59E0B 100%)',
+        primaryColor: '#F97316',
+        iconColor: '#F97316',
+      },
+      agricultura: {
+        gradient: 'linear-gradient(135deg, #22C55E 0%, #84CC16 100%)',
+        heroGradient: 'linear-gradient(135deg, #166534 0%, #4D7C0F 100%)',
+        demoGradient: 'linear-gradient(135deg, #15803D 0%, #65A30D 100%)',
+        checklistGradient: 'linear-gradient(135deg, #22C55E 0%, #84CC16 100%)',
+        primaryColor: '#22C55E',
+        iconColor: '#22C55E',
+      },
+    }
+    
+    const theme = themes[nichoLowerCase] || themes.automacao
+    
     return `
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -40,14 +145,19 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
+    :root {
+      --theme-primary: ${theme.primaryColor};
+      --theme-icon: ${theme.iconColor};
+    }
+    
     * { font-family: 'Inter', sans-serif; }
     
     .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: ${theme.gradient};
     }
     
     .hero-with-image {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%), 
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.4) 100%), 
                   url('${heroImage}') center/cover no-repeat;
     }
     
@@ -55,6 +165,23 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Checklist hover effects */
+    .checklist-item:hover .checkbox {
+      background: white;
+      border-color: var(--theme-primary);
+    }
+    
+    .checklist-item:hover .checkbox svg {
+      color: var(--theme-primary);
+    }
+    
+    /* Form input focus */
+    input:focus, textarea:focus {
+      border-color: var(--theme-primary) !important;
+      outline: 2px solid var(--theme-primary);
+      outline-offset: -1px;
     }
     
     .fade-in {
@@ -89,7 +216,7 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
         <p class="text-xl md:text-2xl mb-8 opacity-90">
           ${content.metaDescription}
         </p>
-        <a href="#contato" class="inline-block bg-white text-purple-600 font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl">
+        <a href="#contato" class="inline-block bg-white font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl" style="color: ${theme.primaryColor}">
           ${content.ctas[0]?.texto || 'Fale Conosco'}
         </a>
       </div>
@@ -128,7 +255,7 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
             <ul class="mt-6 space-y-3">
               ${secao.items.map(item => `
                 <li class="flex items-start">
-                  <svg class="w-6 h-6 text-purple-600 mr-3 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <svg class="w-6 h-6 mr-3 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" style="color: ${theme.iconColor}">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                   </svg>
                   <span>${item}</span>
@@ -149,7 +276,7 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
     <div class="container mx-auto px-4 relative z-10">
       <div class="max-w-3xl mx-auto text-center text-white fade-in">
         <h2 class="text-4xl font-bold mb-6">${content.ctas[1].texto}</h2>
-        <a href="#contato" class="inline-block bg-white text-purple-600 font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl">
+        <a href="#contato" class="inline-block bg-white font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl" style="color: ${theme.primaryColor}">
           Solicitar Demonstração
         </a>
       </div>
@@ -162,7 +289,7 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto">
         <h2 class="text-4xl font-bold mb-12 text-center text-gray-900 flex items-center justify-center gap-3">
-          <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: ${theme.iconColor};">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           Perguntas Frequentes
@@ -172,7 +299,7 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
             <details class="bg-white rounded-xl shadow-lg overflow-hidden group">
               <summary class="cursor-pointer px-8 py-6 font-semibold text-lg text-gray-900 hover:bg-purple-50 transition-colors flex justify-between items-center">
                 ${item.pergunta}
-                <svg class="w-5 h-5 text-purple-600 transform group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 transform group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: ${theme.iconColor};">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                 </svg>
               </summary>
@@ -187,7 +314,7 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
   </section>
 
   <!-- Demo Interativa -->
-  <section class="py-20 bg-gradient-to-br from-purple-900 to-pink-900 text-white">
+  <section class="py-20 text-white" style="background: ${theme.demoGradient};">
     <div class="container mx-auto px-4">
       <div class="max-w-5xl mx-auto">
         <div class="text-center mb-12">
@@ -297,94 +424,119 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
   <section class="py-20 bg-white">
     <div class="container mx-auto px-4">
       <div class="max-w-4xl mx-auto">
-        <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl shadow-2xl p-8 md:p-12 text-white">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4">Checklist de Implementação de Automação</h2>
-          <p class="text-lg opacity-90 mb-8">Um guia prático para garantir que seu consultório esteja pronto para a automação efetiva.</p>
+        <div class="rounded-2xl shadow-2xl p-8 md:p-12 text-white" style="background: ${theme.checklistGradient};">
+          <div class="flex items-center gap-3 mb-4">
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+              <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+            </svg>
+            <h2 class="text-3xl md:text-4xl font-bold">${content.leadMagnet?.titulo || 'Checklist Rápido de Preparação'}</h2>
+          </div>
+          <p class="text-lg opacity-90 mb-2">${content.leadMagnet?.subtitulo || 'Os pontos essenciais que separam empresas que falham das que lucram'}</p>
+          ${content.leadMagnet?.estatistica ? `<p class="text-sm opacity-75 mb-8">${content.leadMagnet.estatistica}</p>` : '<p class="text-sm opacity-75 mb-8">⚠️ A maioria das implementações falha por pular estas etapas</p>'}
           
           <div class="bg-white/10 backdrop-blur rounded-xl p-6 space-y-4">
-            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
-              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
-                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+            ${content.leadMagnet?.items ? content.leadMagnet.items.map(item => `
+            <div class="flex items-start gap-4 checklist-item cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="checkbox w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 transition-colors">
+                <svg class="w-4 h-4 text-transparent transition-colors" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold text-lg">Mapeamento de Processos Atuais</h3>
-                <p class="text-white/80 text-sm">Identifique todos os processos repetitivos que consomem tempo da equipe</p>
+                <h3 class="font-semibold text-lg">${item.titulo}</h3>
+                <p class="text-white/80 text-sm">${item.descricao}</p>
+              </div>
+            </div>
+            `).join('') : `
+            <div class="flex items-start gap-4 checklist-item cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="checkbox w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 transition-colors">
+                <svg class="w-4 h-4 text-transparent transition-colors" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">📊 Mapeamento de Gargalos</h3>
+                <p class="text-white/80 text-sm">Identifique onde sua equipe perde mais tempo (há um método específico para isso)</p>
               </div>
             </div>
 
-            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
-              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
-                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+            <div class="flex items-start gap-4 checklist-item cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="checkbox w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 transition-colors">
+                <svg class="w-4 h-4 text-transparent transition-colors" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold text-lg">Definição de Prioridades</h3>
-                <p class="text-white/80 text-sm">Escolha quais processos automatizar primeiro baseado no ROI</p>
+                <h3 class="font-semibold text-lg">💰 Cálculo de ROI por Processo</h3>
+                <p class="text-white/80 text-sm">Descubra qual automação traz retorno mais rápido (usamos uma matriz decisória)</p>
               </div>
             </div>
 
-            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
-              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
-                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+            <div class="flex items-start gap-4 checklist-item cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="checkbox w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 transition-colors">
+                <svg class="w-4 h-4 text-transparent transition-colors" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold text-lg">Preparação da Infraestrutura</h3>
-                <p class="text-white/80 text-sm">Garanta que sistemas e dados estejam organizados para integração</p>
+                <h3 class="font-semibold text-lg">🔧 Preparação Técnica</h3>
+                <p class="text-white/80 text-sm">Checklist de compatibilidade de sistemas (evite erros custosos)</p>
               </div>
             </div>
 
-            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
-              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
-                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+            <div class="flex items-start gap-4 checklist-item cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="checkbox w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 transition-colors">
+                <svg class="w-4 h-4 text-transparent transition-colors" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold text-lg">Treinamento da Equipe</h3>
-                <p class="text-white/80 text-sm">Capacite sua equipe para trabalhar com as novas ferramentas</p>
+                <h3 class="font-semibold text-lg">👥 Estratégia de Adoção</h3>
+                <p class="text-white/80 text-sm">Como garantir que a equipe use as ferramentas (fator crítico de sucesso)</p>
               </div>
             </div>
 
-            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
-              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
-                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+            <div class="flex items-start gap-4 checklist-item cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="checkbox w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 transition-colors">
+                <svg class="w-4 h-4 text-transparent transition-colors" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold text-lg">Implementação Gradual</h3>
-                <p class="text-white/80 text-sm">Comece com um piloto e expanda conforme os resultados</p>
+                <h3 class="font-semibold text-lg">🚀 Roadmap de Rollout</h3>
+                <p class="text-white/80 text-sm">Sequência correta de implementação (o timing faz toda diferença)</p>
               </div>
             </div>
 
-            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
-              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
-                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+            <div class="flex items-start gap-4 checklist-item cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="checkbox w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 transition-colors">
+                <svg class="w-4 h-4 text-transparent transition-colors" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
               </div>
               <div>
-                <h3 class="font-semibold text-lg">Monitoramento e Ajustes</h3>
-                <p class="text-white/80 text-sm">Acompanhe métricas e otimize continuamente o sistema</p>
+                <h3 class="font-semibold text-lg">📈 KPIs de Monitoramento</h3>
+                <p class="text-white/80 text-sm">Métricas que realmente importam para medir sucesso (e ajustar rápido)</p>
               </div>
             </div>
+            `}
           </div>
 
-          <a href="#contato" class="block w-full text-center bg-white text-purple-600 font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl mt-8">
-            Baixar Checklist Completo (PDF)
-          </a>
+          <div class="mt-8 bg-white/20 backdrop-blur rounded-xl p-6 text-center border-2 border-white/30">
+            <p class="text-xl font-bold mb-2">${content.leadMagnet?.ctaTitulo || '🎁 Quer o Material Completo?'}</p>
+            <p class="text-white/90 mb-4">${content.leadMagnet?.ctaDescricao || 'Receba gratuitamente nosso guia detalhado com templates, planilhas e scripts prontos'}</p>
+            <a href="#contato" class="inline-block bg-white font-bold px-8 py-4 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl" style="color: ${theme.primaryColor}">
+              Quero Receber o Material Completo
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Demo Interativa -->
-  <section class="py-20 bg-gradient-to-br from-gray-50 to-purple-50">
+  <section class="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
     <div class="container mx-auto px-4">
       <div class="max-w-5xl mx-auto">
         <div class="text-center mb-12">
@@ -394,7 +546,7 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
         
         <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
           <!-- Demo Header -->
-          <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 flex items-center gap-3">
+          <div class="px-6 py-4 flex items-center gap-3" style="background: ${theme.gradient}">
             <div class="flex gap-2">
               <div class="w-3 h-3 rounded-full bg-red-400"></div>
               <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
@@ -474,21 +626,21 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
             </div>
             
             <!-- CTA da Demo -->
-            <div class="mt-8 text-center p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+            <div class="mt-8 text-center p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
               <p class="text-lg font-semibold text-gray-800 mb-3">
                 🚀 Resultados esperados em 30 dias:
               </p>
               <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
                 <div>
-                  <div class="text-3xl font-bold text-purple-600">80%</div>
+                  <div class="text-3xl font-bold" style="color: ${theme.iconColor}">80%</div>
                   <div class="text-sm text-gray-600">Redução de Tempo</div>
                 </div>
                 <div>
-                  <div class="text-3xl font-bold text-pink-600">95%</div>
+                  <div class="text-3xl font-bold" style="color: ${theme.iconColor}">95%</div>
                   <div class="text-sm text-gray-600">Menos Erros</div>
                 </div>
                 <div>
-                  <div class="text-3xl font-bold text-indigo-600">3x</div>
+                  <div class="text-3xl font-bold" style="color: ${theme.iconColor}">3x</div>
                   <div class="text-sm text-gray-600">ROI Médio</div>
                 </div>
               </div>
@@ -515,22 +667,22 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
         <form class="bg-white rounded-2xl shadow-2xl p-8 text-left" onsubmit="handleFormSubmit(event)">
           <div class="mb-4">
             <input type="text" name="name" placeholder="Seu Nome" required
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-gray-900">
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none text-gray-900">
           </div>
           <div class="mb-4">
             <input type="email" name="email" placeholder="Seu E-mail" required
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-gray-900">
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none text-gray-900">
           </div>
           <div class="mb-4">
             <input type="tel" name="phone" placeholder="Seu Telefone"
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-gray-900">
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none text-gray-900">
           </div>
           <div class="mb-6">
             <textarea name="message" rows="4" placeholder="Como podemos ajudar?"
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-gray-900"></textarea>
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none text-gray-900"></textarea>
           </div>
           <button type="submit"
-            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold px-8 py-4 rounded-full transition-all transform hover:scale-105 shadow-lg">
+            class="w-full text-white font-bold px-8 py-4 rounded-full transition-all transform hover:scale-105 shadow-lg" style="background: ${theme.primaryColor}">
             Enviar Mensagem
           </button>
         </form>
