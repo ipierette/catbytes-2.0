@@ -2,26 +2,28 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, Sparkles, CheckCircle2, ExternalLink, FileText } from 'lucide-react'
 import type { LPRichContent } from '@/lib/lp-content-generator'
 import type { NicheValue } from '@/lib/landing-pages-constants'
+import { NICHES } from '@/lib/landing-pages-constants'
 
 interface RichLPGeneratorProps {
-  nicho: NicheValue
+  nicho?: NicheValue
 }
 
-export function RichLPGenerator({ nicho }: RichLPGeneratorProps) {
+export function RichLPGenerator({ nicho: initialNicho }: RichLPGeneratorProps = {}) {
+  const [nicho, setNicho] = useState<NicheValue | null>(initialNicho || null)
   const [loading, setLoading] = useState(false)
   const [suggestions, setSuggestions] = useState<any[]>([])
   const [generatedLP, setGeneratedLP] = useState<LPRichContent | null>(null)
   const [selectedTipo, setSelectedTipo] = useState<string>('')
 
   // Busca sugestões de LPs
-  const fetchSuggestions = async () => {
+  const fetchSuggestions = async (selectedNicho: NicheValue) => {
     try {
-      const res = await fetch(`/api/landing-pages/generate-rich?nicho=${nicho}`)
+      const res = await fetch(`/api/landing-pages/generate-rich?nicho=${selectedNicho}`)
       const data = await res.json()
       if (data.success) {
         setSuggestions(data.suggestions)
@@ -31,8 +33,16 @@ export function RichLPGenerator({ nicho }: RichLPGeneratorProps) {
     }
   }
 
+  const handleNichoSelect = (selectedNicho: NicheValue) => {
+    setNicho(selectedNicho)
+    setSuggestions([])
+    setGeneratedLP(null)
+  }
+
   // Gera LP rica
   const handleGenerate = async (tipo: string) => {
+    if (!nicho) return
+    
     setLoading(true)
     setSelectedTipo(tipo)
     setGeneratedLP(null)
@@ -60,24 +70,61 @@ export function RichLPGenerator({ nicho }: RichLPGeneratorProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-xl font-bold flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-500" />
-            Gerador de LPs Ricas (SEO + Backlinks)
-          </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Crie landing pages completas otimizadas para ranqueamento e link building
-          </p>
-        </div>
-        
-        {suggestions.length === 0 && (
-          <Button onClick={fetchSuggestions} variant="outline">
-            Ver Sugestões
-          </Button>
-        )}
-      </div>
+      {/* Seletor de Nicho */}
+      {!nicho && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-500" />
+              Selecione o Nicho da Landing Page
+            </CardTitle>
+            <CardDescription>
+              Escolha o segmento para gerar LPs personalizadas e otimizadas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {NICHES.map((nicheOption) => (
+                <Button
+                  key={nicheOption.value}
+                  onClick={() => handleNichoSelect(nicheOption.value as NicheValue)}
+                  variant="outline"
+                  className="h-auto py-4 flex flex-col items-center gap-2 hover:bg-purple-50 dark:hover:bg-purple-950"
+                >
+                  <span className="text-3xl">{nicheOption.emoji}</span>
+                  <span className="text-sm font-medium text-center">{nicheOption.label}</span>
+                </Button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Header com botão de voltar */}
+      {nicho && (
+        <>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-500" />
+                Gerador de LPs Ricas - {NICHES.find(n => n.value === nicho)?.emoji} {NICHES.find(n => n.value === nicho)?.label}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Crie landing pages completas otimizadas para ranqueamento e link building
+              </p>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button onClick={() => handleNichoSelect(nicho)} variant="outline" size="sm">
+                Trocar Nicho
+              </Button>
+              {suggestions.length === 0 && (
+                <Button onClick={() => fetchSuggestions(nicho)} variant="outline">
+                  Ver Sugestões
+                </Button>
+              )}
+            </div>
+          </div>
 
       {/* Sugestões de LPs */}
       {suggestions.length > 0 && !generatedLP && (
@@ -325,6 +372,8 @@ export function RichLPGenerator({ nicho }: RichLPGeneratorProps) {
             </Button>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   )
