@@ -472,15 +472,15 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
                     <div class="grid grid-cols-3 gap-4 mt-4">
                       <div class="text-center p-3 bg-white rounded-lg shadow">
                         <div class="text-2xl font-bold text-green-600">95%</div>
-                        <div class="text-sm text-gray-700">Mais Rápido</div>
+                        <div class="text-sm text-gray-800 font-medium">Mais Rápido</div>
                       </div>
                       <div class="text-center p-3 bg-white rounded-lg shadow">
                         <div class="text-2xl font-bold text-green-600">24/7</div>
-                        <div class="text-sm text-gray-700">Disponível</div>
+                        <div class="text-sm text-gray-800 font-medium">Disponível</div>
                       </div>
                       <div class="text-center p-3 bg-white rounded-lg shadow">
                         <div class="text-2xl font-bold text-green-600">0%</div>
-                        <div class="text-sm text-gray-700">Erros</div>
+                        <div class="text-sm text-gray-800 font-medium">Erros</div>
                       </div>
                     </div>
                     <button onclick="showDemoStep(1)" class="mt-4 px-6 py-2 bg-gray-600 text-white rounded-lg font-semibold transition-all hover:scale-105">
@@ -498,15 +498,15 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
                 <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
                   <div>
                     <div class="text-3xl font-bold" style="color: ${theme.iconColor}">80%</div>
-                    <div class="text-sm text-gray-600">Redução de Tempo</div>
+                    <div class="text-sm text-gray-800 font-medium">Redução de Tempo</div>
                   </div>
                   <div>
                     <div class="text-3xl font-bold" style="color: ${theme.iconColor}">95%</div>
-                    <div class="text-sm text-gray-600">Menos Erros</div>
+                    <div class="text-sm text-gray-800 font-medium">Menos Erros</div>
                   </div>
                   <div>
                     <div class="text-3xl font-bold" style="color: ${theme.iconColor}">3x</div>
-                    <div class="text-sm text-gray-600">ROI Médio</div>
+                    <div class="text-sm text-gray-800 font-medium">ROI Médio</div>
                   </div>
                 </div>
               </div>
