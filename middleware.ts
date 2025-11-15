@@ -25,5 +25,8 @@ export default function middleware(request: NextRequest) {
 export const config = {
   // Match only internationalized pathnames
   // Exclude API, admin, and static files from middleware
-  matcher: ['/', '/(pt-BR|en-US)/:path*', '/((?!api|admin|_next|_vercel|.*\\..*).*)']
+  matcher: [
+    '/(pt-BR|en-US)/:path*',
+    '/((?!api|admin|_next|_vercel|.*\\..*).*)'
+  ]
 }
