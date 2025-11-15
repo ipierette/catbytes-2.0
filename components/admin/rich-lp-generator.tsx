@@ -540,8 +540,8 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
     <div class="container mx-auto px-4">
       <div class="max-w-5xl mx-auto">
         <div class="text-center mb-12">
-          <h2 class="text-4xl font-bold mb-4 text-gray-900">Experimente Agora</h2>
-          <p class="text-xl text-gray-600">Veja como a automação pode transformar seu negócio</p>
+          <h2 class="text-4xl font-bold mb-4 text-gray-900">Veja em Ação</h2>
+          <p class="text-xl text-gray-600">Demonstração interativa do sistema funcionando</p>
         </div>
         
         <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -552,75 +552,68 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
               <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
               <div class="w-3 h-3 rounded-full bg-green-400"></div>
             </div>
-            <p class="text-white font-semibold ml-4">Demonstração Interativa</p>
+            <p class="text-white font-semibold ml-4">Demonstração Interativa - Clique nos botões</p>
           </div>
           
           <!-- Demo Content -->
           <div class="p-8">
-            <div class="grid md:grid-cols-2 gap-8">
-              <!-- Antes -->
-              <div>
-                <h3 class="text-xl font-bold mb-4 text-red-600 flex items-center gap-2">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                  Sem Automação
-                </h3>
-                <div class="space-y-3">
-                  <div class="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
-                    <div class="animate-pulse">⏳</div>
-                    <div class="text-sm">
-                      <p class="font-semibold">Processos Manuais</p>
-                      <p class="text-gray-600">4-6 horas diárias em tarefas repetitivas</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
-                    <div>📄</div>
-                    <div class="text-sm">
-                      <p class="font-semibold">Dados Desorganizados</p>
-                      <p class="text-gray-600">Informações dispersas em planilhas</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
-                    <div>⚠️</div>
-                    <div class="text-sm">
-                      <p class="font-semibold">Erros Humanos</p>
-                      <p class="text-gray-600">15-20% de retrabalho</p>
-                    </div>
-                  </div>
+            <div id="demoSteps" class="space-y-6">
+              <!-- Step 1 -->
+              <div class="demo-step" data-step="1">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background: ${theme.primaryColor}">1</div>
+                  <h3 class="text-xl font-bold">Processo Manual Atual</h3>
+                </div>
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                  <p class="text-gray-700 mb-3">⏳ <strong>Situação Atual:</strong> Atendimento manual demora 15-20 minutos por cliente</p>
+                  <button onclick="showDemoStep(2)" class="px-6 py-2 rounded-lg text-white font-semibold transition-all hover:scale-105" style="background: ${theme.primaryColor}">
+                    Ativar Automação →
+                  </button>
                 </div>
               </div>
-              
-              <!-- Depois -->
-              <div>
-                <h3 class="text-xl font-bold mb-4 text-green-600 flex items-center gap-2">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                  </svg>
-                  Com Automação IA
-                </h3>
-                <div class="space-y-3">
-                  <div class="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                    <div>⚡</div>
-                    <div class="text-sm">
-                      <p class="font-semibold">Processos Automatizados</p>
-                      <p class="text-gray-600">Redução de 80% no tempo</p>
+
+              <!-- Step 2 -->
+              <div class="demo-step hidden" data-step="2">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background: ${theme.primaryColor}">2</div>
+                  <h3 class="text-xl font-bold">IA em Ação</h3>
+                </div>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                    <p class="text-gray-700"><strong>Processando...</strong> IA analisando solicitação do cliente</p>
+                  </div>
+                  <button onclick="showDemoStep(3)" class="px-6 py-2 rounded-lg text-white font-semibold transition-all hover:scale-105" style="background: ${theme.primaryColor}">
+                    Ver Resultado →
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="demo-step hidden" data-step="3">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background: ${theme.primaryColor}">3</div>
+                  <h3 class="text-xl font-bold">Resultado</h3>
+                </div>
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                  <p class="text-gray-700 mb-3">✅ <strong>Concluído!</strong> Atendimento automatizado em 30 segundos</p>
+                  <div class="grid grid-cols-3 gap-4 mt-4">
+                    <div class="text-center p-3 bg-white rounded-lg shadow">
+                      <div class="text-2xl font-bold text-green-600">95%</div>
+                      <div class="text-sm text-gray-600">Mais Rápido</div>
+                    </div>
+                    <div class="text-center p-3 bg-white rounded-lg shadow">
+                      <div class="text-2xl font-bold text-green-600">24/7</div>
+                      <div class="text-sm text-gray-600">Disponível</div>
+                    </div>
+                    <div class="text-center p-3 bg-white rounded-lg shadow">
+                      <div class="text-2xl font-bold text-green-600">0%</div>
+                      <div class="text-sm text-gray-600">Erros</div>
                     </div>
                   </div>
-                  <div class="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                    <div>📊</div>
-                    <div class="text-sm">
-                      <p class="font-semibold">Dados Centralizados</p>
-                      <p class="text-gray-600">Dashboard em tempo real</p>
-                    </div>
-                  </div>
-                  <div class="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                    <div>🎯</div>
-                    <div class="text-sm">
-                      <p class="font-semibold">Precisão Total</p>
-                      <p class="text-gray-600">99.9% de acurácia</p>
-                    </div>
-                  </div>
+                  <button onclick="showDemoStep(1)" class="mt-4 px-6 py-2 bg-gray-600 text-white rounded-lg font-semibold transition-all hover:scale-105">
+                    ↺ Reiniciar Demonstração
+                  </button>
                 </div>
               </div>
             </div>
@@ -726,13 +719,15 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
         <div class="border-t border-gray-800 pt-8">
           <div class="flex flex-col md:flex-row justify-between items-center gap-4">
             <p class="text-sm text-center md:text-left">
-              &copy; ${new Date().getFullYear()} CATBytes AI. Todos os direitos reservados.
+              &copy; ${new Date().getFullYear()} Todos os direitos reservados.
             </p>
             <a href="https://catbytes.site" target="_blank" rel="noopener noreferrer" 
-               class="flex items-center gap-2 text-sm text-gray-400 hover:text-purple-400 transition-colors group">
-              <span class="opacity-60 group-hover:opacity-100">Powered by</span>
-              <img src="/images/catbytes-logo.png" alt="CATBytes IA" class="h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
-              <span class="font-semibold">CATBytes IA</span>
+               class="flex items-center gap-2 text-sm transition-all group hover:scale-105">
+              <span class="text-gray-500 group-hover:text-gray-400">Powered by</span>
+              <svg class="w-5 h-5" style="color: ${theme.iconColor}" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+              </svg>
+              <span class="font-bold" style="color: ${theme.iconColor}">CATBytes IA</span>
             </a>
           </div>
         </div>
@@ -741,22 +736,45 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
   </footer>
 
   <script>
+    // Demo Interativa
+    function showDemoStep(stepNumber) {
+      const steps = document.querySelectorAll('.demo-step');
+      steps.forEach(step => {
+        if (parseInt(step.dataset.step) === stepNumber) {
+          step.classList.remove('hidden');
+          step.classList.add('animate-fade-in');
+        } else {
+          step.classList.add('hidden');
+        }
+      });
+    }
+
+    // Form Submit
     function handleFormSubmit(e) {
       e.preventDefault();
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData);
+      
+      // Adicionar slug da LP
+      data.landing_page_slug = window.location.pathname.split('/').pop();
+      data.source = 'landing_page';
       
       // Enviar para API
       fetch('/api/landing-pages/submit-lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-      }).then(() => {
-        alert('✅ Mensagem enviada com sucesso! Entraremos em contato em breve.');
-        e.target.reset();
-      }).catch(() => {
-        alert('❌ Erro ao enviar. Tente novamente.');
-      });
+      }).then(res => res.json())
+        .then(result => {
+          if (result.success) {
+            alert('✅ Mensagem enviada com sucesso! Entraremos em contato em breve.');
+            e.target.reset();
+          } else {
+            alert('❌ ' + (result.error || 'Erro ao enviar. Tente novamente.'));
+          }
+        }).catch(() => {
+          alert('❌ Erro ao enviar. Tente novamente.');
+        });
     }
   </script>
 </body>
