@@ -37,7 +37,7 @@
   "crons": [
     {
       "path": "/api/simple-cron",
-      "schedule": "0 13 * * 2,4,6,0"
+      "schedule": "0 16 * * 2,4,6,0"
     },
     {
       "path": "/api/cron/check-instagram-token",
