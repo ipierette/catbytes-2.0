@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
           await instagramDB.updatePost(dbRecord.id, {
             instagram_post_id: postId,
             status: 'published',
-            published_at: new Date()
+            published_at: new Date().toISOString()
           })
         }
 
