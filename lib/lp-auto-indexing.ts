@@ -76,7 +76,7 @@ export async function autoIndexNewLP(slug: string, lpData: {
   // 4. Salvar resultado no banco
   try {
     const supabase = createClient()
-    await supabase
+    const { error: updateError } = await supabase
       .from('landing_pages')
       .update({
         indexed_at: new Date().toISOString(),
@@ -85,9 +85,13 @@ export async function autoIndexNewLP(slug: string, lpData: {
       })
       .eq('slug', slug)
     
-    console.log(`[LP Auto-Index] ✅ Status salvo no banco`)
-  } catch (error) {
-    console.error(`[LP Auto-Index] ⚠️ Erro ao salvar status:`, error)
+    if (updateError) {
+      console.warn(`[LP Auto-Index] ⚠️ Banco não atualizado (tabela pode não existir):`, updateError.message)
+    } else {
+      console.log(`[LP Auto-Index] ✅ Status salvo no banco`)
+    }
+  } catch (error: any) {
+    console.warn(`[LP Auto-Index] ⚠️ Erro ao salvar status (continuando...):`, error.message)
   }
 
   return result
@@ -183,29 +187,41 @@ function analyzeLPSEO(lpData: {
 export async function reindexLP(slug: string): Promise<LPIndexingResult> {
   console.log(`[LP Re-Index] Re-indexando LP: ${slug}`)
   
-  const supabase = createClient()
-  const { data: lp } = await supabase
-    .from('landing_pages')
-    .select('title, meta_description, keywords, content')
-    .eq('slug', slug)
-    .single()
+  try {
+    const supabase = createClient()
+    const { data: lp, error: fetchError } = await supabase
+      .from('landing_pages')
+      .select('title, html_content, slug')
+      .eq('slug', slug)
+      .single()
 
-  if (!lp) {
-    throw new Error('LP não encontrada')
+    if (fetchError || !lp) {
+      throw new Error(fetchError?.message || 'LP não encontrada')
+    }
+
+    // Analisa conteúdo atual (dados mínimos)
+    const lpData = {
+      title: lp.title || '',
+      metaDescription: '', // TODO: extrair do HTML se necessário
+      keywords: [],
+      faqCount: 0,
+      hasTermos: (lp.html_content || '').toLowerCase().includes('termos'),
+      hasPrivacidade: (lp.html_content || '').toLowerCase().includes('privacidade'),
+      palavrasTotal: (lp.html_content || '').split(' ').length
+    }
+
+    return autoIndexNewLP(slug, lpData)
+  } catch (error: any) {
+    console.error(`[LP Re-Index] ❌ Erro:`, error.message)
+    
+    // Retorna resultado com erro mas não falha
+    return {
+      lpUrl: `https://catbytes.site/pt-BR/lp/${slug}`,
+      googleIndexing: { success: false, message: `❌ ${error.message}` },
+      sitemap: { included: true, message: '✅ Incluída no sitemap dinâmico' },
+      seoScore: { score: 0, issues: [error.message], recommendations: [] }
+    }
   }
-
-  // Analisa conteúdo atual
-  const lpData = {
-    title: lp.title || '',
-    metaDescription: lp.meta_description || '',
-    keywords: lp.keywords || [],
-    faqCount: 0, // TODO: extrair do content
-    hasTermos: lp.content?.includes('termos') || false,
-    hasPrivacidade: lp.content?.includes('privacidade') || false,
-    palavrasTotal: lp.content?.split(' ').length || 0
-  }
-
-  return autoIndexNewLP(slug, lpData)
 }
 
 /**
