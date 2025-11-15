@@ -109,9 +109,9 @@ export async function POST(request: NextRequest) {
           )
 
           if (!registerResponse.ok) {
-            const error = await registerResponse.json()
-            console.warn('[LinkedIn Publish] Image registration failed:', error)
-            // Continue sem imagem
+            const errorText = await registerResponse.text()
+            console.error('[LinkedIn Publish] ❌ Image registration failed:', registerResponse.status, errorText)
+            // Continue sem imagem mas loga o erro
           } else {
             const registerData = await registerResponse.json()
             const uploadUrl = registerData.value.uploadMechanism['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest'].uploadUrl
@@ -136,9 +136,10 @@ export async function POST(request: NextRequest) {
                 status: 'READY',
                 media: asset
               }]
-              console.log('[LinkedIn Publish] Image uploaded successfully')
+              console.log('[LinkedIn Publish] ✅ Image uploaded successfully:', asset)
             } else {
-              console.warn('[LinkedIn Publish] Image upload failed')
+              const uploadError = await uploadResponse.text()
+              console.error('[LinkedIn Publish] ❌ Image upload failed:', uploadResponse.status, uploadError)
             }
           }
         }

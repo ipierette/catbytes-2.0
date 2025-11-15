@@ -3,6 +3,8 @@
  * Uso: node publish-social-today.js
  */
 
+require('dotenv').config({ path: '.env.local' })
+
 const blogPost = {
   id: '41521029-5ae3-4325-9443-d2391179fcb0',
   title: 'Alimentação Amorosa: O Guia Completo Para Cada Fase do Gato',
@@ -13,8 +15,13 @@ const blogPost = {
   tags: ['gatos', 'alimentacao', 'saude felina', 'nutricao', 'cuidados']
 }
 
-const CRON_SECRET = process.env.CRON_SECRET || 'a0a99efa3213a7ffcf610276504172999bd3e07c908709c3fd6e25f44af518fb'
+const CRON_SECRET = process.env.CRON_SECRET
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.catbytes.site'
+
+if (!CRON_SECRET) {
+  console.error('❌ CRON_SECRET não configurado no .env.local')
+  process.exit(1)
+}
 
 async function generateSocialContent() {
   const { generateInstagramPost, generateLinkedInPost } = await import('./lib/blog-social-promoter.ts')
