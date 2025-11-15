@@ -146,8 +146,10 @@ export function useBlogPostTracking(postId: string, postSlug: string, title: str
     const trackBlogView = () => {
       const timeSpent = Math.round((Date.now() - startTime) / 1000)
       
-      // Only track if user spent more than 30 seconds reading
-      if (timeSpent > 30) {
+      // Only save reading analytics if user spent more than 3 seconds
+      // NOTE: View count is handled separately by ViewCounter component
+      if (timeSpent > 3) {
+        console.log(`[Analytics] 📖 Tracking blog view: ${postSlug} (${timeSpent}s read time, ${maxScroll}% scroll)`)
         import('@/lib/analytics').then(({ trackBlogPostView }) => {
           trackBlogPostView({
             postId,
@@ -161,29 +163,14 @@ export function useBlogPostTracking(postId: string, postSlug: string, title: str
       }
     }
 
-    // Track initial view after 3 seconds (to filter out bounces)
-    const initialTimer = setTimeout(() => {
-      import('@/lib/analytics').then(({ trackBlogPostView }) => {
-        trackBlogPostView({
-          postId,
-          postSlug,
-          title,
-          readTime: 3,
-          scrollDepth: 0,
-          locale: document.documentElement.lang || 'pt-BR'
-        })
-      })
-    }, 3000)
-
     window.addEventListener('scroll', trackReadingProgress, { passive: true })
     window.addEventListener('beforeunload', trackBlogView)
 
     return () => {
-      clearTimeout(initialTimer)
       window.removeEventListener('scroll', trackReadingProgress)
       window.removeEventListener('beforeunload', trackBlogView)
       
-      // Track final reading session
+      // Track final reading session when component unmounts
       trackBlogView()
     }
   }, [postId, postSlug, title, isActive])

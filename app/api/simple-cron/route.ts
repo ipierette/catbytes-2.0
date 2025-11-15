@@ -22,17 +22,57 @@ export async function GET(request: NextRequest) {
 
     const now = new Date()
     const dayOfWeek = now.getDay() // 0 = Sunday, 1 = Monday, etc.
-    const hour = now.getHours()
+    const hour = now.getUTCHours() // Usar UTC para consistência
+    const today = now.toISOString().split('T')[0] // YYYY-MM-DD
     const baseUrl = request.nextUrl.origin
 
-    console.log(`[Simple-Cron] Starting tasks for day ${dayOfWeek} at hour ${hour}`)
+    console.log(`[Simple-Cron] UTC Time - Day ${dayOfWeek}, Hour ${hour}, Date ${today}`)
+    console.log(`[Simple-Cron] Expected days: [2=Tue, 4=Thu, 6=Sat, 0=Sun] at hour 16 UTC`)
 
     const results: { [key: string]: any } = {}
 
-    // Schedule: Tuesday (2), Thursday (4), Saturday (6), Sunday (0) at 13:00
+    // Schedule: Tuesday (2), Thursday (4), Saturday (6), Sunday (0) at 16:00 UTC (13:00 BRT)
     // Execute blog generation and Instagram batch generation
-    if ([2, 4, 6, 0].includes(dayOfWeek) && hour === 13) {
-      console.log('[Simple-Cron] Executing blog and Instagram generation...')
+    if ([2, 4, 6, 0].includes(dayOfWeek) && hour === 16) {
+      console.log('[Simple-Cron] ✅ Correct schedule - Executing blog and Instagram generation...')
+      
+      // PROTEÇÃO: Verificar se já gerou artigo hoje
+      try {
+        const checkResponse = await fetch(`${baseUrl}/api/blog/posts?limit=1`, {
+          headers: {
+            'Authorization': authHeader || `Bearer ${cronSecret}`,
+          },
+        })
+        
+        if (checkResponse.ok) {
+          const { posts } = await checkResponse.json()
+          if (posts && posts.length > 0) {
+            const latestPost = posts[0]
+            const latestPostDate = latestPost.created_at.split('T')[0]
+            
+            if (latestPostDate === today) {
+              console.log('[Simple-Cron] ⚠️  Blog post already generated today, skipping...')
+              results.blog = { success: true, skipped: true, reason: 'Already generated today', post: latestPost }
+              
+              // Enviar alerta de warning
+              await alertCronWarning(
+                'Blog generation skipped',
+                `A blog post was already generated today (${latestPost.title}). Preventing duplicate generation.`,
+                { latestPost: latestPost.title, date: today }
+              )
+              
+              return NextResponse.json({ 
+                success: true, 
+                message: 'Cron skipped - post already generated today',
+                results 
+              })
+            }
+          }
+        }
+      } catch (error) {
+        console.error('[Simple-Cron] Error checking existing posts:', error)
+        // Continue mesmo se a verificação falhar
+      }
       
       // Blog post generation
       try {
