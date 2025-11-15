@@ -22,7 +22,6 @@ interface PostModalProps {
 
 export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModalProps) {
   const [imageError, setImageError] = useState(false)
-  const [viewsIncremented, setViewsIncremented] = useState(false)
   const router = useRouter()
   // Use pt-BR as default since this is admin context
   const locale = 'pt-BR'
@@ -46,34 +45,9 @@ export function PostModal({ post, isOpen, onClose, onViewIncremented }: PostModa
     isOpen && !!post // Only track when modal is open and post exists
   )
 
-  // Increment views on server when modal opens
-  useEffect(() => {
-    if (isOpen && post && !viewsIncremented) {
-      // Call the API endpoint to increment views and get updated post
-      fetch(`/api/blog/posts/${post.slug}`)
-        .then((res) => res.json())
-        .then((updatedPost) => {
-          setViewsIncremented(true)
-          console.log('[PostModal] View incremented for:', post.slug, 'New views:', updatedPost.views)
-          
-          // Notify parent component
-          if (onViewIncremented) {
-            onViewIncremented(updatedPost)
-          }
-          
-          // Notify all other components via blogSync
-          blogSync.notifyUpdate(updatedPost)
-        })
-        .catch((err) => {
-          console.error('[PostModal] Failed to increment view:', err)
-        })
-    }
-    
-    // Reset when modal closes
-    if (!isOpen) {
-      setViewsIncremented(false)
-    }
-  }, [isOpen, post?.slug, onViewIncremented])
+  // Note: Views are incremented by ViewCounter component on the actual blog post page
+  // PostModal just displays the post data without incrementing views
+  // This prevents double-counting when users open the modal
 
   // Reset image error when modal opens with new post
   useEffect(() => {

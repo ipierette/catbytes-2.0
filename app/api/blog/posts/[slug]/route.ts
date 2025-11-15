@@ -7,7 +7,7 @@ import { db } from '@/lib/supabase'
 // =====================================================
 
 export const runtime = 'nodejs' // Changed from edge to nodejs for better compatibility
-export const revalidate = 60 // Revalidate every 60 seconds
+export const revalidate = 0 // No cache to ensure accurate view counts
 
 export async function GET(
   request: NextRequest,
@@ -52,10 +52,10 @@ export async function GET(
       })
     }
 
-    // For regular requests, return cached data
+    // For regular requests, return fresh data to show accurate view counts
     return NextResponse.json(post, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        'Cache-Control': 'no-store, must-revalidate',
       },
     })
   } catch (error) {

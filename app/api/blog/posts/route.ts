@@ -8,8 +8,8 @@ import { unstable_cache } from 'next/cache'
 // =====================================================
 
 export const runtime = 'edge'
-// Reduced cache to allow view counts to update quickly
-export const revalidate = 10
+// No cache to ensure view counts are always fresh
+export const revalidate = 0
 
 export async function GET(request: NextRequest) {
   try {
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, {
       headers: {
-        'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30',
+        'Cache-Control': 'no-store, must-revalidate',
         'Cache-Tags': 'blog-posts',
       },
     })
