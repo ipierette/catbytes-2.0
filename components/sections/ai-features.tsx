@@ -28,13 +28,13 @@ function AdoptCatForm() {
       })
 
       if (!response.ok) {
-        throw new Error(t('adoptCat.form.errorFetch'))
+        throw new Error(t('form.errorFetch'))
       }
 
       const data = await response.json()
       setResults(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('adoptCat.form.errorUnknown'))
+      setError(err instanceof Error ? err.message : t('form.errorUnknown'))
     } finally {
       setLoading(false)
     }
@@ -180,48 +180,52 @@ function AdoptCatForm() {
           <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
             <CheckCircle2 className="w-5 h-5" />
             <p className="font-semibold">
-              {results.quantidade} {t('adoptCat.form.resultsFound')}
-              {results.meta?.cached && ` ${t('adoptCat.form.cached')}`}
+              {results.quantidade} {t('form.resultsFound')}
+              {results.meta?.cached && ` ${t('form.cached')}`}
             </p>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {results.anuncios?.map((ad: any, index: number) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 border-2 border-gray-200 dark:border-gray-700 hover:border-catbytes-purple transition-colors"
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5 border-2 border-gray-200 dark:border-gray-700 hover:border-catbytes-purple hover:shadow-2xl transition-all group"
               >
-                <h4 className="font-bold text-lg mb-2 text-gray-800 dark:text-white">
-                  {ad.titulo}
-                </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
+                <div className="flex items-start justify-between mb-3">
+                  <h4 className="font-bold text-lg text-gray-800 dark:text-white line-clamp-2 flex-1">
+                    {ad.titulo}
+                  </h4>
+                  {ad.score !== undefined && (
+                    <div className="ml-2 flex flex-col items-center">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-catbytes-green to-catbytes-blue flex items-center justify-center shadow-md">
+                        <span className="text-white font-bold text-sm">
+                          {Math.round(ad.score * 10)}
+                        </span>
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">Score</span>
+                    </div>
+                  )}
+                </div>
+
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-4 leading-relaxed">
                   {ad.descricao}
                 </p>
-                {ad.score !== undefined && (
-                  <div className="mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-catbytes-green h-2 rounded-full transition-all"
-                          style={{ width: `${ad.score * 100}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-semibold text-catbytes-purple">
-                        {Math.round(ad.score * 10)}/10
-                      </span>
-                    </div>
-                    {ad.ai_reason && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {ad.ai_reason}
-                      </p>
-                    )}
+
+                {ad.ai_reason && (
+                  <div className="mb-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <p className="text-xs font-medium text-purple-900 dark:text-purple-300 flex items-start gap-2">
+                      <span className="text-base">🤖</span>
+                      <span>{ad.ai_reason}</span>
+                    </p>
                   </div>
                 )}
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
+
+                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
                     {ad.fonte}
                   </span>
                   {ad.url && (
@@ -229,9 +233,9 @@ function AdoptCatForm() {
                       href={ad.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-sm text-catbytes-blue hover:text-catbytes-purple transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-white bg-gradient-to-r from-catbytes-blue to-catbytes-purple rounded-lg hover:from-catbytes-purple hover:to-catbytes-pink transition-all group-hover:scale-105"
                     >
-                      {t('adoptCat.form.viewAd')}
+                      {t('form.viewAd')}
                       <ExternalLink className="w-4 h-4" />
                     </a>
                   )}
@@ -270,7 +274,7 @@ function IdentifyCatForm() {
     const file = fileInput?.files?.[0]
 
     if (!file) {
-      setError(t('identifyCat.form.selectImage'))
+      setError(t('form.selectImage'))
       return
     }
 
@@ -288,13 +292,13 @@ function IdentifyCatForm() {
       })
 
       if (!response.ok) {
-        throw new Error(t('identifyCat.form.errorIdentify'))
+        throw new Error(t('form.errorIdentify'))
       }
 
       const data = await response.json()
       setResult(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('identifyCat.form.errorUnknown'))
+      setError(err instanceof Error ? err.message : t('form.errorUnknown'))
     } finally {
       setLoading(false)
     }
@@ -341,10 +345,10 @@ function IdentifyCatForm() {
           {loading ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              {t('identifyCat.form.processing')}...
+              {t('form.processing')}...
             </>
           ) : (
-            <>{t('identifyCat.form.submit')}</>
+            <>{t('form.submit')}</>
           )}
         </button>
       </form>
@@ -369,20 +373,20 @@ function IdentifyCatForm() {
           <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
             <CheckCircle2 className="w-5 h-5" />
             <p className="font-semibold">
-              {t('identifyCat.form.analysisComplete')}{result.cached && ` ${t('identifyCat.form.cached')}`}
+              {t('form.analysisComplete')}{result.cached && ` ${t('form.cached')}`}
             </p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 border-2 border-gray-200 dark:border-gray-700">
             <div className="space-y-4">
               <div>
-                <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('identifyCat.form.estimatedAge')}</h4>
+                <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('form.estimatedAge')}</h4>
                 <p className="text-gray-600 dark:text-gray-300">{result.idade}</p>
               </div>
 
               {result.racas && result.racas.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('identifyCat.form.possibleBreeds')}</h4>
+                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('form.possibleBreeds')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {result.racas.map((raca: string, index: number) => (
                       <span
@@ -398,7 +402,7 @@ function IdentifyCatForm() {
 
               {result.personalidade && result.personalidade.length > 0 && (
                 <div>
-                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('identifyCat.form.personality')}</h4>
+                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('form.personality')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {result.personalidade.map((trait: string, index: number) => (
                       <span
@@ -414,7 +418,7 @@ function IdentifyCatForm() {
 
               {result.observacoes && (
                 <div>
-                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('identifyCat.form.observations')}</h4>
+                  <h4 className="font-bold text-gray-800 dark:text-white mb-2">{t('form.observations')}</h4>
                   <p className="text-gray-600 dark:text-gray-300">{result.observacoes}</p>
                 </div>
               )}
@@ -437,8 +441,8 @@ function DonateCatForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!description.trim()) {
-      setError(t('donateCat.form.errorDescription'))
+    if (!formData.description.trim()) {
+      setError(t('form.errorDescription'))
       return
     }
 
@@ -461,13 +465,13 @@ function DonateCatForm() {
       }
 
       if (!data.data) {
-        throw new Error(t('donateCat.form.errorInvalid'))
+        throw new Error(t('form.errorInvalid'))
       }
 
       setResult(data.data)
     } catch (err) {
       console.error('Generate ad error:', err)
-      setError(err instanceof Error ? err.message : t('donateCat.form.errorUnknown'))
+      setError(err instanceof Error ? err.message : t('form.errorUnknown'))
     } finally {
       setLoading(false)
     }
