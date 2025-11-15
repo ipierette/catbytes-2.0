@@ -636,7 +636,7 @@ Responda APENAS com JSON válido.`
         
         if (promotionResults.instagram?.success) {
           successes.push('Instagram')
-          console.log('[Generate] ✅ Instagram post created:', promotionResults.instagram.postId || promotionResults.instagram.id)
+          console.log('[Generate] ✅ Instagram post created:', promotionResults.instagram.postId)
         } else if (promotionResults.instagram?.error) {
           failures.push(`Instagram: ${promotionResults.instagram.error}`)
           console.error('[Generate] ❌ Instagram promotion failed:', promotionResults.instagram.error)
@@ -644,7 +644,7 @@ Responda APENAS com JSON válido.`
         
         if (promotionResults.linkedin?.success) {
           successes.push('LinkedIn')
-          console.log('[Generate] ✅ LinkedIn post created:', promotionResults.linkedin.postId || promotionResults.linkedin.id)
+          console.log('[Generate] ✅ LinkedIn post created:', promotionResults.linkedin.postId)
         } else if (promotionResults.linkedin?.error) {
           failures.push(`LinkedIn: ${promotionResults.linkedin.error}`)
           console.error('[Generate] ❌ LinkedIn promotion failed:', promotionResults.linkedin.error)
