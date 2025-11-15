@@ -24,29 +24,71 @@ function AdoptCatForm() {
       .replace(/Categoria\w+\.\s*/gi, '')
       .replace(/Para\s+Doação\w+\s*[;.]\s*/gi, '')
       .replace(/Características\w+\s*[;:]\s*/gi, '')
-      .replace(/Localização\.\s*/gi, '')
+      .replace(/Localização\.\s*/gi, 'Localização: ')
       .replace(/Portal\s+do\s+\w+/gi, '')
       .replace(/Residencial\s+/gi, '')
+      .replace(/ONDE\s+ESTAMOS\?\s*/gi, '')
+      .replace(/Petz\s+/gi, '')
+      .replace(/res\s+-\s+gatinhos\s+car\s+\.\.\./gi, '')
       .replace(/\s*[;]\s*/g, '. ')
       .replace(/\.\s*\./g, '.')
       .replace(/\s+/g, ' ')
+      .replace(/^[.\s]+/, '')
       .trim()
     
-    // Se o texto ficou muito curto ou vazio após limpeza, retorna original
-    return cleaned.length > 20 ? cleaned : text
+    // Corta se muito longo (max 200 caracteres)
+    if (cleaned.length > 200) {
+      cleaned = cleaned.substring(0, 197) + '...'
+    }
+    
+    // Se o texto ficou muito curto após limpeza, tenta extrair informações úteis
+    if (cleaned.length < 20) {
+      return 'Gatinho disponível para adoção. Clique para ver mais detalhes.'
+    }
+    
+    return cleaned
   }
 
   // Função para limpar título removendo palavras repetidas
   const cleanTitle = (text: string) => {
-    if (!text) return ''
+    if (!text) return 'Gatinho para Adoção'
     
-    // Remove "gato filhote para adoção" duplicado do título
-    const cleaned = text
-      .replace(/\s*para\s+adoção\s*/gi, '')
-      .replace(/\s*responsável\s*$/gi, '')
+    // Remove sufixos redundantes e plataformas
+    let cleaned = text
+      .replace(/\s*-\s*Gatos\s+(no\s+Brasil|Pretos|Rajados|para\s+adoção).*$/gi, '')
+      .replace(/\s*-\s*Gatos\s+no\s+\w+$/gi, '')
+      .replace(/\s*para\s+adoção\s*responsável$/gi, '')
+      .replace(/\s*para\s+adocao$/gi, '')
+      .replace(/\s*-\s*adocao$/gi, '')
+      .replace(/^"(.+)"$/g, '$1')
       .trim()
     
+    // Limita tamanho do título
+    if (cleaned.length > 50) {
+      cleaned = cleaned.substring(0, 47) + '...'
+    }
+    
     return cleaned || text
+  }
+
+  // Extrai localização do texto
+  const extractLocation = (text: string) => {
+    if (!text) return null
+    
+    const locationMatch = text.match(/(?:Localização:|Campo\s+Grande|CEP:\s*[\d-]+|campo\s+grande\/MS)/i)
+    if (locationMatch) {
+      const location = text
+        .substring(text.indexOf(locationMatch[0]))
+        .split(/[.;]/)[0]
+        .replace(/Localização:\s*/gi, '')
+        .replace(/CEP:\s*/gi, '')
+        .trim()
+      
+      if (location.length > 5 && location.length < 50) {
+        return location
+      }
+    }
+    return null
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -221,62 +263,87 @@ function AdoptCatForm() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {results.anuncios?.map((ad: any, index: number) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5 border-2 border-gray-200 dark:border-gray-700 hover:border-catbytes-purple hover:shadow-2xl transition-all group"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <h4 className="font-bold text-lg text-gray-800 dark:text-white line-clamp-2 flex-1">
-                    {cleanTitle(ad.titulo)}
-                  </h4>
-                  {ad.score !== undefined && (
-                    <div className="ml-2 flex flex-col items-center">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-catbytes-green to-catbytes-blue flex items-center justify-center shadow-md">
-                        <span className="text-white font-bold text-sm">
-                          {Math.round(ad.score * 10)}
-                        </span>
+            {results.anuncios?.map((ad: any, index: number) => {
+              const location = extractLocation(ad.descricao)
+              const cleanedDesc = cleanDescription(ad.descricao)
+              
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:border-catbytes-purple hover:shadow-2xl transition-all group flex flex-col"
+                >
+                  {/* Header com título e score */}
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 border-b-2 border-gray-200 dark:border-gray-600">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-base text-gray-900 dark:text-white line-clamp-2 mb-1">
+                          {cleanTitle(ad.titulo)}
+                        </h4>
+                        {location && (
+                          <p className="text-xs text-gray-600 dark:text-gray-300 flex items-center gap-1">
+                            <span>📍</span>
+                            <span className="truncate">{location}</span>
+                          </p>
+                        )}
                       </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">Score</span>
+                      {ad.score !== undefined && (
+                        <div className="flex-shrink-0">
+                          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-catbytes-green to-catbytes-blue flex items-center justify-center shadow-lg">
+                            <div className="text-center">
+                              <div className="text-white font-bold text-lg leading-none">
+                                {Math.round(ad.score * 10)}
+                              </div>
+                              <div className="text-white text-[10px] opacity-90">
+                                /10
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-4 leading-relaxed">
-                  {cleanDescription(ad.descricao)}
-                </p>
-
-                {ad.ai_reason && (
-                  <div className="mb-4 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                    <p className="text-xs font-medium text-purple-900 dark:text-purple-300 flex items-start gap-2">
-                      <span className="text-base">🤖</span>
-                      <span>{ad.ai_reason}</span>
-                    </p>
                   </div>
-                )}
 
-                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                    {ad.fonte}
-                  </span>
-                  {ad.url && (
-                    <a
-                      href={ad.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-white bg-gradient-to-r from-catbytes-blue to-catbytes-purple rounded-lg hover:from-catbytes-purple hover:to-catbytes-pink transition-all group-hover:scale-105"
-                    >
-                      {t('form.viewAd')}
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                  {/* Corpo com descrição */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 line-clamp-3 leading-relaxed flex-1">
+                      {cleanedDesc}
+                    </p>
+
+                    {/* Razão da IA */}
+                    {ad.ai_reason && (
+                      <div className="mb-3 p-2.5 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+                        <p className="text-xs text-purple-900 dark:text-purple-300 flex items-start gap-1.5 leading-snug">
+                          <span className="text-sm flex-shrink-0">🤖</span>
+                          <span className="line-clamp-2">{ad.ai_reason}</span>
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Footer com fonte e botão */}
+                    <div className="flex items-center justify-between pt-3 mt-auto border-t border-gray-200 dark:border-gray-700">
+                      <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                        <span className="truncate max-w-[100px]">{ad.fonte}</span>
+                      </span>
+                      {ad.url && (
+                        <a
+                          href={ad.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-gradient-to-r from-catbytes-blue to-catbytes-purple rounded-lg hover:from-catbytes-purple hover:to-catbytes-pink transition-all shadow-md hover:shadow-lg group-hover:scale-105"
+                        >
+                          Ver anúncio
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )
+            })}
           </div>
         </motion.div>
       )}
