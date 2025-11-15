@@ -14,6 +14,41 @@ function AdoptCatForm() {
   const [results, setResults] = useState<any>(null)
   const [error, setError] = useState('')
 
+  // Função para limpar texto de metadados técnicos
+  const cleanDescription = (text: string) => {
+    if (!text) return ''
+    
+    // Remove padrões técnicos como "CategoriaGatos", "Para DoaçãoSim", etc.
+    let cleaned = text
+      .replace(/Detalhes\.\s*/gi, '')
+      .replace(/Categoria\w+\.\s*/gi, '')
+      .replace(/Para\s+Doação\w+\s*[;.]\s*/gi, '')
+      .replace(/Características\w+\s*[;:]\s*/gi, '')
+      .replace(/Localização\.\s*/gi, '')
+      .replace(/Portal\s+do\s+\w+/gi, '')
+      .replace(/Residencial\s+/gi, '')
+      .replace(/\s*[;]\s*/g, '. ')
+      .replace(/\.\s*\./g, '.')
+      .replace(/\s+/g, ' ')
+      .trim()
+    
+    // Se o texto ficou muito curto ou vazio após limpeza, retorna original
+    return cleaned.length > 20 ? cleaned : text
+  }
+
+  // Função para limpar título removendo palavras repetidas
+  const cleanTitle = (text: string) => {
+    if (!text) return ''
+    
+    // Remove "gato filhote para adoção" duplicado do título
+    const cleaned = text
+      .replace(/\s*para\s+adoção\s*/gi, '')
+      .replace(/\s*responsável\s*$/gi, '')
+      .trim()
+    
+    return cleaned || text
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -196,7 +231,7 @@ function AdoptCatForm() {
               >
                 <div className="flex items-start justify-between mb-3">
                   <h4 className="font-bold text-lg text-gray-800 dark:text-white line-clamp-2 flex-1">
-                    {ad.titulo}
+                    {cleanTitle(ad.titulo)}
                   </h4>
                   {ad.score !== undefined && (
                     <div className="ml-2 flex flex-col items-center">
@@ -211,7 +246,7 @@ function AdoptCatForm() {
                 </div>
 
                 <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-4 leading-relaxed">
-                  {ad.descricao}
+                  {cleanDescription(ad.descricao)}
                 </p>
 
                 {ad.ai_reason && (
