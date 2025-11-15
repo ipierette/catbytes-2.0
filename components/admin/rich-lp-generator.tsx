@@ -524,8 +524,8 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
           </div>
 
           <div class="mt-8 bg-white/20 backdrop-blur rounded-xl p-6 text-center border-2 border-white/30">
-            <p class="text-xl font-bold mb-2">${content.leadMagnet?.ctaTitulo || '🎁 Quer o Material Completo?'}</p>
-            <p class="text-white/90 mb-4">${content.leadMagnet?.ctaDescricao || 'Receba gratuitamente nosso guia detalhado com templates, planilhas e scripts prontos'}</p>
+            <p class="text-xl font-bold mb-2">${content.leadMagnet?.ctaTitulo || '🎁 Quer o Material Completo + Bônus?'}</p>
+            <p class="text-white/90 mb-4">${content.leadMagnet?.ctaDescricao || 'Receba gratuitamente nosso guia detalhado + eBook "100 Dicas de Presença Online" (PDF)'}</p>
             <a href="#contato" class="inline-block bg-white font-bold px-8 py-4 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl" style="color: ${theme.primaryColor}">
               Quero Receber o Material Completo
             </a>
@@ -659,25 +659,32 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
         <!-- Formulário de Contato -->
         <form class="bg-white rounded-2xl shadow-2xl p-8 text-left" onsubmit="handleFormSubmit(event)">
           <div class="mb-4">
-            <input type="text" name="name" placeholder="Seu Nome" required
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none text-gray-900">
+            <label class="block text-gray-700 font-semibold mb-2">Nome Completo *</label>
+            <input type="text" name="name" placeholder="Seu nome" required
+              class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 outline-none text-gray-900 placeholder-gray-500 bg-white focus:border-purple-500 transition-colors">
           </div>
           <div class="mb-4">
-            <input type="email" name="email" placeholder="Seu E-mail" required
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none text-gray-900">
+            <label class="block text-gray-700 font-semibold mb-2">E-mail *</label>
+            <input type="email" name="email" placeholder="seu@email.com" required
+              class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 outline-none text-gray-900 placeholder-gray-500 bg-white focus:border-purple-500 transition-colors">
           </div>
           <div class="mb-4">
-            <input type="tel" name="phone" placeholder="Seu Telefone"
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none text-gray-900">
+            <label class="block text-gray-700 font-semibold mb-2">Telefone/WhatsApp</label>
+            <input type="tel" name="phone" placeholder="(11) 99999-9999"
+              class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 outline-none text-gray-900 placeholder-gray-500 bg-white focus:border-purple-500 transition-colors">
           </div>
           <div class="mb-6">
+            <label class="block text-gray-700 font-semibold mb-2">Mensagem</label>
             <textarea name="message" rows="4" placeholder="Como podemos ajudar?"
-              class="w-full px-4 py-3 rounded-lg border border-gray-300 outline-none text-gray-900"></textarea>
+              class="w-full px-4 py-3 rounded-lg border-2 border-gray-300 outline-none text-gray-900 placeholder-gray-500 bg-white focus:border-purple-500 transition-colors"></textarea>
           </div>
           <button type="submit"
             class="w-full text-white font-bold px-8 py-4 rounded-full transition-all transform hover:scale-105 shadow-lg" style="background: ${theme.primaryColor}">
-            Enviar Mensagem
+            🎁 Enviar e Receber Material Gratuito
           </button>
+          <p class="text-xs text-gray-500 text-center mt-3">
+            📧 Após enviar, você receberá nosso eBook "100 Dicas de Presença Online" por email
+          </p>
         </form>
       </div>
     </div>
@@ -749,6 +756,16 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
       });
     }
 
+    // Download do PDF
+    function downloadPDF() {
+      const link = document.createElement('a');
+      link.href = '/100-dicas-presenca-online-catbytes.pdf';
+      link.download = '100-dicas-presenca-online-catbytes.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
     // Form Submit
     function handleFormSubmit(e) {
       e.preventDefault();
@@ -759,21 +776,44 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
       data.landing_page_slug = window.location.pathname.split('/').pop();
       data.source = 'landing_page';
       
+      // Desabilitar botão durante envio
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+      
       // Enviar para API
       fetch('/api/landing-pages/submit-lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
-      }).then(res => res.json())
+      })
+        .then(res => res.json())
         .then(result => {
           if (result.success) {
-            alert('✅ Mensagem enviada com sucesso! Entraremos em contato em breve.');
+            // Download automático do PDF
+            downloadPDF();
+            
+            // Mostrar mensagem de sucesso
+            alert('✅ Sucesso!\\n\\nSeu material está sendo baixado!\\n\\nVocê também receberá um email com:\\n- eBook "100 Dicas de Presença Online"\\n- Acesso aos materiais exclusivos\\n\\nVerifique sua caixa de entrada (e spam).');
+            
+            // Resetar formulário
             e.target.reset();
+            
+            // Scroll suave para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           } else {
-            alert('❌ ' + (result.error || 'Erro ao enviar. Tente novamente.'));
+            alert('❌ Erro: ' + (result.error || 'Não foi possível enviar. Tente novamente.'));
           }
-        }).catch(() => {
-          alert('❌ Erro ao enviar. Tente novamente.');
+        })
+        .catch(error => {
+          console.error('Erro:', error);
+          alert('❌ Erro de conexão. Verifique sua internet e tente novamente.');
+        })
+        .finally(() => {
+          // Reabilitar botão
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
         });
     }
   </script>
