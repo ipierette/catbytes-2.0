@@ -4,21 +4,81 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Sparkles, CheckCircle2, ExternalLink, FileText } from 'lucide-react'
+import { Loader2, Sparkles, CheckCircle2, ExternalLink, FileText, Eye, Rocket } from 'lucide-react'
 import type { LPRichContent } from '@/lib/lp-content-generator'
 import type { NicheValue } from '@/lib/landing-pages-constants'
 import { NICHES } from '@/lib/landing-pages-constants'
 
 interface RichLPGeneratorProps {
   nicho?: NicheValue
+  onSuccess?: () => void
 }
 
-export function RichLPGenerator({ nicho: initialNicho }: RichLPGeneratorProps = {}) {
+export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGeneratorProps = {}) {
   const [nicho, setNicho] = useState<NicheValue | null>(initialNicho || null)
   const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [deploying, setDeploying] = useState(false)
   const [suggestions, setSuggestions] = useState<any[]>([])
   const [generatedLP, setGeneratedLP] = useState<LPRichContent | null>(null)
+  const [savedLPId, setSavedLPId] = useState<string | null>(null)
+  const [savedSlug, setSavedSlug] = useState<string | null>(null)
   const [selectedTipo, setSelectedTipo] = useState<string>('')
+
+  // Converte conteúdo rico para HTML
+  const convertToHTML = (content: LPRichContent): string => {
+    return `
+      <div class="lp-rich-content">
+        <section class="hero">
+          <h1>${content.title}</h1>
+          <p>${content.metaDescription}</p>
+        </section>
+        
+        <section class="intro">
+          ${content.introducao}
+        </section>
+        
+        ${content.secoes.map(secao => `
+          <section class="content-section">
+            <h2>${secao.h2}</h2>
+            <div>${secao.conteudo}</div>
+            ${secao.items ? `<ul>${secao.items.map(item => `<li>${item}</li>`).join('')}</ul>` : ''}
+          </section>
+        `).join('')}
+        
+        <section class="faq">
+          <h2>Perguntas Frequentes</h2>
+          ${content.faq.map(item => `
+            <div class="faq-item">
+              <h3>${item.pergunta}</h3>
+              <p>${item.resposta}</p>
+            </div>
+          `).join('')}
+        </section>
+        
+        ${content.ctas.map(cta => `
+          <div class="cta">
+            <h3>${cta.texto}</h3>
+            <p>Posição: ${cta.localizacao}</p>
+          </div>
+        `).join('')}
+        
+        ${content.termosDeUso ? `
+          <section class="termos">
+            <h2>Termos de Uso</h2>
+            <div>${content.termosDeUso.conteudo}</div>
+          </section>
+        ` : ''}
+        
+        ${content.politicaPrivacidade ? `
+          <section class="privacidade">
+            <h2>Política de Privacidade</h2>
+            <div>${content.politicaPrivacidade.conteudo}</div>
+          </section>
+        ` : ''}
+      </div>
+    `
+  }
 
   // Busca sugestões de LPs
   const fetchSuggestions = async (selectedNicho: NicheValue) => {
@@ -37,6 +97,8 @@ export function RichLPGenerator({ nicho: initialNicho }: RichLPGeneratorProps = 
     setNicho(selectedNicho)
     setSuggestions([])
     setGeneratedLP(null)
+    setSavedLPId(null)
+    setSavedSlug(null)
   }
 
   // Gera LP rica
@@ -46,6 +108,8 @@ export function RichLPGenerator({ nicho: initialNicho }: RichLPGeneratorProps = 
     setLoading(true)
     setSelectedTipo(tipo)
     setGeneratedLP(null)
+    setSavedLPId(null)
+    setSavedSlug(null)
 
     try {
       const res = await fetch('/api/landing-pages/generate-rich', {
@@ -65,6 +129,87 @@ export function RichLPGenerator({ nicho: initialNicho }: RichLPGeneratorProps = 
       alert(`Erro: ${error.message}`)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Salva LP no banco de dados
+  const handleSaveLP = async () => {
+    if (!generatedLP || !nicho) return
+
+    setSaving(true)
+    try {
+      const htmlContent = convertToHTML(generatedLP)
+
+      const response = await fetch('/api/landing-pages/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: generatedLP.title,
+          slug: generatedLP.slug,
+          niche: nicho,
+          problem: generatedLP.introducao.substring(0, 200),
+          solution: generatedLP.secoes[0]?.conteudo.substring(0, 200) || '',
+          cta_text: generatedLP.ctas[0]?.texto || 'Fale Conosco',
+          theme_color: 'purple',
+          headline: generatedLP.title,
+          subheadline: generatedLP.metaDescription,
+          benefits: JSON.stringify(generatedLP.secoes.map(s => ({
+            title: s.h2,
+            description: s.conteudo.substring(0, 100)
+          }))),
+          html_content: htmlContent,
+          status: 'published'
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao salvar LP')
+      }
+
+      setSavedLPId(data.landingPage?.id || data.id)
+      setSavedSlug(generatedLP.slug)
+      
+      alert('✅ LP salva com sucesso! Agora você pode fazer o deploy.')
+      
+      // Chama callback se fornecido
+      if (onSuccess) {
+        onSuccess()
+      }
+    } catch (error: any) {
+      alert(`❌ Erro ao salvar: ${error.message}`)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Deploy da LP
+  const handleDeploy = async () => {
+    if (!savedLPId) {
+      alert('⚠️ Salve a LP primeiro antes de fazer deploy')
+      return
+    }
+
+    setDeploying(true)
+    try {
+      const response = await fetch('/api/landing-pages/deploy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ landingPageId: savedLPId })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao fazer deploy')
+      }
+
+      alert(`✅ Deploy realizado com sucesso!\n\nURL: ${data.deployUrl}`)
+    } catch (error: any) {
+      alert(`❌ Erro no deploy: ${error.message}`)
+    } finally {
+      setDeploying(false)
     }
   }
 
@@ -362,14 +507,110 @@ export function RichLPGenerator({ nicho: initialNicho }: RichLPGeneratorProps = 
           </Card>
 
           {/* Ações */}
-          <div className="flex gap-3">
-            <Button onClick={() => navigator.clipboard.writeText(JSON.stringify(generatedLP, null, 2))}>
-              <FileText className="w-4 h-4 mr-2" />
-              Copiar JSON
-            </Button>
-            <Button variant="outline" onClick={() => setGeneratedLP(null)}>
-              Gerar Nova LP
-            </Button>
+          <div className="space-y-3">
+            {!savedLPId ? (
+              <Card className="p-4 bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200 mb-3">
+                  ⚠️ LP ainda não foi salva. Salve primeiro para poder visualizar e fazer deploy.
+                </p>
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={handleSaveLP}
+                    disabled={saving}
+                    size="lg"
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Salvando LP...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Salvar LP no Banco
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    onClick={() => navigator.clipboard.writeText(JSON.stringify(generatedLP, null, 2))}
+                    variant="outline"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    JSON
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <Card className="p-4 bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+                <p className="text-sm text-green-800 dark:text-green-200 mb-3 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  ✅ LP salva com sucesso! Agora você pode visualizar e fazer deploy.
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button 
+                    size="lg"
+                    variant="outline"
+                    asChild
+                  >
+                    <a href={`/pt-BR/lp/${savedSlug}`} target="_blank">
+                      <Eye className="w-4 h-4 mr-2" />
+                      Ver Preview
+                    </a>
+                  </Button>
+                  <Button 
+                    onClick={handleDeploy}
+                    disabled={deploying}
+                    size="lg"
+                    className="bg-gradient-to-r from-blue-500 to-purple-500"
+                  >
+                    {deploying ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Deployando...
+                      </>
+                    ) : (
+                      <>
+                        <Rocket className="w-4 h-4 mr-2" />
+                        Deploy Vercel
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </Card>
+            )}
+            
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setGeneratedLP(null)
+                  setSavedLPId(null)
+                  setSavedSlug(null)
+                }}
+                className="flex-1"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Gerar Nova LP
+              </Button>
+              
+              {savedLPId && onSuccess && (
+                <Button 
+                  onClick={() => {
+                    onSuccess()
+                    // Reset estado
+                    setGeneratedLP(null)
+                    setSavedLPId(null)
+                    setSavedSlug(null)
+                    setNicho(null)
+                    setSuggestions([])
+                  }}
+                  variant="outline"
+                >
+                  Ver Todas as LPs
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       )}

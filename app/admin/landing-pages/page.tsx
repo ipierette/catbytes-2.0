@@ -512,7 +512,7 @@ export default function LandingPagesAdminPage() {
 
         {/* Tab: LPs Ricas (novas - SEO otimizado) */}
         <TabsContent value="rich" className="space-y-6">
-          <RichLPGenerator />
+          <RichLPGenerator onSuccess={loadLandingPages} />
         </TabsContent>
 
         {/* Tab: Gerenciador de Indexação */}
