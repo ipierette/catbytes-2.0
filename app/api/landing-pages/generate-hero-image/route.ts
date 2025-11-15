@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import { supabaseAdmin } from '@/lib/supabase'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -47,9 +48,53 @@ export async function POST(req: NextRequest) {
 
     console.log('✅ Imagem gerada com sucesso:', imageUrl)
 
+    // Baixar e salvar a imagem no Supabase Storage
+    console.log('💾 Salvando imagem no Supabase Storage...')
+    
+    const imageResponse = await fetch(imageUrl)
+    const imageBuffer = await imageResponse.arrayBuffer()
+    
+    // Gerar nome único para a imagem
+    const timestamp = Date.now()
+    const sanitizedTitle = titulo.toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .substring(0, 50)
+    
+    const fileName = `lp-hero/${nicho}-${sanitizedTitle}-${timestamp}.webp`
+    
+    if (!supabaseAdmin) {
+      throw new Error('Supabase admin client not configured')
+    }
+
+    // Fazer upload para o bucket blog-images
+    const { data: uploadData, error: uploadError } = await supabaseAdmin
+      .storage
+      .from('blog-images')
+      .upload(fileName, imageBuffer, {
+        contentType: 'image/webp',
+        cacheControl: '31536000', // 1 ano de cache
+        upsert: false
+      })
+
+    if (uploadError) {
+      console.error('❌ Erro ao fazer upload:', uploadError)
+      throw new Error(`Erro ao salvar imagem: ${uploadError.message}`)
+    }
+
+    // Obter URL pública permanente
+    const { data: { publicUrl } } = supabaseAdmin
+      .storage
+      .from('blog-images')
+      .getPublicUrl(fileName)
+
+    console.log('✅ Imagem salva permanentemente:', publicUrl)
+
     return NextResponse.json({
       success: true,
-      imageUrl,
+      imageUrl: publicUrl, // URL permanente do Supabase
       prompt,
     })
   } catch (error: any) {
