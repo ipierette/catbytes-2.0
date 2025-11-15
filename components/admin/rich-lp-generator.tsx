@@ -313,17 +313,18 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
     </div>
   </section>
 
-  <!-- Demo Interativa -->
-  <section class="py-20 text-white" style="background: ${theme.demoGradient};">
+  <!-- Veja em Ação - Demo Unificada -->
+  <section class="py-20 bg-gradient-to-b from-gray-50 to-white">
     <div class="container mx-auto px-4">
-      <div class="max-w-5xl mx-auto">
+      <div class="max-w-7xl mx-auto">
         <div class="text-center mb-12">
-          <h2 class="text-4xl md:text-5xl font-bold mb-4">Veja em Ação</h2>
-          <p class="text-xl opacity-90">Teste a automação na prática - sem compromisso</p>
+          <h2 class="text-4xl md:text-5xl font-bold mb-4 text-gray-900">Veja em Ação</h2>
+          <p class="text-xl text-gray-600">Demonstração completa do sistema funcionando na prática</p>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-2xl p-8 text-gray-900">
-          <div class="grid md:grid-cols-2 gap-8">
+        <div class="grid lg:grid-cols-2 gap-8">
+          <!-- Card 1: Comparação Manual vs Automação -->
+          <div class="bg-white rounded-2xl shadow-2xl p-8">
             <!-- Processo Manual -->
             <div class="space-y-4">
               <h3 class="text-2xl font-bold text-red-600 mb-4">Processo Manual</h3>
@@ -413,6 +414,102 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
               <a href="#contato" class="block w-full text-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-105 shadow-lg">
                 Quero Automatizar Meu Processo!
               </a>
+            </div>
+          </div>
+
+          <!-- Card 2: Demo Interativa com Cliques -->
+          <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <!-- Demo Header -->
+            <div class="px-6 py-4 flex items-center gap-3" style="background: ${theme.gradient}">
+              <div class="flex gap-2">
+                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+              </div>
+              <p class="text-white font-semibold ml-4">Demonstração Interativa - Clique nos botões</p>
+            </div>
+            
+            <!-- Demo Content -->
+            <div class="p-8">
+              <div id="demoSteps" class="space-y-6">
+                <!-- Step 1 -->
+                <div class="demo-step" data-step="1">
+                  <div class="flex items-center gap-4 mb-4">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background: ${theme.primaryColor}">1</div>
+                    <h3 class="text-xl font-bold text-gray-900">Processo Manual Atual</h3>
+                  </div>
+                  <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                    <p class="text-gray-700 mb-3">⏳ <strong>Situação Atual:</strong> Atendimento manual demora 15-20 minutos por cliente</p>
+                    <button onclick="showDemoStep(2)" class="px-6 py-2 rounded-lg text-white font-semibold transition-all hover:scale-105" style="background: ${theme.primaryColor}">
+                      Ativar Automação →
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="demo-step hidden" data-step="2">
+                  <div class="flex items-center gap-4 mb-4">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background: ${theme.primaryColor}">2</div>
+                    <h3 class="text-xl font-bold text-gray-900">IA em Ação</h3>
+                  </div>
+                  <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                    <div class="flex items-center gap-3">
+                      <div class="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                      <p class="text-gray-700"><strong>Processando...</strong> IA analisando solicitação do cliente</p>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2 ml-8">⏱️ Aguarde alguns segundos...</p>
+                  </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="demo-step hidden" data-step="3">
+                  <div class="flex items-center gap-4 mb-4">
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style="background: ${theme.primaryColor}">3</div>
+                    <h3 class="text-xl font-bold text-gray-900">Resultado</h3>
+                  </div>
+                  <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                    <p class="text-gray-700 mb-3">✅ <strong>Concluído!</strong> Atendimento automatizado em 30 segundos</p>
+                    <div class="grid grid-cols-3 gap-4 mt-4">
+                      <div class="text-center p-3 bg-white rounded-lg shadow">
+                        <div class="text-2xl font-bold text-green-600">95%</div>
+                        <div class="text-sm text-gray-600">Mais Rápido</div>
+                      </div>
+                      <div class="text-center p-3 bg-white rounded-lg shadow">
+                        <div class="text-2xl font-bold text-green-600">24/7</div>
+                        <div class="text-sm text-gray-600">Disponível</div>
+                      </div>
+                      <div class="text-center p-3 bg-white rounded-lg shadow">
+                        <div class="text-2xl font-bold text-green-600">0%</div>
+                        <div class="text-sm text-gray-600">Erros</div>
+                      </div>
+                    </div>
+                    <button onclick="showDemoStep(1)" class="mt-4 px-6 py-2 bg-gray-600 text-white rounded-lg font-semibold transition-all hover:scale-105">
+                      ↺ Reiniciar Demonstração
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- CTA da Demo -->
+              <div class="mt-8 text-center p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl">
+                <p class="text-lg font-semibold text-gray-800 mb-3">
+                  🚀 Resultados esperados em 30 dias:
+                </p>
+                <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+                  <div>
+                    <div class="text-3xl font-bold" style="color: ${theme.iconColor}">80%</div>
+                    <div class="text-sm text-gray-600">Redução de Tempo</div>
+                  </div>
+                  <div>
+                    <div class="text-3xl font-bold" style="color: ${theme.iconColor}">95%</div>
+                    <div class="text-sm text-gray-600">Menos Erros</div>
+                  </div>
+                  <div>
+                    <div class="text-3xl font-bold" style="color: ${theme.iconColor}">3x</div>
+                    <div class="text-sm text-gray-600">ROI Médio</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -750,8 +847,16 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
         if (parseInt(step.dataset.step) === stepNumber) {
           step.classList.remove('hidden');
           step.classList.add('animate-fade-in');
+          
+          // Se for step 2, simular processamento e avançar automaticamente para step 3
+          if (stepNumber === 2) {
+            setTimeout(() => {
+              showDemoStep(3);
+            }, 2000); // 2 segundos de "processamento"
+          }
         } else {
           step.classList.add('hidden');
+          step.classList.remove('animate-fade-in');
         }
       });
     }
