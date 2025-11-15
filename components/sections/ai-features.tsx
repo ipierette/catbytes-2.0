@@ -1,10 +1,10 @@
 'use client'
 import { FaRobot } from 'react-icons/fa'
 
-import { motion, useInView } from 'framer-motion'
+import { motion, useInView, AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { Home, Camera, Heart, Loader2, AlertCircle, CheckCircle2, ExternalLink } from 'lucide-react'
+import { Home, Camera, Heart, Loader2, AlertCircle, CheckCircle2, ExternalLink, X, ChevronRight } from 'lucide-react'
 
 // Componente AdoptCat
 function AdoptCatForm() {
@@ -13,6 +13,8 @@ function AdoptCatForm() {
   const [loading, setLoading] = useState(false)
   const [results, setResults] = useState<any>(null)
   const [error, setError] = useState('')
+  const [selectedAd, setSelectedAd] = useState<any>(null)
+  const [modalOpen, setModalOpen] = useState(false)
 
   // Função para limpar texto de metadados técnicos
   const cleanDescription = (text: string) => {
@@ -124,6 +126,104 @@ function AdoptCatForm() {
         {t('title')}
       </h3>
       <p className="text-gray-600 dark:text-gray-300">{t('description')}</p>
+
+      {/* Modal de detalhes completos */}
+      <AnimatePresence>
+        {modalOpen && selectedAd && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header do modal */}
+              <div className="sticky top-0 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-gray-700 dark:to-gray-600 p-6 border-b-2 border-gray-200 dark:border-gray-600">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                      {cleanTitle(selectedAd.titulo)}
+                    </h3>
+                    {extractLocation(selectedAd.descricao) && (
+                      <p className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2 mb-2">
+                        <span>📍</span>
+                        <span>{extractLocation(selectedAd.descricao)}</span>
+                      </p>
+                    )}
+                    <p className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                      Fonte: {selectedAd.fonte}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-catbytes-green to-catbytes-blue flex items-center justify-center shadow-lg">
+                      <div className="text-center">
+                        <div className="text-white font-bold text-2xl leading-none">
+                          {Math.round(selectedAd.score * 10)}
+                        </div>
+                        <div className="text-white text-xs opacity-90">/10</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setModalOpen(false)}
+                      className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                    >
+                      <X className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Conteúdo do modal */}
+              <div className="p-6 space-y-4">
+                {/* Descrição completa */}
+                <div>
+                  <h4 className="font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-catbytes-pink" />
+                    Descrição Completa
+                  </h4>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                    {cleanDescription(selectedAd.descricao)}
+                  </p>
+                </div>
+
+                {/* Razão da IA completa */}
+                {selectedAd.ai_reason && (
+                  <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-700">
+                    <h4 className="font-bold text-purple-900 dark:text-purple-300 mb-2 flex items-center gap-2">
+                      <span className="text-lg">🤖</span>
+                      Análise da IA
+                    </h4>
+                    <p className="text-sm text-purple-900 dark:text-purple-300 leading-relaxed">
+                      {selectedAd.ai_reason}
+                    </p>
+                  </div>
+                )}
+
+                {/* Botão para ver anúncio original */}
+                {selectedAd.url && (
+                  <a
+                    href={selectedAd.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full px-6 py-3 text-white bg-gradient-to-r from-catbytes-blue to-catbytes-purple rounded-xl font-semibold hover:from-catbytes-purple hover:to-catbytes-pink transition-all shadow-lg hover:shadow-xl"
+                  >
+                    Ver Anúncio Original
+                    <ExternalLink className="w-5 h-5" />
+                  </a>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-lg">
         <p className="text-sm text-blue-800 dark:text-blue-300">
@@ -283,11 +383,21 @@ function AdoptCatForm() {
                           {cleanTitle(ad.titulo)}
                         </h4>
                         {location && (
-                          <p className="text-xs text-gray-600 dark:text-gray-300 flex items-center gap-1">
+                          <p className="text-xs text-gray-600 dark:text-gray-300 flex items-center gap-1 mb-2">
                             <span>📍</span>
                             <span className="truncate">{location}</span>
                           </p>
                         )}
+                        <button
+                          onClick={() => {
+                            setSelectedAd(ad)
+                            setModalOpen(true)
+                          }}
+                          className="text-xs font-semibold text-catbytes-purple dark:text-catbytes-pink hover:underline flex items-center gap-1"
+                        >
+                          Ver completo
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
                       </div>
                       {ad.score !== undefined && (
                         <div className="flex-shrink-0">
