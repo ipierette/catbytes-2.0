@@ -11,7 +11,7 @@ export function SEOContent() {
       {/* SEO Content - Hidden but crawlable */}
       <div className="sr-only" aria-hidden="true">
         {/* Este conteúdo é invisível visualmente mas lido pelo Google */}
-        <h1>CatBytes - Portfólio de Izadora Cury Pierette | Desenvolvimento Web, React, Next.js e IA</h1>
+        {/* H1 REMOVIDO - evita duplicação com Hero */}
         
         <article>
           <h2>O que é CatBytes?</h2>

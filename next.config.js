@@ -55,9 +55,30 @@ const nextConfig = {
   // Compressão
   compress: true,
 
+  // Trailing slashes (SEO - URL consistency)
+  trailingSlash: false,
+
+  // Redirects para SEO (www → non-www)
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'www.catbytes.site',
+          },
+        ],
+        destination: 'https://catbytes.site/:path*',
+        permanent: true,
+      },
+    ]
+  },
+
   // Headers de segurança e performance
   async headers() {
     return [
+      // Headers globais para todas as páginas
       {
         source: '/:path*',
         headers: [
@@ -80,6 +101,20 @@ const nextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'origin-when-cross-origin'
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()'
+          },
+        ],
+      },
+      // Cache agressivo para imagens
+      {
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
           },
         ],
       },
@@ -117,6 +152,25 @@ const nextConfig = {
             value: 'text/plain; charset=utf-8'
           }
         ]
+      },
+      // Cache para CSS e JS
+      {
+        source: '/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
       },
       {
         source: '/.well-known/apple-app-site-association',

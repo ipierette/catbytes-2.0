@@ -29,10 +29,10 @@ export const metadata: Metadata = {
     },
   },
   title: {
-    default: 'CatBytes - Izadora Cury Pierette | Desenvolvimento Web, IA e Automação',
-    template: '%s | CatBytes - Izadora Pierette'
+    default: 'CatBytes - Izadora Pierette | Web, React e IA',
+    template: '%s | CatBytes'
   },
-  description: 'CatBytes: Portfólio de Izadora Cury Pierette, desenvolvedora full-stack especializada em React, Next.js, TypeScript, Node.js e soluções com inteligência artificial. Projetos modernos que unem design responsivo, código limpo e automação inteligente. Desenvolvimento web profissional.',
+  description: 'Desenvolvedora web full-stack especializada em React, Next.js, TypeScript e IA. Portfólio de projetos modernos com design responsivo e automação inteligente.',
   keywords: [
     'CatBytes',
     'catbytes',
@@ -119,8 +119,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'pt_BR',
     url: 'https://catbytes.site',
-    title: 'CatBytes - Izadora Cury Pierette | Desenvolvimento Web, IA e Automação',
-    description: 'Portfólio de Izadora Cury Pierette: projetos que unem design moderno, código limpo e soluções com inteligência artificial. Especialista em React, Next.js e automação.',
+    title: 'CatBytes - Izadora Pierette | Web, React e IA',
+    description: 'Desenvolvedora web full-stack especializada em React, Next.js, TypeScript e IA. Portfólio de projetos modernos com design responsivo e automação inteligente.',
     siteName: 'CatBytes',
     images: [
       {
@@ -148,8 +148,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CatBytes - Izadora Cury Pierette | Desenvolvimento Web, IA e Automação',
-    description: 'Portfólio de Izadora Cury Pierette: projetos que unem design moderno, código limpo e soluções com inteligência artificial.',
+    title: 'CatBytes - Izadora Pierette | Web, React e IA',
+    description: 'Desenvolvedora web full-stack especializada em React, Next.js, TypeScript e IA. Portfólio de projetos modernos.',
     images: ['/images/og-twitter-800x418.jpg'],
     creator: '@catbytes',
     site: '@catbytes',
