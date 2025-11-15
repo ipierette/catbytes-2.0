@@ -65,6 +65,16 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    
+    .animate-fade-in {
+      opacity: 0;
+      animation: fadeIn 0.5s ease-in forwards;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
   </style>
 </head>
 <body class="bg-gray-50">
@@ -176,19 +186,318 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
     </div>
   </section>
 
-  <!-- Recurso Destaque -->
-  ${content.recursoDestaque ? `
-  <section class="py-20 bg-purple-50">
+  <!-- Demo Interativa -->
+  <section class="py-20 bg-gradient-to-br from-purple-900 to-pink-900 text-white">
     <div class="container mx-auto px-4">
-      <div class="max-w-4xl mx-auto">
-        <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl shadow-2xl p-10 text-white fade-in">
-          <h3 class="text-3xl font-bold mb-4">${content.recursoDestaque.titulo}</h3>
-          <p class="text-lg opacity-90">${content.recursoDestaque.descricao}</p>
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-4xl md:text-5xl font-bold mb-4">Veja em Ação</h2>
+          <p class="text-xl opacity-90">Teste a automação na prática - sem compromisso</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-2xl p-8 text-gray-900">
+          <div class="grid md:grid-cols-2 gap-8">
+            <!-- Processo Manual -->
+            <div class="space-y-4">
+              <h3 class="text-2xl font-bold text-red-600 mb-4">Processo Manual</h3>
+              <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                <p class="font-semibold text-red-800">Tempo médio: 2-3 horas/dia</p>
+              </div>
+              
+              <div class="space-y-3">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <div class="flex justify-between mb-2">
+                    <span class="font-medium">Tarefa manual repetitiva</span>
+                    <span class="text-gray-600">30 min</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-red-500 h-2 rounded-full" style="width: 100%; animation: pulse 2s infinite;"></div>
+                  </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg opacity-75">
+                  <div class="flex justify-between mb-2">
+                    <span class="font-medium">Processamento lento</span>
+                    <span class="text-gray-600">45 min</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-red-500 h-2 rounded-full" style="width: 70%;"></div>
+                  </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg opacity-50">
+                  <div class="flex justify-between mb-2">
+                    <span class="font-medium">Erros humanos frequentes</span>
+                    <span class="text-gray-600">20 min retrabalho</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Processo Automatizado -->
+            <div class="space-y-4">
+              <h3 class="text-2xl font-bold text-green-600 mb-4">Com Automação + IA</h3>
+              <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded">
+                <p class="font-semibold text-green-800">Tempo médio: 2 minutos</p>
+                <p class="text-green-600 text-sm mt-1">Redução de 98.3% no tempo</p>
+              </div>
+              
+              <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-xl">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="font-bold text-lg">Sistema Processando...</p>
+                    <p class="text-sm text-gray-600">IA executando todas as tarefas</p>
+                  </div>
+                </div>
+                
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2 text-sm animate-fade-in">
+                    <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Processamento automático completo</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-sm animate-fade-in" style="animation-delay: 0.2s;">
+                    <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Notificações enviadas automaticamente</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-sm animate-fade-in" style="animation-delay: 0.4s;">
+                    <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Dados sincronizados em tempo real</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-sm animate-fade-in" style="animation-delay: 0.6s;">
+                    <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>Zero erros, 100% de precisão</span>
+                  </div>
+                </div>
+              </div>
+
+              <a href="#contato" class="block w-full text-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-105 shadow-lg">
+                Quero Automatizar Meu Processo!
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  ` : ''}
+
+  <!-- Checklist de Implementação -->
+  <section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl shadow-2xl p-8 md:p-12 text-white">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">Checklist de Implementação de Automação</h2>
+          <p class="text-lg opacity-90 mb-8">Um guia prático para garantir que seu consultório esteja pronto para a automação efetiva.</p>
+          
+          <div class="bg-white/10 backdrop-blur rounded-xl p-6 space-y-4">
+            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
+                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">Mapeamento de Processos Atuais</h3>
+                <p class="text-white/80 text-sm">Identifique todos os processos repetitivos que consomem tempo da equipe</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
+                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">Definição de Prioridades</h3>
+                <p class="text-white/80 text-sm">Escolha quais processos automatizar primeiro baseado no ROI</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
+                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">Preparação da Infraestrutura</h3>
+                <p class="text-white/80 text-sm">Garanta que sistemas e dados estejam organizados para integração</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
+                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">Treinamento da Equipe</h3>
+                <p class="text-white/80 text-sm">Capacite sua equipe para trabalhar com as novas ferramentas</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
+                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">Implementação Gradual</h3>
+                <p class="text-white/80 text-sm">Comece com um piloto e expanda conforme os resultados</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4 group cursor-pointer hover:bg-white/10 p-3 rounded-lg transition-all">
+              <div class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center flex-shrink-0 mt-1 group-hover:bg-white group-hover:border-purple-600">
+                <svg class="w-4 h-4 text-transparent group-hover:text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">Monitoramento e Ajustes</h3>
+                <p class="text-white/80 text-sm">Acompanhe métricas e otimize continuamente o sistema</p>
+              </div>
+            </div>
+          </div>
+
+          <a href="#contato" class="block w-full text-center bg-white text-purple-600 font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl mt-8">
+            Baixar Checklist Completo (PDF)
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo Interativa -->
+  <section class="py-20 bg-gradient-to-br from-gray-50 to-purple-50">
+    <div class="container mx-auto px-4">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-4xl font-bold mb-4 text-gray-900">Experimente Agora</h2>
+          <p class="text-xl text-gray-600">Veja como a automação pode transformar seu negócio</p>
+        </div>
+        
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <!-- Demo Header -->
+          <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 flex items-center gap-3">
+            <div class="flex gap-2">
+              <div class="w-3 h-3 rounded-full bg-red-400"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+              <div class="w-3 h-3 rounded-full bg-green-400"></div>
+            </div>
+            <p class="text-white font-semibold ml-4">Demonstração Interativa</p>
+          </div>
+          
+          <!-- Demo Content -->
+          <div class="p-8">
+            <div class="grid md:grid-cols-2 gap-8">
+              <!-- Antes -->
+              <div>
+                <h3 class="text-xl font-bold mb-4 text-red-600 flex items-center gap-2">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                  Sem Automação
+                </h3>
+                <div class="space-y-3">
+                  <div class="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
+                    <div class="animate-pulse">⏳</div>
+                    <div class="text-sm">
+                      <p class="font-semibold">Processos Manuais</p>
+                      <p class="text-gray-600">4-6 horas diárias em tarefas repetitivas</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
+                    <div>📄</div>
+                    <div class="text-sm">
+                      <p class="font-semibold">Dados Desorganizados</p>
+                      <p class="text-gray-600">Informações dispersas em planilhas</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
+                    <div>⚠️</div>
+                    <div class="text-sm">
+                      <p class="font-semibold">Erros Humanos</p>
+                      <p class="text-gray-600">15-20% de retrabalho</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Depois -->
+              <div>
+                <h3 class="text-xl font-bold mb-4 text-green-600 flex items-center gap-2">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  Com Automação IA
+                </h3>
+                <div class="space-y-3">
+                  <div class="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                    <div>⚡</div>
+                    <div class="text-sm">
+                      <p class="font-semibold">Processos Automatizados</p>
+                      <p class="text-gray-600">Redução de 80% no tempo</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                    <div>📊</div>
+                    <div class="text-sm">
+                      <p class="font-semibold">Dados Centralizados</p>
+                      <p class="text-gray-600">Dashboard em tempo real</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                    <div>🎯</div>
+                    <div class="text-sm">
+                      <p class="font-semibold">Precisão Total</p>
+                      <p class="text-gray-600">99.9% de acurácia</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- CTA da Demo -->
+            <div class="mt-8 text-center p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+              <p class="text-lg font-semibold text-gray-800 mb-3">
+                🚀 Resultados esperados em 30 dias:
+              </p>
+              <div class="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+                <div>
+                  <div class="text-3xl font-bold text-purple-600">80%</div>
+                  <div class="text-sm text-gray-600">Redução de Tempo</div>
+                </div>
+                <div>
+                  <div class="text-3xl font-bold text-pink-600">95%</div>
+                  <div class="text-sm text-gray-600">Menos Erros</div>
+                </div>
+                <div>
+                  <div class="text-3xl font-bold text-indigo-600">3x</div>
+                  <div class="text-sm text-gray-600">ROI Médio</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- CTA Final -->
   <section id="contato" class="py-20 gradient-bg relative">
@@ -262,8 +571,18 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
             </ul>
           </div>
         </div>
-        <div class="border-t border-gray-800 pt-8 text-center text-sm">
-          <p>&copy; ${new Date().getFullYear()} CATBytes AI. Todos os direitos reservados.</p>
+        <div class="border-t border-gray-800 pt-8">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p class="text-sm text-center md:text-left">
+              &copy; ${new Date().getFullYear()} CATBytes AI. Todos os direitos reservados.
+            </p>
+            <a href="https://catbytes.site" target="_blank" rel="noopener noreferrer" 
+               class="flex items-center gap-2 text-sm text-gray-400 hover:text-purple-400 transition-colors group">
+              <span class="opacity-60 group-hover:opacity-100">Powered by</span>
+              <img src="/images/catbytes-logo.png" alt="CATBytes IA" class="h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+              <span class="font-semibold">CATBytes IA</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
