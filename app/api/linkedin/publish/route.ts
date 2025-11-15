@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { text, image_url, publish_now = true } = body
+    const { text, image_url, publish_now = true, blog_category } = body
 
     if (!text) {
       return NextResponse.json(
@@ -35,25 +35,32 @@ export async function POST(request: NextRequest) {
     console.log('[LinkedIn Publish] Publishing blog promotion post...')
     console.log('[LinkedIn Publish] Text length:', text.length)
     console.log('[LinkedIn Publish] Has image:', !!image_url)
+    console.log('[LinkedIn Publish] Blog category:', blog_category)
 
     // Salva no banco para tracking
-    const { data: dbRecord, error: dbError } = await supabaseAdmin
-      .from('linkedin_posts')
-      .insert({
-        content: text,
-        image_url: image_url || null,
-        status: publish_now ? 'approved' : 'pending',
-        scheduled_for: publish_now ? new Date().toISOString() : null,
-        post_type: 'blog-promotion'
-      })
-      .select()
-      .single()
-
-    if (dbError) {
-      console.error('[LinkedIn Publish] Database error:', dbError)
-      // Continue mesmo com erro de DB (não é crítico)
+    let dbRecord = null
+    if (!supabaseAdmin) {
+      console.warn('[LinkedIn Publish] Supabase not configured - skipping database save')
     } else {
-      console.log('[LinkedIn Publish] Post saved to database:', dbRecord?.id)
+      const { data, error: dbError } = await supabaseAdmin
+        .from('linkedin_posts')
+        .insert({
+          content: text,
+          image_url: image_url || null,
+          status: publish_now ? 'approved' : 'pending',
+          scheduled_for: publish_now ? new Date().toISOString() : null,
+          post_type: blog_category ? `blog-${blog_category}` : 'blog-promotion'
+        })
+        .select()
+        .single()
+
+      if (dbError) {
+        console.error('[LinkedIn Publish] Database error:', dbError)
+        // Continue mesmo com erro de DB (não é crítico)
+      } else {
+        dbRecord = data
+        console.log('[LinkedIn Publish] Post saved to database:', dbRecord?.id)
+      }
     }
 
     // Se publish_now está ativado, publica no LinkedIn
@@ -160,7 +167,7 @@ export async function POST(request: NextRequest) {
         console.log('[LinkedIn Publish] ✅ Published to LinkedIn:', postId)
 
         // Atualiza no banco
-        if (dbRecord) {
+        if (dbRecord && supabaseAdmin) {
           await supabaseAdmin
             .from('linkedin_posts')
             .update({

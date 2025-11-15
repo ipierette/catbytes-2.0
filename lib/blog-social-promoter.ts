@@ -263,16 +263,19 @@ export async function publishToInstagram(
   try {
     // Usar a API de publicação direta do Instagram
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    const cronSecret = process.env.CRON_SECRET
     
     const response = await fetch(`${baseUrl}/api/instagram/publish`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${cronSecret}`
       },
       body: JSON.stringify({
         image_url: blogPost.cover_image_url,
         caption: content.fullText,
-        auto_publish: true // Publicar imediatamente
+        auto_publish: true, // Publicar imediatamente
+        blog_category: blogPost.category // Passa categoria do blog
       })
     })
     
@@ -306,16 +309,19 @@ export async function publishToLinkedIn(
 ): Promise<{ success: boolean; postId?: string; error?: string }> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    const cronSecret = process.env.CRON_SECRET
     
     const response = await fetch(`${baseUrl}/api/linkedin/publish`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${cronSecret}`
       },
       body: JSON.stringify({
         text: content.fullText,
         image_url: blogPost.cover_image_url,
-        publish_now: true // Publicar imediatamente
+        publish_now: true, // Publicar imediatamente
+        blog_category: blogPost.category // Passa categoria do blog
       })
     })
     

@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { image_url, caption, auto_publish = true } = body
+    const { image_url, caption, auto_publish = true, blog_category } = body
 
     if (!image_url || !caption) {
       return NextResponse.json(
@@ -35,11 +35,12 @@ export async function POST(request: NextRequest) {
     console.log('[Instagram Publish] Publishing blog promotion post...')
     console.log('[Instagram Publish] Image URL:', image_url)
     console.log('[Instagram Publish] Caption length:', caption.length)
+    console.log('[Instagram Publish] Blog category:', blog_category)
 
     // Salva no banco como aprovado e agenda para publicação
     const dbRecord = await instagramDB.savePost({
-      nicho: 'advogados', // Usa nicho padrão para posts de blog
-      titulo: 'Divulgação de Artigo do Blog',
+      nicho: 'advogados', // Usa nicho padrão para posts de blog (campo obrigatório)
+      titulo: blog_category ? `Blog: ${blog_category}` : 'Divulgação de Artigo do Blog',
       texto_imagem: '',
       caption,
       image_url,
