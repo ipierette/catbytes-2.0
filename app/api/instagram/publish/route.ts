@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
 
     // Salva no banco como aprovado e agenda para publicação
     const dbRecord = await instagramDB.savePost({
-      nicho: 'blog-promotion',
+      nicho: 'advogados', // Usa nicho padrão para posts de blog
       titulo: 'Divulgação de Artigo do Blog',
       texto_imagem: '',
       caption,
