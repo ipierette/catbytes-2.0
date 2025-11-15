@@ -34,12 +34,6 @@
       ]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/sitemap.xml",
-      "destination": "/api/sitemap"
-    }
-  ],
   "crons": [
     {
       "path": "/api/simple-cron",

@@ -58,21 +58,9 @@ const nextConfig = {
   // Trailing slashes (SEO - URL consistency)
   trailingSlash: false,
 
-  // Redirects para SEO (www → non-www)
+  // Redirects desabilitados temporariamente para debug
   async redirects() {
-    return [
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'host',
-            value: 'www.catbytes.site',
-          },
-        ],
-        destination: 'https://catbytes.site/:path*',
-        permanent: true,
-      },
-    ]
+    return []
   },
 
   // Headers de segurança e performance
