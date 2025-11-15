@@ -34,6 +34,34 @@ export async function generateMetadata({ params }: PageProps) {
         follow: true,
       },
     },
+    // Favicons otimizados para LPs
+    icons: {
+      icon: [
+        {
+          url: '/favicon-lp-16.png',
+          sizes: '16x16',
+          type: 'image/png',
+        },
+        {
+          url: '/favicon-lp-32.png',
+          sizes: '32x32',
+          type: 'image/png',
+        },
+      ],
+      apple: {
+        url: '/favicon-lp-180.png',
+        sizes: '180x180',
+        type: 'image/png',
+      },
+      other: [
+        {
+          rel: 'icon',
+          url: '/favicon-lp-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+      ],
+    },
     openGraph: {
       title: landingPage.headline,
       description: landingPage.subheadline,
