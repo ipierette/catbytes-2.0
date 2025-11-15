@@ -28,7 +28,7 @@ export function RecentPosts() {
 
   const fetchRecentPosts = useCallback(async () => {
     try {
-      const response = await fetch('/api/blog/posts?page=1&pageSize=2')
+      const response = await fetch(`/api/blog/posts?page=1&pageSize=2&locale=${locale}`)
 
       if (!response.ok) {
         throw new Error('Failed to fetch posts')
@@ -41,11 +41,11 @@ export function RecentPosts() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [locale])
 
   useEffect(() => {
     fetchRecentPosts()
-  }, [fetchRecentPosts])
+  }, [fetchRecentPosts, locale])
 
   return (
     <section
