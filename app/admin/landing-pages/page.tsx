@@ -21,7 +21,10 @@ import {
 } from 'lucide-react'
 import { NICHES, COLOR_THEMES_ARRAY } from '@/lib/landing-pages-constants'
 import { CreateLandingPageModal } from '@/components/admin/create-landing-page-modal'
+import { RichLPGenerator } from '@/components/admin/rich-lp-generator'
+import { LPIndexingManager } from '@/components/admin/lp-indexing-manager'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface LandingPage {
   id: string
@@ -248,14 +251,22 @@ export default function LandingPagesAdminPage() {
       title="Landing Pages"
       description="Geração automática com IA para captura de leads"
     >
-      <div className="space-y-6">
-        {/* Header com botão */}
-        <div className="flex justify-end">
-          <Button onClick={() => setModalOpen(true)} size="lg">
-            <Plus className="mr-2 h-5 w-5" />
-            Nova Landing Page
-          </Button>
-        </div>
+      <Tabs defaultValue="simple" className="w-full">
+        <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsTrigger value="simple">LPs Simples</TabsTrigger>
+          <TabsTrigger value="rich">LPs Ricas (SEO)</TabsTrigger>
+          <TabsTrigger value="indexing">Indexação</TabsTrigger>
+        </TabsList>
+
+        {/* Tab: LPs Simples (antigas) */}
+        <TabsContent value="simple" className="space-y-6">
+          {/* Header com botão */}
+          <div className="flex justify-end">
+            <Button onClick={() => setModalOpen(true)} size="lg">
+              <Plus className="mr-2 h-5 w-5" />
+              Nova LP Simples
+            </Button>
+          </div>
 
       {/* Stats Cards */}
       {stats && (
@@ -497,7 +508,18 @@ export default function LandingPagesAdminPage() {
           loadLandingPages()
         }}
       />
-      </div>
+        </TabsContent>
+
+        {/* Tab: LPs Ricas (novas - SEO otimizado) */}
+        <TabsContent value="rich" className="space-y-6">
+          <RichLPGenerator />
+        </TabsContent>
+
+        {/* Tab: Gerenciador de Indexação */}
+        <TabsContent value="indexing" className="space-y-6">
+          <LPIndexingManager />
+        </TabsContent>
+      </Tabs>
     </AdminLayoutWrapper>
   )
 }
