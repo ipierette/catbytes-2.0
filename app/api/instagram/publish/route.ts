@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       caption,
       image_url,
       status: auto_publish ? 'approved' : 'pending',
-      scheduled_for: auto_publish ? new Date() : undefined
+      scheduled_for: auto_publish ? new Date().toISOString() : undefined
     })
 
     console.log('[Instagram Publish] Post saved to database:', dbRecord.id)
