@@ -99,11 +99,13 @@ export async function POST(request: NextRequest) {
         console.log('[Instagram Publish] ✅ Published to Instagram:', postId)
 
         // Atualiza no banco com ID do Instagram
-        await instagramDB.updatePost(dbRecord.id, {
-          instagram_post_id: postId,
-          status: 'published',
-          published_at: new Date()
-        })
+        if (dbRecord.id) {
+          await instagramDB.updatePost(dbRecord.id, {
+            instagram_post_id: postId,
+            status: 'published',
+            published_at: new Date()
+          })
+        }
 
         return NextResponse.json({
           success: true,
