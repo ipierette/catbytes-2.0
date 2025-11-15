@@ -19,64 +19,272 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [deploying, setDeploying] = useState(false)
+  const [generatingImage, setGeneratingImage] = useState(false)
   const [suggestions, setSuggestions] = useState<any[]>([])
   const [generatedLP, setGeneratedLP] = useState<LPRichContent | null>(null)
   const [savedLPId, setSavedLPId] = useState<string | null>(null)
   const [savedSlug, setSavedSlug] = useState<string | null>(null)
+  const [heroImageUrl, setHeroImageUrl] = useState<string | null>(null)
   const [selectedTipo, setSelectedTipo] = useState<string>('')
 
   // Converte conteúdo rico para HTML
-  const convertToHTML = (content: LPRichContent): string => {
+  const convertToHTML = (content: LPRichContent, heroImage?: string | null): string => {
     return `
-      <div class="lp-rich-content">
-        <section class="hero">
-          <h1>${content.title}</h1>
-          <p>${content.metaDescription}</p>
-        </section>
-        
-        <section class="intro">
-          ${content.introducao}
-        </section>
-        
-        ${content.secoes.map(secao => `
-          <section class="content-section">
-            <h2>${secao.h2}</h2>
-            <div>${secao.conteudo}</div>
-            ${secao.items ? `<ul>${secao.items.map(item => `<li>${item}</li>`).join('')}</ul>` : ''}
-          </section>
-        `).join('')}
-        
-        <section class="faq">
-          <h2>Perguntas Frequentes</h2>
-          ${content.faq.map(item => `
-            <div class="faq-item">
-              <h3>${item.pergunta}</h3>
-              <p>${item.resposta}</p>
-            </div>
-          `).join('')}
-        </section>
-        
-        ${content.ctas.map(cta => `
-          <div class="cta">
-            <h3>${cta.texto}</h3>
-            <p>Posição: ${cta.localizacao}</p>
-          </div>
-        `).join('')}
-        
-        ${content.termosDeUso ? `
-          <section class="termos">
-            <h2>Termos de Uso</h2>
-            <div>${content.termosDeUso.conteudo}</div>
-          </section>
-        ` : ''}
-        
-        ${content.politicaPrivacidade ? `
-          <section class="privacidade">
-            <h2>Política de Privacidade</h2>
-            <div>${content.politicaPrivacidade.conteudo}</div>
-          </section>
-        ` : ''}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${content.title}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * { font-family: 'Inter', sans-serif; }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .hero-with-image {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%), 
+                  url('${heroImage}') center/cover no-repeat;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.6s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Hero Section -->
+  <section class="${heroImage ? 'hero-with-image' : 'gradient-bg'} relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0 bg-black opacity-20"></div>
+    <div class="container mx-auto px-4 py-20 relative z-10">
+      <div class="max-w-4xl mx-auto text-center text-white fade-in">
+        <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+          ${content.title}
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 opacity-90">
+          ${content.metaDescription}
+        </p>
+        <a href="#contato" class="inline-block bg-white text-purple-600 font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl">
+          ${content.ctas[0]?.texto || 'Fale Conosco'}
+        </a>
       </div>
+    </div>
+    
+    <!-- Wave divider -->
+    <div class="absolute bottom-0 w-full">
+      <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#F9FAFB"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Introdução -->
+  <section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl p-10 fade-in">
+          <div class="prose prose-lg max-w-none">
+            ${content.introducao}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Seções de Conteúdo -->
+  ${content.secoes.map((secao, idx) => `
+  <section class="py-16 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto fade-in">
+        <h2 class="text-4xl font-bold mb-6 text-gray-900">${secao.h2}</h2>
+        <div class="prose prose-lg max-w-none text-gray-700">
+          <p>${secao.conteudo}</p>
+          ${secao.items ? `
+            <ul class="mt-6 space-y-3">
+              ${secao.items.map(item => `
+                <li class="flex items-start">
+                  <svg class="w-6 h-6 text-purple-600 mr-3 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                  </svg>
+                  <span>${item}</span>
+                </li>
+              `).join('')}
+            </ul>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  </section>
+  `).join('')}
+
+  <!-- CTA Meio -->
+  ${content.ctas.length > 1 ? `
+  <section class="py-20 gradient-bg relative">
+    <div class="absolute inset-0 bg-black opacity-10"></div>
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="max-w-3xl mx-auto text-center text-white fade-in">
+        <h2 class="text-4xl font-bold mb-6">${content.ctas[1].texto}</h2>
+        <a href="#contato" class="inline-block bg-white text-purple-600 font-bold px-10 py-4 rounded-full hover:bg-gray-100 transition-all transform hover:scale-105 shadow-2xl">
+          Solicitar Demonstração
+        </a>
+      </div>
+    </div>
+  </section>
+  ` : ''}
+
+  <!-- FAQ -->
+  <section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-4xl font-bold mb-12 text-center text-gray-900">❓ Perguntas Frequentes</h2>
+        <div class="space-y-4">
+          ${content.faq.map((item, idx) => `
+            <details class="bg-white rounded-xl shadow-lg overflow-hidden group">
+              <summary class="cursor-pointer px-8 py-6 font-semibold text-lg text-gray-900 hover:bg-purple-50 transition-colors flex justify-between items-center">
+                ${item.pergunta}
+                <svg class="w-5 h-5 text-purple-600 transform group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </summary>
+              <div class="px-8 py-6 text-gray-700 bg-gray-50">
+                <p>${item.resposta}</p>
+              </div>
+            </details>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recurso Destaque -->
+  ${content.recursoDestaque ? `
+  <section class="py-20 bg-purple-50">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl shadow-2xl p-10 text-white fade-in">
+          <h3 class="text-3xl font-bold mb-4">${content.recursoDestaque.titulo}</h3>
+          <p class="text-lg opacity-90">${content.recursoDestaque.descricao}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  ` : ''}
+
+  <!-- CTA Final -->
+  <section id="contato" class="py-20 gradient-bg relative">
+    <div class="absolute inset-0 bg-black opacity-10"></div>
+    <div class="container mx-auto px-4 relative z-10">
+      <div class="max-w-2xl mx-auto text-center text-white fade-in">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6">
+          ${content.ctas[content.ctas.length - 1]?.texto || 'Comece Agora'}
+        </h2>
+        <p class="text-xl mb-10 opacity-90">
+          Transforme sua operação com automação inteligente
+        </p>
+        
+        <!-- Formulário de Contato -->
+        <form class="bg-white rounded-2xl shadow-2xl p-8 text-left" onsubmit="handleFormSubmit(event)">
+          <div class="mb-4">
+            <input type="text" name="name" placeholder="Seu Nome" required
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-gray-900">
+          </div>
+          <div class="mb-4">
+            <input type="email" name="email" placeholder="Seu E-mail" required
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-gray-900">
+          </div>
+          <div class="mb-4">
+            <input type="tel" name="phone" placeholder="Seu Telefone"
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-gray-900">
+          </div>
+          <div class="mb-6">
+            <textarea name="message" rows="4" placeholder="Como podemos ajudar?"
+              class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-gray-900"></textarea>
+          </div>
+          <button type="submit"
+            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold px-8 py-4 rounded-full transition-all transform hover:scale-105 shadow-lg">
+            Enviar Mensagem
+          </button>
+        </form>
+        
+        <!-- WhatsApp Button -->
+        <a href="https://wa.me/5511999999999" target="_blank"
+          class="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl transition-all transform hover:scale-110 z-50">
+          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 py-12">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="grid md:grid-cols-3 gap-8 mb-8">
+          <div>
+            <h4 class="font-bold text-white mb-4">Sobre</h4>
+            <p class="text-sm">Soluções de automação com IA para empresas modernas.</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-white mb-4">Links Úteis</h4>
+            <ul class="text-sm space-y-2">
+              ${content.linksInternos.slice(0, 3).map(link => `
+                <li><a href="${link.url}" class="hover:text-purple-400 transition-colors">${link.texto}</a></li>
+              `).join('')}
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold text-white mb-4">Legal</h4>
+            <ul class="text-sm space-y-2">
+              <li><a href="#termos" class="hover:text-purple-400 transition-colors">Termos de Uso</a></li>
+              <li><a href="#privacidade" class="hover:text-purple-400 transition-colors">Política de Privacidade</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-t border-gray-800 pt-8 text-center text-sm">
+          <p>&copy; ${new Date().getFullYear()} CATBytes AI. Todos os direitos reservados.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+      
+      // Enviar para API
+      fetch('/api/landing-pages/submit-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(() => {
+        alert('✅ Mensagem enviada com sucesso! Entraremos em contato em breve.');
+        e.target.reset();
+      }).catch(() => {
+        alert('❌ Erro ao enviar. Tente novamente.');
+      });
+    }
+  </script>
+</body>
+</html>
     `
   }
 
@@ -110,8 +318,10 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
     setGeneratedLP(null)
     setSavedLPId(null)
     setSavedSlug(null)
+    setHeroImageUrl(null)
 
     try {
+      // 1. Gerar conteúdo da LP
       const res = await fetch('/api/landing-pages/generate-rich', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -120,10 +330,34 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
 
       const data = await res.json()
 
-      if (data.success) {
-        setGeneratedLP(data.content)
-      } else {
+      if (!data.success) {
         throw new Error(data.error)
+      }
+
+      setGeneratedLP(data.content)
+
+      // 2. Gerar imagem hero em paralelo
+      setGeneratingImage(true)
+      try {
+        const imageRes = await fetch('/api/landing-pages/generate-hero-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            nicho, 
+            titulo: data.content.title 
+          })
+        })
+
+        const imageData = await imageRes.json()
+        
+        if (imageData.success && imageData.imageUrl) {
+          setHeroImageUrl(imageData.imageUrl)
+          console.log('✅ Imagem hero gerada:', imageData.imageUrl)
+        }
+      } catch (imageError) {
+        console.warn('⚠️ Erro ao gerar imagem hero (continuando sem imagem):', imageError)
+      } finally {
+        setGeneratingImage(false)
       }
     } catch (error: any) {
       alert(`Erro: ${error.message}`)
@@ -138,7 +372,7 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
 
     setSaving(true)
     try {
-      const htmlContent = convertToHTML(generatedLP)
+      const htmlContent = convertToHTML(generatedLP, heroImageUrl)
 
       const response = await fetch('/api/landing-pages/create', {
         method: 'POST',
@@ -158,6 +392,7 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
             description: s.conteudo.substring(0, 100)
           }))),
           html_content: htmlContent,
+          hero_image_url: heroImageUrl, // Adiciona URL da imagem hero gerada
           status: 'published'
         })
       })
@@ -325,6 +560,39 @@ export function RichLPGenerator({ nicho: initialNicho, onSuccess }: RichLPGenera
       {/* LP Gerada - Preview */}
       {generatedLP && (
         <div className="space-y-6">
+          {/* Status da Imagem Hero */}
+          {generatingImage && (
+            <Card className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+              <div className="flex items-center gap-3">
+                <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                <div>
+                  <p className="font-semibold text-blue-900 dark:text-blue-100">
+                    🎨 Gerando imagem hero profissional...
+                  </p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">
+                    Criando fotografia corporativa de alta qualidade com IA
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {heroImageUrl && !generatingImage && (
+            <Card className="p-4 bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+              <div className="flex items-center gap-3 mb-3">
+                <CheckCircle2 className="w-5 h-5 text-green-600" />
+                <p className="font-semibold text-green-900 dark:text-green-100">
+                  ✅ Imagem hero gerada com sucesso!
+                </p>
+              </div>
+              <img 
+                src={heroImageUrl} 
+                alt="Preview Hero" 
+                className="w-full h-48 object-cover rounded-lg shadow-lg"
+              />
+            </Card>
+          )}
+
           {/* Métricas */}
           <Card className="p-6 bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
             <div className="flex items-center gap-2 mb-4">
