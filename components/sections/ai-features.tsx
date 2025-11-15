@@ -441,7 +441,7 @@ function DonateCatForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!formData.description.trim()) {
+    if (!description.trim()) {
       setError(t('form.errorDescription'))
       return
     }
