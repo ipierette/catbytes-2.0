@@ -604,9 +604,17 @@ Responda APENAS com JSON válido.`
     }
 
     // ====== STEP 4.5: Promote on social media (Instagram & LinkedIn) ======
+    let socialPromotion: any = null
+    
     if (createdPost.published && coverImageUrl && !textOnly) {
       try {
         console.log('[Generate] 📱 Promoting article on social media...')
+        console.log('[Generate] Post details:', { 
+          id: createdPost.id, 
+          title: createdPost.title,
+          slug: createdPost.slug,
+          cover: coverImageUrl
+        })
         
         const promotionResults = await promoteArticle(
           {
@@ -621,36 +629,65 @@ Responda APENAS com JSON válido.`
           ['instagram', 'linkedin']
         )
         
+        console.log('[Generate] Promotion results:', promotionResults)
+        
         const successes: string[] = []
         const failures: string[] = []
         
         if (promotionResults.instagram?.success) {
           successes.push('Instagram')
+          console.log('[Generate] ✅ Instagram post created:', promotionResults.instagram.postId || promotionResults.instagram.id)
         } else if (promotionResults.instagram?.error) {
           failures.push(`Instagram: ${promotionResults.instagram.error}`)
+          console.error('[Generate] ❌ Instagram promotion failed:', promotionResults.instagram.error)
         }
         
         if (promotionResults.linkedin?.success) {
           successes.push('LinkedIn')
+          console.log('[Generate] ✅ LinkedIn post created:', promotionResults.linkedin.postId || promotionResults.linkedin.id)
         } else if (promotionResults.linkedin?.error) {
           failures.push(`LinkedIn: ${promotionResults.linkedin.error}`)
+          console.error('[Generate] ❌ LinkedIn promotion failed:', promotionResults.linkedin.error)
+        }
+        
+        socialPromotion = {
+          attempted: true,
+          successes,
+          failures,
+          results: promotionResults
         }
         
         if (successes.length > 0) {
-          console.log(`[Generate] ✅ Article promoted on: ${successes.join(', ')}`)
+          console.log(`[Generate] ✅✅✅ Article promoted on: ${successes.join(', ')}`)
         }
         if (failures.length > 0) {
-          console.log(`[Generate] ⚠️ Failed to promote on: ${failures.join(', ')}`)
+          console.warn(`[Generate] ⚠️⚠️⚠️ Failed to promote on: ${failures.join(', ')}`)
         }
         
       } catch (promoError) {
         console.error('[Generate] ❌ Error promoting on social media:', promoError)
+        console.error('[Generate] Error stack:', promoError instanceof Error ? promoError.stack : 'No stack')
+        
+        socialPromotion = {
+          attempted: true,
+          successes: [],
+          failures: ['Exception: ' + (promoError instanceof Error ? promoError.message : String(promoError))],
+          error: promoError instanceof Error ? promoError.message : String(promoError)
+        }
         // Não falha a geração do post se a promoção falhar
       }
-    } else if (!createdPost.published) {
-      console.log('[Generate] ⚠️ Post is draft - skipping social media promotion')
-    } else if (!coverImageUrl || textOnly) {
-      console.log('[Generate] ⚠️ No cover image - skipping social media promotion')
+    } else {
+      const reason = !createdPost.published ? 'Post is draft' : 
+                     !coverImageUrl ? 'No cover image' : 
+                     'Text-only mode'
+      console.log(`[Generate] ⚠️ Skipping social media promotion - ${reason}`)
+      
+      socialPromotion = {
+        attempted: false,
+        reason,
+        successes: [],
+        failures: []
+      }
     }
 
     // ====== STEP 5: Log generation ======
@@ -667,6 +704,7 @@ Responda APENAS com JSON válido.`
       success: true,
       post: createdPost,
       translatedPost: translatedPost || null,
+      socialPromotion: socialPromotion || null,
       generationTime,
       textOnly: !!textOnly,
       imagePrompt: imagePromptSuggestion || null,

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { alertCronSuccess, alertCronFailure, alertCronWarning } from '@/lib/alert-system'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60 // Reduzido para teste
@@ -147,6 +148,27 @@ export async function GET(request: NextRequest) {
     const successfulTasks = Object.values(results).filter(r => r.success).length
     const overallSuccess = successfulTasks === totalTasks
 
+    // Enviar alerta baseado no resultado
+    if (totalTasks > 0) {
+      if (overallSuccess) {
+        await alertCronSuccess('Blog & Social Media Generation', {
+          tasksExecuted: totalTasks,
+          results: results,
+          day: dayOfWeek,
+          hour: hour
+        })
+      } else {
+        const failedTasks = Object.entries(results)
+          .filter(([_, r]) => !r.success)
+          .map(([name, r]) => ({ task: name, error: r.error }))
+        
+        await alertCronWarning('Blog & Social Media Generation', 
+          `${successfulTasks}/${totalTasks} tarefas completadas com sucesso`,
+          { failedTasks, allResults: results }
+        )
+      }
+    }
+
     return NextResponse.json({
       success: overallSuccess,
       message: `Executed ${successfulTasks}/${totalTasks} tasks successfully`,
@@ -156,6 +178,10 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('[Simple-Cron] Error:', error)
+    
+    // Enviar alerta de erro crítico
+    await alertCronFailure('Blog & Social Media Generation', error)
+    
     return NextResponse.json(
       {
         success: false,
