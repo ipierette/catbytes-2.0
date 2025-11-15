@@ -12,14 +12,21 @@ export function ViewCounter({ slug, locale }: ViewCounterProps) {
     // Increment view count only once when component mounts
     const incrementView = async () => {
       try {
-        await fetch(`/api/blog/posts/${slug}`, {
+        console.log('[ViewCounter] Incrementing view for:', slug)
+        const response = await fetch(`/api/blog/posts/${slug}`, {
           method: 'GET',
           headers: {
             'x-increment-views': 'true',
           },
         })
+        
+        if (!response.ok) {
+          console.error('[ViewCounter] Failed to increment view:', response.status, response.statusText)
+        } else {
+          console.log('[ViewCounter] ✅ View incremented successfully for:', slug)
+        }
       } catch (error) {
-        console.error('Failed to increment view count:', error)
+        console.error('[ViewCounter] Exception incrementing view count:', error)
       }
     }
 
