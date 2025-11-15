@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateRichLPContent, getSuggestedLPs, type LPRichContent } from '@/lib/lp-content-generator'
+import { autoIndexNewLP } from '@/lib/lp-auto-indexing'
 import type { NicheValue } from '@/lib/landing-pages-constants'
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 export const maxDuration = 60
 
 interface GenerateRichLPRequest {
@@ -39,9 +40,28 @@ export async function POST(request: NextRequest) {
       faq: richContent.faq.length
     })
 
+    // Auto-indexação da LP (Google + Sitemap + SEO Analysis)
+    const indexingResult = await autoIndexNewLP(richContent.slug, {
+      title: richContent.title,
+      metaDescription: richContent.metaDescription,
+      keywords: richContent.keywords,
+      faqCount: richContent.faq.length,
+      hasTermos: !!richContent.termosDeUso?.conteudo,
+      hasPrivacidade: !!richContent.politicaPrivacidade?.conteudo,
+      palavrasTotal: richContent.introducao.split(' ').length + 
+        richContent.secoes.reduce((acc, s) => acc + s.conteudo.split(' ').length, 0)
+    })
+
+    console.log(`[LP Auto-Index] Resultado:`, {
+      googleIndexing: indexingResult.googleIndexing.message,
+      seoScore: indexingResult.seoScore.score,
+      issues: indexingResult.seoScore.issues
+    })
+
     return NextResponse.json({
       success: true,
       content: richContent,
+      indexing: indexingResult,
       metadata: {
         tipo,
         nicho,
@@ -50,7 +70,8 @@ export async function POST(request: NextRequest) {
         secoesCount: richContent.secoes.length,
         linksInternosCount: richContent.linksInternos.length,
         faqCount: richContent.faq.length,
-        ctasCount: richContent.ctas.length
+        ctasCount: richContent.ctas.length,
+        seoScore: indexingResult.seoScore.score
       }
     })
 

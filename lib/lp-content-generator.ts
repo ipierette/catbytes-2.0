@@ -64,6 +64,26 @@ export interface LPRichContent {
     pergunta: string
     resposta: string
   }>
+  
+  // Páginas Legais (SEO + Compliance)
+  termosDeUso: {
+    conteudo: string
+    ultimaAtualizacao: string
+  }
+  
+  politicaPrivacidade: {
+    conteudo: string
+    ultimaAtualizacao: string
+    dadosColetados: string[]
+    finalidadeDados: string[]
+  }
+  
+  // Schema.org JSON-LD
+  structuredData: {
+    organization: object
+    webpage: object
+    faqPage: object
+  }
 }
 
 // =====================================================
@@ -281,6 +301,55 @@ DIRETRIZES CRÍTICAS:
 6. Links internos devem ser NATURAIS no contexto
 7. FAQ otimizado para aparecer em featured snippets do Google
 8. Use storytelling quando possível (caso de sucesso real ou hipotético)
+9. Termos de Uso e Política de Privacidade devem ser COMPLETOS e específicos para automação com IA
+10. Structured Data (JSON-LD) deve seguir schema.org perfeitamente
+
+ADICIONE TAMBÉM:
+
+{
+  "termosDeUso": {
+    "conteudo": "HTML completo dos termos de uso específicos para serviços de automação com IA (mínimo 800 palavras, incluindo: escopo do serviço, responsabilidades, limitações de responsabilidade, propriedade intelectual, rescisão, lei aplicável)",
+    "ultimaAtualizacao": "2025-11-14"
+  },
+  "politicaPrivacidade": {
+    "conteudo": "HTML completo da política de privacidade conforme LGPD (mínimo 1000 palavras, incluindo: tipos de dados coletados, base legal, finalidade, compartilhamento, direitos do titular, cookies, retenção de dados)",
+    "ultimaAtualizacao": "2025-11-14",
+    "dadosColetados": ["Nome", "Email", "Telefone", "Empresa", "Dados de uso do chatbot"],
+    "finalidadeDados": ["Prestação de serviço", "Comunicação", "Melhorias no sistema", "Marketing (com consentimento)"]
+  },
+  "structuredData": {
+    "organization": {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "CatBytes",
+      "url": "https://catbytes.site",
+      "logo": "https://catbytes.site/images/logo.png",
+      "description": "Automação empresarial com IA",
+      "sameAs": ["https://linkedin.com/company/catbytes", "https://github.com/catbytes"]
+    },
+    "webpage": {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "[USAR O H1]",
+      "description": "[USAR META DESCRIPTION]",
+      "url": "https://catbytes.site/lp/[SLUG]"
+    },
+    "faqPage": {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "[PERGUNTA DO FAQ]",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "[RESPOSTA DO FAQ]"
+          }
+        }
+      ]
+    }
+  }
+}
 
 Retorne APENAS o JSON, sem markdown ou explicações.`
 
