@@ -24,11 +24,12 @@ export async function GET(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // Scopes necessários para publicar posts
+    // Scopes disponíveis no app (w_member_social precisa ser adicionado no LinkedIn Developers)
     const scopes = [
-      'r_liteprofile',      // Ler perfil básico
-      'r_emailaddress',     // Ler email (opcional)
-      'w_member_social'     // Escrever posts (ESSENCIAL)
+      'openid',             // Sign in with LinkedIn
+      'profile',            // Ler perfil básico
+      'email',              // Ler email
+      'w_member_social'     // Escrever posts (PRECISA SER HABILITADO NO APP)
     ].join('%20')
 
     const state = Math.random().toString(36).substring(7) // Estado aleatório para segurança
