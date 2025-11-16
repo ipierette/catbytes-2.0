@@ -1,0 +1,7 @@
+export { VideoEditor } from './video-editor'
+export { Timeline } from './timeline'
+export { PreviewCanvas } from './preview-canvas'
+export { AssetLibrary } from './asset-library'
+export { PropertiesPanel } from './properties-panel'
+export { PlaybackControls } from './playback-controls'
+export { EditorToolbar } from './toolbar'
