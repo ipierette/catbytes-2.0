@@ -159,13 +159,19 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now()
 
   try {
-    // 1. Verify Admin Authentication
-    const authCheck = await verifyAdminCookie(request)
-    if (!authCheck.valid) {
-      return authCheck.error || NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
+    // 1. Verify Admin Authentication (Cookie OR CRON_SECRET)
+    const authHeader = request.headers.get('authorization')
+    const cronSecret = authHeader?.replace('Bearer ', '')
+    const isValidCron = cronSecret === process.env.CRON_SECRET
+    
+    if (!isValidCron) {
+      const authCheck = await verifyAdminCookie(request)
+      if (!authCheck.valid) {
+        return authCheck.error || NextResponse.json(
+          { success: false, error: 'Unauthorized' },
+          { status: 401 }
+        )
+      }
     }
 
     // 2. Check Resend API Key
