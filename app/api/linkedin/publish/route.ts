@@ -69,18 +69,12 @@ export async function POST(request: NextRequest) {
         console.log('[LinkedIn Publish] Publishing to LinkedIn API...')
         
         let postPayload: any = {
-          author: process.env.LINKEDIN_PERSON_URN,
-          lifecycleState: 'PUBLISHED',
-          specificContent: {
-            'com.linkedin.ugc.ShareContent': {
-              shareCommentary: {
-                text
-              },
-              shareMediaCategory: image_url ? 'IMAGE' : 'NONE'
-            }
+          owner: process.env.LINKEDIN_PERSON_URN,
+          text: {
+            text
           },
-          visibility: {
-            'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+          distribution: {
+            linkedInDistributionTarget: {}
           }
         }
 
@@ -131,11 +125,16 @@ export async function POST(request: NextRequest) {
             })
 
             if (uploadResponse.ok) {
-              // Adiciona imagem ao post
-              postPayload.specificContent['com.linkedin.ugc.ShareContent'].media = [{
-                status: 'READY',
-                media: asset
-              }]
+              // Adiciona imagem ao post (Share API format)
+              postPayload.content = {
+                contentEntities: [{
+                  entityLocation: image_url,
+                  thumbnails: [{
+                    resolvedUrl: image_url
+                  }]
+                }],
+                title: text.substring(0, 200)
+              }
               console.log('[LinkedIn Publish] ✅ Image uploaded successfully:', asset)
             } else {
               const uploadError = await uploadResponse.text()
@@ -144,9 +143,9 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Publica o post
+        // Publica o post usando REST API (v2/shares)
         const publishResponse = await fetch(
-          'https://api.linkedin.com/v2/ugcPosts',
+          'https://api.linkedin.com/v2/shares',
           {
             method: 'POST',
             headers: {
