@@ -16,9 +16,10 @@ interface VideoRendererProps {
   projectId: string
   projectTitle: string
   onClose: () => void
+  onRenderComplete?: (renderId: string) => void
 }
 
-export function VideoRenderer({ projectId, projectTitle, onClose }: VideoRendererProps) {
+export function VideoRenderer({ projectId, projectTitle, onClose, onRenderComplete }: VideoRendererProps) {
   const [format, setFormat] = useState<'mp4' | 'webm' | 'mov'>('mp4')
   const [quality, setQuality] = useState<'720p' | '1080p' | '4k'>('1080p')
   const [aspectRatio, setAspectRatio] = useState<'16:9' | '9:16' | '1:1' | '4:5'>('16:9')
@@ -41,6 +42,11 @@ export function VideoRenderer({ projectId, projectTitle, onClose }: VideoRendere
 
         if (data.render.status !== 'processing') {
           clearInterval(interval)
+          
+          // Call callback when completed
+          if (data.render.status === 'completed' && onRenderComplete) {
+            onRenderComplete(data.render.id)
+          }
         }
       } catch (error) {
         console.error('Poll render status error:', error)

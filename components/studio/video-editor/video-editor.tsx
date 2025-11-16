@@ -16,6 +16,7 @@ import { PlaybackControls } from './playback-controls'
 import { EditorToolbar } from './toolbar'
 import { EffectsPanel } from './effects-panel'
 import { VideoRenderer } from '../video-renderer'
+import { SocialPublisher } from '../social-publisher'
 
 interface VideoEditorProps {
   projectId: string
@@ -39,6 +40,8 @@ export function VideoEditor({ projectId, initialProject }: VideoEditorProps) {
 
   const [showEffectsPanel, setShowEffectsPanel] = useState(false)
   const [showRenderer, setShowRenderer] = useState(false)
+  const [showPublisher, setShowPublisher] = useState(false)
+  const [completedRenderId, setCompletedRenderId] = useState<string | null>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const timelineRef = useRef<HTMLDivElement>(null)
 
@@ -304,6 +307,25 @@ export function VideoEditor({ projectId, initialProject }: VideoEditorProps) {
             projectId={projectId}
             projectTitle={editorState.project.title}
             onClose={() => setShowRenderer(false)}
+            onRenderComplete={(renderId) => {
+              setCompletedRenderId(renderId)
+              setShowRenderer(false)
+              setShowPublisher(true)
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Social Publisher Modal */}
+      <AnimatePresence>
+        {showPublisher && completedRenderId && (
+          <SocialPublisher
+            renderId={completedRenderId}
+            projectTitle={editorState.project.title}
+            onClose={() => {
+              setShowPublisher(false)
+              setCompletedRenderId(null)
+            }}
           />
         )}
       </AnimatePresence>
