@@ -7,15 +7,16 @@ import { createClient } from '@/lib/supabase'
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = createClient()
     
     const { data, error } = await supabase
       .from('studio_projects')
       .select('*, studio_clips(*)')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
     
     if (error) {
@@ -40,9 +41,10 @@ export async function GET(
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await req.json()
     const supabase = createClient()
     
@@ -52,7 +54,7 @@ export async function PUT(
         ...body,
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
     
@@ -61,7 +63,7 @@ export async function PUT(
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
     
-    console.log('✅ Projeto atualizado:', params.id)
+    console.log('✅ Projeto atualizado:', id)
     return NextResponse.json(data)
   } catch (error: any) {
     console.error('❌ Erro ao processar request:', error)
@@ -75,23 +77,24 @@ export async function PUT(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = createClient()
     
     // Deletar clips relacionados (cascade deve fazer isso automaticamente)
     const { error } = await supabase
       .from('studio_projects')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
     
     if (error) {
       console.error('❌ Erro ao deletar projeto:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
     
-    console.log('✅ Projeto deletado:', params.id)
+    console.log('✅ Projeto deletado:', id)
     return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error('❌ Erro ao processar request:', error)
