@@ -10,6 +10,9 @@ interface TimelineProps {
   selectedClip: string | null
   onClipSelect: (clipId: string | null) => void
   onClipUpdate: (clipId: string, updates: any) => void
+  onClipDelete?: (clipId: string) => void
+  onClipDuplicate?: (clipId: string) => void
+  onClipSplit?: (clipId: string, splitTime: number) => void
   onTimelineChange: (timeline: TimelineType) => void
   onZoomChange: (zoom: number) => void
 }

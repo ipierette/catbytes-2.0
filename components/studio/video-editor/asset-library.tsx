@@ -167,9 +167,9 @@ function AssetThumbnail({ asset, onClick }: { asset: Asset; onClick: () => void 
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
     >
-      {asset.thumbnail_url ? (
+      {asset.thumbnail ? (
         <img 
-          src={asset.thumbnail_url} 
+          src={asset.thumbnail} 
           alt={asset.name}
           className="w-full h-full object-cover"
         />

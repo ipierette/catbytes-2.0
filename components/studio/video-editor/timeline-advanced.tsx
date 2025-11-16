@@ -28,7 +28,7 @@ interface TimelineAdvancedProps {
   currentTime: number
   zoom: number
   selectedClip: string | null
-  onClipSelect: (clipId: string) => void
+  onClipSelect: (clipId: string | null) => void
   onClipUpdate: (clipId: string, updates: Partial<TimelineClip>) => void
   onClipDelete: (clipId: string) => void
   onClipDuplicate: (clipId: string) => void
@@ -308,7 +308,6 @@ function DraggableClip({
   return (
     <div
       ref={setNodeRef}
-      style={{ ...style, left: clipPosition, width: clipWidth }}
       className={`
         absolute h-12 rounded cursor-move transition-all flex items-center px-2 gap-1
         ${isDragging ? 'opacity-50 z-50' : 'z-10'}

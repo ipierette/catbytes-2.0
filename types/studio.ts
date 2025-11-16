@@ -58,6 +58,9 @@ export interface TimelineClip {
   opacity: number
   zIndex: number
   
+  // Visual
+  color?: string // cor do clip na timeline (para UI)
+  
   // Effects
   transition?: Transition
   filters: Filter[]

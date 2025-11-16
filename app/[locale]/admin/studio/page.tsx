@@ -164,6 +164,10 @@ export default function StudioPage() {
         <CreateTab 
           onCreateClick={() => setShowNewProjectModal(true)} 
           onScriptGeneratorClick={() => setShowScriptGenerator(true)}
+          onPodcastClick={() => {
+            setShowNarrationGenerator(true)
+            setGeneratedScript('')
+          }}
           stats={stats} 
         />
       )}
@@ -232,10 +236,12 @@ function TabButton({
 function CreateTab({ 
   onCreateClick, 
   onScriptGeneratorClick,
+  onPodcastClick,
   stats 
 }: { 
   onCreateClick: () => void
   onScriptGeneratorClick: () => void
+  onPodcastClick: () => void
   stats: any 
 }) {
   const contentTypes = [
@@ -264,10 +270,7 @@ function CreateTab({
       icon: <Mic className="w-8 h-8" />,
       gradient: 'from-indigo-500 to-purple-500',
       platforms: ['Spotify', 'Apple Podcasts', 'RSS'],
-      onClick: () => {
-        setShowNarrationGenerator(true)
-        setGeneratedScript('')
-      },
+      onClick: onPodcastClick,
     },
     {
       id: 'blog-video',

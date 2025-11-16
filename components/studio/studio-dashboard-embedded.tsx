@@ -73,7 +73,7 @@ export function StudioDashboardEmbedded() {
   }
 
   const handleScriptGenerated = (script: ScriptResponse) => {
-    const fullScript = `${script.title}\n\n${script.hook}\n\n${script.body.map(b => b.content).join('\n\n')}\n\n${script.cta}`
+    const fullScript = `${script.title}\n\n${script.hook}\n\n${script.body.map(b => b.text).join('\n\n')}\n\n${script.cta}`
     setGeneratedScript(fullScript)
     setShowScriptGenerator(false)
     setShowNarrationGenerator(true)
@@ -281,9 +281,7 @@ export function StudioDashboardEmbedded() {
 
       {showNarrationGenerator && (
         <NarrationGenerator
-          projectId=""
-          locale="pt-BR"
-          initialScript={generatedScript}
+          scriptText={generatedScript}
           onNarrationGenerated={handleNarrationGenerated}
           onBack={() => setShowNarrationGenerator(false)}
         />
