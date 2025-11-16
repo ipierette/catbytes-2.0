@@ -150,7 +150,7 @@ Industry context: ${niche}`,
 
     const heroImageUrl = imageResponse.data?.[0]?.url || ''
 
-    // 2.5. Fazer upload da imagem para Supabase Storage (blog-images bucket)
+    // 2.5. Fazer upload da imagem para Supabase Storage (instagram-images bucket)
     console.log('📤 Fazendo upload da imagem para Supabase...')
     let permanentImageUrl = heroImageUrl // fallback para URL temporária
     
@@ -168,7 +168,7 @@ Industry context: ${niche}`,
       const { supabase: supabaseAdmin } = await import('@/lib/supabase')
       const { data: uploadData, error: uploadError } = await supabaseAdmin
         .storage
-        .from('blog-images')
+        .from('instagram-images')
         .upload(fileName, buffer, {
           contentType: 'image/png',
           cacheControl: '31536000', // 1 ano
@@ -181,7 +181,7 @@ Industry context: ${niche}`,
         // URL pública permanente
         const { data: { publicUrl } } = supabaseAdmin
           .storage
-          .from('blog-images')
+          .from('instagram-images')
           .getPublicUrl(fileName)
         
         permanentImageUrl = publicUrl

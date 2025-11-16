@@ -59,11 +59,11 @@ export function AssetUploader({ projectId, type, onUploadComplete, maxFiles = 10
     try {
       const fileExt = fileData.file.name.split('.').pop()
       const fileName = `${projectId}/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`
-      const filePath = `studio-assets/${type}s/${fileName}`
+      const filePath = `studio/${type}s/${fileName}`
 
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from('media-studio')
+        .from('videos')
         .upload(filePath, fileData.file, {
           cacheControl: '3600',
           upsert: false,
@@ -73,7 +73,7 @@ export function AssetUploader({ projectId, type, onUploadComplete, maxFiles = 10
 
       // Get public URL
       const { data: urlData } = supabase.storage
-        .from('media-studio')
+        .from('videos')
         .getPublicUrl(filePath)
 
       // Update file status

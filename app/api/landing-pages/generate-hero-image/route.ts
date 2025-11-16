@@ -69,10 +69,10 @@ export async function POST(req: NextRequest) {
       throw new Error('Supabase admin client not configured')
     }
 
-    // Fazer upload para o bucket blog-images
+    // Fazer upload para o bucket instagram-images
     const { data: uploadData, error: uploadError } = await supabaseAdmin
       .storage
-      .from('blog-images')
+      .from('instagram-images')
       .upload(fileName, imageBuffer, {
         contentType: 'image/webp',
         cacheControl: '31536000', // 1 ano de cache
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
     // Obter URL pública permanente
     const { data: { publicUrl } } = supabaseAdmin
       .storage
-      .from('blog-images')
+      .from('instagram-images')
       .getPublicUrl(fileName)
 
     console.log('✅ Imagem salva permanentemente:', publicUrl)
