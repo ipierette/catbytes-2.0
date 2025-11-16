@@ -37,11 +37,13 @@
   "crons": [
     {
       "path": "/api/simple-cron",
-      "schedule": "0 16 * * 2,4,6,0"
+      "schedule": "0 16 * * 2,4,6,0",
+      "description": "Geração de blog (Ter/Qui/Sáb/Dom) + newsletter + posts às 13h BRT"
     },
     {
       "path": "/api/cron/check-instagram-token",
-      "schedule": "0 12 * * *"
+      "schedule": "0 12 * * *",
+      "description": "Verificar token do Instagram (9h BRT)"
     }
   ]
 }

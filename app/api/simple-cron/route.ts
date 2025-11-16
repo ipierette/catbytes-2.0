@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     const results: { [key: string]: any } = {}
 
     // Schedule: Tuesday (2), Thursday (4), Saturday (6), Sunday (0) at 16:00 UTC (13:00 BRT)
-    // Execute blog generation and Instagram batch generation
+    // Execute blog generation, newsletter, and Instagram batch generation
     if ([2, 4, 6, 0].includes(dayOfWeek) && hour === 16) {
       console.log('[Simple-Cron] ✅ Correct schedule - Executing blog and Instagram generation...')
       
@@ -116,10 +116,43 @@ export async function GET(request: NextRequest) {
       } catch (error) {
         results.instagram_batch = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
       }
+
+      // Newsletter - Send after blog post is created
+      if (results.blog?.success && !results.blog?.skipped) {
+        try {
+          const newsletterResponse = await fetch(`${baseUrl}/api/admin/newsletter/send`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': authHeader || `Bearer ${cronSecret}`,
+            },
+            body: JSON.stringify({
+              postId: results.blog.post?.id,
+              locale: 'pt-BR',
+            }),
+          })
+
+          if (newsletterResponse.ok) {
+            const newsletterResult = await newsletterResponse.json()
+            results.newsletter = { success: true, data: newsletterResult }
+            console.log('[Simple-Cron] Newsletter sent:', newsletterResult.sent || 0, 'subscribers')
+          } else {
+            const errorText = await newsletterResponse.text()
+            results.newsletter = { success: false, error: `Status ${newsletterResponse.status}: ${errorText}` }
+            console.error('[Simple-Cron] Newsletter failed:', errorText)
+          }
+        } catch (error) {
+          results.newsletter = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+          console.error('[Simple-Cron] Newsletter error:', error)
+        }
+      } else {
+        results.newsletter = { success: true, skipped: true, reason: 'No new blog post created' }
+        console.log('[Simple-Cron] Newsletter skipped - no new blog post')
+      }
     }
 
-    // Publicar posts agendados do Instagram e LinkedIn - todos os dias às 13h
-    if (hour === 13) {
+    // Publicar posts agendados do Instagram e LinkedIn - todos os dias às 16h UTC (13h BRT) 16h UTC (13h BRT)
+    if (hour === 16) {
       console.log('[Simple-Cron] Publishing scheduled posts (Instagram & LinkedIn)...')
       
       // Instagram scheduled posts
