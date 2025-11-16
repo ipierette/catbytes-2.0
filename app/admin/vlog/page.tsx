@@ -6,13 +6,16 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Upload, Sparkles, Send, Video, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Loader2, Upload, Sparkles, Send, Video, CheckCircle2, AlertCircle, Film, Wand2 } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
+import { StudioDashboardEmbedded } from '@/components/studio/studio-dashboard-embedded'
 
 export default function VlogAdminPage() {
   const { showToast } = useToast()
+  const [activeTab, setActiveTab] = useState('upload')
   
   // Estado
   const [file, setFile] = useState<File | null>(null)
@@ -164,16 +167,30 @@ export default function VlogAdminPage() {
   return (
     <AdminGuard>
     <AdminLayoutWrapper>
-    <div className="container mx-auto py-8 px-4 max-w-6xl">
+    <div className="container mx-auto py-8 px-4 max-w-7xl">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Vlog - Publicação de Vídeos</h1>
+          <h1 className="text-3xl font-bold">Vlog & Media Studio</h1>
           <p className="text-muted-foreground mt-1">
-            Upload de vídeos até 10MB para Instagram e LinkedIn
+            Upload de vídeos, edição profissional e publicação automática
           </p>
         </div>
-        <Video className="h-12 w-12 text-purple-500" />
+        <Film className="h-12 w-12 text-purple-500" />
       </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsTrigger value="upload" className="flex items-center gap-2">
+            <Upload className="h-4 w-4" />
+            Upload Simples
+          </TabsTrigger>
+          <TabsTrigger value="studio" className="flex items-center gap-2">
+            <Wand2 className="h-4 w-4" />
+            Media Studio
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="upload" className="space-y-6">
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Coluna Esquerda - Upload */}
@@ -405,6 +422,12 @@ export default function VlogAdminPage() {
           </Card>
         </div>
       </div>
+        </TabsContent>
+
+        <TabsContent value="studio">
+          <StudioDashboardEmbedded />
+        </TabsContent>
+      </Tabs>
     </div>
     </AdminLayoutWrapper>
     </AdminGuard>
