@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     const clientId = process.env.LINKEDIN_APP_ID
     const clientSecret = process.env.LINKEDIN_CLIENT_SECRET
-    const redirectUri = process.env.LINKEDIN_REDIRECT_URI || 'https://www.catbytes.site/api/linkedin/oauth-callback'
+    const redirectUri = process.env.LINKEDIN_REDIRECT_URI || 'https://catbytes.site/api/linkedin/callback'
 
     if (!clientId || !clientSecret) {
       return NextResponse.json({
