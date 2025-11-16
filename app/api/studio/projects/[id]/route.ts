@@ -1,129 +1,100 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase'
 
-// GET: Get project by ID
+/**
+ * GET /api/studio/projects/[id]
+ * Buscar projeto por ID
+ */
 export async function GET(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient(cookies())
+    const supabase = createClient()
     
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: project, error } = await supabase
-      .from('video_projects')
-      .select('*')
+    const { data, error } = await supabase
+      .from('studio_projects')
+      .select('*, studio_clips(*)')
       .eq('id', params.id)
-      .eq('user_id', user.id)
       .single()
-
-    if (error) throw error
-    if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 })
+    
+    if (error) {
+      console.error('❌ Erro ao buscar projeto:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
-
-    return NextResponse.json({ project })
-
-  } catch (error) {
-    console.error('Get project error:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch project' },
-      { status: 500 }
-    )
+    
+    if (!data) {
+      return NextResponse.json({ error: 'Projeto não encontrado' }, { status: 404 })
+    }
+    
+    return NextResponse.json(data)
+  } catch (error: any) {
+    console.error('❌ Erro ao processar request:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
 
-// PUT: Update project
+/**
+ * PUT /api/studio/projects/[id]
+ * Atualizar projeto
+ */
 export async function PUT(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient(cookies())
+    const body = await req.json()
+    const supabase = createClient()
     
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const body = await request.json()
-    const {
-      title,
-      description,
-      script,
-      narrationUrl,
-      status,
-      platformTargets,
-      aspectRatio,
-      duration,
-      timeline,
-    } = body
-
-    const updates: any = {}
-    if (title !== undefined) updates.title = title
-    if (description !== undefined) updates.description = description
-    if (script !== undefined) updates.script = script
-    if (narrationUrl !== undefined) updates.narration_url = narrationUrl
-    if (status !== undefined) updates.status = status
-    if (platformTargets !== undefined) updates.platform_targets = platformTargets
-    if (aspectRatio !== undefined) updates.aspect_ratio = aspectRatio
-    if (duration !== undefined) updates.duration = duration
-    if (timeline !== undefined) updates.timeline = timeline
-
-    const { data: project, error } = await supabase
-      .from('video_projects')
-      .update(updates)
+    const { data, error } = await supabase
+      .from('studio_projects')
+      .update({
+        ...body,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', params.id)
-      .eq('user_id', user.id)
       .select()
       .single()
-
-    if (error) throw error
-
-    return NextResponse.json({ project })
-
-  } catch (error) {
-    console.error('Update project error:', error)
-    return NextResponse.json(
-      { error: 'Failed to update project' },
-      { status: 500 }
-    )
+    
+    if (error) {
+      console.error('❌ Erro ao atualizar projeto:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    
+    console.log('✅ Projeto atualizado:', params.id)
+    return NextResponse.json(data)
+  } catch (error: any) {
+    console.error('❌ Erro ao processar request:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
 
-// DELETE: Delete project
+/**
+ * DELETE /api/studio/projects/[id]
+ * Deletar projeto
+ */
 export async function DELETE(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = createClient(cookies())
+    const supabase = createClient()
     
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
+    // Deletar clips relacionados (cascade deve fazer isso automaticamente)
     const { error } = await supabase
-      .from('video_projects')
+      .from('studio_projects')
       .delete()
       .eq('id', params.id)
-      .eq('user_id', user.id)
-
-    if (error) throw error
-
+    
+    if (error) {
+      console.error('❌ Erro ao deletar projeto:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    
+    console.log('✅ Projeto deletado:', params.id)
     return NextResponse.json({ success: true })
-
-  } catch (error) {
-    console.error('Delete project error:', error)
-    return NextResponse.json(
-      { error: 'Failed to delete project' },
-      { status: 500 }
-    )
+  } catch (error: any) {
+    console.error('❌ Erro ao processar request:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

@@ -1,113 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase'
 
-// GET: List all projects for current user
-export async function GET(request: NextRequest) {
+/**
+ * GET /api/studio/projects
+ * Listar todos os projetos do Studio
+ */
+export async function GET() {
   try {
-    const supabase = createClient(cookies())
+    const supabase = createClient()
     
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: projects, error } = await supabase
-      .from('video_projects')
+    const { data, error } = await supabase
+      .from('studio_projects')
       .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-
-    return NextResponse.json({ projects })
-
-  } catch (error) {
-    console.error('Get projects error:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch projects' },
-      { status: 500 }
-    )
+      .order('updated_at', { ascending: false })
+    
+    if (error) {
+      console.error('❌ Erro ao buscar projetos:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    
+    return NextResponse.json(data)
+  } catch (error: any) {
+    console.error('❌ Erro ao processar request:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
 
-// POST: Create new project
-export async function POST(request: NextRequest) {
+/**
+ * POST /api/studio/projects
+ * Criar novo projeto
+ */
+export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient(cookies())
+    const body = await req.json()
+    const supabase = createClient()
     
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Validação
+    if (!body.title) {
+      return NextResponse.json(
+        { error: 'Title é obrigatório' },
+        { status: 400 }
+      )
     }
-
-    const body = await request.json()
-    const {
-      title,
-      description,
-      platformTargets,
-      aspectRatio,
-      locale,
-      duration,
-    } = body
-
-    // Create project
-    const { data: project, error } = await supabase
-      .from('video_projects')
+    
+    const { data, error } = await supabase
+      .from('studio_projects')
       .insert({
-        title: title || 'Novo Projeto',
-        description,
-        platform_targets: platformTargets || ['youtube'],
-        aspect_ratio: aspectRatio || '16:9',
-        locale: locale || 'pt-BR',
-        duration: duration || 60,
+        title: body.title,
+        description: body.description || '',
+        thumbnail_url: body.thumbnail_url || null,
+        duration: body.duration || 0,
         status: 'draft',
-        user_id: user.id,
-        timeline: {
-          duration: duration || 60,
-          tracks: [
-            {
-              id: 'video-1',
-              name: 'Vídeo 1',
-              type: 'video',
-              clips: [],
-              locked: false,
-              visible: true,
-              volume: 1,
-            },
-            {
-              id: 'audio-1',
-              name: 'Áudio 1',
-              type: 'audio',
-              clips: [],
-              locked: false,
-              visible: true,
-              volume: 1,
-            },
-            {
-              id: 'text-1',
-              name: 'Texto',
-              type: 'text',
-              clips: [],
-              locked: false,
-              visible: true,
-              volume: 1,
-            },
-          ],
-        },
+        aspect_ratio: body.aspect_ratio || '16:9',
+        resolution: body.resolution || '1080p',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
       .select()
       .single()
-
-    if (error) throw error
-
-    return NextResponse.json({ project }, { status: 201 })
-
-  } catch (error) {
-    console.error('Create project error:', error)
-    return NextResponse.json(
-      { error: 'Failed to create project' },
-      { status: 500 }
-    )
+    
+    if (error) {
+      console.error('❌ Erro ao criar projeto:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    
+    console.log('✅ Projeto criado:', data.id)
+    return NextResponse.json(data)
+  } catch (error: any) {
+    console.error('❌ Erro ao processar request:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
