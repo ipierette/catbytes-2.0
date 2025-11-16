@@ -73,13 +73,14 @@ export function StudioDashboardEmbedded() {
   }
 
   const handleScriptGenerated = (script: ScriptResponse) => {
-    setGeneratedScript(script.script)
+    const fullScript = `${script.title}\n\n${script.hook}\n\n${script.body.map(b => b.content).join('\n\n')}\n\n${script.cta}`
+    setGeneratedScript(fullScript)
     setShowScriptGenerator(false)
     setShowNarrationGenerator(true)
   }
 
-  const handleNarrationGenerated = (audioData: string, duration: number) => {
-    console.log('Narration generated:', { duration })
+  const handleNarrationGenerated = (narration: { audioData: string; audioUrl: string; duration: number; voiceId: string; text: string }) => {
+    console.log('Narration generated:', { duration: narration.duration })
     setShowNarrationGenerator(false)
     // Criar novo projeto com narração
     setShowNewProjectModal(true)
@@ -256,23 +257,35 @@ export function StudioDashboardEmbedded() {
       {/* Modals */}
       {showNewProjectModal && (
         <NewProjectModal
+          isOpen={showNewProjectModal}
           onClose={() => setShowNewProjectModal(false)}
-          onSubmit={handleCreateProject}
+          onCreate={handleCreateProject}
         />
       )}
 
       {showScriptGenerator && (
-        <ScriptGenerator
-          onClose={() => setShowScriptGenerator(false)}
-          onScriptGenerated={handleScriptGenerated}
-        />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-auto">
+            <div className="p-6">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">Script Generator - Em desenvolvimento</p>
+              <button
+                onClick={() => setShowScriptGenerator(false)}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {showNarrationGenerator && (
         <NarrationGenerator
-          onClose={() => setShowNarrationGenerator(false)}
+          projectId=""
+          locale="pt-BR"
           initialScript={generatedScript}
           onNarrationGenerated={handleNarrationGenerated}
+          onBack={() => setShowNarrationGenerator(false)}
         />
       )}
     </div>
