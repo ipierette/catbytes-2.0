@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Play, Pause, SkipBack, SkipForward, Volume2, 
   Scissors, Copy, Trash2, Undo, Redo, Download,
@@ -15,6 +15,7 @@ import { PropertiesPanel } from './properties-panel'
 import { PlaybackControls } from './playback-controls'
 import { EditorToolbar } from './toolbar'
 import { EffectsPanel } from './effects-panel'
+import { VideoRenderer } from '../video-renderer'
 
 interface VideoEditorProps {
   projectId: string
@@ -37,6 +38,7 @@ export function VideoEditor({ projectId, initialProject }: VideoEditorProps) {
   })
 
   const [showEffectsPanel, setShowEffectsPanel] = useState(false)
+  const [showRenderer, setShowRenderer] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const timelineRef = useRef<HTMLDivElement>(null)
 
@@ -196,6 +198,7 @@ export function VideoEditor({ projectId, initialProject }: VideoEditorProps) {
         onRedo={handleRedo}
         onSave={handleSave}
         onToggleEffects={() => setShowEffectsPanel(!showEffectsPanel)}
+        onExport={() => setShowRenderer(true)}
         canUndo={editorState.historyIndex > 0}
         canRedo={editorState.historyIndex < editorState.history.length - 1}
         showEffects={showEffectsPanel}
@@ -293,6 +296,17 @@ export function VideoEditor({ projectId, initialProject }: VideoEditorProps) {
         }}
         onZoomChange={(zoom) => setEditorState(prev => ({ ...prev, timelineZoom: zoom }))}
       />
+
+      {/* Video Renderer Modal */}
+      <AnimatePresence>
+        {showRenderer && (
+          <VideoRenderer
+            projectId={projectId}
+            projectTitle={editorState.project.title}
+            onClose={() => setShowRenderer(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

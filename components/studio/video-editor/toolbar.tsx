@@ -9,6 +9,7 @@ interface EditorToolbarProps {
   onRedo: () => void
   onSave: () => void
   onToggleEffects?: () => void
+  onExport?: () => void
   canUndo: boolean
   canRedo: boolean
   showEffects?: boolean
@@ -20,6 +21,7 @@ export function EditorToolbar({
   onRedo,
   onSave,
   onToggleEffects,
+  onExport,
   canUndo,
   canRedo,
   showEffects = false,
@@ -79,11 +81,13 @@ export function EditorToolbar({
         onClick={onSave}
         tooltip="Salvar (Cmd+S)"
       />
-      <ToolButton
-        icon={<Download className="w-4 h-4" />}
-        onClick={() => console.log('Export')}
-        tooltip="Exportar vídeo"
-      />
+      {onExport && (
+        <ToolButton
+          icon={<Download className="w-4 h-4" />}
+          onClick={onExport}
+          tooltip="Exportar vídeo"
+        />
+      )}
       <ToolButton
         icon={<Share2 className="w-4 h-4" />}
         onClick={() => console.log('Share')}
