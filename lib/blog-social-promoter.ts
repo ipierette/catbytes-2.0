@@ -327,7 +327,8 @@ export async function publishToLinkedIn(
       },
       body: JSON.stringify({
         text: content.fullText,
-        image_url: blogPost.cover_image_url,
+        // TEMPORÁRIO: Desabilitar imagem para testar se o erro é de permissão de upload
+        // image_url: blogPost.cover_image_url,
         publish_now: true, // Publicar imediatamente
         blog_category: blogPost.category // Passa categoria do blog
       })
