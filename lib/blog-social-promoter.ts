@@ -262,7 +262,11 @@ export async function publishToInstagram(
 ): Promise<{ success: boolean; postId?: string; error?: string }> {
   try {
     // Usar a API de publicação direta do Instagram
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    // Garantir que tem protocolo
+    if (!baseUrl.startsWith('http')) {
+      baseUrl = `https://${baseUrl}`
+    }
     const cronSecret = process.env.CRON_SECRET
     
     const response = await fetch(`${baseUrl}/api/instagram/publish`, {
@@ -308,7 +312,11 @@ export async function publishToLinkedIn(
   content: SocialPostContent
 ): Promise<{ success: boolean; postId?: string; error?: string }> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    // Garantir que tem protocolo
+    if (!baseUrl.startsWith('http')) {
+      baseUrl = `https://${baseUrl}`
+    }
     const cronSecret = process.env.CRON_SECRET
     
     const response = await fetch(`${baseUrl}/api/linkedin/publish`, {
