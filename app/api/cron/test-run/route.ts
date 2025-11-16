@@ -45,8 +45,23 @@ export async function POST(request: NextRequest) {
 
       if (blogResponse.ok) {
         const blogResult = await blogResponse.json()
-        results.blog = { success: true, post: blogResult.post }
+        results.blog = { 
+          success: true, 
+          post: blogResult.post,
+          socialPromotion: blogResult.socialPromotion 
+        }
         console.log('[Test-Cron] ✅ Blog post criado:', blogResult.post?.title)
+        
+        // Log dos resultados de promoção social
+        if (blogResult.socialPromotion?.attempted) {
+          const { successes, failures } = blogResult.socialPromotion
+          if (successes?.length > 0) {
+            console.log(`[Test-Cron] ✅ Posts criados em: ${successes.join(', ')}`)
+          }
+          if (failures?.length > 0) {
+            console.warn(`[Test-Cron] ⚠️ Falhas em: ${failures.join(', ')}`)
+          }
+        }
       } else {
         const errorText = await blogResponse.text()
         results.blog = { success: false, error: `Status ${blogResponse.status}: ${errorText}` }
