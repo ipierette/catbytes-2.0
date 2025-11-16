@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const supabase = createClient(cookieStore)
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Supabase not configured' },
+        { status: 500 }
+      )
+    }
 
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -23,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get project
-    const { data: project, error: projectError } = await supabase
+    const { data: project, error: projectError } = await supabaseAdmin
       .from('video_projects')
       .select('*')
       .eq('id', projectId)
@@ -38,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create render record
-    const { data: render, error: renderError } = await supabase
+    const { data: render, error: renderError } = await supabaseAdmin
       .from('video_renders')
       .insert({
         project_id: projectId,
@@ -84,10 +87,14 @@ export async function POST(request: NextRequest) {
 // Get render status
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const supabase = createClient(cookieStore)
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Supabase not configured' },
+        { status: 500 }
+      )
+    }
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -102,7 +109,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const { data: render, error } = await supabase
+    const { data: render, error } = await supabaseAdmin
       .from('video_renders')
       .select('*')
       .eq('id', renderId)
