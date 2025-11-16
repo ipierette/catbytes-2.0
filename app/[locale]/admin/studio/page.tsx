@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { NewProjectModal, ProjectFormData } from '@/components/studio/new-project-modal'
 import { ScriptGenerator } from '@/components/studio/script-generator'
+import { NarrationGenerator } from '@/components/studio/narration-generator'
 import { createClient } from '@/lib/supabase/client'
 import { ScriptResponse } from '@/types/studio'
 
@@ -19,7 +20,9 @@ export default function StudioPage() {
   const [activeTab, setActiveTab] = useState<StudioTab>('create')
   const [showNewProjectModal, setShowNewProjectModal] = useState(false)
   const [showScriptGenerator, setShowScriptGenerator] = useState(false)
+  const [showNarrationGenerator, setShowNarrationGenerator] = useState(false)
   const [currentProjectId, setCurrentProjectId] = useState<string>('')
+  const [generatedScript, setGeneratedScript] = useState<string>('')
   const [projects, setProjects] = useState<any[]>([])
   const [stats, setStats] = useState({ total: 0, published: 0, hours: 0 })
   const router = useRouter()
@@ -73,8 +76,17 @@ export default function StudioPage() {
 
   const handleScriptGenerated = (projectId: string, script: ScriptResponse) => {
     console.log('Script generated for project', projectId, script)
-    // TODO: Salvar script no projeto ou abrir editor com roteiro
+    // Save script text for narration
+    const fullScript = `${script.hook}\n\n${script.body.map(s => s.text).join('\n\n')}\n\n${script.cta}`
+    setGeneratedScript(fullScript)
     setShowScriptGenerator(false)
+    setShowNarrationGenerator(true)
+  }
+
+  const handleNarrationGenerated = (narration: any) => {
+    console.log('Narration generated:', narration)
+    // TODO: Upload to Supabase Storage and add to timeline
+    setShowNarrationGenerator(false)
   }
 
   return (
@@ -148,7 +160,7 @@ export default function StudioPage() {
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
-      {activeTab === 'create' && !showScriptGenerator && (
+      {activeTab === 'create' && !showScriptGenerator && !showNarrationGenerator && (
         <CreateTab 
           onCreateClick={() => setShowNewProjectModal(true)} 
           onScriptGeneratorClick={() => setShowScriptGenerator(true)}
@@ -161,6 +173,13 @@ export default function StudioPage() {
           locale="pt-BR"
           onScriptGenerated={(script) => handleScriptGenerated(currentProjectId, script)}
           onBack={() => setShowScriptGenerator(false)}
+        />
+      )}
+      {activeTab === 'create' && showNarrationGenerator && (
+        <NarrationGenerator
+          scriptText={generatedScript}
+          onNarrationGenerated={handleNarrationGenerated}
+          onBack={() => setShowNarrationGenerator(false)}
         />
       )}
       {activeTab === 'editor' && <EditorTab />}
@@ -245,7 +264,10 @@ function CreateTab({
       icon: <Mic className="w-8 h-8" />,
       gradient: 'from-indigo-500 to-purple-500',
       platforms: ['Spotify', 'Apple Podcasts', 'RSS'],
-      onClick: undefined,
+      onClick: () => {
+        setShowNarrationGenerator(true)
+        setGeneratedScript('')
+      },
     },
     {
       id: 'blog-video',
