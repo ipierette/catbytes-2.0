@@ -57,38 +57,11 @@ export async function POST(request: NextRequest) {
       console.error('[Test-Cron] ❌ Erro ao criar blog:', error)
     }
 
-    // 2. Enviar newsletter (se blog foi criado)
-    if (results.blog?.success && results.blog.post?.id) {
-      console.log('[Test-Cron] 2/3 - Enviando newsletter...')
-      try {
-        const newsletterResponse = await fetch(`${baseUrl}/api/admin/newsletter/send`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': authHeader || `Bearer ${cronSecret}`,
-          },
-          body: JSON.stringify({
-            postId: results.blog.post.id,
-            locale: 'pt-BR',
-          }),
-        })
-
-        if (newsletterResponse.ok) {
-          const newsletterResult = await newsletterResponse.json()
-          results.newsletter = { success: true, data: newsletterResult }
-          console.log('[Test-Cron] ✅ Newsletter enviada:', newsletterResult.sent || 0, 'subscribers')
-        } else {
-          const errorText = await newsletterResponse.text()
-          results.newsletter = { success: false, error: `Status ${newsletterResponse.status}: ${errorText}` }
-          console.error('[Test-Cron] ❌ Erro ao enviar newsletter:', errorText)
-        }
-      } catch (error) {
-        results.newsletter = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
-        console.error('[Test-Cron] ❌ Erro ao enviar newsletter:', error)
-      }
-    } else {
-      results.newsletter = { success: true, skipped: true, reason: 'No new blog post created' }
-      console.log('[Test-Cron] ⏭️  Newsletter pulada - sem novo artigo')
+    // 2. Newsletter já é enviada automaticamente pelo /api/blog/generate
+    console.log('[Test-Cron] 2/3 - Newsletter (já enviada automaticamente por blog/generate)')
+    results.newsletter = { 
+      success: true, 
+      info: 'Newsletter is automatically sent by blog/generate endpoint'
     }
 
     // 3. Publicar posts agendados (Instagram e LinkedIn)
