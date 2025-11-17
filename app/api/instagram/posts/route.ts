@@ -3,7 +3,11 @@ import { instagramDB } from '@/lib/instagram-db'
 import { verifyAdminCookie } from '@/lib/api-security'
 import { supabaseAdmin } from '@/lib/supabase'
 
-const supabase = supabaseAdmin!
+if (!supabaseAdmin) {
+  throw new Error('supabaseAdmin not configured - missing SUPABASE_SERVICE_ROLE_KEY')
+}
+
+const supabase = supabaseAdmin
 
 export async function GET(request: NextRequest) {
   try {
@@ -55,11 +59,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { action, caption, image_url, carousel_images, postId, scheduledFor } = body
 
-    console.log('[Instagram Posts API] Action:', action, 'PostId:', postId)
+    console.log('[Instagram Posts API] POST Request:', {
+      action,
+      postId,
+      hasCaption: !!caption,
+      hasImageUrl: !!image_url,
+      hasCarousel: !!carousel_images,
+      scheduledFor
+    })
 
     // Action: save (salvar novo post como rascunho/pending)
     if (action === 'save') {
       if (!caption) {
+        console.error('[Instagram Posts API] Missing caption')
         return NextResponse.json(
           { error: 'Caption é obrigatória' },
           { status: 400 }
@@ -67,12 +79,15 @@ export async function POST(request: NextRequest) {
       }
 
       if (!image_url && !carousel_images) {
+        console.error('[Instagram Posts API] Missing image_url and carousel_images')
         return NextResponse.json(
           { error: 'É necessário fornecer image_url ou carousel_images' },
           { status: 400 }
         )
       }
 
+      console.log('[Instagram Posts API] Inserting post into database...')
+      
       const { data, error } = await supabase
         .from('instagram_posts')
         .insert({
@@ -86,8 +101,11 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (error) {
-        console.error('[Instagram Posts API] Error saving post:', error)
-        throw error
+        console.error('[Instagram Posts API] Database error saving post:', error)
+        return NextResponse.json(
+          { error: `Erro ao salvar: ${error.message}` },
+          { status: 500 }
+        )
       }
 
       console.log('[Instagram Posts API] Post saved successfully:', data.id)
@@ -102,6 +120,7 @@ export async function POST(request: NextRequest) {
     // Action: approve (aprovar post e agendar)
     if (action === 'approve') {
       if (!postId) {
+        console.error('[Instagram Posts API] Missing postId for approve action')
         return NextResponse.json(
           { error: 'postId é obrigatório' },
           { status: 400 }
@@ -118,6 +137,8 @@ export async function POST(request: NextRequest) {
         updateData.scheduled_for = scheduledFor
       }
 
+      console.log('[Instagram Posts API] Updating post:', postId, updateData)
+
       const { data, error } = await supabase
         .from('instagram_posts')
         .update(updateData)
@@ -126,8 +147,11 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (error) {
-        console.error('[Instagram Posts API] Error approving post:', error)
-        throw error
+        console.error('[Instagram Posts API] Database error approving post:', error)
+        return NextResponse.json(
+          { error: `Erro ao aprovar: ${error.message}` },
+          { status: 500 }
+        )
       }
 
       console.log('[Instagram Posts API] Post approved successfully:', data.id)
@@ -138,16 +162,17 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    console.error('[Instagram Posts API] Invalid action:', action)
     return NextResponse.json(
       { error: 'Action inválida. Use "save" ou "approve"' },
       { status: 400 }
     )
 
   } catch (error) {
-    console.error('[Instagram Posts API] Error:', error)
+    console.error('[Instagram Posts API] Unexpected error:', error)
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Erro desconhecido'
       },
       { status: 500 }
     )

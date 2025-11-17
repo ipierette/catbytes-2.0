@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Copy, Upload, Image as ImageIcon, CheckCircle, Calendar } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getSuggestions, hasCachedSuggestions } from '@/lib/instagram-suggestions-cache'
-import { ScheduleInstagramModal } from '@/components/admin/schedule-instagram-modal'
 
 interface GeneratedContent {
   titulo: string
@@ -32,7 +31,8 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
   const [generating, setGenerating] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [generatingSuggestion, setGeneratingSuggestion] = useState(false)
-  const [showScheduleModal, setShowScheduleModal] = useState(false)
+  const [scheduling, setScheduling] = useState(false)
+  const [publishing, setPublishing] = useState(false)
   
   // Form inicial
   const [nicho, setNicho] = useState('')
@@ -47,6 +47,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
+  const [scheduledDate, setScheduledDate] = useState<Date | undefined>(undefined)
   
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
@@ -341,10 +342,12 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
       return
     }
 
-    setLoading(true)
+    setPublishing(true)
     setMessage(null)
 
     try {
+      console.log('[TextOnly] Iniciando publicação imediata...')
+      
       // 1. Salvar o post
       const saveResponse = await fetch('/api/instagram/posts', {
         method: 'POST',
@@ -358,11 +361,13 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
 
       if (!saveResponse.ok) {
         const error = await saveResponse.json()
+        console.error('[TextOnly] Erro ao salvar:', error)
         throw new Error(error.error || 'Erro ao salvar post')
       }
 
       const saveData = await saveResponse.json()
       const postId = saveData.postId
+      console.log('[TextOnly] Post salvo, ID:', postId)
 
       // 2. Aprovar o post com scheduled_for = agora
       const now = new Date()
@@ -378,8 +383,10 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
 
       if (!approveResponse.ok) {
         const error = await approveResponse.json()
+        console.error('[TextOnly] Erro ao aprovar:', error)
         throw new Error(error.error || 'Erro ao aprovar post')
       }
+      console.log('[TextOnly] Post aprovado')
 
       // 3. Publicar imediatamente no Instagram
       const publishResponse = await fetch('/api/instagram/publish-now', {
@@ -392,9 +399,11 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
 
       if (!publishResponse.ok) {
         const errorData = await publishResponse.json()
+        console.error('[TextOnly] Erro ao publicar:', errorData)
         throw new Error(errorData.error || 'Erro ao publicar no Instagram')
       }
 
+      console.log('[TextOnly] Post publicado com sucesso!')
       setMessage({ type: 'success', text: '🎉 Post publicado com sucesso no Instagram!' })
       
       setTimeout(() => {
@@ -404,10 +413,85 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
       }, 1500)
 
     } catch (error: any) {
-      console.error('Erro ao postar:', error)
+      console.error('[TextOnly] Erro ao postar:', error)
       setMessage({ type: 'error', text: error.message || 'Erro ao postar no Instagram' })
     } finally {
-      setLoading(false)
+      setPublishing(false)
+    }
+  }
+
+  const handleSchedulePost = async () => {
+    if (!generatedContent || !uploadedImageUrl) {
+      setMessage({ type: 'error', text: 'Gere o conteúdo e faça upload da imagem primeiro!' })
+      return
+    }
+
+    if (!scheduledDate) {
+      setMessage({ type: 'error', text: 'Selecione uma data e hora para agendar!' })
+      return
+    }
+
+    setScheduling(true)
+    setMessage(null)
+
+    try {
+      console.log('[TextOnly] Iniciando agendamento...')
+      
+      // 1. Salvar o post
+      const saveResponse = await fetch('/api/instagram/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save',
+          caption: generatedContent.caption,
+          image_url: uploadedImageUrl
+        })
+      })
+
+      if (!saveResponse.ok) {
+        const error = await saveResponse.json()
+        console.error('[TextOnly] Erro ao salvar:', error)
+        throw new Error(error.error || 'Erro ao salvar post')
+      }
+
+      const saveData = await saveResponse.json()
+      const postId = saveData.postId
+      console.log('[TextOnly] Post salvo, ID:', postId)
+
+      // 2. Aprovar e agendar
+      const approveResponse = await fetch('/api/instagram/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'approve',
+          postId,
+          scheduledFor: scheduledDate.toISOString()
+        })
+      })
+
+      if (!approveResponse.ok) {
+        const error = await approveResponse.json()
+        console.error('[TextOnly] Erro ao aprovar:', error)
+        throw new Error(error.error || 'Erro ao agendar post')
+      }
+
+      console.log('[TextOnly] Post agendado com sucesso!')
+      setMessage({ 
+        type: 'success', 
+        text: `📅 Post agendado para ${scheduledDate.toLocaleString('pt-BR')}!` 
+      })
+      
+      setTimeout(() => {
+        onSuccess?.()
+        handleReset()
+        onOpenChange(false)
+      }, 1500)
+
+    } catch (error: any) {
+      console.error('[TextOnly] Erro ao agendar:', error)
+      setMessage({ type: 'error', text: error.message || 'Erro ao agendar post' })
+    } finally {
+      setScheduling(false)
     }
   }
 
@@ -420,6 +504,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
     setSelectedFile(null)
     setPreviewUrl(null)
     setUploadedImageUrl(null)
+    setScheduledDate(undefined)
     setMessage(null)
   }
 
@@ -626,7 +711,8 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
 
               {/* Ações Finais */}
               {uploadedImageUrl && (
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  {/* Botão Salvar Rascunho */}
                   <Button
                     onClick={handleApprove}
                     disabled={loading}
@@ -636,16 +722,67 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
                   >
                     💾 Salvar como Rascunho
                   </Button>
-                  
-                  <Button
-                    onClick={() => setShowScheduleModal(true)}
-                    disabled={loading}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                    size="lg"
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Agendar ou Publicar
-                  </Button>
+
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-white dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">
+                        Ou Publicar
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Seletor de Data/Hora para Agendamento */}
+                  <div className="space-y-2">
+                    <Label className="text-gray-900 dark:text-white">
+                      Agendar para data/hora específica (opcional)
+                    </Label>
+                    <Input
+                      type="datetime-local"
+                      value={scheduledDate ? scheduledDate.toISOString().slice(0, 16) : ''}
+                      onChange={(e) => setScheduledDate(e.target.value ? new Date(e.target.value) : undefined)}
+                      min={new Date().toISOString().slice(0, 16)}
+                      className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                    />
+                  </div>
+
+                  {/* Botões de Ação */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      onClick={handleSchedulePost}
+                      disabled={scheduling || publishing || !scheduledDate}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      {scheduling ? (
+                        <>⏳ Agendando...</>
+                      ) : (
+                        <>
+                          <Calendar className="mr-2 h-4 w-4" />
+                          Agendar
+                        </>
+                      )}
+                    </Button>
+
+                    <Button
+                      onClick={handlePostNow}
+                      disabled={scheduling || publishing}
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    >
+                      {publishing ? (
+                        <>📤 Publicando...</>
+                      ) : (
+                        '🚀 Publicar Agora'
+                      )}
+                    </Button>
+                  </div>
+
+                  <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
+                    💡 <strong>Agendar:</strong> Selecione data/hora e clique em Agendar | 
+                    <strong> Publicar Agora:</strong> Posta imediatamente no Instagram
+                  </p>
                 </div>
               )}
 
@@ -660,22 +797,6 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
           )}
         </div>
       </DialogContent>
-
-      {/* Modal de Agendamento */}
-      {generatedContent && uploadedImageUrl && (
-        <ScheduleInstagramModal
-          open={showScheduleModal}
-          onOpenChange={setShowScheduleModal}
-          post={{
-            caption: generatedContent.caption,
-            image_url: uploadedImageUrl
-          }}
-          onSuccess={() => {
-            handleReset()
-            onSuccess?.()
-          }}
-        />
-      )}
     </Dialog>
   )
 }
