@@ -741,9 +741,16 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
                     </Label>
                     <Input
                       type="datetime-local"
-                      value={scheduledDate ? scheduledDate.toISOString().slice(0, 16) : ''}
-                      onChange={(e) => setScheduledDate(e.target.value ? new Date(e.target.value) : undefined)}
-                      min={new Date().toISOString().slice(0, 16)}
+                      value={scheduledDate ? new Date(scheduledDate.getTime() - scheduledDate.getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          const localDate = new Date(e.target.value)
+                          setScheduledDate(localDate)
+                        } else {
+                          setScheduledDate(undefined)
+                        }
+                      }}
+                      min={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
                       className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
                     />
                   </div>

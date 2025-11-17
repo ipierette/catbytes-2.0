@@ -57,14 +57,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { action, caption, image_url, carousel_images, postId, scheduledFor } = body
+    const { action, caption, image_url, postId, scheduledFor } = body
 
     console.log('[Instagram Posts API] POST Request:', {
       action,
       postId,
       hasCaption: !!caption,
       hasImageUrl: !!image_url,
-      hasCarousel: !!carousel_images,
       scheduledFor
     })
 
@@ -78,10 +77,10 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      if (!image_url && !carousel_images) {
-        console.error('[Instagram Posts API] Missing image_url and carousel_images')
+      if (!image_url) {
+        console.error('[Instagram Posts API] Missing image_url')
         return NextResponse.json(
-          { error: 'É necessário fornecer image_url ou carousel_images' },
+          { error: 'É necessário fornecer image_url' },
           { status: 400 }
         )
       }
@@ -92,8 +91,7 @@ export async function POST(request: NextRequest) {
         .from('instagram_posts')
         .insert({
           caption,
-          image_url: image_url || null,
-          carousel_images: carousel_images || null,
+          image_url: image_url,
           status: 'pending',
           generation_method: 'text-only-manual',
           nicho: 'Manual',
