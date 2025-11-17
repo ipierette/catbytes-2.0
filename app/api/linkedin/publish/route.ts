@@ -78,69 +78,18 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Se tem imagem, adiciona ao payload
+        // Se tem imagem, adiciona ao payload (Share API v2 format)
         if (image_url) {
-          // Primeiro registra a imagem no LinkedIn
-          const registerResponse = await fetch(
-            'https://api.linkedin.com/v2/assets?action=registerUpload',
-            {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                registerUploadRequest: {
-                  recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
-                  owner: process.env.LINKEDIN_PERSON_URN,
-                  serviceRelationships: [{
-                    relationshipType: 'OWNER',
-                    identifier: 'urn:li:userGeneratedContent'
-                  }]
-                }
-              })
-            }
-          )
-
-          if (!registerResponse.ok) {
-            const errorText = await registerResponse.text()
-            console.error('[LinkedIn Publish] ❌ Image registration failed:', registerResponse.status, errorText)
-            // Continue sem imagem mas loga o erro
-          } else {
-            const registerData = await registerResponse.json()
-            const uploadUrl = registerData.value.uploadMechanism['com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest'].uploadUrl
-            const asset = registerData.value.asset
-
-            // Baixa a imagem
-            const imageResponse = await fetch(image_url)
-            const imageBuffer = await imageResponse.arrayBuffer()
-
-            // Faz upload da imagem
-            const uploadResponse = await fetch(uploadUrl, {
-              method: 'PUT',
-              headers: {
-                'Authorization': `Bearer ${process.env.LINKEDIN_ACCESS_TOKEN}`
-              },
-              body: imageBuffer
-            })
-
-            if (uploadResponse.ok) {
-              // Adiciona imagem ao post (Share API format)
-              postPayload.content = {
-                contentEntities: [{
-                  entityLocation: image_url,
-                  thumbnails: [{
-                    resolvedUrl: image_url
-                  }]
-                }],
-                title: text.substring(0, 200)
-              }
-              console.log('[LinkedIn Publish] ✅ Image uploaded successfully:', asset)
-            } else {
-              const uploadError = await uploadResponse.text()
-              console.error('[LinkedIn Publish] ❌ Image upload failed:', uploadResponse.status, uploadError)
-            }
+          postPayload.content = {
+            contentEntities: [{
+              entityLocation: image_url,
+              thumbnails: [{
+                resolvedUrl: image_url
+              }]
+            }],
+            title: text.substring(0, 200)
           }
+          console.log('[LinkedIn Publish] Adding image to share:', image_url)
         }
 
         // Publica o post usando REST API (v2/shares)

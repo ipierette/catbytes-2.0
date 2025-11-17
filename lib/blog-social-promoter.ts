@@ -177,9 +177,11 @@ export async function generateInstagramPost(
     : ''
   
   // Construir conteúdo principal (Instagram tem limite de caracteres)
-  const mainContent = `📝 ${blogPost.title}
+  const mainContent = `📰 NOVO ARTIGO NO BLOG!
 
-${blogPost.excerpt}${socialMessage}
+📌 ${blogPost.title}
+
+✨ ${blogPost.excerpt}${socialMessage}
 
 🔗 Leia o artigo completo no link da bio!
 
@@ -228,13 +230,15 @@ export async function generateLinkedInPost(
   // LinkedIn permite posts mais longos e profissionais
   const articleUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/blog/${blogPost.slug}`
   
-  const mainContent = `📝 Novo artigo publicado!
+  const mainContent = `📰 NOVO ARTIGO PUBLICADO
 
-${blogPost.title}
+📌 Título: ${blogPost.title}
 
+💡 Resumo:
 ${blogPost.excerpt}${socialMessage}
 
-🔗 Leia o artigo completo: ${articleUrl}
+🔗 Leia o artigo completo:
+${articleUrl}
 
 #CatBytes #IzadoraCuryPierette`
   
@@ -327,8 +331,7 @@ export async function publishToLinkedIn(
       },
       body: JSON.stringify({
         text: content.fullText,
-        // TEMPORÁRIO: Desabilitar imagem para testar se o erro é de permissão de upload
-        // image_url: blogPost.cover_image_url,
+        image_url: blogPost.cover_image_url, // Imagem da capa do artigo
         publish_now: true, // Publicar imediatamente
         blog_category: blogPost.category // Passa categoria do blog
       })
