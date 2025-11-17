@@ -74,8 +74,12 @@ export async function POST(request: NextRequest) {
           throw new Error(`Failed to create media container: ${JSON.stringify(error)}`)
         }
 
-        const { id: creationId } = await containerResponse.json()
-        console.log('[Instagram Publish] Media container created:', creationId)
+        const { id: creationId } = await createResponse.json()
+        console.log('[Instagram Publish] Container created:', creationId)
+
+        // Aguardar 3 segundos para o Instagram processar a mídia
+        console.log('[Instagram Publish] Waiting 3s for media processing...')
+        await new Promise(resolve => setTimeout(resolve, 3000))
 
         // Step 2: Publish the media
         const publishResponse = await fetch(
