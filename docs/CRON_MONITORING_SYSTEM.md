@@ -18,12 +18,12 @@ O dashboard agora possui um sistema completo de monitoramento em tempo real das 
    - Verifica duplicação (não gera se já existe post hoje)
    - Registra ID do post gerado nos logs
    - Envia alertas de sucesso/falha
+   - Promove artigo no Instagram/LinkedIn (cria posts pendentes para aprovação manual)
 
-2. **Geração Instagram Batch** (`cron_type: 'instagram'`)
-   - Gera lote de 10 posts para Instagram
-   - Baseado em análise de tendências
-   - Registra quantidade de posts gerados
-   - Integrado com sistema de alertas
+**REMOVIDO em 17/11/2025:**
+- ~~Geração Instagram Batch (10 posts)~~ - Removido para economizar API costs ($166/ano)
+- Posts Instagram agora são criados manualmente via text-only modal
+- DALL-E não gera texto em português de forma confiável
 
 ### 2. **Instagram Token Check** - Verificação Diária
 - **Endpoint**: `/api/cron/check-instagram-token`

@@ -251,6 +251,28 @@ try {
 
 ---
 
+## 🔄 Atualização: 17/11/2025
+
+### ✅ **Batch Instagram Removido**
+
+**Decisão**: Remover geração automática de 10 posts Instagram do cron
+
+**Motivos**:
+1. **Custo**: $0.80 por execução × 4/semana = **$166/ano desperdiçado**
+2. **Não utilizado**: Posts gerados nunca eram aprovados
+3. **Limitação técnica**: DALL-E não gera texto em português de forma confiável
+4. **Workflow preferido**: Criação manual via text-only modal oferece controle total
+
+**Arquivos Modificados**:
+- `app/api/simple-cron/route.ts` - Removida lógica de batch Instagram
+- `docs/CRON_MONITORING_SYSTEM.md` - Documentação atualizada
+
+**Economia Anual**: $166 em API credits OpenAI
+
+**Status**: Posts Instagram continuam funcionando perfeitamente via criação manual
+
+---
+
 ## 🎯 Próximas Melhorias Recomendadas
 
 ### 1. **Retry Logic** (Prioridade Alta)

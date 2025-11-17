@@ -33,9 +33,9 @@ export async function GET(request: NextRequest) {
     const results: { [key: string]: any } = {}
 
     // Schedule: Tuesday (2), Thursday (4), Saturday (6), Sunday (0) at 16:00 UTC (13:00 BRT)
-    // Execute blog generation and Instagram batch generation
+    // Execute blog generation ONLY (Instagram batch removed to save API costs)
     if ([2, 4, 6, 0].includes(dayOfWeek) && hour === 16) {
-      console.log('[Simple-Cron] ✅ Correct schedule - Executing blog and Instagram generation...')
+      console.log('[Simple-Cron] ✅ Correct schedule - Executing blog generation...')
       
       // PROTEÇÃO: Verificar se já gerou artigo hoje
       try {
@@ -107,35 +107,12 @@ export async function GET(request: NextRequest) {
         await blogLog.fail(errorMsg)
       }
 
-      // Instagram batch generation
-      const instagramLog = startCronLog('instagram')
-      try {
-        const instagramResponse = await fetch(`${baseUrl}/api/instagram/generate-batch`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': authHeader || `Bearer ${cronSecret}`,
-          },
-        })
-
-        if (instagramResponse.ok) {
-          const instagramResult = await instagramResponse.json()
-          results.instagram_batch = { success: true, data: instagramResult }
-          console.log('[Simple-Cron] Instagram batch generated')
-          
-          await instagramLog.success({ 
-            instagram_posts: instagramResult.generated || instagramResult.posts?.length || 0
-          })
-        } else {
-          const errorText = await instagramResponse.text()
-          results.instagram_batch = { success: false, error: `Status ${instagramResponse.status}: ${errorText}` }
-          await instagramLog.fail(`HTTP ${instagramResponse.status}`, { details: errorText })
-        }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : 'Unknown error'
-        results.instagram_batch = { success: false, error: errorMsg }
-        await instagramLog.fail(errorMsg)
-      }
+      // Instagram batch generation REMOVED
+      // Motivo: Geração automática de 10 posts não é utilizada
+      // DALL-E não gera texto em português confiável
+      // Economia: $166/ano em API credits
+      // Posts Instagram são criados manualmente via text-only modal
+      console.log('[Simple-Cron] Instagram batch generation disabled - posts created manually')
     }
 
     // Publicar posts agendados do Instagram e LinkedIn - todos os dias às 13h
