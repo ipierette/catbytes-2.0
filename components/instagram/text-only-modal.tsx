@@ -303,23 +303,23 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
     setMessage(null)
 
     try {
-      const { error } = await supabase
-        .from('instagram_posts')
-        .insert({
-          nicho: generatedContent.nicho,
-          titulo: generatedContent.titulo,
-          texto_imagem: generatedContent.titulo.substring(0, 100), // Título truncado para max 100 chars
+      // Salvar o post como rascunho (pending)
+      const saveResponse = await fetch('/api/instagram/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save',
           caption: generatedContent.caption,
-          image_url: uploadedImageUrl,
-          status: 'pending',
-          generation_method: 'text-only-manual'
+          image_url: uploadedImageUrl
         })
+      })
 
-      if (error) {
-        throw error
+      if (!saveResponse.ok) {
+        const error = await saveResponse.json()
+        throw new Error(error.error || 'Erro ao salvar post')
       }
 
-      setMessage({ type: 'success', text: 'Post aprovado e adicionado à fila! 🎉' })
+      setMessage({ type: 'success', text: '✅ Rascunho salvo com sucesso! Você pode aprovar depois.' })
       
       setTimeout(() => {
         onSuccess?.()
@@ -328,7 +328,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
       }, 1500)
 
     } catch (error: any) {
-      console.error('Erro ao aprovar:', error)
+      console.error('Erro ao salvar rascunho:', error)
       setMessage({ type: 'error', text: error.message })
     } finally {
       setLoading(false)
@@ -345,32 +345,48 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
     setMessage(null)
 
     try {
-      // 1. Primeiro salvar o post como aprovado e agendado para agora
-      const { data: savedPost, error: saveError } = await supabase
-        .from('instagram_posts')
-        .insert({
-          nicho: generatedContent.nicho,
-          titulo: generatedContent.titulo,
-          texto_imagem: generatedContent.titulo.substring(0, 100),
+      // 1. Salvar o post
+      const saveResponse = await fetch('/api/instagram/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save',
           caption: generatedContent.caption,
-          image_url: uploadedImageUrl,
-          status: 'approved',
-          scheduled_for: new Date().toISOString(),
-          approved_at: new Date().toISOString(),
-          approved_by: 'admin',
-          generation_method: 'text-only-manual'
+          image_url: uploadedImageUrl
         })
-        .select()
-        .single()
+      })
 
-      if (saveError) throw saveError
+      if (!saveResponse.ok) {
+        const error = await saveResponse.json()
+        throw new Error(error.error || 'Erro ao salvar post')
+      }
 
-      // 2. Publicar imediatamente no Instagram
+      const saveData = await saveResponse.json()
+      const postId = saveData.postId
+
+      // 2. Aprovar o post com scheduled_for = agora
+      const now = new Date()
+      const approveResponse = await fetch('/api/instagram/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'approve',
+          postId,
+          scheduledFor: now.toISOString()
+        })
+      })
+
+      if (!approveResponse.ok) {
+        const error = await approveResponse.json()
+        throw new Error(error.error || 'Erro ao aprovar post')
+      }
+
+      // 3. Publicar imediatamente no Instagram
       const publishResponse = await fetch('/api/instagram/publish-now', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          postId: savedPost.id
+          postId: postId
         })
       })
 
@@ -610,15 +626,27 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
 
               {/* Ações Finais */}
               {uploadedImageUrl && (
-                <Button
-                  onClick={() => setShowScheduleModal(true)}
-                  disabled={loading}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                  size="lg"
-                >
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Agendar ou Publicar
-                </Button>
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleApprove}
+                    disabled={loading}
+                    variant="outline"
+                    className="w-full border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
+                    size="lg"
+                  >
+                    💾 Salvar como Rascunho
+                  </Button>
+                  
+                  <Button
+                    onClick={() => setShowScheduleModal(true)}
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                    size="lg"
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Agendar ou Publicar
+                  </Button>
+                </div>
               )}
 
               <Button
