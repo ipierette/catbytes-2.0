@@ -32,31 +32,23 @@ export async function POST(request: NextRequest) {
     console.log('[Instagram Publish Now] Publishing post:', postId)
     
     const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN
-    const accountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID
+    const accountId = process.env.INSTAGRAM_ACCOUNT_ID
 
     if (!accessToken || !accountId) {
-      throw new Error('Instagram API não configurada')
+      console.error('[Instagram Publish Now] Missing credentials:', {
+        hasToken: !!accessToken,
+        hasAccountId: !!accountId
+      })
+      throw new Error('Instagram API não configurada - verifique INSTAGRAM_ACCESS_TOKEN e INSTAGRAM_ACCOUNT_ID')
     }
 
-    // Criar container
-    let containerParams: any
-
-    if (post.carousel_images && post.carousel_images.length > 0) {
-      // Carrossel
-      const childrenIds = await createCarouselChildren(post.carousel_images, accessToken, accountId)
-      containerParams = {
-        caption: post.caption,
-        media_type: 'CAROUSEL',
-        children: childrenIds,
-        access_token: accessToken
-      }
-    } else {
-      // Imagem única
-      containerParams = {
-        image_url: post.image_url,
-        caption: post.caption,
-        access_token: accessToken
-      }
+    // Criar container de imagem única
+    console.log('[Instagram Publish Now] Creating media container...')
+    
+    const containerParams = {
+      image_url: post.image_url,
+      caption: post.caption,
+      access_token: accessToken
     }
 
     const containerResponse = await fetch(
@@ -116,33 +108,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-async function createCarouselChildren(imageUrls: string[], accessToken: string, accountId: string) {
-  const childrenIds: string[] = []
-
-  for (const imageUrl of imageUrls) {
-    const response = await fetch(
-      `https://graph.facebook.com/v21.0/${accountId}/media`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image_url: imageUrl,
-          is_carousel_item: true,
-          access_token: accessToken
-        })
-      }
-    )
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(`Erro ao criar item do carrossel: ${error.error?.message}`)
-    }
-
-    const { id } = await response.json()
-    childrenIds.push(id)
-  }
-
-  return childrenIds
 }
