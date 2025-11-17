@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase'
+import { createClient, supabaseAdmin } from '@/lib/supabase'
 import { NICHES, COLOR_THEMES } from '@/lib/landing-pages-constants'
 import { autoSubmitLandingPage } from '@/lib/google-indexing'
 import OpenAI from 'openai'
@@ -164,9 +164,6 @@ Industry context: ${niche}`,
       // Nome único para arquivo
       const fileName = `landing-page-${Date.now()}-${Math.random().toString(36).substring(7)}.png`
       
-      // Upload para Supabase
-      const { supabaseAdmin } = await import('@/lib/supabase')
-      
       if (!supabaseAdmin) {
         console.warn('⚠️ supabaseAdmin não disponível, usando URL temporária')
       } else {
@@ -195,9 +192,7 @@ Industry context: ${niche}`,
     } catch (error) {
       console.error('⚠️ Erro ao salvar imagem no Supabase:', error)
       // Continua com URL temporária se houver erro
-    }
-
-    // 3. Gerar HTML completo
+    }    // 3. Gerar HTML completo
     console.log('📄 Gerando HTML completo...')
     const htmlResponse = await openai.chat.completions.create({
       model: 'gpt-4o',
