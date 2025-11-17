@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { linkedInDB } from '@/lib/linkedin-db'
+import { startCronLog } from '@/lib/cron-logger'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -9,6 +10,8 @@ export const maxDuration = 60
  * Chamado pelo cron job diariamente
  */
 export async function POST(request: NextRequest) {
+  const linkedinPublishLog = startCronLog('instagram')
+  
   try {
     // Verificação de segurança
     const authHeader = request.headers.get('authorization')
@@ -188,6 +191,18 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Publish Scheduled LinkedIn] Finished: ${results.published} published, ${results.failed} failed`)
 
+    // Log resultado final
+    if (results.failed === 0 && results.total > 0) {
+      await linkedinPublishLog.success({ instagram_posts: results.published })
+    } else if (results.failed > 0) {
+      await linkedinPublishLog.fail(
+        `${results.failed} posts failed out of ${results.total}`,
+        { published: results.published, errors: results.errors }
+      )
+    } else {
+      await linkedinPublishLog.success({ instagram_posts: 0, message: 'No posts to publish' })
+    }
+
     return NextResponse.json({
       success: true,
       message: `Published ${results.published}/${results.total} LinkedIn posts`,
@@ -196,6 +211,8 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('[Publish Scheduled LinkedIn] Error:', error)
+    await linkedinPublishLog.fail(error as Error)
+    
     return NextResponse.json(
       {
         error: 'Erro ao publicar posts agendados',

@@ -97,13 +97,14 @@ export async function POST(request: NextRequest) {
       .from('blog_posts')
       .select('id, title, generation_prompt, created_at')
       .order('created_at', { ascending: false })
-      .limit(20) // Check last 20 posts
+      .limit(30) // Check last 30 posts (increased from 20)
     
     if (recentError) {
       console.error('[Generate] Error checking recent posts:', recentError)
     } else if (recentPosts && recentPosts.length > 0) {
-      // Check if topic was used recently
-      const topicUsedRecently = recentPosts.some(post => 
+      // Check if topic was used recently (last 10 posts)
+      const recentTopicCheck = recentPosts.slice(0, 10)
+      const topicUsedRecently = recentTopicCheck.some(post => 
         post.generation_prompt?.toLowerCase().includes(selectedTopic.toLowerCase()) ||
         selectedTopic.toLowerCase().includes(post.generation_prompt?.toLowerCase() || '')
       )

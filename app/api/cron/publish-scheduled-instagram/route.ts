@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { instagramDB } from '@/lib/instagram-db'
+import { startCronLog } from '@/lib/cron-logger'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -9,6 +10,8 @@ export const maxDuration = 60
  * Chamado pelo cron job diariamente
  */
 export async function POST(request: NextRequest) {
+  const instagramPublishLog = startCronLog('instagram')
+  
   try {
     // Verificação de segurança
     const authHeader = request.headers.get('authorization')
@@ -39,35 +42,17 @@ export async function POST(request: NextRequest) {
         console.log(`[Publish Scheduled Instagram] Publishing post ${post.id}...`)
 
         const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN
-        const accountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID
+        const accountId = process.env.INSTAGRAM_ACCOUNT_ID
 
         if (!accessToken || !accountId) {
           throw new Error('Instagram API não configurada')
         }
 
-        // Criar container
-        let containerParams: any
-
-        if (post.carousel_images && post.carousel_images.length > 0) {
-          // Carrossel
-          const childrenIds = await createCarouselChildren(
-            post.carousel_images,
-            accessToken,
-            accountId
-          )
-          containerParams = {
-            caption: post.caption,
-            media_type: 'CAROUSEL',
-            children: childrenIds,
-            access_token: accessToken
-          }
-        } else {
-          // Imagem única
-          containerParams = {
-            image_url: post.image_url,
-            caption: post.caption,
-            access_token: accessToken
-          }
+        // Criar container (apenas imagem única)
+        const containerParams = {
+          image_url: post.image_url,
+          caption: post.caption,
+          access_token: accessToken
         }
 
         const containerResponse = await fetch(
@@ -134,6 +119,18 @@ export async function POST(request: NextRequest) {
 
     console.log(`[Publish Scheduled Instagram] Finished: ${results.published} published, ${results.failed} failed`)
 
+    // Log resultado final
+    if (results.failed === 0 && results.total > 0) {
+      await instagramPublishLog.success({ instagram_posts: results.published })
+    } else if (results.failed > 0) {
+      await instagramPublishLog.fail(
+        `${results.failed} posts failed out of ${results.total}`,
+        { published: results.published, errors: results.errors }
+      )
+    } else {
+      await instagramPublishLog.success({ instagram_posts: 0, message: 'No posts to publish' })
+    }
+
     return NextResponse.json({
       success: true,
       message: `Published ${results.published}/${results.total} Instagram posts`,
@@ -142,6 +139,8 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('[Publish Scheduled Instagram] Error:', error)
+    await instagramPublishLog.fail(error as Error)
+    
     return NextResponse.json(
       {
         error: 'Erro ao publicar posts agendados',
@@ -152,35 +151,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function createCarouselChildren(
-  imageUrls: string[],
-  accessToken: string,
-  accountId: string
-) {
-  const childrenIds: string[] = []
 
-  for (const imageUrl of imageUrls) {
-    const response = await fetch(
-      `https://graph.facebook.com/v21.0/${accountId}/media`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          image_url: imageUrl,
-          is_carousel_item: true,
-          access_token: accessToken
-        })
-      }
-    )
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(`Erro ao criar item do carrossel: ${error.error?.message}`)
-    }
-
-    const { id } = await response.json()
-    childrenIds.push(id)
-  }
-
-  return childrenIds
-}
