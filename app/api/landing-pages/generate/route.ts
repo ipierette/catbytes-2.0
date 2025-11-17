@@ -805,7 +805,7 @@ Você DEVE preencher apenas o conteúdo (textos e imagem), mantendo 100% da estr
       </div>
       
       <div class="hero-image">
-        <img src="${heroImageUrl}" alt="[HEADLINE]">
+        <img src="${permanentImageUrl}" alt="[HEADLINE]">
         <div class="image-badge">
           <div class="image-badge-icon">[BADGE_ICON]</div>
           <div class="image-badge-text">
@@ -1068,7 +1068,7 @@ REGRAS CRÍTICAS:
         headline: content.headline,
         subheadline: content.subheadline,
         benefits: content.benefits,
-        hero_image_url: heroImageUrl,
+        hero_image_url: permanentImageUrl,
         html_content: htmlContent,
         status: 'draft',
         deploy_status: 'pending',
@@ -1109,7 +1109,7 @@ REGRAS CRÍTICAS:
         title: landingPage.title,
         headline: content.headline,
         subheadline: content.subheadline,
-        heroImageUrl,
+        heroImageUrl: permanentImageUrl,
         previewUrl: `/lp/${slug}`, // Preview local
       },
       cost: {
