@@ -166,26 +166,31 @@ Industry context: ${niche}`,
       
       // Upload para Supabase
       const { supabaseAdmin } = await import('@/lib/supabase')
-      const { data: uploadData, error: uploadError } = await supabaseAdmin
-        .storage
-        .from('instagram-images')
-        .upload(fileName, buffer, {
-          contentType: 'image/png',
-          cacheControl: '31536000', // 1 ano
-        })
       
-      if (uploadError) {
-        console.error('⚠️ Erro no upload da imagem:', uploadError)
-        // Continua com URL temporária se upload falhar
+      if (!supabaseAdmin) {
+        console.warn('⚠️ supabaseAdmin não disponível, usando URL temporária')
       } else {
-        // URL pública permanente
-        const { data: { publicUrl } } = supabaseAdmin
+        const { data: uploadData, error: uploadError } = await supabaseAdmin
           .storage
           .from('instagram-images')
-          .getPublicUrl(fileName)
+          .upload(fileName, buffer, {
+            contentType: 'image/png',
+            cacheControl: '31536000', // 1 ano
+          })
         
-        permanentImageUrl = publicUrl
-        console.log('✅ Imagem salva permanentemente:', permanentImageUrl)
+        if (uploadError) {
+          console.error('⚠️ Erro no upload da imagem:', uploadError)
+          // Continua com URL temporária se upload falhar
+        } else {
+          // URL pública permanente
+          const { data: { publicUrl } } = supabaseAdmin
+            .storage
+            .from('instagram-images')
+            .getPublicUrl(fileName)
+          
+          permanentImageUrl = publicUrl
+          console.log('✅ Imagem salva permanentemente:', permanentImageUrl)
+        }
       }
     } catch (error) {
       console.error('⚠️ Erro ao salvar imagem no Supabase:', error)
