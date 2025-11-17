@@ -165,7 +165,7 @@ Industry context: ${niche}`,
       const fileName = `landing-page-${Date.now()}-${Math.random().toString(36).substring(7)}.png`
       
       // Upload para Supabase
-      const { supabase: supabaseAdmin } = await import('@/lib/supabase')
+      const { supabaseAdmin } = await import('@/lib/supabase')
       const { data: uploadData, error: uploadError } = await supabaseAdmin
         .storage
         .from('instagram-images')
