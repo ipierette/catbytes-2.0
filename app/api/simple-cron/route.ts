@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { alertCronSuccess, alertCronFailure, alertCronWarning } from '@/lib/alert-system'
+import { startCronLog } from '@/lib/cron-logger'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60 // Reduzido para teste
@@ -76,6 +77,8 @@ export async function GET(request: NextRequest) {
       
       // Blog post generation
       try {
+        const blogLog = startCronLog('blog')
+        
         const blogResponse = await fetch(`${baseUrl}/api/blog/generate`, {
           method: 'POST',
           headers: {
@@ -89,8 +92,14 @@ export async function GET(request: NextRequest) {
           const blogResult = await blogResponse.json()
           results.blog = { success: true, post: blogResult.post }
           console.log('[Simple-Cron] Blog post generated:', blogResult.post?.title)
+          
+          await blogLog.success({ 
+            blog_post_id: blogResult.post?.id,
+            title: blogResult.post?.title
+          })
         } else {
           results.blog = { success: false, error: `Status ${blogResponse.status}` }
+          await blogLog.fail(`HTTP ${blogResponse.status}`)
         }
       } catch (error) {
         results.blog = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
@@ -98,6 +107,8 @@ export async function GET(request: NextRequest) {
 
       // Instagram batch generation
       try {
+        const instagramLog = startCronLog('instagram')
+        
         const instagramResponse = await fetch(`${baseUrl}/api/instagram/generate-batch`, {
           method: 'POST',
           headers: {
@@ -110,8 +121,13 @@ export async function GET(request: NextRequest) {
           const instagramResult = await instagramResponse.json()
           results.instagram_batch = { success: true, data: instagramResult }
           console.log('[Simple-Cron] Instagram batch generated')
+          
+          await instagramLog.success({ 
+            instagram_posts: instagramResult.generated || instagramResult.posts?.length || 0
+          })
         } else {
           results.instagram_batch = { success: false, error: `Status ${instagramResponse.status}` }
+          await instagramLog.fail(`HTTP ${instagramResponse.status}`)
         }
       } catch (error) {
         results.instagram_batch = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }

@@ -121,51 +121,45 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Calcular próxima geração (seg, ter, qui, sáb às 13:00)
+// Calcular próxima geração (ter, qui, sáb, dom às 13:00 BRT = 16:00 UTC)
 function calculateNextGenerationDate(): Date {
-  const generationDays = new Set([1, 2, 4, 6]) // Seg, Ter, Qui, Sáb
-  const generationHour = 13
+  const generationDays = new Set([2, 4, 6, 0]) // Ter, Qui, Sáb, Dom
+  const generationHourUTC = 16 // 16:00 UTC = 13:00 BRT
   
   const now = new Date()
-  const result = new Date(now)
-  result.setHours(generationHour, 0, 0, 0)
+  const nowUTC = new Date(now.toISOString())
+  const result = new Date(nowUTC)
+  result.setUTCHours(generationHourUTC, 0, 0, 0)
   
-  if (now.getHours() >= generationHour) {
-    result.setDate(result.getDate() + 1)
+  // Se já passou da hora hoje, começa de amanhã
+  if (nowUTC.getUTCHours() >= generationHourUTC) {
+    result.setUTCDate(result.getUTCDate() + 1)
   }
   
   let daysChecked = 0
   while (daysChecked < 7) {
-    if (generationDays.has(result.getDay())) {
+    if (generationDays.has(result.getUTCDay())) {
       return result
     }
-    result.setDate(result.getDate() + 1)
+    result.setUTCDate(result.getUTCDate() + 1)
     daysChecked++
   }
   
   return result
 }
 
-// Calcular próxima publicação (seg, qua, sex, dom às 13:00)
+// Calcular próxima publicação (todos os dias às 13:00 BRT para posts agendados)
 function calculateNextPublicationDate(): Date {
-  const publicationDays = new Set([1, 3, 5, 0]) // Seg, Qua, Sex, Dom
-  const publicationHour = 13
+  const publicationHourUTC = 16 // 16:00 UTC = 13:00 BRT
   
   const now = new Date()
-  const result = new Date(now)
-  result.setHours(publicationHour, 0, 0, 0)
+  const nowUTC = new Date(now.toISOString())
+  const result = new Date(nowUTC)
+  result.setUTCHours(publicationHourUTC, 0, 0, 0)
   
-  if (now.getHours() >= publicationHour) {
-    result.setDate(result.getDate() + 1)
-  }
-  
-  let daysChecked = 0
-  while (daysChecked < 7) {
-    if (publicationDays.has(result.getDay())) {
-      return result
-    }
-    result.setDate(result.getDate() + 1)
-    daysChecked++
+  // Se já passou da hora hoje, agenda para amanhã
+  if (nowUTC.getUTCHours() >= publicationHourUTC) {
+    result.setUTCDate(result.getUTCDate() + 1)
   }
   
   return result

@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { startCronLog } from '@/lib/cron-logger'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,6 +18,8 @@ const supabase = createClient(
 const resend = new Resend(process.env.RESEND_API_KEY!)
 
 export async function GET(request: NextRequest) {
+  const tokenLog = startCronLog('token-check')
+  
   try {
     // Verifica autenticação (cron secret)
     const authHeader = request.headers.get('authorization')
@@ -262,6 +265,12 @@ export async function GET(request: NextRequest) {
 
       console.log('✅ Alert email sent successfully')
 
+      await tokenLog.success({ 
+        daysRemaining: diffDays,
+        alertSent: true,
+        expiryDate: expiry.toISOString()
+      })
+
       return NextResponse.json({
         success: true,
         message: 'Alert email sent',
@@ -271,6 +280,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Se tiver mais de 1 dia, apenas loga
+    await tokenLog.success({ 
+      daysRemaining: diffDays,
+      alertSent: false,
+      expiryDate: expiry.toISOString()
+    })
+    
     return NextResponse.json({
       success: true,
       message: 'Token still valid',
@@ -281,6 +296,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('=== Token Check Failed ===')
     console.error('Error:', error)
+
+    await tokenLog.fail(error as Error)
 
     return NextResponse.json(
       {
