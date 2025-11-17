@@ -95,7 +95,10 @@ export async function POST(request: NextRequest) {
           image_url: image_url || null,
           carousel_images: carousel_images || null,
           status: 'pending',
-          generation_method: 'text-only-manual'
+          generation_method: 'text-only-manual',
+          nicho: 'Manual',
+          titulo: caption.substring(0, 100) || 'Post Manual',
+          texto_imagem: caption.substring(0, 100) || 'Post Manual'
         })
         .select()
         .single()
