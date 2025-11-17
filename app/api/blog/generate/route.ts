@@ -8,6 +8,7 @@ import { getNewPostEmailHTML } from '@/lib/email-templates'
 import { translatePostToEnglish, estimateTranslationCost } from '@/lib/translation-service'
 import { autoSubmitBlogPost } from '@/lib/google-indexing'
 import { promoteArticle } from '@/lib/blog-social-promoter'
+import { logDailyEvent } from '@/lib/daily-events-logger'
 import { 
   getCurrentBlogTheme, 
   getRandomTopicForTheme, 
@@ -700,6 +701,20 @@ Responda APENAS com JSON válido.`
       generation_time_ms: generationTime,
     })
 
+    // Log evento de blog gerado com sucesso
+    await logDailyEvent({
+      event_type: 'blog_generated',
+      title: createdPost.title,
+      description: `Artigo gerado automaticamente via ${blogTheme || 'random'}`,
+      metadata: {
+        slug: createdPost.slug,
+        category: selectedCategory,
+        generationTime,
+        textOnly: !!textOnly,
+        translated: !!translatedPost
+      }
+    })
+
     // ====== RESPONSE ======
     return NextResponse.json({
       success: true,
@@ -726,6 +741,15 @@ Responda APENAS com JSON válido.`
     const generationTime = Date.now() - startTime
     console.error('[Generate] Error:', error)
     console.error('[Generate] Error type:', typeof error)
+    
+    // Log evento de falha na geração do blog
+    await logDailyEvent({
+      event_type: 'blog_failed',
+      title: 'Falha na geração de artigo',
+      description: 'Erro ao gerar artigo do blog',
+      error_message: error instanceof Error ? error.message : String(error),
+      metadata: { generationTime }
+    })
     
     let errorMessage = 'Unknown error'
     let errorStack = undefined

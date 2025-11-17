@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { alertCronSuccess, alertCronFailure, alertCronWarning } from '@/lib/alert-system'
 import { startCronLog } from '@/lib/cron-logger'
+import { sendDailySummaryEmail } from '@/lib/daily-summary-email'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60 // Reduzido para teste
@@ -159,6 +160,29 @@ export async function GET(request: NextRequest) {
         }
       } catch (error) {
         results.linkedin_scheduled = { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+      }
+    }
+
+    // Enviar resumo diário por email - todos os dias às 14:00 BRT (17:00 UTC)
+    if (hour === 17) {
+      console.log('[Simple-Cron] Sending daily summary email...')
+      
+      try {
+        const emailResult = await sendDailySummaryEmail()
+        
+        if (emailResult.success) {
+          results.daily_summary_email = { success: true }
+          console.log('[Simple-Cron] ✅ Daily summary email sent successfully')
+        } else {
+          results.daily_summary_email = { success: false, error: emailResult.error }
+          console.error('[Simple-Cron] ❌ Failed to send daily summary email:', emailResult.error)
+        }
+      } catch (error) {
+        results.daily_summary_email = { 
+          success: false, 
+          error: error instanceof Error ? error.message : 'Unknown error' 
+        }
+        console.error('[Simple-Cron] ❌ Error sending daily summary email:', error)
       }
     }
 

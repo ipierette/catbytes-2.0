@@ -6,6 +6,7 @@
  */
 
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { logDailyEvent } from './daily-events-logger'
 
 const genAI = process.env.GEMINI_API_KEY 
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
@@ -360,6 +361,12 @@ export async function publishToLinkedIn(
 
 /**
  * Promove um artigo do blog em todas as redes sociais
+ * 
+ * PUBLICAÇÃO AUTOMÁTICA ATIVADA:
+ * - Instagram: auto_publish=true (publica imediatamente via Graph API)
+ * - LinkedIn: publish_now=true (publica imediatamente via v2/shares)
+ * 
+ * Em caso de falha na API, o post é salvo como 'approved' para retry manual.
  */
 export async function promoteArticle(
   blogPost: BlogPost,
@@ -368,19 +375,77 @@ export async function promoteArticle(
   instagram?: { success: boolean; postId?: string; error?: string }
   linkedin?: { success: boolean; postId?: string; error?: string }
 }> {
+  console.log(`[Blog Social Promoter] Starting auto-publish for: ${blogPost.title}`)
+  console.log(`[Blog Social Promoter] Target platforms: ${platforms.join(', ')}`)
+  
   const results: any = {}
   
   // Instagram
   if (platforms.includes('instagram')) {
+    console.log('[Blog Social Promoter] Generating Instagram content...')
     const instagramContent = await generateInstagramPost(blogPost)
+    
+    console.log('[Blog Social Promoter] Publishing to Instagram (auto_publish=true)...')
     results.instagram = await publishToInstagram(blogPost, instagramContent)
+    
+    if (results.instagram.success) {
+      console.log(`[Blog Social Promoter] ✅ Instagram published successfully! Post ID: ${results.instagram.postId}`)
+      
+      // Log evento de sucesso
+      await logDailyEvent({
+        event_type: 'instagram_published',
+        title: blogPost.title,
+        description: `Post publicado automaticamente no Instagram`,
+        metadata: { postId: results.instagram.postId, blogSlug: blogPost.slug }
+      })
+    } else {
+      console.error(`[Blog Social Promoter] ❌ Instagram publish failed: ${results.instagram.error}`)
+      
+      // Log evento de falha
+      await logDailyEvent({
+        event_type: 'instagram_failed',
+        title: blogPost.title,
+        description: `Falha ao publicar no Instagram`,
+        error_message: results.instagram.error
+      })
+    }
   }
   
   // LinkedIn
   if (platforms.includes('linkedin')) {
+    console.log('[Blog Social Promoter] Generating LinkedIn content...')
     const linkedInContent = await generateLinkedInPost(blogPost)
+    
+    console.log('[Blog Social Promoter] Publishing to LinkedIn (publish_now=true)...')
     results.linkedin = await publishToLinkedIn(blogPost, linkedInContent)
+    
+    if (results.linkedin.success) {
+      console.log(`[Blog Social Promoter] ✅ LinkedIn published successfully! Post ID: ${results.linkedin.postId}`)
+      
+      // Log evento de sucesso
+      await logDailyEvent({
+        event_type: 'linkedin_published',
+        title: blogPost.title,
+        description: `Post publicado automaticamente no LinkedIn`,
+        metadata: { postId: results.linkedin.postId, blogSlug: blogPost.slug }
+      })
+    } else {
+      console.error(`[Blog Social Promoter] ❌ LinkedIn publish failed: ${results.linkedin.error}`)
+      
+      // Log evento de falha
+      await logDailyEvent({
+        event_type: 'linkedin_failed',
+        title: blogPost.title,
+        description: `Falha ao publicar no LinkedIn`,
+        error_message: results.linkedin.error
+      })
+    }
   }
+  
+  // Log final summary
+  const totalAttempts = platforms.length
+  const successCount = [results.instagram?.success, results.linkedin?.success].filter(Boolean).length
+  console.log(`[Blog Social Promoter] Promotion complete: ${successCount}/${totalAttempts} platforms published`)
   
   return results
 }
