@@ -77,11 +77,23 @@ export async function POST(request: NextRequest) {
         const { id: creationId } = await createResponse.json()
         console.log('[Instagram Publish] Container created:', creationId)
 
-        // Aguardar 3 segundos para o Instagram processar a mídia
-        console.log('[Instagram Publish] Waiting 3s for media processing...')
-        await new Promise(resolve => setTimeout(resolve, 3000))
+        // Aguardar 10 segundos para o Instagram processar a mídia
+        console.log('[Instagram Publish] Waiting 10s for media processing...')
+        await new Promise(resolve => setTimeout(resolve, 10000))
 
-        // Step 2: Publish the media
+        // Step 2: Publish the media (com retry em caso de erro transitório)
+        let publishAttempts = 0
+        const maxAttempts = 3
+        let publishSuccess = false
+        let postId = null
+        let lastError = null
+
+        while (publishAttempts < maxAttempts && !publishSuccess) {
+          publishAttempts++
+          console.log(`[Instagram Publish] Publish attempt ${publishAttempts}/${maxAttempts}...`)
+
+          try {
+          try {
         const publishResponse = await fetch(
           `https://graph.facebook.com/v18.0/${process.env.INSTAGRAM_USER_ID}/media_publish`,
           {
@@ -96,11 +108,36 @@ export async function POST(request: NextRequest) {
 
         if (!publishResponse.ok) {
           const error = await publishResponse.json()
+          lastError = error
+          
+          // Se for erro transitório (2207027), aguardar e tentar novamente
+          if (error.error?.error_subcode === 2207027 && publishAttempts < maxAttempts) {
+            console.log(`[Instagram Publish] ⚠️ Media not ready, waiting 5s before retry...`)
+            await new Promise(resolve => setTimeout(resolve, 5000))
+            continue
+          }
+          
           throw new Error(`Failed to publish media: ${JSON.stringify(error)}`)
         }
 
-        const { id: postId } = await publishResponse.json()
+        const result = await publishResponse.json()
+        postId = result.id
+        publishSuccess = true
         console.log('[Instagram Publish] ✅ Published to Instagram:', postId)
+        
+          } catch (err) {
+            lastError = err
+            if (publishAttempts >= maxAttempts) {
+              throw err
+            }
+            console.log(`[Instagram Publish] ⚠️ Attempt ${publishAttempts} failed, retrying...`)
+            await new Promise(resolve => setTimeout(resolve, 5000))
+          }
+        }
+
+        if (!publishSuccess || !postId) {
+          throw new Error(`Failed after ${maxAttempts} attempts: ${lastError}`)
+        }
 
         // Atualiza no banco com ID do Instagram
         if (dbRecord.id) {
