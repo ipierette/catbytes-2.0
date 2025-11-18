@@ -268,49 +268,59 @@ export async function publishToInstagram(
   content: SocialPostContent
 ): Promise<{ success: boolean; postId?: string; error?: string }> {
   try {
-    // Publicar com retry automático e circuit breaker
-    const result = await retryExternalAPI(
-      'Instagram',
-      async () => {
-        return await withCircuitBreaker('instagram', async () => {
-          let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-          if (!baseUrl.startsWith('http')) {
-            baseUrl = `https://${baseUrl}`
-          }
-          const cronSecret = process.env.CRON_SECRET
-          
-          const response = await fetch(`${baseUrl}/api/instagram/publish`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${cronSecret}`
-            },
-            body: JSON.stringify({
-              image_url: blogPost.cover_image_url,
-              caption: content.fullText,
-              auto_publish: true,
-              blog_category: blogPost.category
-            })
-          })
-          
-          if (!response.ok) {
-            const error = await response.json()
-            throw new Error(error.error || 'Failed to publish to Instagram')
-          }
-          
-          return await response.json()
-        })
-      },
-      { maxRetries: 2, initialDelay: 2000 }
-    )
+    console.log('[Instagram Publish] Starting Instagram publication...')
     
+    // Publicar com retry automático e circuit breaker
+    const result = await Promise.race([
+      retryExternalAPI(
+        'Instagram',
+        async () => {
+          return await withCircuitBreaker('instagram', async () => {
+            let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+            if (!baseUrl.startsWith('http')) {
+              baseUrl = `https://${baseUrl}`
+            }
+            const cronSecret = process.env.CRON_SECRET
+            
+            console.log('[Instagram Publish] Calling /api/instagram/publish...')
+            const response = await fetch(`${baseUrl}/api/instagram/publish`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cronSecret}`
+              },
+              body: JSON.stringify({
+                image_url: blogPost.cover_image_url,
+                caption: content.fullText,
+                auto_publish: true,
+                blog_category: blogPost.category
+              })
+            })
+            
+            if (!response.ok) {
+              const errorText = await response.text()
+              console.error('[Instagram Publish] API error:', response.status, errorText)
+              throw new Error(`HTTP ${response.status}: ${errorText}`)
+            }
+            
+            return await response.json()
+          })
+        },
+        { maxRetries: 1, initialDelay: 1000 } // Reduzido para 1 retry
+      ),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Instagram publish timeout (15s)')), 15000)
+      )
+    ]) as any
+    
+    console.log('[Instagram Publish] Success:', result)
     return {
       success: true,
       postId: result.instagram_post_id || result.id
     }
     
   } catch (error) {
-    console.error('[Blog Social Promoter] Instagram publish error:', error)
+    console.error('[Instagram Publish] FAILED:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -326,49 +336,59 @@ export async function publishToLinkedIn(
   content: SocialPostContent
 ): Promise<{ success: boolean; postId?: string; error?: string }> {
   try {
-    // Publicar com retry automático e circuit breaker
-    const result = await retryExternalAPI(
-      'LinkedIn',
-      async () => {
-        return await withCircuitBreaker('linkedin', async () => {
-          let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-          if (!baseUrl.startsWith('http')) {
-            baseUrl = `https://${baseUrl}`
-          }
-          const cronSecret = process.env.CRON_SECRET
-          
-          const response = await fetch(`${baseUrl}/api/linkedin/publish`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${cronSecret}`
-            },
-            body: JSON.stringify({
-              text: content.fullText,
-              image_url: blogPost.cover_image_url,
-              publish_now: true,
-              blog_category: blogPost.category
-            })
-          })
-          
-          if (!response.ok) {
-            const error = await response.json()
-            throw new Error(error.error || 'Failed to publish to LinkedIn')
-          }
-          
-          return await response.json()
-        })
-      },
-      { maxRetries: 2, initialDelay: 2000 }
-    )
+    console.log('[LinkedIn Publish] Starting LinkedIn publication...')
     
+    // Publicar com retry automático e circuit breaker
+    const result = await Promise.race([
+      retryExternalAPI(
+        'LinkedIn',
+        async () => {
+          return await withCircuitBreaker('linkedin', async () => {
+            let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+            if (!baseUrl.startsWith('http')) {
+              baseUrl = `https://${baseUrl}`
+            }
+            const cronSecret = process.env.CRON_SECRET
+            
+            console.log('[LinkedIn Publish] Calling /api/linkedin/publish...')
+            const response = await fetch(`${baseUrl}/api/linkedin/publish`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${cronSecret}`
+              },
+              body: JSON.stringify({
+                text: content.fullText,
+                image_url: blogPost.cover_image_url,
+                publish_now: true,
+                blog_category: blogPost.category
+              })
+            })
+            
+            if (!response.ok) {
+              const errorText = await response.text()
+              console.error('[LinkedIn Publish] API error:', response.status, errorText)
+              throw new Error(`HTTP ${response.status}: ${errorText}`)
+            }
+            
+            return await response.json()
+          })
+        },
+        { maxRetries: 1, initialDelay: 1000 } // Reduzido para 1 retry
+      ),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('LinkedIn publish timeout (15s)')), 15000)
+      )
+    ]) as any
+    
+    console.log('[LinkedIn Publish] Success:', result)
     return {
       success: true,
       postId: result.post_id || result.id
     }
     
   } catch (error) {
-    console.error('[Blog Social Promoter] LinkedIn publish error:', error)
+    console.error('[LinkedIn Publish] FAILED:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

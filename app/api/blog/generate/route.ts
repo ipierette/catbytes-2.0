@@ -618,7 +618,8 @@ Responda APENAS com JSON válido.`
           cover: coverImageUrl
         })
         
-        const promotionResults = await promoteArticle(
+        // ⚠️ CRITICAL: Wrap with timeout to prevent cron hanging
+        const promotionPromise = promoteArticle(
           {
             id: createdPost.id,
             title: createdPost.title,
@@ -630,6 +631,13 @@ Responda APENAS com JSON válido.`
           },
           ['instagram', 'linkedin']
         )
+        
+        // Timeout após 30 segundos (prevent cron hanging)
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Social promotion timeout (30s)')), 30000)
+        )
+        
+        const promotionResults = await Promise.race([promotionPromise, timeoutPromise]) as any
         
         console.log('[Generate] Promotion results:', promotionResults)
         
@@ -669,6 +677,7 @@ Responda APENAS com JSON válido.`
       } catch (promoError) {
         console.error('[Generate] ❌ Error promoting on social media:', promoError)
         console.error('[Generate] Error stack:', promoError instanceof Error ? promoError.stack : 'No stack')
+        console.error('[Generate] 🔥 CRITICAL: Social promotion failed but continuing with blog generation')
         
         socialPromotion = {
           attempted: true,
@@ -676,7 +685,8 @@ Responda APENAS com JSON válido.`
           failures: ['Exception: ' + (promoError instanceof Error ? promoError.message : String(promoError))],
           error: promoError instanceof Error ? promoError.message : String(promoError)
         }
-        // Não falha a geração do post se a promoção falhar
+        // ⚠️ CRITICAL: NÃO FALHA A GERAÇÃO DO POST SE A PROMOÇÃO FALHAR
+        // Blog generation must succeed even if social promotion fails
       }
     } else {
       const reason = !createdPost.published ? 'Post is draft' : 
