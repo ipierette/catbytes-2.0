@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { alertCronSuccess, alertCronFailure, alertCronWarning } from '@/lib/alert-system'
 import { startCronLog } from '@/lib/cron-logger'
 import { sendDailySummaryEmail } from '@/lib/daily-summary-email'
+import { runProactiveAlerts } from '@/lib/proactive-alerts'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60 // Reduzido para teste
@@ -183,6 +184,23 @@ export async function GET(request: NextRequest) {
           error: error instanceof Error ? error.message : 'Unknown error' 
         }
         console.error('[Simple-Cron] ❌ Error sending daily summary email:', error)
+      }
+    }
+
+    // Executar alertas proativos - a cada 6 horas (0:00, 6:00, 12:00, 18:00 UTC)
+    if ([0, 6, 12, 18].includes(hour)) {
+      console.log('[Simple-Cron] Running proactive alerts check...')
+      
+      try {
+        await runProactiveAlerts()
+        results.proactive_alerts = { success: true }
+        console.log('[Simple-Cron] ✅ Proactive alerts completed')
+      } catch (error) {
+        results.proactive_alerts = { 
+          success: false, 
+          error: error instanceof Error ? error.message : 'Unknown error' 
+        }
+        console.error('[Simple-Cron] ❌ Error running proactive alerts:', error)
       }
     }
 

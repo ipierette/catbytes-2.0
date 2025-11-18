@@ -7,6 +7,8 @@
 
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { logDailyEvent } from './daily-events-logger'
+import { retryExternalAPI } from './retry-helper'
+import { withCircuitBreaker } from './circuit-breaker'
 
 const genAI = process.env.GEMINI_API_KEY 
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
@@ -266,34 +268,41 @@ export async function publishToInstagram(
   content: SocialPostContent
 ): Promise<{ success: boolean; postId?: string; error?: string }> {
   try {
-    // Usar a API de publicação direta do Instagram
-    let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    // Garantir que tem protocolo
-    if (!baseUrl.startsWith('http')) {
-      baseUrl = `https://${baseUrl}`
-    }
-    const cronSecret = process.env.CRON_SECRET
-    
-    const response = await fetch(`${baseUrl}/api/instagram/publish`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${cronSecret}`
+    // Publicar com retry automático e circuit breaker
+    const result = await retryExternalAPI(
+      'Instagram',
+      async () => {
+        return await withCircuitBreaker('instagram', async () => {
+          let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+          if (!baseUrl.startsWith('http')) {
+            baseUrl = `https://${baseUrl}`
+          }
+          const cronSecret = process.env.CRON_SECRET
+          
+          const response = await fetch(`${baseUrl}/api/instagram/publish`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${cronSecret}`
+            },
+            body: JSON.stringify({
+              image_url: blogPost.cover_image_url,
+              caption: content.fullText,
+              auto_publish: true,
+              blog_category: blogPost.category
+            })
+          })
+          
+          if (!response.ok) {
+            const error = await response.json()
+            throw new Error(error.error || 'Failed to publish to Instagram')
+          }
+          
+          return await response.json()
+        })
       },
-      body: JSON.stringify({
-        image_url: blogPost.cover_image_url,
-        caption: content.fullText,
-        auto_publish: true, // Publicar imediatamente
-        blog_category: blogPost.category // Passa categoria do blog
-      })
-    })
-    
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to publish to Instagram')
-    }
-    
-    const result = await response.json()
+      { maxRetries: 2, initialDelay: 2000 }
+    )
     
     return {
       success: true,
@@ -317,33 +326,41 @@ export async function publishToLinkedIn(
   content: SocialPostContent
 ): Promise<{ success: boolean; postId?: string; error?: string }> {
   try {
-    let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    // Garantir que tem protocolo
-    if (!baseUrl.startsWith('http')) {
-      baseUrl = `https://${baseUrl}`
-    }
-    const cronSecret = process.env.CRON_SECRET
-    
-    const response = await fetch(`${baseUrl}/api/linkedin/publish`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${cronSecret}`
+    // Publicar com retry automático e circuit breaker
+    const result = await retryExternalAPI(
+      'LinkedIn',
+      async () => {
+        return await withCircuitBreaker('linkedin', async () => {
+          let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+          if (!baseUrl.startsWith('http')) {
+            baseUrl = `https://${baseUrl}`
+          }
+          const cronSecret = process.env.CRON_SECRET
+          
+          const response = await fetch(`${baseUrl}/api/linkedin/publish`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${cronSecret}`
+            },
+            body: JSON.stringify({
+              text: content.fullText,
+              image_url: blogPost.cover_image_url,
+              publish_now: true,
+              blog_category: blogPost.category
+            })
+          })
+          
+          if (!response.ok) {
+            const error = await response.json()
+            throw new Error(error.error || 'Failed to publish to LinkedIn')
+          }
+          
+          return await response.json()
+        })
       },
-      body: JSON.stringify({
-        text: content.fullText,
-        image_url: blogPost.cover_image_url, // Imagem da capa do artigo
-        publish_now: true, // Publicar imediatamente
-        blog_category: blogPost.category // Passa categoria do blog
-      })
-    })
-    
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Failed to publish to LinkedIn')
-    }
-    
-    const result = await response.json()
+      { maxRetries: 2, initialDelay: 2000 }
+    )
     
     return {
       success: true,
