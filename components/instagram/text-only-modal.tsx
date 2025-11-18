@@ -26,6 +26,39 @@ interface TextOnlyModalProps {
   onSuccess?: () => void
 }
 
+const CAPTION_TEMPLATES = [
+  {
+    id: 'tech-tip',
+    name: '💡 Dica Tech',
+    template: '💡 DICA TECH\n\n[seu conteúdo aqui]\n\n---\n🔖 Salve este post!\n💬 Tem dúvidas? Comenta!\n\n#programacao #tecnologia #dicastech #catbytes',
+    emoji: '💡'
+  },
+  {
+    id: 'tutorial',
+    name: '🚀 Tutorial Rápido',
+    template: '🚀 TUTORIAL RÁPIDO\n\n📌 Passo 1: [texto]\n📌 Passo 2: [texto]\n📌 Passo 3: [texto]\n\n✅ Pronto! Simples assim.\n\nCompartilhe com quem precisa!\n\n#tutorial #comoFazer #tech #catbytes',
+    emoji: '🚀'
+  },
+  {
+    id: 'curiosidade',
+    name: '🤯 Curiosidade',
+    template: '🤯 VOCÊ SABIA?\n\n[fato interessante]\n\n🔥 Compartilhe com quem precisa saber disso!\n\n#curiosidades #tech #aprender #catbytes',
+    emoji: '🤯'
+  },
+  {
+    id: 'business',
+    name: '💼 Negócios',
+    template: '💼 TRANSFORME SEU NEGÓCIO\n\n[problema que resolve]\n\n✅ Solução: [sua solução]\n\n📊 Resultado: [benefício]\n\nQuer saber como? Comente "EU QUERO"!\n\n#negocios #automacao #produtividade #catbytes',
+    emoji: '💼'
+  },
+  {
+    id: 'automation',
+    name: '⚡ Automação',
+    template: '⚡ PARE DE PERDER TEMPO!\n\n❌ Antes: [problema]\n✅ Depois: [solução automatizada]\n\n💰 Economia: [tempo/dinheiro economizado]\n\nAutomação é o futuro! 🚀\n\n#automacao #tecnologia #produtividade #catbytes',
+    emoji: '⚡'
+  }
+]
+
 export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalProps) {
   const [loading, setLoading] = useState(false)
   const [generating, setGenerating] = useState(false)
@@ -33,6 +66,7 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
   const [generatingSuggestion, setGeneratingSuggestion] = useState(false)
   const [scheduling, setScheduling] = useState(false)
   const [publishing, setPublishing] = useState(false)
+  const [showTemplates, setShowTemplates] = useState(false)
   
   // Form inicial
   const [nicho, setNicho] = useState('')
@@ -51,9 +85,58 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
   
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
-  // Auto-carregar sugestões quando modal abre
+  // Auto-save draft a cada 30s
   useEffect(() => {
-    if (open && !nicho && !tema) {
+    if (!generatedContent) return
+
+    const timer = setTimeout(() => {
+      const draft = {
+        nicho,
+        tema,
+        estilo,
+        palavrasChave,
+        generatedContent,
+        timestamp: Date.now()
+      }
+      localStorage.setItem('instagram-draft', JSON.stringify(draft))
+      console.log('💾 Rascunho salvo automaticamente')
+    }, 30000) // 30 segundos
+
+    return () => clearTimeout(timer)
+  }, [nicho, tema, estilo, palavrasChave, generatedContent])
+
+  // Recuperar draft ao abrir modal
+  useEffect(() => {
+    if (!open) return
+
+    const savedDraft = localStorage.getItem('instagram-draft')
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft)
+        const ageInMinutes = (Date.now() - draft.timestamp) / 1000 / 60
+        
+        // Só recuperar se tiver menos de 2 horas
+        if (ageInMinutes < 120 && confirm(`📝 Encontrei um rascunho salvo há ${Math.round(ageInMinutes)} minutos.\n\nDeseja recuperá-lo?`)) {
+          setNicho(draft.nicho || '')
+          setTema(draft.tema || '')
+          setEstilo(draft.estilo || '')
+          setPalavrasChave(draft.palavrasChave || '')
+          setGeneratedContent(draft.generatedContent || null)
+          setMessage({ type: 'success', text: '✅ Rascunho recuperado!' })
+        } else if (ageInMinutes >= 120) {
+          // Limpar rascunhos muito antigos
+          localStorage.removeItem('instagram-draft')
+        }
+      } catch (error) {
+        console.error('Erro ao recuperar rascunho:', error)
+        localStorage.removeItem('instagram-draft')
+      }
+    }
+  }, [open])
+
+  // Auto-carregar sugestões quando modal abre (se não tiver draft)
+  useEffect(() => {
+    if (open && !nicho && !tema && !generatedContent) {
       handleLoadSuggestions()
     }
   }, [open])
@@ -506,6 +589,20 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
     setUploadedImageUrl(null)
     setScheduledDate(undefined)
     setMessage(null)
+    setShowTemplates(false)
+    // Limpar rascunho salvo
+    localStorage.removeItem('instagram-draft')
+  }
+
+  const handleApplyTemplate = (template: typeof CAPTION_TEMPLATES[0]) => {
+    if (generatedContent) {
+      setGeneratedContent({
+        ...generatedContent,
+        caption: template.template
+      })
+      setShowTemplates(false)
+      setMessage({ type: 'success', text: `✅ Template "${template.name}" aplicado!` })
+    }
   }
 
   return (
@@ -659,12 +756,48 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
 
               {/* Legenda */}
               <div>
-                <Label className="text-gray-900 dark:text-white">Legenda Completa</Label>
+                <Label className="flex items-center justify-between text-gray-900 dark:text-white">
+                  <span>Legenda Completa</span>
+                  <Button
+                    onClick={() => setShowTemplates(!showTemplates)}
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
+                  >
+                    {showTemplates ? '❌ Fechar' : '📝 Templates'}
+                  </Button>
+                </Label>
+                
+                {showTemplates && (
+                  <div className="mb-3 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-3 font-medium">
+                      Escolha um template para substituir a legenda:
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {CAPTION_TEMPLATES.map((template) => (
+                        <Button
+                          key={template.id}
+                          onClick={() => handleApplyTemplate(template)}
+                          variant="outline"
+                          size="sm"
+                          className="justify-start text-left h-auto py-2 border-gray-300 dark:border-gray-600"
+                        >
+                          <span className="mr-2">{template.emoji}</span>
+                          <span className="text-xs">{template.name}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 <Textarea
                   value={generatedContent.caption}
-                  readOnly
+                  onChange={(e) => setGeneratedContent({ ...generatedContent, caption: e.target.value })}
                   className="bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 min-h-[150px]"
                 />
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  💡 Você pode editar a legenda manualmente ou usar um template pronto
+                </p>
               </div>
 
               {/* Upload de Imagem */}

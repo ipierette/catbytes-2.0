@@ -21,6 +21,8 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
+import { ActionRequiredCard } from '@/components/admin/action-required-card'
+import { WeeklyCostAnalyticsCard } from '@/components/admin/weekly-cost-analytics-card'
 
 interface SystemStats {
   blog: {
@@ -227,6 +229,15 @@ export default function DashboardPage() {
           </div>
 
           {/* System Overview */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Action Required Card */}
+            <ActionRequiredCard />
+
+            {/* Weekly Cost Analytics Card */}
+            <WeeklyCostAnalyticsCard />
+          </div>
+
+          {/* Detailed Stats */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Blog Stats */}
             <Card>
