@@ -15,6 +15,7 @@ import { AutomationStatusCard } from './_components/AutomationStatusCard'
 import { QuickActionsCard } from './_components/QuickActionsCard'
 import { ReportsCard } from './_components/ReportsCard'
 import { CronMonitoringCard } from './_components/CronMonitoringCard'
+import { APICostAnalyticsCard } from './_components/APICostAnalyticsCard'
 
 export default function DashboardPage() {
   const { stats, loading, error, isCached, lastUpdate, reload } = useDashboardStats()
@@ -87,6 +88,9 @@ export default function DashboardPage() {
 
           {/* Cron Monitoring */}
           <CronMonitoringCard />
+
+          {/* API Cost Analytics */}
+          <APICostAnalyticsCard />
 
           {/* Quick Actions */}
           <QuickActionsCard />
