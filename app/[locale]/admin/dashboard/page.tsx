@@ -7,7 +7,6 @@ import {
   LayoutDashboard, 
   Activity, 
   TrendingUp, 
-  Users, 
   FileText, 
   Instagram, 
   Calendar,
@@ -59,21 +58,26 @@ export default function DashboardPage() {
     try {
       setLoading(true)
       
-      // Simular carregamento de estatísticas
-      // Em uma implementação real, você faria chamadas para APIs
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Carregar dados reais do Supabase
+      const [blogResponse, instagramResponse] = await Promise.all([
+        fetch('/api/blog/stats'),
+        fetch('/api/instagram/stats')
+      ])
+
+      const blogData = await blogResponse.json()
+      const instagramData = await instagramResponse.json()
       
       setStats({
         blog: {
-          totalPosts: 45,
-          publishedPosts: 42,
-          drafts: 3,
-          lastGenerated: new Date().toISOString()
+          totalPosts: blogData.total || 0,
+          publishedPosts: blogData.published || 0,
+          drafts: blogData.drafts || 0,
+          lastGenerated: blogData.lastGenerated || new Date().toISOString()
         },
         instagram: {
-          totalPosts: 128,
-          pendingPosts: 8,
-          publishedPosts: 120,
+          totalPosts: instagramData.stats?.total || 0,
+          pendingPosts: instagramData.stats?.pending || 0,
+          publishedPosts: instagramData.stats?.published || 0,
           lastGenerated: new Date().toISOString()
         },
         automation: {
@@ -237,74 +241,7 @@ export default function DashboardPage() {
             <WeeklyCostAnalyticsCard />
           </div>
 
-          {/* Detailed Stats */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Blog Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Sistema de Blog
-                </CardTitle>
-                <CardDescription>
-                  Estatísticas e status do blog
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Posts Publicados</span>
-                  <span className="text-lg font-bold text-green-600">{stats?.blog.publishedPosts || 0}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Rascunhos</span>
-                  <span className="text-lg font-bold text-gray-600">{stats?.blog.drafts || 0}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Última Geração</span>
-                  <span className="text-sm text-muted-foreground">Hoje às 13:00</span>
-                </div>
-                <div className="pt-2">
-                  <Button variant="outline" className="w-full" onClick={() => window.open('/pt-BR/admin/blog', '_self')}>
-                    Gerenciar Blog
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Instagram Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Instagram className="h-5 w-5" />
-                  Sistema Instagram
-                </CardTitle>
-                <CardDescription>
-                  Estatísticas e status do Instagram
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Posts Publicados</span>
-                  <span className="text-lg font-bold text-green-600">{stats?.instagram.publishedPosts || 0}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Aguardando Aprovação</span>
-                  <span className="text-lg font-bold text-yellow-600">{stats?.instagram.pendingPosts || 0}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Última Geração</span>
-                  <span className="text-sm text-muted-foreground">Hoje às 13:00</span>
-                </div>
-                <div className="pt-2">
-                  <Button variant="outline" className="w-full" onClick={() => window.open('/pt-BR/admin/instagram', '_self')}>
-                    Gerenciar Instagram
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Automation Status */}
+          {/* Automation Status - Informativo, não navegacional */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -320,24 +257,34 @@ export default function DashboardPage() {
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    Geração Automática
+                    Geração de Blog
                   </h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    <strong>Próxima:</strong> Amanhã às 13:00<br/>
-                    <strong>Frequência:</strong> Seg, Ter, Qui, Sáb<br/>
-                    <strong>Conteúdo:</strong> Blog + 10 posts Instagram
+                    <strong>Próximo:</strong> Ter/Qui/Sáb/Dom às 13h BRT<br/>
+                    <strong>Conteúdo:</strong> Artigo + Imagem DALL-E<br/>
+                    <strong>Ações:</strong> Newsletter + Posts Sociais
                   </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className={`h-2 w-2 rounded-full ${stats?.automation.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`} />
+                    <span className="text-xs text-muted-foreground">
+                      {stats?.automation.status === 'active' ? 'Ativo' : 'Pausado'}
+                    </span>
+                  </div>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
-                    Publicação Automática
+                    Publicação Agendada
                   </h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    <strong>Próxima:</strong> Amanhã às 13:00<br/>
-                    <strong>Frequência:</strong> Seg, Qua, Sex, Dom<br/>
-                    <strong>Ação:</strong> Publica posts aprovados
+                    <strong>Frequência:</strong> Diariamente às 13h BRT<br/>
+                    <strong>Ação:</strong> Publica posts aprovados<br/>
+                    <strong>Plataformas:</strong> Instagram + LinkedIn
                   </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    <span className="text-xs text-muted-foreground">Ativo</span>
+                  </div>
                 </div>
                 <div>
                   <h4 className="font-semibold mb-2 flex items-center gap-2">
@@ -345,57 +292,15 @@ export default function DashboardPage() {
                     Recursos do Sistema
                   </h4>
                   <p className="text-sm text-muted-foreground mb-2">
-                    <strong>Cron Jobs:</strong> 2/2 ativos<br/>
-                    <strong>APIs:</strong> OpenAI, Instagram<br/>
-                    <strong>Storage:</strong> Supabase
+                    <strong>Cron Jobs:</strong> 2/2 slots Vercel<br/>
+                    <strong>APIs:</strong> OpenAI, DALL-E, Instagram<br/>
+                    <strong>Storage:</strong> Supabase PostgreSQL
                   </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-xs text-muted-foreground">Operacional</span>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Ações Rápidas</CardTitle>
-              <CardDescription>
-                Acesso direto às principais funcionalidades
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button 
-                  variant="outline" 
-                  className="h-24 flex-col gap-2"
-                  onClick={() => window.open('/pt-BR/admin/blog', '_self')}
-                >
-                  <FileText className="h-6 w-6" />
-                  Blog Admin
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="h-24 flex-col gap-2"
-                  onClick={() => window.open('/pt-BR/admin/instagram', '_self')}
-                >
-                  <Instagram className="h-6 w-6" />
-                  Instagram Admin
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="h-24 flex-col gap-2"
-                  onClick={() => window.open('/pt-BR/admin/analytics', '_self')}
-                >
-                  <TrendingUp className="h-6 w-6" />
-                  Analytics
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="h-24 flex-col gap-2"
-                  onClick={() => window.open('/pt-BR/admin/settings', '_self')}
-                >
-                  <Users className="h-6 w-6" />
-                  Configurações
-                </Button>
               </div>
             </CardContent>
           </Card>
