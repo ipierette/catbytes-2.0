@@ -121,46 +121,50 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Calcular próxima geração (ter, qui, sáb, dom às 13:00 BRT = 16:00 UTC)
+// Calcular próxima geração (ter, qui, sáb, dom às 16:00 UTC = 13:00 BRT)
 function calculateNextGenerationDate(): Date {
   const generationDays = new Set([2, 4, 6, 0]) // Ter, Qui, Sáb, Dom
   const generationHourUTC = 16 // 16:00 UTC = 13:00 BRT
   
+  // Trabalhar com UTC direto
   const now = new Date()
-  const nowUTC = new Date(now.toISOString())
-  const result = new Date(nowUTC)
+  const result = new Date(now)
   result.setUTCHours(generationHourUTC, 0, 0, 0)
   
   // Se já passou da hora hoje, começa de amanhã
-  if (nowUTC.getUTCHours() >= generationHourUTC) {
+  if (now.getUTCHours() > generationHourUTC || 
+      (now.getUTCHours() === generationHourUTC && now.getUTCMinutes() > 0)) {
     result.setUTCDate(result.getUTCDate() + 1)
   }
   
+  // Procurar próximo dia de geração
   let daysChecked = 0
   while (daysChecked < 7) {
     if (generationDays.has(result.getUTCDay())) {
-      return result
+      // Converter para BRT antes de retornar
+      return new Date(result.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
     }
     result.setUTCDate(result.getUTCDate() + 1)
     daysChecked++
   }
   
-  return result
+  return new Date(result.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
 }
 
-// Calcular próxima publicação (todos os dias às 13:00 BRT para posts agendados)
+// Calcular próxima publicação (todos os dias às 13:00 UTC = 10:00 BRT)
 function calculateNextPublicationDate(): Date {
-  const publicationHourUTC = 16 // 16:00 UTC = 13:00 BRT
+  const publicationHourUTC = 13 // 13:00 UTC = 10:00 BRT
   
   const now = new Date()
-  const nowUTC = new Date(now.toISOString())
-  const result = new Date(nowUTC)
+  const result = new Date(now)
   result.setUTCHours(publicationHourUTC, 0, 0, 0)
   
   // Se já passou da hora hoje, agenda para amanhã
-  if (nowUTC.getUTCHours() >= publicationHourUTC) {
+  if (now.getUTCHours() > publicationHourUTC || 
+      (now.getUTCHours() === publicationHourUTC && now.getUTCMinutes() > 0)) {
     result.setUTCDate(result.getUTCDate() + 1)
   }
   
-  return result
+  // Converter para BRT antes de retornar
+  return new Date(result.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
 }

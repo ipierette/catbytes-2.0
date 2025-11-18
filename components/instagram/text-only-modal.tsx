@@ -205,22 +205,58 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
     try {
       console.log('⚡ [MODAL] Gerando post corporativo direto...')
       
-      // Temas corporativos focados em negócios
+      // Lista expandida de nichos corporativos (30+ opções)
       const corporateThemes = [
-        { nicho: 'Escritórios de Advocacia', tema: 'Automatizar controle de processos jurídicos' },
+        // Saúde & Bem-estar
         { nicho: 'Clínicas Médicas', tema: 'Sistema de agendamento inteligente 24/7' },
-        { nicho: 'E-commerce', tema: 'Automação de estoque e vendas' },
-        { nicho: 'Restaurantes', tema: 'Delivery automatizado com WhatsApp' },
+        { nicho: 'Consultórios Odontológicos', tema: 'Lembretes automáticos por WhatsApp' },
+        { nicho: 'Clínicas de Fisioterapia', tema: 'Gestão de pacientes e prontuários digitais' },
+        { nicho: 'Laboratórios de Análises', tema: 'Automação de laudos e resultados' },
+        { nicho: 'Clínicas Veterinárias', tema: 'Controle de vacinas e histórico de pets' },
         { nicho: 'Academias', tema: 'App de treinos personalizados por IA' },
         { nicho: 'Salões de Beleza', tema: 'Agendamento online que reduz no-show' },
-        { nicho: 'Consultórios Odontológicos', tema: 'Lembretes automáticos por WhatsApp' },
+        { nicho: 'Centros de Estética', tema: 'Gestão de tratamentos e fidelização' },
+        
+        // Jurídico & Financeiro
+        { nicho: 'Escritórios de Advocacia', tema: 'Automatizar controle de processos jurídicos' },
         { nicho: 'Contabilidade', tema: 'Dashboard financeiro em tempo real' },
+        { nicho: 'Consultorias Financeiras', tema: 'Análise de investimentos com IA' },
+        { nicho: 'Despachantes', tema: 'Rastreamento digital de documentos' },
+        
+        // Varejo & E-commerce
+        { nicho: 'E-commerce', tema: 'Automação de estoque e vendas' },
+        { nicho: 'Lojas de Roupas', tema: 'Catálogo online com vendas pelo WhatsApp' },
+        { nicho: 'Pet Shops', tema: 'Sistema de delivery e assinatura de ração' },
+        { nicho: 'Farmácias', tema: 'Controle de receitas e estoque automatizado' },
+        { nicho: 'Supermercados', tema: 'App de delivery com lista inteligente' },
+        
+        // Alimentação
+        { nicho: 'Restaurantes', tema: 'Delivery automatizado com WhatsApp' },
+        { nicho: 'Cafeterias', tema: 'Sistema de pedidos e programa de fidelidade' },
+        { nicho: 'Padarias', tema: 'App de encomendas e delivery' },
+        { nicho: 'Food Trucks', tema: 'Pagamento digital e cardápio online' },
+        
+        // Imóveis & Construção
         { nicho: 'Imobiliárias', tema: 'CRM automático para leads' },
-        { nicho: 'Oficinas Mecânicas', tema: 'Sistema de ordens de serviço digital' }
+        { nicho: 'Construtoras', tema: 'Gestão de obras em tempo real' },
+        { nicho: 'Arquitetos', tema: 'Portfólio interativo e orçamentos online' },
+        
+        // Automotivo
+        { nicho: 'Oficinas Mecânicas', tema: 'Sistema de ordens de serviço digital' },
+        { nicho: 'Concessionárias', tema: 'CRM para vendas e pós-venda' },
+        { nicho: 'Lava-Jatos', tema: 'Agendamento e planos de assinatura' },
+        
+        // Educação & Serviços
+        { nicho: 'Escolas de Idiomas', tema: 'Plataforma de ensino online' },
+        { nicho: 'Cursos Profissionalizantes', tema: 'Gestão de alunos e certificados' },
+        { nicho: 'Consultorias Empresariais', tema: 'Automação de relatórios e análises' },
+        { nicho: 'Agências de Marketing', tema: 'Dashboard de métricas para clientes' },
+        { nicho: 'Fotógrafos', tema: 'Galeria online e agendamento automatizado' }
       ]
       
-      // Selecionar tema corporativo aleatório
-      const selectedTheme = corporateThemes[Math.floor(Math.random() * corporateThemes.length)]
+      // Selecionar tema aleatório com embaralhamento (true random)
+      const shuffled = [...corporateThemes].sort(() => Math.random() - 0.5)
+      const selectedTheme = shuffled[0]
       
       // Preencher campos
       setNicho(selectedTheme.nicho)
@@ -666,43 +702,19 @@ export function TextOnlyModal({ open, onOpenChange, onSuccess }: TextOnlyModalPr
               </div>
 
               <div>
-                <Label className="text-gray-900 dark:text-white">Nicho *</Label>
-                <Input
-                  value={nicho}
-                  onChange={(e) => setNicho(e.target.value)}
-                  placeholder="Ex: Escritórios de Advocacia, Clínicas Médicas, E-commerce"
-                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                />
-              </div>
-
-              <div>
-                <Label className="text-gray-900 dark:text-white">Tema *</Label>
+                <Label className="text-gray-900 dark:text-white">Tema do Post *</Label>
                 <Input
                   value={tema}
                   onChange={(e) => setTema(e.target.value)}
                   placeholder="Ex: Automatizar agendamentos, Reduzir trabalho manual"
                   className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
                 />
-              </div>
-
-              <div>
-                <Label className="text-gray-900 dark:text-white">Estilo</Label>
-                <Input
-                  value={estilo}
-                  onChange={(e) => setEstilo(e.target.value)}
-                  placeholder="Ex: Profissional, Persuasivo, Educativo"
-                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                />
-              </div>
-
-              <div>
-                <Label className="text-gray-900 dark:text-white">Palavras-chave</Label>
-                <Input
-                  value={palavrasChave}
-                  onChange={(e) => setPalavrasChave(e.target.value)}
-                  placeholder="Ex: Automação, Produtividade, Economia de tempo"
-                  className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600"
-                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  💡 A IA vai gerar automaticamente: nicho, estilo e palavras-chave ideais
+                </p>
               </div>
 
               <Button

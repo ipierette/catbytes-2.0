@@ -14,18 +14,28 @@ interface PostCardProps {
   onReject?: () => void
 }
 
-const nicheColors: Record<string, string> = {
-  advogados: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  medicos: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  terapeutas: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  nutricionistas: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+const nicheConfig: Record<string, { name: string; color: string; icon: string }> = {
+  'Escritórios de Advocacia': { name: 'Advocacia', color: 'bg-blue-500 text-white', icon: '⚖️' },
+  'Clínicas Médicas': { name: 'Medicina', color: 'bg-red-500 text-white', icon: '🏥' },
+  'E-commerce': { name: 'E-commerce', color: 'bg-purple-500 text-white', icon: '🛒' },
+  'Restaurantes': { name: 'Gastronomia', color: 'bg-orange-500 text-white', icon: '🍽️' },
+  'Academias': { name: 'Fitness', color: 'bg-green-500 text-white', icon: '💪' },
+  'Salões de Beleza': { name: 'Beleza', color: 'bg-pink-500 text-white', icon: '💇' },
+  'Consultórios Odontológicos': { name: 'Odontologia', color: 'bg-cyan-500 text-white', icon: '🦷' },
+  'Contabilidade': { name: 'Contábil', color: 'bg-yellow-600 text-white', icon: '💰' },
+  'Imobiliárias': { name: 'Imóveis', color: 'bg-indigo-500 text-white', icon: '🏠' },
+  'Oficinas Mecânicas': { name: 'Automotivo', color: 'bg-gray-700 text-white', icon: '🔧' },
+  'advogados': { name: 'Advocacia', color: 'bg-blue-500 text-white', icon: '⚖️' },
+  'medicos': { name: 'Medicina', color: 'bg-red-500 text-white', icon: '🏥' },
+  'terapeutas': { name: 'Terapia', color: 'bg-purple-500 text-white', icon: '🧘' },
+  'nutricionistas': { name: 'Nutrição', color: 'bg-green-500 text-white', icon: '🥗' }
 }
 
-const nicheNames: Record<string, string> = {
-  advogados: 'Advogados',
-  medicos: 'Médicos',
-  terapeutas: 'Terapeutas',
-  nutricionistas: 'Nutricionistas'
+const getNicheDisplay = (nicho: string) => {
+  const config = nicheConfig[nicho]
+  if (config) return config
+  // Fallback para nichos não mapeados
+  return { name: nicho, color: 'bg-slate-500 text-white', icon: '💼' }
 }
 
 export function PostCard({
@@ -67,9 +77,15 @@ export function PostCard({
           }}
         />
         <div className="absolute top-2 right-2">
-          <span className={`text-xs font-medium px-2 py-1 rounded-md ${nicheColors[post.nicho]}`}>
-            {nicheNames[post.nicho] || post.nicho}
-          </span>
+          {(() => {
+            const display = getNicheDisplay(post.nicho)
+            return (
+              <span className={`text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg ${display.color} flex items-center gap-1`}>
+                <span>{display.icon}</span>
+                <span>{display.name}</span>
+              </span>
+            )
+          })()}
         </div>
         {bulkMode && (
           <div className="absolute top-2 left-2">
