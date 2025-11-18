@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
     const { data: subscribers, error } = await supabaseAdmin
       .from('newsletter_subscribers')
       .select('*')
-      .order('created_at', { ascending: false })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
@@ -46,11 +45,10 @@ export async function GET(request: NextRequest) {
       stats,
       subscribers: subscribers.map(s => ({
         email: s.email,
-        name: s.name,
+        name: s.name || 'N/A',
         verified: s.verified,
         subscribed: s.subscribed,
-        created_at: s.created_at,
-        verified_at: s.verified_at
+        verifiedAt: s.verified_at
       }))
     })
 
