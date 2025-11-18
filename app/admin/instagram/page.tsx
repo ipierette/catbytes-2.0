@@ -95,7 +95,7 @@ export default function InstagramAdminPage() {
         text: '🎨 Gerando posts com DALL-E 3... Isso pode levar alguns minutos.' 
       })
 
-      const response = await fetch('/api/instagram/generate-with-leonardo', {
+      const response = await fetch('/api/instagram/generate-with-dalle3', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
