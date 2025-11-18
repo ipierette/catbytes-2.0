@@ -9,13 +9,12 @@ import { useReports } from './_hooks/useReports'
 import { formatNextExecution } from './_hooks/dateUtils'
 import { DashboardHeader } from './_components/DashboardHeader'
 import { StatsCards } from './_components/StatsCards'
-import { BlogStatsCard } from './_components/BlogStatsCard'
-import { InstagramStatsCard } from './_components/InstagramStatsCard'
 import { AutomationStatusCard } from './_components/AutomationStatusCard'
-import { QuickActionsCard } from './_components/QuickActionsCard'
 import { ReportsCard } from './_components/ReportsCard'
 import { CronMonitoringCard } from './_components/CronMonitoringCard'
 import { APICostAnalyticsCard } from './_components/APICostAnalyticsCard'
+import { ActionRequiredCard } from '@/components/admin/action-required-card'
+import { WeeklyCostAnalyticsCard } from '@/components/admin/weekly-cost-analytics-card'
 
 export default function DashboardPage() {
   const { stats, loading, error, isCached, lastUpdate, reload } = useDashboardStats()
@@ -77,10 +76,10 @@ export default function DashboardPage() {
           {/* Main Stats Cards */}
           <StatsCards stats={stats} formatNextExecution={formatNextExecution} />
 
-          {/* System Overview */}
+          {/* System Overview - Ação Necessária e Analytics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <BlogStatsCard stats={stats.blog} />
-            <InstagramStatsCard stats={stats.instagram} />
+            <ActionRequiredCard />
+            <WeeklyCostAnalyticsCard />
           </div>
 
           {/* Automation Status */}
@@ -88,12 +87,6 @@ export default function DashboardPage() {
 
           {/* Cron Monitoring */}
           <CronMonitoringCard />
-
-          {/* API Cost Analytics */}
-          <APICostAnalyticsCard />
-
-          {/* Quick Actions */}
-          <QuickActionsCard />
 
           {/* Reports */}
           <ReportsCard onSendReport={sendReport} sendingReport={sendingReport} />
