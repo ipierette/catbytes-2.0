@@ -23,9 +23,22 @@ export async function GET(request: NextRequest) {
   try {
     // Verifica autenticação (cron secret)
     const authHeader = request.headers.get('authorization')
-    const isCronJob = authHeader === `Bearer ${process.env.CRON_SECRET}`
+    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`
+    const isCronJob = authHeader === expectedAuth
+    
+    // Log detalhado para debug (REMOVER após fix)
+    console.log('[Token-Check] Auth validation:', {
+      hasAuthHeader: !!authHeader,
+      authMatches: isCronJob,
+      headerLength: authHeader?.length,
+      expectedLength: expectedAuth.length,
+      // Primeiros 20 chars para debug (seguro)
+      headerStart: authHeader?.substring(0, 20),
+      expectedStart: expectedAuth.substring(0, 20)
+    })
     
     if (!isCronJob) {
+      await tokenLog.fail('Unauthorized - invalid CRON_SECRET')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
