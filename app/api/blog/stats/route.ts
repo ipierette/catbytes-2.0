@@ -1,37 +1,44 @@
 import { NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase-admin'
+import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export async function GET() {
   try {
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Supabase admin not configured' },
+        { status: 500 }
+      )
+    }
+
     // Total de posts
     const { count: total, error: totalError } = await supabaseAdmin
-      .from('posts')
+      .from('blog_posts')
       .select('*', { count: 'exact', head: true })
 
     if (totalError) throw totalError
 
     // Posts publicados
     const { count: published, error: publishedError } = await supabaseAdmin
-      .from('posts')
+      .from('blog_posts')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'published')
+      .eq('published', true)
 
     if (publishedError) throw publishedError
 
     // Rascunhos
     const { count: drafts, error: draftsError } = await supabaseAdmin
-      .from('posts')
+      .from('blog_posts')
       .select('*', { count: 'exact', head: true })
-      .eq('status', 'draft')
+      .eq('published', false)
 
     if (draftsError) throw draftsError
 
     // Último post gerado
     const { data: lastPost, error: lastPostError } = await supabaseAdmin
-      .from('posts')
+      .from('blog_posts')
       .select('created_at')
       .order('created_at', { ascending: false })
       .limit(1)
