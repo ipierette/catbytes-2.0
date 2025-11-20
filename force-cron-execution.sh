@@ -5,8 +5,19 @@
 #
 # Uso: ./force-cron-execution.sh
 #
+# Requer: .env.local com CRON_SECRET configurado
+#
 
-CRON_SECRET="a0a99efa3213a7ffcf610276504172999bd3e07c908709c3fd6e25f44af518fb"
+# Carregar variáveis do .env.local
+if [ -f .env.local ]; then
+  export $(grep -v '^#' .env.local | grep CRON_SECRET | xargs)
+fi
+
+if [ -z "$CRON_SECRET" ]; then
+  echo "❌ Erro: CRON_SECRET não encontrado no .env.local"
+  exit 1
+fi
+
 BASE_URL="https://www.catbytes.site"
 
 echo "🚨 FORÇANDO EXECUÇÃO MANUAL DO CRON"
