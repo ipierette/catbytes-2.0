@@ -61,12 +61,13 @@ export async function POST(request: NextRequest) {
 
     console.log('[Resend-Today] ✅ Found post:', post.title)
 
-    // Get verified subscribers
+    // Get verified subscribers (only pt-BR for Portuguese posts)
     const { data: subscribers, error: subsError } = await supabaseAdmin
       .from('newsletter_subscribers')
       .select('email, name')
       .eq('verified', true)
       .eq('subscribed', true)
+      .eq('locale', 'pt-BR') // Only Portuguese subscribers
 
     if (subsError || !subscribers || subscribers.length === 0) {
       console.error('[Resend-Today] ❌ No verified subscribers:', subsError)
