@@ -63,39 +63,47 @@ Favicon azul claro antigo ainda aparecendo devido a cache do navegador
 
 ## 🚀 Ações Necessárias no Google Search Console
 
-### 1. Solicitar Reindexação Manual
+### ✅ Indexação Automática Executada!
 
-**Páginas a Reindexar**:
-1. `https://catbytes.site/pt-BR` (principal)
-2. `https://catbytes.site/en-US`
-3. `https://catbytes.site/pt-BR/blog`
-4. `https://catbytes.site/pt-BR/sobre`
-5. `https://catbytes.site/pt-BR/projetos`
+O script `scripts/fix-gsc-indexing.js` foi executado com sucesso:
+- ✅ 12 páginas principais solicitadas para indexação
+- ✅ 3 URLs problemáticas marcadas como DELETED
+
+**Para executar novamente**:
+```bash
+npm run index:fix
+```
+
+### 1. Reenviar Sitemap (Manual)
+
+### 1. Reenviar Sitemap (Manual)
 
 **Como fazer**:
-1. Acesse Google Search Console
-2. Use "Inspeção de URL"
-3. Cole cada URL acima
-4. Clique em "Solicitar indexação"
+1. Acesse [Google Search Console](https://search.google.com/search-console)
+2. Vá em **Sitemaps**
+3. Remover sitemap antigo (se houver)
+4. Adicionar: `https://catbytes.site/sitemap.xml`
+5. Clicar em **"Enviar"**
 
-### 2. Remover URLs Antigas/Problemáticas
+### 2. Remover URLs Antigas/Problemáticas (Manual)
+
+### 2. Remover URLs Antigas/Problemáticas (Manual)
+
+⚠️ **Nota**: As URLs foram marcadas como DELETED via API, mas remoção definitiva requer ação manual.
 
 **URLs para Remover**:
 - `https://catbytes.site/` (raiz - agora redireciona permanentemente)
-- Qualquer URL com `/pt-BR/admin/*` ou `/en-US/admin/*`
+- `https://catbytes.site/pt-BR/admin`
+- `https://catbytes.site/en-US/admin`
 
 **Como fazer**:
-1. Google Search Console → Remoções
-2. Nova solicitação
-3. Cole URL
-4. Selecionar "Remover URL temporariamente"
+1. Google Search Console → **Remoções**
+2. **Nova solicitação**
+3. Cole cada URL acima
+4. Selecionar **"Remover URL temporariamente"**
+5. Confirmar
 
-### 3. Reenviar Sitemap
-
-1. Google Search Console → Sitemaps
-2. Remover sitemap antigo (se houver)
-3. Adicionar: `https://catbytes.site/sitemap.xml`
-4. Enviar
+### 3. Monitorar Progresso
 
 ---
 

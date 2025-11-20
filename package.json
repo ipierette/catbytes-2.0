@@ -9,7 +9,9 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "generate:favicons": "node scripts/generate-favicons.js",
-    "test:bucket": "node -r dotenv/config -r tsx/cjs scripts/test-instagram-bucket.ts dotenv_config_path=.env.local"
+    "test:bucket": "node -r dotenv/config -r tsx/cjs scripts/test-instagram-bucket.ts dotenv_config_path=.env.local",
+    "index:fix": "node scripts/fix-gsc-indexing.js",
+    "index:all": "node scripts/index-all-content.js"
   },
   "engines": {
     "node": ">=18.0.0",
