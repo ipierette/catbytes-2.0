@@ -23,12 +23,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static pages with optimized priorities
   const routes: MetadataRoute.Sitemap = [
     {
-      url: baseUrl,
-      lastModified,
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
       url: `${baseUrl}/pt-BR`,
       lastModified,
       changeFrequency: 'daily',

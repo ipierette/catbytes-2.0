@@ -92,12 +92,21 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico?v=2', sizes: '48x48', type: 'image/x-icon' },
-      { url: '/favicon-16x16.png?v=2', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png?v=2', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon.ico?v=20251120', sizes: '48x48', type: 'image/x-icon' },
+      { url: '/favicon-16x16.png?v=20251120', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png?v=20251120', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-64x64.png?v=20251120', sizes: '64x64', type: 'image/png' },
     ],
-    shortcut: '/favicon.ico?v=2',
-    apple: '/apple-touch-icon.png?v=2',
+    shortcut: '/favicon.ico?v=20251120',
+    apple: '/apple-touch-icon.png?v=20251120',
+    other: [
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '192x192',
+        url: '/favicon-192x192.png?v=20251120',
+      },
+    ],
   },
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
@@ -260,6 +269,10 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        
+        {/* Force favicon refresh */}
+        <link rel="icon" href="/favicon.ico?v=20251120" type="image/x-icon" />
+        <link rel="shortcut icon" href="/favicon.ico?v=20251120" type="image/x-icon" />
         
         {/* Preconnect para performance */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />

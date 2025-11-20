@@ -58,9 +58,16 @@ const nextConfig = {
   // Trailing slashes (SEO - URL consistency)
   trailingSlash: false,
 
-  // Redirects desabilitados temporariamente para debug
+  // Redirects otimizados
   async redirects() {
-    return []
+    return [
+      // Redirect raiz para pt-BR (evita loop)
+      {
+        source: '/',
+        destination: '/pt-BR',
+        permanent: true,
+      },
+    ]
   },
 
   // Headers de segurança e performance

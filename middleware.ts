@@ -12,11 +12,21 @@ export default function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // Skip for API routes
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next()
+  }
+
+  // Skip for static files
+  if (pathname.includes('.') && !pathname.startsWith('/.well-known')) {
+    return NextResponse.next()
+  }
+
   // Redirect locale admin routes to root admin routes
   const localeAdminPattern = /^\/(pt-BR|en-US)\/admin/
   if (localeAdminPattern.exec(pathname)) {
     const newPathname = pathname.replace(/^\/(pt-BR|en-US)/, '')
-    return NextResponse.redirect(new URL(newPathname, request.url))
+    return NextResponse.redirect(new URL(newPathname, request.url), 301)
   }
 
   return intlMiddleware(request)
