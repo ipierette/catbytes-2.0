@@ -37,34 +37,40 @@ interface NextExecution {
   description: string
 }
 
+interface SilentFailure {
+  jobName: string
+  expectedAt: string
+  detectedAt: string
+  message: string
+}
+
 export default function CronMonitor() {
   const [executions, setExecutions] = useState<CronExecution[]>([])
   const [stats, setStats] = useState<CronStats[]>([])
   const [nextExecutions, setNextExecutions] = useState<NextExecution[]>([])
+  const [silentFailures, setSilentFailures] = useState<SilentFailure[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchData = async () => {
     try {
-      const [execRes, statsRes, nextRes] = await Promise.all([
+      const [execRes, statsRes, nextRes, failuresRes] = await Promise.all([
         fetch('/api/cron/executions?limit=20'),
         fetch('/api/cron/stats'),
-        fetch('/api/cron/next')
+        fetch('/api/cron/next'),
+        fetch('/api/cron/silent-failures')
       ])
 
-      if (execRes.ok) {
-        const data = await execRes.json()
-        setExecutions(data.executions || [])
-      }
+      const [execData, statsData, nextData, failuresData] = await Promise.all([
+        execRes.json(),
+        statsRes.json(),
+        nextRes.json(),
+        failuresRes.json()
+      ])
 
-      if (statsRes.ok) {
-        const data = await statsRes.json()
-        setStats(data.stats || [])
-      }
-
-      if (nextRes.ok) {
-        const data = await nextRes.json()
-        setNextExecutions(data.next || [])
-      }
+      setExecutions(execData.executions || [])
+      setStats(statsData.stats || [])
+      setNextExecutions(nextData.next || [])
+      setSilentFailures(failuresData.failures || [])
     } catch (error) {
       console.error('Erro ao buscar dados:', error)
     } finally {
@@ -154,6 +160,39 @@ export default function CronMonitor() {
 
   return (
     <div className="space-y-6">
+      {/* Alerta de Falhas Silenciosas */}
+      {silentFailures.length > 0 && (
+        <Card className="p-4 border-2 border-red-500 bg-red-50">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-10 h-10 bg-red-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
+              !
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-red-900 mb-2">
+                ⚠️ {silentFailures.length} Falha{silentFailures.length > 1 ? 's' : ''} Silenciosa{silentFailures.length > 1 ? 's' : ''} Detectada{silentFailures.length > 1 ? 's' : ''}
+              </h3>
+              <p className="text-sm text-red-800 mb-3">
+                Os seguintes cron jobs não executaram no horário esperado:
+              </p>
+              <div className="space-y-2">
+                {silentFailures.map((failure, idx) => (
+                  <div key={idx} className="p-3 bg-white border border-red-200 rounded text-sm">
+                    <div className="font-medium text-red-900">
+                      {getJobLabel(failure.jobName)}
+                    </div>
+                    <div className="text-xs text-red-700 mt-1">
+                      Esperado: {formatDateTime(failure.expectedAt)}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      {failure.message}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4">

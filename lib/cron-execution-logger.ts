@@ -258,3 +258,102 @@ export function getNextScheduledExecutions(): {
     }
   })
 }
+
+/**
+ * Detecta falhas silenciosas de cron jobs
+ * Um cron job falhou silenciosamente se não há registro de execução
+ * no período esperado (com margem de 2 horas)
+ */
+export async function detectSilentFailures(): Promise<Array<{
+  jobName: CronJobName
+  expectedAt: Date
+  detectedAt: Date
+  message: string
+}>> {
+  if (!supabaseAdmin) {
+    console.error('[Silent Failure] supabaseAdmin não inicializado')
+    return []
+  }
+
+  const failures: Array<{
+    jobName: CronJobName
+    expectedAt: Date
+    detectedAt: Date
+    message: string
+  }> = []
+
+  const now = new Date()
+  const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000)
+
+  // Definir jobs com horários esperados
+  const schedules = [
+    {
+      jobName: 'blog_generation' as CronJobName,
+      days: [2, 4, 6, 0], // Ter, Qui, Sáb, Dom
+      hour: 16 // 16:00 UTC = 13:00 BRT
+    },
+    {
+      jobName: 'topic_expansion' as CronJobName,
+      days: [0], // Domingo
+      hour: 3 // 03:00 UTC = 00:00 BRT
+    },
+    {
+      jobName: 'daily_summary' as CronJobName,
+      days: [0, 1, 2, 3, 4, 5, 6], // Every day
+      hour: 17 // 17:00 UTC = 14:00 BRT
+    }
+  ]
+
+  for (const schedule of schedules) {
+    const currentDay = now.getUTCDay()
+    const currentHour = now.getUTCHours()
+
+    // Verificar se o job deveria ter executado nas últimas 2 horas
+    let shouldHaveRun = false
+    let expectedAt = new Date(now)
+
+    if (schedule.days.includes(currentDay)) {
+      // Se hoje é um dia de execução
+      if (currentHour >= schedule.hour) {
+        // Se já passou da hora de execução
+        expectedAt.setUTCHours(schedule.hour, 0, 0, 0)
+        
+        // Verificar se foi dentro das últimas 2 horas
+        if (expectedAt >= twoHoursAgo && expectedAt <= now) {
+          shouldHaveRun = true
+        }
+      }
+    }
+
+    if (shouldHaveRun) {
+      // Verificar se há registro de execução
+      const { data, error } = await supabaseAdmin
+        .from('cron_execution_log')
+        .select('id, started_at')
+        .eq('job_name', schedule.jobName)
+        .gte('started_at', expectedAt.toISOString())
+        .limit(1)
+
+      if (error) {
+        console.error(`[Silent Failure] Erro ao verificar ${schedule.jobName}:`, error)
+        continue
+      }
+
+      if (!data || data.length === 0) {
+        // FALHA SILENCIOSA DETECTADA
+        failures.push({
+          jobName: schedule.jobName,
+          expectedAt,
+          detectedAt: now,
+          message: `Cron job "${schedule.jobName}" não executou no horário esperado (${expectedAt.toISOString()})`
+        })
+        
+        console.warn(
+          `[Silent Failure] ⚠️ ${schedule.jobName} não executou às ${expectedAt.toLocaleString('pt-BR')}`
+        )
+      }
+    }
+  }
+
+  return failures
+}

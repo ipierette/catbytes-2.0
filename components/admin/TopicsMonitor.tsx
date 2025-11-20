@@ -38,6 +38,10 @@ export default function TopicsMonitor() {
   const [overall, setOverall] = useState<OverallStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState<string | null>(null)
+  const [addingManual, setAddingManual] = useState<string | null>(null)
+  const [manualTopic, setManualTopic] = useState('')
+  const [generationHistory, setGenerationHistory] = useState<any[]>([])
+  const [showHistory, setShowHistory] = useState(false)
 
   const fetchStats = async () => {
     try {
@@ -55,10 +59,26 @@ export default function TopicsMonitor() {
     }
   }
 
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch('/api/topics/history')
+      const data = await res.json()
+      if (data.success) {
+        setGenerationHistory(data.history || [])
+      }
+    } catch (error) {
+      console.error('Erro ao buscar histórico:', error)
+    }
+  }
+
   useEffect(() => {
     fetchStats()
+    fetchHistory()
     // Atualizar a cada 60 segundos
-    const interval = setInterval(fetchStats, 60000)
+    const interval = setInterval(() => {
+      fetchStats()
+      fetchHistory()
+    }, 60000)
     return () => clearInterval(interval)
   }, [])
 
@@ -71,6 +91,7 @@ export default function TopicsMonitor() {
       if (data.success) {
         alert(`✅ ${data.total} tópicos gerados!\n\nAdicione-os manualmente em types/blog.ts:\n\n${data.generated.slice(0, 5).map((t: string) => `'${t}',`).join('\n')}\n... e mais ${data.total - 5}`)
         fetchStats() // Atualizar stats
+        fetchHistory() // Atualizar histórico
       } else {
         alert(`❌ Erro: ${data.error}`)
       }
@@ -78,6 +99,37 @@ export default function TopicsMonitor() {
       alert('❌ Erro ao gerar tópicos')
     } finally {
       setGenerating(null)
+    }
+  }
+
+  const handleAddManual = async (category: string) => {
+    if (!manualTopic.trim()) {
+      alert('Digite um tópico válido')
+      return
+    }
+
+    try {
+      const res = await fetch('/api/topics/add-manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category,
+          topic: manualTopic.trim()
+        })
+      })
+
+      const data = await res.json()
+      
+      if (data.success) {
+        alert(`✅ Tópico adicionado!\n\nAdicione também em types/blog.ts:\n'${manualTopic.trim()}',`)
+        setManualTopic('')
+        setAddingManual(null)
+        fetchStats()
+      } else {
+        alert(`❌ Erro: ${data.error}`)
+      }
+    } catch (error) {
+      alert('❌ Erro ao adicionar tópico')
     }
   }
 
@@ -114,7 +166,57 @@ export default function TopicsMonitor() {
 
   return (
     <div className="space-y-6">
-      {/* Overview Cards */}
+      {/* Header com botão de histórico */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-lg font-semibold">Pool de Tópicos</h3>
+          <p className="text-sm text-gray-500">Gerenciamento automático e manual de tópicos</p>
+        </div>
+        <button
+          onClick={() => setShowHistory(!showHistory)}
+          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium"
+        >
+          {showHistory ? '📊 Ver Stats' : '📜 Ver Histórico'}
+        </button>
+      </div>
+
+      {/* Histórico de Gerações */}
+      {showHistory && (
+        <Card className="p-6">
+          <h4 className="font-semibold mb-4">📜 Histórico de Gerações Automáticas</h4>
+          {generationHistory.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">Nenhuma geração registrada ainda</p>
+          ) : (
+            <div className="space-y-3">
+              {generationHistory.map((gen: any, i: number) => (
+                <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                  <div>
+                    <div className="font-medium">{gen.category}</div>
+                    <div className="text-sm text-gray-600">
+                      {gen.count} tópicos gerados
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {new Date(gen.generated_at).toLocaleString('pt-BR')}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-gray-500">via {gen.method}</div>
+                    {gen.added_to_code ? (
+                      <span className="text-xs text-green-600">✓ Adicionado</span>
+                    ) : (
+                      <span className="text-xs text-yellow-600">⏳ Pendente</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {!showHistory && (
+        <>
+          {/* Overview Cards */}
       {overall && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="p-4">
@@ -169,16 +271,50 @@ export default function TopicsMonitor() {
                   </span>
                 </div>
                 
-                {data.needsGeneration && (
+                <div className="flex gap-2">
+                  {data.needsGeneration && (
+                    <button
+                      onClick={() => handleGenerate(category)}
+                      disabled={generating !== null}
+                      className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {generating === category ? 'Gerando...' : 'Gerar 30'}
+                    </button>
+                  )}
                   <button
-                    onClick={() => handleGenerate(category)}
-                    disabled={generating !== null}
-                    className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50"
+                    onClick={() => setAddingManual(addingManual === category ? null : category)}
+                    disabled={generating !== null || addingManual !== null && addingManual !== category}
+                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200 disabled:opacity-50"
                   >
-                    {generating === category ? 'Gerando...' : 'Gerar 30'}
+                    {addingManual === category ? 'Cancelar' : '+ Manual'}
                   </button>
-                )}
+                </div>
               </div>
+              
+              {/* Manual Topic Input */}
+              {addingManual === category && (
+                <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded">
+                  <div className="text-sm font-medium text-gray-700 mb-2">Adicionar tópico manualmente:</div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={manualTopic}
+                      onChange={(e) => setManualTopic(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleAddManual(category)}
+                      placeholder="Digite o novo tópico..."
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => handleAddManual(category)}
+                      disabled={!manualTopic.trim()}
+                      className="px-4 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Adicionar
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Progress Bar */}
               <div className="mb-4">
@@ -244,6 +380,8 @@ export default function TopicsMonitor() {
             </Card>
           ))}
         </div>
+      )}
+      </>
       )}
     </div>
   )
