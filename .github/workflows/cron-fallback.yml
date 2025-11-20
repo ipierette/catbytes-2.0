@@ -1,0 +1,97 @@
+name: 'Cron Fallback - Blog Generation'
+
+# Executa a cada 30 minutos das 13h às 14h30 BRT (16h às 17h30 UTC)
+# Dias: Terça (2), Quinta (4), Sábado (6), Domingo (0)
+on:
+  schedule:
+    # Terça-feira às 16h, 16h30, 17h, 17h30 UTC (13h-14h30 BRT)
+    - cron: '0,30 16,17 * * 2'
+    # Quinta-feira às 16h, 16h30, 17h, 17h30 UTC  
+    - cron: '0,30 16,17 * * 4'
+    # Sábado às 16h, 16h30, 17h, 17h30 UTC
+    - cron: '0,30 16,17 * * 6'
+    # Domingo às 16h, 16h30, 17h, 17h30 UTC
+    - cron: '0,30 16,17 * * 0'
+  
+  # Permite execução manual do workflow
+  workflow_dispatch:
+
+jobs:
+  check-and-generate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check if blog post was generated today
+        id: check
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: https://www.catbytes.site
+        run: |
+          # Pegar data de hoje (YYYY-MM-DD)
+          TODAY=$(date -u +"%Y-%m-%d")
+          echo "Checking for blog post on date: $TODAY"
+          
+          # Buscar último post via API
+          RESPONSE=$(curl -s "$SITE_URL/api/blog/posts?limit=1" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          
+          # Extrair data de criação do último post
+          LAST_POST_DATE=$(echo "$RESPONSE" | jq -r '.posts[0].created_at' | cut -d'T' -f1)
+          
+          echo "Last post date: $LAST_POST_DATE"
+          echo "Today's date: $TODAY"
+          
+          # Comparar datas
+          if [ "$LAST_POST_DATE" = "$TODAY" ]; then
+            echo "✅ Blog post already generated today"
+            echo "need_generation=false" >> $GITHUB_OUTPUT
+          else
+            echo "❌ No blog post found for today - will generate"
+            echo "need_generation=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Generate blog post (fallback)
+        if: steps.check.outputs.need_generation == 'true'
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: https://www.catbytes.site
+        run: |
+          echo "🚀 Triggering blog generation via API..."
+          
+          RESPONSE=$(curl -X POST "$SITE_URL/api/blog/generate" \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            --max-time 180 \
+            -w "\nHTTP_STATUS:%{http_code}")
+          
+          HTTP_STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d':' -f2)
+          BODY=$(echo "$RESPONSE" | sed '/HTTP_STATUS/d')
+          
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "✅ Blog post generated successfully!"
+            
+            # Extrair título (se tiver jq)
+            TITLE=$(echo "$BODY" | jq -r '.post.title // "N/A"')
+            SLUG=$(echo "$BODY" | jq -r '.post.slug // "N/A"')
+            
+            echo "📝 Title: $TITLE"
+            echo "🔗 Slug: $SLUG"
+            echo "📱 Social promotion attempted"
+          else
+            echo "❌ Failed to generate blog post (HTTP $HTTP_STATUS)"
+            echo "$BODY"
+            exit 1
+          fi
+      
+      - name: Send notification on success
+        if: steps.check.outputs.need_generation == 'true'
+        run: |
+          echo "✅ GitHub Actions fallback executed successfully"
+          echo "Vercel Cron failed, but blog post was generated via fallback"
+      
+      - name: Send notification on failure
+        if: failure()
+        run: |
+          echo "❌ Both Vercel Cron AND GitHub Actions fallback failed"
+          echo "Manual intervention required"
