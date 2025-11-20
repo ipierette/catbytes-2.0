@@ -175,7 +175,12 @@ export async function POST(request: NextRequest) {
         })
 
         console.log(`[Resend-Specific] ✅ Enviado para ${email}`)
-        results.push({ email, status: 'sent', sent: true, resendId: result.id })
+        results.push({ 
+          email, 
+          status: 'sent', 
+          sent: true, 
+          resendId: result.data?.id || 'unknown' 
+        })
 
       } catch (error: any) {
         console.error(`[Resend-Specific] ❌ Erro ao enviar para ${email}:`, error)
