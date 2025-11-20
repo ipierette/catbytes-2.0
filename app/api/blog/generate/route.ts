@@ -9,6 +9,7 @@ import { translatePostToEnglish, estimateTranslationCost } from '@/lib/translati
 import { autoSubmitBlogPost } from '@/lib/google-indexing'
 import { promoteArticle } from '@/lib/blog-social-promoter'
 import { logDailyEvent } from '@/lib/daily-events-logger'
+import { selectSmartTopic, recordTopicUsage } from '@/lib/topic-usage-manager'
 import { 
   getCurrentBlogTheme, 
   getRandomTopicForTheme, 
@@ -79,8 +80,18 @@ export async function POST(request: NextRequest) {
     const blogTheme = theme || getCurrentBlogTheme()
     const scheduleInfo = getBlogScheduleInfo()
     
-    // Select topic based on theme
-    const selectedTopic = topic || getRandomTopicForTheme(blogTheme)
+    // Select topic using SMART SYSTEM (2-year non-repetition guarantee)
+    let selectedTopic: string
+    if (topic) {
+      // Tópico manual fornecido
+      selectedTopic = topic
+      console.log('[Generate] Using manually provided topic:', selectedTopic)
+    } else {
+      // Seleção inteligente: evita repetição por 2 anos
+      selectedTopic = await selectSmartTopic(blogTheme)
+      console.log('[Generate] Smart topic selected:', selectedTopic)
+    }
+    
     const selectedCategory = category || blogTheme
     const selectedKeywords = keywords || [
       ...getThemeKeywords(blogTheme),
@@ -488,6 +499,15 @@ Responda APENAS com JSON válido.`
 
     const createdPost = await db.createPost(postData)
     console.log('[Generate] Post created:', createdPost.id)
+
+    // Record topic usage for 2-year anti-duplication tracking
+    try {
+      await recordTopicUsage(blogTheme, selectedTopic, createdPost.id)
+      console.log('[Generate] ✓ Topic usage recorded for 2-year tracking:', selectedTopic)
+    } catch (topicError) {
+      console.error('[Generate] ⚠️ Failed to record topic usage (non-critical):', topicError)
+      // Don't fail the generation if topic tracking fails
+    }
 
     // Log saved prompts
     if (textOnly && imagePromptSuggestion) {
