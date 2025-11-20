@@ -31,13 +31,13 @@ export async function GET(request: NextRequest) {
     const baseUrl = request.nextUrl.origin
 
     console.log(`[Simple-Cron] UTC Time - Day ${dayOfWeek}, Hour ${hour}, Date ${today}`)
-    console.log(`[Simple-Cron] Expected days: [2=Tue, 4=Thu, 6=Sat, 0=Sun] at hour 16 UTC`)
+    console.log(`[Simple-Cron] Expected days: [2=Tue, 4=Thu, 6=Sat, 0=Sun] at hour 12 UTC`)
 
     const results: { [key: string]: any } = {}
 
-    // Schedule: Tuesday (2), Thursday (4), Saturday (6), Sunday (0) at 16:00 UTC (13:00 BRT)
+    // Schedule: Tuesday (2), Thursday (4), Saturday (6), Sunday (0) at 12:00 UTC (09:00 BRT)
     // Execute blog generation ONLY (Instagram batch removed to save API costs)
-    if ([2, 4, 6, 0].includes(dayOfWeek) && hour === 16) {
+    if ([2, 4, 6, 0].includes(dayOfWeek) && hour === 12) {
       console.log('[Simple-Cron] ✅ Correct schedule - Executing blog generation...')
       
       // PROTEÇÃO: Verificar se já gerou artigo hoje

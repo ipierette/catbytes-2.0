@@ -290,7 +290,7 @@ export async function detectSilentFailures(): Promise<Array<{
     {
       jobName: 'blog_generation' as CronJobName,
       days: [2, 4, 6, 0], // Ter, Qui, Sáb, Dom
-      hour: 16 // 16:00 UTC = 13:00 BRT
+      hour: 12 // 12:00 UTC = 09:00 BRT
     },
     {
       jobName: 'topic_expansion' as CronJobName,
