@@ -98,12 +98,16 @@ NÃO inclua numeração, NÃO inclua explicações, APENAS o array JSON.`
   try {
     console.log(`[Topic Generator] Gerando ${count} novos tópicos para "${category}"...`)
     
+    // Usar GPT-4o (mais recente) ou GPT-4 Turbo para memória atualizada
+    const model = process.env.OPENAI_TOPIC_MODEL || 'gpt-4o' // gpt-4o tem dados até out/2023
+    console.log(`[Topic Generator] Using model: ${model}`)
+    
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model,
       messages: [
         {
           role: 'system',
-          content: 'Você é um especialista em criação de tópicos para blog. Retorne APENAS um array JSON válido.'
+          content: 'Você é um especialista em criação de tópicos para blog de tecnologia e negócios. Tem conhecimento atualizado sobre as últimas tendências, ferramentas e inovações até 2023. Retorne APENAS um array JSON válido com tópicos relevantes e atuais.'
         },
         {
           role: 'user',

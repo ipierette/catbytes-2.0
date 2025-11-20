@@ -3,6 +3,7 @@ import { alertCronSuccess, alertCronFailure, alertCronWarning } from '@/lib/aler
 import { startCronLog } from '@/lib/cron-logger'
 import { sendDailySummaryEmail } from '@/lib/daily-summary-email'
 import { runProactiveAlerts } from '@/lib/proactive-alerts'
+import { startCronExecution, completeCronExecution } from '@/lib/cron-execution-logger'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60 // Reduzido para teste
@@ -78,6 +79,7 @@ export async function GET(request: NextRequest) {
       }
       
       // Blog post generation
+      const blogExecutionId = await startCronExecution('blog_generation', { day: dayOfWeek, hour, date: today })
       const blogLog = startCronLog('blog')
       try {
         const blogResponse = await fetch(`${baseUrl}/api/blog/generate`, {
@@ -98,10 +100,21 @@ export async function GET(request: NextRequest) {
             blog_post_id: blogResult.post?.id,
             title: blogResult.post?.title
           })
+          
+          if (blogExecutionId) {
+            await completeCronExecution(blogExecutionId, 'success', {
+              blog_post_id: blogResult.post?.id,
+              title: blogResult.post?.title
+            })
+          }
         } else {
           const errorText = await blogResponse.text()
           results.blog = { success: false, error: `Status ${blogResponse.status}: ${errorText}` }
           await blogLog.fail(`HTTP ${blogResponse.status}`, { details: errorText })
+          
+          if (blogExecutionId) {
+            await completeCronExecution(blogExecutionId, 'failure', null, `HTTP ${blogResponse.status}`)
+          }
         }
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Unknown error'
