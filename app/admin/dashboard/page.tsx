@@ -11,10 +11,11 @@ import { DashboardHeader } from './_components/DashboardHeader'
 import { StatsCards } from './_components/StatsCards'
 import { AutomationStatusCard } from './_components/AutomationStatusCard'
 import { ReportsCard } from './_components/ReportsCard'
-import { CronMonitoringCard } from './_components/CronMonitoringCard'
 import { APICostAnalyticsCard } from './_components/APICostAnalyticsCard'
 import { ActionRequiredCard } from '@/components/admin/action-required-card'
 import { WeeklyCostAnalyticsCard } from '@/components/admin/weekly-cost-analytics-card'
+import CronMonitor from '@/components/admin/CronMonitor'
+import TopicsMonitor from '@/components/admin/TopicsMonitor'
 
 export default function DashboardPage() {
   const { stats, loading, error, isCached, lastUpdate, reload } = useDashboardStats()
@@ -85,8 +86,17 @@ export default function DashboardPage() {
           {/* Automation Status */}
           <AutomationStatusCard stats={stats.automation} />
 
+          {/* Topics Pool Monitor */}
+          <div className="border-t pt-8">
+            <h2 className="text-2xl font-bold mb-6">📊 Pool de Tópicos</h2>
+            <TopicsMonitor />
+          </div>
+
           {/* Cron Monitoring */}
-          <CronMonitoringCard />
+          <div className="border-t pt-8">
+            <h2 className="text-2xl font-bold mb-6">⏰ Monitoramento de Cron Jobs</h2>
+            <CronMonitor />
+          </div>
 
           {/* Reports */}
           <ReportsCard onSendReport={sendReport} sendingReport={sendingReport} />
