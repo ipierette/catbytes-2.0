@@ -2,17 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import { Resend } from 'resend'
 import { db, generateSlug, supabaseAdmin, uploadImageFromUrl } from '@/lib/supabase'
-import { SEO_KEYWORDS, BLOG_TOPICS, BLOG_CATEGORIES } from '@/types/blog'
+import { SEO_KEYWORDS, BLOG_CATEGORIES } from '@/types/blog'
 import type { AIGeneratedPost, BlogPostInsert } from '@/types/blog'
 import { getNewPostEmailHTML } from '@/lib/email-templates'
 import { translatePostToEnglish, estimateTranslationCost } from '@/lib/translation-service'
 import { autoSubmitBlogPost } from '@/lib/google-indexing'
 import { promoteArticle } from '@/lib/blog-social-promoter'
 import { logDailyEvent } from '@/lib/daily-events-logger'
-import { selectSmartTopic, recordTopicUsage } from '@/lib/topic-usage-manager'
 import { 
   getCurrentBlogTheme, 
-  getRandomTopicForTheme, 
   generateImagePromptForTheme, 
   getThemeKeywords,
   getBlogScheduleInfo 
@@ -109,14 +107,19 @@ export async function POST(request: NextRequest) {
           }
         } else {
           const errorData = await topicResponse.json()
-          console.warn('[Generate] ⚠️ Failed to fetch topic from database:', errorData.error)
+          console.error('[Generate] ❌ Failed to fetch topic from database:', errorData.error)
           throw new Error(errorData.error || 'Database topic fetch failed')
         }
       } catch (dbError) {
-        console.error('[Generate] ❌ Error fetching from database, falling back to legacy system:', dbError)
-        // Fallback: usar sistema antigo como backup
-        selectedTopic = await selectSmartTopic(blogTheme)
-        console.log('[Generate] Using legacy topic system (fallback):', selectedTopic)
+        console.error('[Generate] ❌ Error fetching from database:', dbError)
+        return NextResponse.json(
+          { 
+            error: 'Não há tópicos disponíveis no banco de dados',
+            details: dbError instanceof Error ? dbError.message : 'Database error',
+            suggestion: 'Adicione novos tópicos via dashboard admin ou forneça um tópico manual'
+          },
+          { status: 500 }
+        )
       }
     }
     
@@ -554,15 +557,6 @@ Responda APENAS com JSON válido.`
       } catch (markError) {
         console.error('[Generate] ❌ Error marking topic as used (non-critical):', markError)
       }
-    }
-
-    // Record topic usage for legacy 2-year anti-duplication tracking (fallback)
-    try {
-      await recordTopicUsage(blogTheme, selectedTopic, createdPost.id)
-      console.log('[Generate] ✓ Topic usage recorded in legacy system (backup):', selectedTopic)
-    } catch (topicError) {
-      console.error('[Generate] ⚠️ Failed to record topic usage in legacy (non-critical):', topicError)
-      // Don't fail the generation if topic tracking fails
     }
 
     // Log saved prompts

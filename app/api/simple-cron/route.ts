@@ -217,32 +217,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Verificar e gerar novos tópicos - uma vez por semana (Domingo às 03:00 UTC)
-    if (dayOfWeek === 0 && hour === 3) {
-      console.log('[Simple-Cron] Running weekly topic expansion check...')
-      
-      try {
-        const topicResponse = await fetch(`${baseUrl}/api/topics/generate?auto=true`, {
-          headers: {
-            'Authorization': authHeader || `Bearer ${cronSecret}`,
-          },
-        })
-        
-        if (topicResponse.ok) {
-          const topicResult = await topicResponse.json()
-          results.topic_expansion = { success: true, data: topicResult }
-          console.log('[Simple-Cron] ✅ Topic expansion check completed')
-        } else {
-          results.topic_expansion = { success: false, error: `Status ${topicResponse.status}` }
-        }
-      } catch (error) {
-        results.topic_expansion = { 
-          success: false, 
-          error: error instanceof Error ? error.message : 'Unknown error' 
-        }
-        console.error('[Simple-Cron] ❌ Error checking topic expansion:', error)
-      }
-    }
+    // Tópicos agora são gerenciados manualmente via dashboard admin /admin/blog/topics
+    // Sistema antigo de auto-expansão foi removido
 
     // Schedule: Monday (1), Thursday (4) at 15:00 - separate cron would be better
     // But for now, we'll handle it here with different schedule

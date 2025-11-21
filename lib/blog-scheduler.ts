@@ -3,7 +3,6 @@
  * Terça: Automação e Negócios | Quinta: Dicas de Programação Web | Sábado: Cuidados Felinos | Domingo: Tech Aleatório
  */
 
-import { BLOG_TOPICS } from '@/types/blog'
 import type { BlogTheme } from '@/types/blog'
 
 /**
@@ -35,15 +34,6 @@ export function getNextScheduledTheme(): BlogTheme {
   if (dayOfWeek === 4 || dayOfWeek === 5) return 'Cuidados Felinos'      // Qui/Sex -> Sábado
   if (dayOfWeek === 6) return 'Tech Aleatório' // Sábado -> Domingo
   return 'Automação e Negócios' // Domingo/Segunda -> próxima Terça
-}
-
-/**
- * Seleciona um tópico aleatório para o tema especificado
- */
-export function getRandomTopicForTheme(theme: BlogTheme): string {
-  const topics = BLOG_TOPICS[theme]
-  const randomIndex = Math.floor(Math.random() * topics.length)
-  return topics[randomIndex]
 }
 
 /**
