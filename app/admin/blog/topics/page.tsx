@@ -890,3 +890,5 @@ export default function TopicsManagementPage() {
     </div>
   )
 }
+
+// Force rebuild: 2025-11-21 15:40 - Fix topics.map() crash
