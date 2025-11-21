@@ -162,16 +162,18 @@ EXEMPLOS DE TEMAS BONS:
   "hook": "De 6 horas por dia em planilhas para controle automático de estoque."
 }
 
-Retorne APENAS um array JSON válido:
-[
-  {
-    "strategy": "...",
-    "businessArea": "...",
-    "painPoint": "...",
-    "solution": "...",
-    "hook": "..."
-  }
-]`
+Retorne um objeto JSON com array de themes:
+{
+  "themes": [
+    {
+      "strategy": "...",
+      "businessArea": "...",
+      "painPoint": "...",
+      "solution": "...",
+      "hook": "..."
+    }
+  ]
+}`
 
     const themeCompletion = await openai.chat.completions.create({
       model: 'gpt-4o',
@@ -193,14 +195,17 @@ Retorne APENAS um array JSON válido:
     let themes: any[]
     try {
       const themeResponse = JSON.parse(themeCompletion.choices[0].message.content || '{}')
+      console.log('🧠 [SMART-GEN] Resposta parseada:', themeResponse)
       themes = Array.isArray(themeResponse) ? themeResponse : themeResponse.themes || []
-    } catch (e) {
+      
+      if (!themes || themes.length === 0) {
+        console.error('🧠 [SMART-GEN] Resposta do GPT:', themeCompletion.choices[0].message.content)
+        throw new Error('Nenhum tema gerado pela IA')
+      }
+    } catch (e: any) {
       console.error('🧠 [SMART-GEN] Erro ao parsear temas:', e)
-      throw new Error('Erro ao gerar temas')
-    }
-
-    if (themes.length === 0) {
-      throw new Error('Nenhum tema gerado')
+      console.error('🧠 [SMART-GEN] Conteúdo recebido:', themeCompletion.choices[0].message.content)
+      throw new Error(`Erro ao processar resposta da IA: ${e.message}`)
     }
 
     console.log(`🧠 [SMART-GEN] ✓ ${themes.length} temas únicos gerados`)
