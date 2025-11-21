@@ -134,58 +134,8 @@ export async function POST(request: NextRequest) {
     console.log('[Generate] Topic ID from database:', topicId || 'N/A (manual/fallback)')
     console.log('[Generate] Schedule info:', scheduleInfo)
 
-    // ====== VALIDATION: Check if this topic was recently used ======
-    console.log('[Generate] Checking for recent posts with similar topics...')
-    
-    const { data: recentPosts, error: recentError } = await supabaseAdmin
-      .from('blog_posts')
-      .select('id, title, generation_prompt, created_at')
-      .order('created_at', { ascending: false })
-      .limit(30) // Check last 30 posts (increased from 20)
-    
-    if (recentError) {
-      console.error('[Generate] Error checking recent posts:', recentError)
-    } else if (recentPosts && recentPosts.length > 0) {
-      // Check if topic was used recently (last 10 posts)
-      const recentTopicCheck = recentPosts.slice(0, 10)
-      const topicUsedRecently = recentTopicCheck.some(post => 
-        post.generation_prompt?.toLowerCase().includes(selectedTopic.toLowerCase()) ||
-        selectedTopic.toLowerCase().includes(post.generation_prompt?.toLowerCase() || '')
-      )
-      
-      if (topicUsedRecently) {
-        console.warn('[Generate] ⚠️ Topic was used recently, selecting alternative...')
-        
-        // Try to find an unused topic from the same theme
-        const usedPrompts = recentPosts
-          .map(p => p.generation_prompt?.toLowerCase())
-          .filter(Boolean)
-        
-        const themeTopics = BLOG_TOPICS[blogTheme as keyof typeof BLOG_TOPICS]
-        const availableTopics = themeTopics.filter((topic: string) => 
-          !usedPrompts.some((used: string | undefined) => 
-            used?.includes(topic.toLowerCase()) || 
-            topic.toLowerCase().includes(used || '')
-          )
-        )
-        
-        if (availableTopics.length > 0) {
-          const alternativeTopic = availableTopics[Math.floor(Math.random() * availableTopics.length)]
-          console.log('[Generate] ✅ Using alternative topic:', alternativeTopic)
-          // Update selectedTopic by reassigning
-          const finalTopic = alternativeTopic
-          return await POST(request) // Recursive call with new topic context
-        } else {
-          console.log('[Generate] ⚠️ All topics used recently, proceeding with original (will add uniqueness later)')
-        }
-      } else {
-        console.log('[Generate] ✅ Topic is fresh - not used recently')
-      }
-      
-      // Also check for exact title duplicates in database
-      const existingTitles = recentPosts.map(p => p.title.toLowerCase())
-      console.log('[Generate] Stored', existingTitles.length, 'recent titles for duplicate check')
-    }
+    // Note: Topic uniqueness is now handled by the database system
+    // Topics are marked as used after generation via /api/blog/topics/mark-used
 
     // ====== STEP 1: Generate blog content with ChatGPT ======
     const themePrompts: Record<string, string> = {
@@ -281,12 +231,7 @@ FONTES SUGERIDAS (use pelo menos 2):
 
     const selectedPrompt = themePrompts[blogTheme] || themePrompts['Automação e Negócios']
     
-    // Build list of recent titles to avoid
-    const recentTitlesWarning = recentPosts && recentPosts.length > 0
-      ? `\n\n⚠️ IMPORTANTE - NÃO USE ESTES TÍTULOS (já existem posts recentes):\n${recentPosts.slice(0, 10).map(p => `- "${p.title}"`).join('\n')}\n\nCRIE UM TÍTULO COMPLETAMENTE DIFERENTE E ÚNICO!`
-      : ''
-    
-    const contentPrompt = `${selectedPrompt}${recentTitlesWarning}
+    const contentPrompt = `${selectedPrompt}
 
 ESTRUTURA OBRIGATÓRIA:
 1. Introdução envolvente (2-3 parágrafos)
