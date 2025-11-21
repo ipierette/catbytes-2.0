@@ -304,7 +304,7 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
         const postData = {
           nicho: post.nicho,
           titulo: post.titulo,
-          texto_imagem: post.imagePrompt.substring(0, 100) + '...', // Resumo do prompt
+          texto_imagem: post.imagePrompt.substring(0, 97) + '...', // Max 100 chars
           caption: post.caption,
           image_url: imageUrl,
           generation_method: 'SMART_GENERATE',
