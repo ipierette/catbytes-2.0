@@ -306,12 +306,12 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
           .insert({
             nicho: post.nicho,
             titulo: post.titulo,
+            texto_imagem: post.imagePrompt.substring(0, 100) + '...', // Resumo do prompt
             caption: post.caption,
             image_url: imageUrl,
             generation_method: 'SMART_GENERATE',
-            approved: mode !== 'draft',
-            published: mode === 'now',
-            scheduled_date: mode === 'schedule' ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() : null
+            status: mode === 'draft' ? 'draft' : mode === 'schedule' ? 'scheduled' : 'approved',
+            scheduled_for: mode === 'schedule' ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() : null
           })
 
         if (!error) {
@@ -666,7 +666,7 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
                   onClick={() => handlePublish('draft')}
                   disabled={publishing || selectedIds.size === 0}
                 >
-                  Salvar Rascunhos
+                  💾 Salvar como Rascunho
                 </Button>
                 <Button
                   variant="secondary"
@@ -675,7 +675,7 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
                   className="gap-2"
                 >
                   <Calendar className="h-4 w-4" />
-                  Agendar Selecionados
+                  Agendar Publicação
                 </Button>
                 <Button
                   onClick={() => handlePublish('now')}
@@ -683,7 +683,7 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
                   className="gap-2"
                 >
                   <Send className="h-4 w-4" />
-                  Publicar Agora
+                  Aprovar e Publicar
                 </Button>
               </div>
             </div>

@@ -9,7 +9,6 @@ import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { InstagramEditModal } from '@/components/instagram/instagram-edit-modal'
 import { DALLEConfigModal } from '@/components/instagram/dalle-config-modal'
-import { TextOnlyModal } from '@/components/instagram/text-only-modal'
 import { SmartGenerateModal } from '@/components/instagram/SmartGenerateModal'
 import { ScheduleInstagramModal } from '@/components/instagram/schedule-instagram-modal'
 import type { InstagramPost, PostStatus } from '@/lib/instagram'
@@ -39,7 +38,6 @@ export default function InstagramAdminPage() {
   const [editingPost, setEditingPost] = useState<InstagramPost | null>(null)
   const [postToSchedule, setPostToSchedule] = useState<InstagramPost | null>(null)
   const [showDALLEModal, setShowDALLEModal] = useState(false)
-  const [showTextOnlyModal, setShowTextOnlyModal] = useState(false)
   const [showSmartModal, setShowSmartModal] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -348,18 +346,6 @@ export default function InstagramAdminPage() {
                 DALL-E 3
               </Button>
               <Button 
-                onClick={() => setShowTextOnlyModal(true)}
-                variant="outline"
-                size="lg" 
-                className="gap-2"
-              >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="currentColor" opacity="0.5"/>
-                  <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-                🎨 Texto IA + IMG (antigo)
-              </Button>
-              <Button 
                 onClick={() => setShowSmartModal(true)}
                 variant="default"
                 size="lg" 
@@ -368,7 +354,7 @@ export default function InstagramAdminPage() {
                 <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="currentColor"/>
                 </svg>
-                ✨ Geração Inteligente (NOVO)
+                ✨ Geração Inteligente
               </Button>
             </div>
           </div>
@@ -519,15 +505,6 @@ export default function InstagramAdminPage() {
             onClose={() => setShowDALLEModal(false)}
             onGenerate={handleDALLEGenerate}
             mode="dalle"
-          />
-
-          <TextOnlyModal
-            open={showTextOnlyModal}
-            onOpenChange={setShowTextOnlyModal}
-            onSuccess={() => {
-              refetchPosts()
-              refetchStats()
-            }}
           />
 
           <SmartGenerateModal
