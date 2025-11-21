@@ -300,21 +300,36 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
       for (const post of selectedPosts) {
         const imageUrl = uploadedImages.get(post.id)!
 
-        // Salvar no banco
-        const { error } = await supabase
-          .from('instagram_posts')
-          .insert({
-            nicho: post.nicho,
-            titulo: post.titulo,
-            texto_imagem: post.imagePrompt.substring(0, 100) + '...', // Resumo do prompt
-            caption: post.caption,
-            image_url: imageUrl,
-            generation_method: 'SMART_GENERATE',
-            status: mode === 'draft' ? 'draft' : mode === 'schedule' ? 'scheduled' : 'approved',
-            scheduled_for: mode === 'schedule' ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() : null
-          })
+        // Preparar dados
+        const postData = {
+          nicho: post.nicho,
+          titulo: post.titulo,
+          texto_imagem: post.imagePrompt.substring(0, 100) + '...', // Resumo do prompt
+          caption: post.caption,
+          image_url: imageUrl,
+          generation_method: 'SMART_GENERATE',
+          status: mode === 'draft' ? 'draft' : mode === 'schedule' ? 'scheduled' : 'approved',
+          scheduled_for: mode === 'schedule' ? new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() : null
+        }
 
-        if (!error) {
+        console.log('🔍 Tentando inserir:', postData)
+
+        // Salvar no banco
+        const { data, error } = await supabase
+          .from('instagram_posts')
+          .insert(postData)
+          .select()
+
+        if (error) {
+          console.error('❌ ERRO SUPABASE:', {
+            code: error.code,
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            postData
+          })
+        } else {
+          console.log('✅ Post inserido:', data)
           successCount++
         }
       }
