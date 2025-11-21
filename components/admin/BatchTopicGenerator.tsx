@@ -92,7 +92,7 @@ export default function BatchTopicGenerator() {
       <div className="space-y-4 mb-6">
         {/* Category Selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Categoria
           </label>
           <select
@@ -109,7 +109,7 @@ export default function BatchTopicGenerator() {
 
         {/* Count */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Quantidade de Tópicos
           </label>
           <input
@@ -121,12 +121,12 @@ export default function BatchTopicGenerator() {
             disabled={generating}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
           />
-          <p className="text-xs text-gray-500 mt-1">Entre 10 e 100 tópicos</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Entre 10 e 100 tópicos</p>
         </div>
 
         {/* Custom Prompt */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Contexto Adicional (Opcional)
           </label>
           <textarea
@@ -137,7 +137,7 @@ export default function BatchTopicGenerator() {
             rows={3}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed resize-none"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Direcione a IA com instruções específicas sobre o tipo de tópico desejado
           </p>
         </div>
@@ -228,12 +228,12 @@ export default function BatchTopicGenerator() {
               <div className="max-h-96 overflow-y-auto border border-gray-200 rounded-lg">
                 <div className="divide-y divide-gray-200">
                   {result.topics.map((topic, index) => (
-                    <div key={index} className="p-3 hover:bg-gray-50 transition-colors">
+                    <div key={index} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                       <div className="flex items-start gap-3">
-                        <span className="text-xs text-gray-500 font-mono mt-1">
-                          {(index + 1).toString().padStart(2, '0')}
+                        <span className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-1">
+                          #{String(index + 1).padStart(3, '0')}
                         </span>
-                        <p className="text-sm text-gray-900 flex-1">{topic}</p>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 flex-1">{topic}</p>
                       </div>
                     </div>
                   ))}
@@ -245,7 +245,7 @@ export default function BatchTopicGenerator() {
           {/* Filtered Topics */}
           {result.details && (result.details.duplicates.length > 0 || result.details.similar.length > 0) && (
             <details className="border border-gray-200 rounded-lg">
-              <summary className="p-4 cursor-pointer hover:bg-gray-50 font-medium text-gray-900">
+              <summary className="p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 font-medium text-gray-900 dark:text-gray-100">
                 Ver Tópicos Filtrados ({result.details.duplicates.length + result.details.similar.length})
               </summary>
               <div className="p-4 border-t border-gray-200 space-y-4">

@@ -170,11 +170,11 @@ export default function TopicsMonitor() {
       <div className="flex justify-between items-center">
         <div>
           <h3 className="text-lg font-semibold">Pool de Tópicos</h3>
-          <p className="text-sm text-gray-500">Gerenciamento automático e manual de tópicos</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Gerenciamento automático e manual de tópicos</p>
         </div>
         <button
           onClick={() => setShowHistory(!showHistory)}
-          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium"
+          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 rounded-lg text-sm font-medium"
         >
           {showHistory ? '📊 Ver Stats' : '📜 Ver Histórico'}
         </button>
@@ -185,22 +185,22 @@ export default function TopicsMonitor() {
         <Card className="p-6">
           <h4 className="font-semibold mb-4">📜 Histórico de Gerações Automáticas</h4>
           {generationHistory.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">Nenhuma geração registrada ainda</p>
+            <p className="text-gray-500 dark:text-gray-400 text-center py-4">Nenhuma geração registrada ainda</p>
           ) : (
             <div className="space-y-3">
               {generationHistory.map((gen: any, i: number) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                <div key={i} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded">
                   <div>
-                    <div className="font-medium">{gen.category}</div>
-                    <div className="text-sm text-gray-600">
+                    <div className="font-medium dark:text-gray-100">{gen.category}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
                       {gen.count} tópicos gerados
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(gen.generated_at).toLocaleString('pt-BR')}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs text-gray-500">via {gen.method}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">via {gen.method}</div>
                     {gen.added_to_code ? (
                       <span className="text-xs text-green-600">✓ Adicionado</span>
                     ) : (
@@ -220,35 +220,35 @@ export default function TopicsMonitor() {
       {overall && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="p-4">
-            <div className="text-sm text-gray-600">Total no Pool</div>
-            <div className="text-3xl font-bold">{overall.totalTopicsInPool}</div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-sm text-gray-600 dark:text-gray-400">Total no Pool</div>
+            <div className="text-3xl font-bold dark:text-gray-100">{overall.totalTopicsInPool}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Meta 2 anos: {overall.targetForTwoYears}
             </div>
           </Card>
           
           <Card className="p-4">
-            <div className="text-sm text-gray-600">Disponíveis</div>
-            <div className="text-3xl font-bold text-green-600">{overall.totalAvailable}</div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-sm text-gray-600 dark:text-gray-400">Disponíveis</div>
+            <div className="text-3xl font-bold text-green-600 dark:text-green-400">{overall.totalAvailable}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Nunca usados + Reutilizáveis
             </div>
           </Card>
           
           <Card className="p-4">
-            <div className="text-sm text-gray-600">Já Usados</div>
-            <div className="text-3xl font-bold text-gray-600">{overall.totalUsed}</div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-sm text-gray-600 dark:text-gray-400">Já Usados</div>
+            <div className="text-3xl font-bold text-gray-600 dark:text-gray-300">{overall.totalUsed}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {Math.round((overall.totalUsed / overall.totalTopicsInPool) * 100)}% do pool
             </div>
           </Card>
           
           <Card className="p-4">
-            <div className="text-sm text-gray-600">Precisam Geração</div>
-            <div className={`text-3xl font-bold ${overall.categoriesNeedingGeneration > 0 ? 'text-yellow-600' : 'text-green-600'}`}>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Precisam Geração</div>
+            <div className={`text-3xl font-bold ${overall.categoriesNeedingGeneration > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-green-600 dark:text-green-400'}`}>
               {overall.categoriesNeedingGeneration}
             </div>
-            <div className="text-xs text-gray-500 mt-1">
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {overall.categoriesNeedingGeneration === 0 ? '✓ Todas OK' : '⚠️ Necessário'}
             </div>
           </Card>
