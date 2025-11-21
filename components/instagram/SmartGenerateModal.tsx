@@ -288,7 +288,9 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
     // Validar que todos têm imagem
     const missingImages = selectedPosts.filter(p => !uploadedImages.has(p.id))
     if (missingImages.length > 0) {
-      toast.error('Envie imagens para todos os posts selecionados')
+      toast.error(`⚠️ Faltam ${missingImages.length} imagem(ns)!`, {
+        description: 'Use os prompts para gerar em DALL-E/Midjourney e faça upload de todas as imagens antes de publicar.'
+      })
       return
     }
 
@@ -633,22 +635,27 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
                           />
                         </div>
                       ) : (
-                        <label className="flex items-center justify-center gap-2 p-3 border-2 border-dashed rounded cursor-pointer hover:bg-gray-50 transition-colors">
-                          <Upload className="h-5 w-5" />
-                          <span className="text-sm font-medium">
-                            {isUploading ? 'Enviando...' : 'Enviar Imagem Gerada'}
-                          </span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            disabled={isUploading}
-                            onChange={(e) => {
-                              const file = e.target.files?.[0]
-                              if (file) handleImageUpload(post.id, file)
-                            }}
-                          />
-                        </label>
+                        <div className="space-y-2">
+                          <label className="flex items-center justify-center gap-2 p-3 border-2 border-dashed border-orange-300 bg-orange-50 rounded cursor-pointer hover:bg-orange-100 transition-colors">
+                            <Upload className="h-5 w-5 text-orange-600" />
+                            <span className="text-sm font-medium text-orange-900">
+                              {isUploading ? '⏳ Enviando...' : '📤 OBRIGATÓRIO: Envie a Imagem Gerada'}
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={isUploading}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) handleImageUpload(post.id, file)
+                              }}
+                            />
+                          </label>
+                          <p className="text-xs text-orange-600 text-center">
+                            ⚠️ Use o prompt acima para gerar em DALL-E/Midjourney e faça upload aqui
+                          </p>
+                        </div>
                       )}
                     </div>
 
