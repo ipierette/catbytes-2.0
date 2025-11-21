@@ -298,7 +298,13 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
       let successCount = 0
 
       for (const post of selectedPosts) {
-        const imageUrl = uploadedImages.get(post.id)!
+        const imageUrl = uploadedImages.get(post.id)
+        
+        // Validação extra de segurança
+        if (!imageUrl) {
+          console.error('❌ image_url undefined para post:', post.id)
+          continue
+        }
 
         // Preparar dados
         const postData = {

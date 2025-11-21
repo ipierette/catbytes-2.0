@@ -180,16 +180,17 @@ Retorne um objeto JSON com array de themes:
       messages: [
         {
           role: 'system',
-          content: 'Você é um estrategista de marketing B2B. Sempre retorna JSON válido.'
+          content: 'Você é um estrategista de marketing B2B. Sempre retorna JSON válido. Seja extremamente criativo e varie MUITO entre: saúde, jurídico, varejo, alimentação, fitness, beleza, tecnologia, pet, imóveis, automotivo. NUNCA repita o mesmo nicho consecutivamente.'
         },
         {
           role: 'user',
           content: themePrompt
         }
       ],
-      temperature: 1.0, // Alta criatividade para variedade
+      temperature: 1.2, // Máxima criatividade para garantir variedade
       max_tokens: 2000,
-      response_format: { type: 'json_object' }
+      response_format: { type: 'json_object' },
+      seed: Math.floor(Math.random() * 1000000) // Seed aleatória para cada geração
     })
 
     let themes: any[]
