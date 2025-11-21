@@ -41,6 +41,11 @@ import {
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
+// Função para gerar ID único compatível com SSR
+const generateId = () => {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+}
+
 interface GeneratedPost {
   id: string
   titulo: string
@@ -119,7 +124,7 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
       // Adicionar IDs únicos
       const postsWithIds = data.posts.map((post: any) => ({
         ...post,
-        id: crypto.randomUUID()
+        id: generateId()
       }))
 
       setGeneratedPosts(postsWithIds)
