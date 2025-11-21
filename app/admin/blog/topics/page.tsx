@@ -146,11 +146,12 @@ export default function TopicsManagementPage() {
       const response = await fetch(`/api/blog/topics?${params}`)
       const data = await response.json()
 
-      if (data.success) {
+      if (data.success && data.topics) {
         setTopics(data.topics)
         setTotalPages(data.pagination.totalPages)
         setTotalTopics(data.pagination.total)
       } else {
+        setTopics([])
         toast.error('Erro ao buscar tópicos')
       }
     } catch (error) {
