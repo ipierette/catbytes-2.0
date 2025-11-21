@@ -8,7 +8,7 @@
    ======================================== */
 
 @media (max-width: 768px) {
-  /* 1. GPU Acceleration para elementos animados */
+  /* 1. GPU Acceleration para elementos animados + durações adequadas */
   .motion-div,
   [class*="motion-"],
   .animate-float,
@@ -17,14 +17,10 @@
     will-change: transform, opacity;
     backface-visibility: hidden;
     perspective: 1000px;
+    animation-duration: 0.8s !important;
+    transition-duration: 0.3s !important;
   }
-
-  /* 2. Reduzir complexidade de animações */
-  * {
-    animation-duration: 0.2s !important;
-    transition-duration: 0.15s !important;
-  }
-
+  
   /* 3. Otimizar rendering de imagens */
   img {
     content-visibility: auto;

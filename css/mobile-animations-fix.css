@@ -1,0 +1,287 @@
+/**
+ * Mobile Animations Fix
+ * Corrige bugs visuais causados por animações aceleradas no mobile
+ * 
+ * PROBLEMA RESOLVIDO:
+ * - Animações CSS estavam sendo forçadas a durações extremamente curtas (0.2s, 0.15s)
+ * - Isso causava bugs visuais e jank no mobile
+ * 
+ * SOLUÇÃO:
+ * - Restaurar durações corretas para cada tipo de animação
+ * - Aplicar otimizações específicas sem comprometer a qualidade visual
+ * - Detectar contextos (bateria baixa, conexão lenta) e adaptar
+ */
+
+/* ========================================
+   Restaurar durações corretas para animações Tailwind no mobile
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* Animações Tailwind - durações corretas */
+  .animate-fade-in {
+    animation-duration: 0.6s !important;
+  }
+
+  .animate-slide-up,
+  .animate-slide-down {
+    animation-duration: 0.8s !important;
+  }
+
+  .animate-pulse-slow {
+    animation-duration: 3s !important;
+  }
+
+  .animate-gradient {
+    animation-duration: 8s !important;
+  }
+
+  .animate-float {
+    animation-duration: 6s !important;
+  }
+
+  .animate-bounce-slow {
+    animation-duration: 3s !important;
+  }
+
+  .animate-spin {
+    animation-duration: 1s !important;
+  }
+
+  .animate-ping {
+    animation-duration: 1s !important;
+  }
+
+  .animate-pulse {
+    animation-duration: 2s !important;
+  }
+
+  .animate-bounce {
+    animation-duration: 1s !important;
+  }
+
+  /* ========================================
+     Transições suaves para elementos interativos
+     ======================================== */
+
+  /* Links e botões com transições suaves */
+  a,
+  button,
+  .button {
+    transition-duration: 0.2s !important;
+    transition-timing-function: ease-in-out !important;
+  }
+
+  /* Cards e elementos hover */
+  .card,
+  .project-card,
+  .blog-card,
+  .skill-card {
+    transition-duration: 0.3s !important;
+    transition-timing-function: ease-out !important;
+  }
+
+  /* Modais e dropdowns */
+  .modal,
+  .dialog,
+  [role="dialog"],
+  [data-radix-dialog-content],
+  [data-radix-dropdown-menu-content] {
+    transition-duration: 0.25s !important;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  /* ========================================
+     Animações de entrada/saída (Radix UI)
+     ======================================== */
+
+  [data-state="open"][data-radix-dialog-content],
+  [data-state="open"][data-radix-dropdown-menu-content],
+  [data-state="open"][data-radix-select-content] {
+    animation-duration: 0.2s !important;
+  }
+
+  [data-state="closed"][data-radix-dialog-content],
+  [data-state="closed"][data-radix-dropdown-menu-content],
+  [data-state="closed"][data-radix-select-content] {
+    animation-duration: 0.15s !important;
+  }
+
+  /* ========================================
+     Elementos que NÃO devem ter animação rápida
+     ======================================== */
+
+  /* Gradientes de fundo - manter suaves */
+  .bg-gradient-to-r,
+  .bg-gradient-to-br,
+  .bg-gradient-to-tr,
+  [class*="bg-gradient"] {
+    transition-duration: 0.5s !important;
+  }
+
+  /* Elementos com parallax ou scroll */
+  .parallax,
+  .scroll-reveal,
+  .section-animated {
+    transition-duration: 0.6s !important;
+    transition-timing-function: ease-out !important;
+  }
+
+  /* ========================================
+     Prevenção de jank visual
+     ======================================== */
+
+  /* Força GPU acceleration apenas onde necessário */
+  .animate-float,
+  .animate-bounce-slow,
+  .parallax,
+  [class*="motion-"] {
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+
+  /* Remove will-change após animação para economizar recursos */
+  .animate-fade-in.animation-complete,
+  .animate-slide-up.animation-complete,
+  .animate-slide-down.animation-complete {
+    will-change: auto;
+  }
+
+  /* ========================================
+     Otimizações específicas
+     ======================================== */
+
+  /* Cat popup typing effect - manter duração original */
+  .cat-popup.typing-effect p::after {
+    animation-duration: 0.7s !important;
+  }
+
+  /* Seta de scroll - manter suave */
+  .scroll-arrow,
+  [class*="arrow"] {
+    animation-duration: 1.5s !important;
+  }
+
+  /* Loading spinners - manter rápidos */
+  .spinner,
+  .loader,
+  [aria-label*="loading" i],
+  [class*="loading"] {
+    animation-duration: 0.8s !important;
+  }
+
+  /* Skills carousel - manter duração específica */
+  .skills-carousel,
+  .skills-carousel-wrapper .carousel,
+  #skills-carousel {
+    transition-duration: 0.5s !important;
+  }
+
+  /* ========================================
+     Correção para elementos Framer Motion
+     ======================================== */
+
+  /* Não sobrescrever animações do Framer Motion */
+  [data-framer-motion],
+  [style*="--framer"] {
+    animation-duration: revert !important;
+    transition-duration: revert !important;
+  }
+}
+
+/* ========================================
+   Touch feedback suave
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* Feedback visual ao tocar */
+  button:active,
+  a:active,
+  [role="button"]:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease-out !important;
+  }
+
+  /* Remove transform após soltar */
+  button,
+  a,
+  [role="button"] {
+    transition: all 0.2s ease-out !important;
+  }
+}
+
+/* ========================================
+   Prefer Reduced Motion
+   ======================================== */
+
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  /* Desabilitar apenas animações decorativas */
+  .animate-float,
+  .animate-bounce-slow,
+  .animate-pulse-slow,
+  .animate-gradient,
+  .parallax {
+    animation: none !important;
+  }
+
+  /* Manter animações funcionais mas instantâneas */
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-down,
+  [data-state="open"],
+  [data-state="closed"] {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================
+   Classes dinâmicas do JavaScript
+   ======================================== */
+
+/* Quando detectado conexão lenta */
+body.slow-connection * {
+  animation-duration: 0.5s !important;
+  transition-duration: 0.2s !important;
+}
+
+body.slow-connection .animate-float,
+body.slow-connection .animate-bounce-slow,
+body.slow-connection .animate-gradient {
+  animation: none !important;
+}
+
+/* Quando detectado bateria baixa */
+body.low-battery * {
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+
+body.low-battery .backdrop-blur-lg,
+body.low-battery .backdrop-blur-xl,
+body.low-battery .backdrop-blur-2xl {
+  backdrop-filter: none !important;
+}
+
+/* Reduzir animações gerais */
+body.reduce-animations * {
+  animation-duration: 0.3s !important;
+  transition-duration: 0.15s !important;
+}
+
+body.reduce-animations .animate-float,
+body.reduce-animations .animate-bounce-slow,
+body.reduce-animations .animate-pulse-slow {
+  animation: none !important;
+}
+
+/* Marcador de mobile - adiciona toque mais suave */
+body.is-mobile {
+  -webkit-tap-highlight-color: rgba(168, 85, 247, 0.1);
+}
+
+/* Remover will-change após animações completarem */
+body.is-mobile .animation-complete {
+  will-change: auto !important;
+}
+

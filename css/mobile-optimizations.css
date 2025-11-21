@@ -429,12 +429,6 @@
 
 /* ========== Performance Optimizations ========== */
 @media (max-width: 768px) {
-  /* Reduce motion for better performance */
-  * {
-    animation-duration: 0.3s !important;
-    transition-duration: 0.2s !important;
-  }
-
   /* Optimize transforms for GPU acceleration */
   .transform-gpu {
     transform: translateZ(0);
@@ -445,6 +439,13 @@
   body,
   .scroll-container {
     -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Reduzir apenas animações muito longas */
+  *[style*="animation-duration: 2s"],
+  *[style*="animation-duration: 3s"],
+  *[style*="animation-duration: 4s"] {
+    animation-duration: 1s !important;
   }
 }
 

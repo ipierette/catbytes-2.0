@@ -6,6 +6,7 @@ import { Toaster } from 'sonner'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import './mobile-performance.css'
+import '../css/mobile-animations-fix.css'
 
 const inter = Inter({
   subsets: ['latin'],
