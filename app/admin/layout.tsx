@@ -1,6 +1,7 @@
 import { AdminProvider } from '@/hooks/use-admin'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { AdminHeader } from '@/components/layout/admin-header'
+import { Toaster } from 'sonner'
 import type { Metadata } from 'next'
 import '@/app/globals.css'
 
@@ -30,6 +31,7 @@ export default function AdminLayout({
           <AdminHeader />
           {children}
         </div>
+        <Toaster position="top-right" richColors />
       </AdminProvider>
     </ThemeProvider>
   )
