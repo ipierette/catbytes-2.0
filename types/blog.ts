@@ -188,7 +188,7 @@ export const BLOG_SCHEDULE = {
 // Topic ideas for each theme (EXPANDED for variety)
 export const BLOG_TOPICS = {
   'Automação e Negócios': [
-    'Como otimizar seu CRM para aumentar a produtividade da equipe de vendas em 2024',
+    'Como otimizar seu CRM para aumentar a produtividade da equipe de vendas',
     'Estratégias eficazes para integrar chatbots ao atendimento ao cliente sem perder o toque humano',
     'A importância de landing pages otimizadas para aumentar a conversão em campanhas de marketing digital',
     'Como calcular o ROI de ferramentas de automação empresarial e justificar investimentos para a diretoria',
@@ -250,7 +250,7 @@ export const BLOG_TOPICS = {
     'Estratégias de automação para melhorar a retenção de clientes a longo prazo.',
     'Automatizando a gestão de tarefas diárias para liberar tempo da equipe.',
     'O impacto das automações na criação de conteúdo digital e gestão de marcas.',
-    'Por que toda empresa precisa de automação em 2025',
+    'Por que toda empresa precisa de automação',
     'Como um site profissional aumenta sua credibilidade',
     'Chatbots: o segredo para atendimento 24/7',
     'ROI de aplicações web: vale a pena investir?',
@@ -319,7 +319,7 @@ export const BLOG_TOPICS = {
     'Responsividade: design para todos os dispositivos',
     'SEO para desenvolvedores: seu site no Google',
     // NOVOS TÓPICOS (25+ adicionais)
-    'Claude vs ChatGPT vs Gemini: qual IA escolher em 2025',
+    'Claude vs ChatGPT vs Gemini: qual IA escolher',
     'Prompts para programadores: otimize seu código com IA',
     'GitHub Copilot: programe 10x mais rápido',
     'Cursor AI: o editor que escreve código para você',
@@ -416,7 +416,7 @@ export const BLOG_TOPICS = {
   ],
   'Tech Aleatório': [
     'SEO para iniciantes: rankeie seu site no Google',
-    'Marketing digital: estratégias essenciais para 2025',
+    'Marketing digital: estratégias essenciais',
     'Next.js vs Remix: qual framework escolher?',
     'Tailwind CSS: guia completo de utilitários',
     'Google Analytics 4: configuração passo a passo',
@@ -427,7 +427,7 @@ export const BLOG_TOPICS = {
     'Progressive Web Apps: transforme seu site em app',
     'Web Vitals: otimize performance para SEO',
     'Accessibilidade web: WCAG e melhores práticas',
-    'Ferramentas de produtividade para devs em 2025',
+    'Ferramentas de produtividade para devs',
     'React Server Components: o futuro do React',
     'Database design: SQL vs NoSQL na prática',
     'CI/CD com GitHub Actions: automatize deploys',
