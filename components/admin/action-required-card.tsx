@@ -82,7 +82,7 @@ export function ActionRequiredCard() {
       threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
 
       const { data: recentBlogs, error: blogsError } = await supabase
-        .from('posts')
+        .from('blog_posts')
         .select('id')
         .gte('created_at', threeDaysAgo.toISOString())
         .order('created_at', { ascending: false })
