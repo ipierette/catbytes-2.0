@@ -11,7 +11,7 @@
  */
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -70,7 +70,7 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
   
   // Configuração
   const [quantidade, setQuantidade] = useState<string>('3')
-  const [focusArea, setFocusArea] = useState<string>('')
+  const [focusArea, setFocusArea] = useState<string>('all')
   const [customTheme, setCustomTheme] = useState('')
   
   // Posts gerados
@@ -106,7 +106,7 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           quantidade: parseInt(quantidade),
-          focusArea: focusArea || undefined,
+          focusArea: focusArea === 'all' ? undefined : focusArea,
           customTheme: customTheme || undefined
         })
       })
@@ -341,7 +341,7 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
       setSelectedIds(new Set())
       setUploadedImages(new Map())
       setQuantidade('3')
-      setFocusArea('')
+      setFocusArea('all')
       setCustomTheme('')
     }, 200)
   }
@@ -356,6 +356,9 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
             <Sparkles className="h-6 w-6 text-purple-500" />
             Geração Inteligente de Conteúdo
           </DialogTitle>
+          <DialogDescription>
+            Gere posts únicos e variados automaticamente com IA
+          </DialogDescription>
         </DialogHeader>
 
         {/* STEP 1: CONFIGURAÇÃO */}
@@ -396,7 +399,7 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
                   <SelectValue placeholder="Todas as áreas (mais variado)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas as áreas (mais variado)</SelectItem>
+                  <SelectItem value="all">Todas as áreas (mais variado)</SelectItem>
                   <SelectItem value="saude">Saúde (clínicas, consultórios)</SelectItem>
                   <SelectItem value="juridico">Jurídico (advocacia)</SelectItem>
                   <SelectItem value="varejo">Varejo (lojas, e-commerce)</SelectItem>
