@@ -260,8 +260,9 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
         throw new Error(data.error || 'Erro no upload')
       }
 
+      console.log('✅ Upload sucesso:', { postId: id, imageUrl: data.imageUrl })
       setUploadedImages(new Map(uploadedImages).set(id, data.imageUrl))
-      toast.success('Imagem enviada!')
+      toast.success('✅ Imagem enviada!')
 
     } catch (error: any) {
       console.error('Upload erro:', error)
@@ -299,12 +300,27 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
     try {
       let successCount = 0
 
+      console.log('📦 Estado uploadedImages:', {
+        size: uploadedImages.size,
+        keys: Array.from(uploadedImages.keys()),
+        values: Array.from(uploadedImages.values())
+      })
+      console.log('📝 Posts selecionados:', selectedPosts.map(p => ({ id: p.id, titulo: p.titulo })))
+
       for (const post of selectedPosts) {
         const imageUrl = uploadedImages.get(post.id)
+        
+        console.log('🔍 Verificando post:', {
+          postId: post.id,
+          hasImageUrl: !!imageUrl,
+          imageUrl: imageUrl,
+          uploadedImagesHasKey: uploadedImages.has(post.id)
+        })
         
         // Validação extra de segurança
         if (!imageUrl) {
           console.error('❌ image_url undefined para post:', post.id)
+          console.error('❌ uploadedImages completo:', Object.fromEntries(uploadedImages))
           continue
         }
 
@@ -625,9 +641,9 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
                     {/* Upload de Imagem */}
                     <div className="mb-3">
                       {hasImage ? (
-                        <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded">
+                        <div className="flex items-center gap-2 p-2 bg-green-500/20 border border-green-500 rounded">
                           <CheckCircle2 className="h-5 w-5 text-green-500" />
-                          <span className="text-sm font-medium">Imagem enviada</span>
+                          <span className="text-sm font-semibold text-green-700 dark:text-green-300">✅ Imagem enviada</span>
                           <img
                             src={uploadedImages.get(post.id)}
                             alt="Preview"
