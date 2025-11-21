@@ -70,7 +70,7 @@
 **Lógica**: `lib/cron-execution-logger.ts`
 - ✅ Função `detectSilentFailures()`
 - ✅ Verifica 3 jobs principais:
-  - `blog_generation`: Ter/Qui/Sáb/Dom 16:00 UTC
+  - `blog_generation`: Ter/Qui/Sáb/Dom 12:00 UTC
   - `topic_expansion`: Dom 03:00 UTC
   - `daily_summary`: Todos dias 17:00 UTC
 - ✅ Janela de detecção: 2 horas após horário esperado
@@ -87,7 +87,7 @@
     "failures": [
       {
         "jobName": "blog_generation",
-        "expectedAt": "2025-01-14T16:00:00Z",
+        "expectedAt": "2025-01-14T12:00:00Z",
         "detectedAt": "2025-01-14T18:15:00Z",
         "message": "Cron job não executou no horário esperado"
       }
@@ -221,7 +221,7 @@
 
 **Cenário com Falha** (simular):
 1. Desabilite cron por 3 horas
-2. Aguarde horário de execução passar (ex: 16:00 UTC + 2h)
+2. Aguarde horário de execução passar (ex: 12:00 UTC + 2h)
 3. Acesse dashboard
 4. Verifique alerta vermelho no topo
 5. Veja detalhes: job, horário esperado, mensagem

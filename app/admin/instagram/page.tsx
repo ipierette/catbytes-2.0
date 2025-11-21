@@ -422,7 +422,7 @@ export default function InstagramAdminPage() {
                   <h4 className="font-semibold mb-2">📤 Publicação Automática</h4>
                   <p className="text-sm text-muted-foreground">
                     <strong>Dias:</strong> Segunda, Quarta, Sexta e Domingo<br/>
-                    <strong>Horário:</strong> 13:00 BRT<br/>
+                    <strong>Horário:</strong> 9:00 BRT<br/>
                     <strong>Publica:</strong> Posts aprovados automaticamente<br/>
                     <strong>Funciona:</strong> Independente da geração automática
                   </p>

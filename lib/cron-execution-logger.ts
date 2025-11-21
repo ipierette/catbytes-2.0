@@ -186,7 +186,7 @@ export function getNextScheduledExecutions(): {
   const schedules = [
     {
       jobName: 'blog_generation' as CronJobName,
-      schedule: 'Ter/Qui/Sáb/Dom às 13:00 BRT (16:00 UTC)',
+      schedule: 'Ter/Qui/Sáb/Dom às 9:00 BRT (12:00 UTC)',
       description: 'Geração de artigo de blog',
       days: [2, 4, 6, 0], // Tue, Thu, Sat, Sun
       hour: 16

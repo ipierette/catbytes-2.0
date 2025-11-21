@@ -8,7 +8,7 @@ O dashboard agora possui um sistema completo de monitoramento em tempo real das 
 
 ### 1. **Simple Cron** - Geração de Conteúdo
 - **Endpoint**: `/api/simple-cron`
-- **Horário**: 16:00 UTC (13:00 BRT)
+- **Horário**: 12:00 UTC (9:00 BRT)
 - **Dias**: Terça, Quinta, Sábado e Domingo
 - **Cron Expression**: `0 16 * * 2,4,6,0`
 
@@ -102,7 +102,7 @@ CREATE TABLE cron_execution_logs (
       "id": 1,
       "cron_type": "blog",
       "status": "success",
-      "executed_at": "2025-01-08T16:00:00Z",
+      "executed_at": "2025-01-08T12:00:00Z",
       "duration_ms": 2340,
       "details": {
         "blog_post_id": 123,
@@ -167,12 +167,12 @@ const generationHour = 13 // ERRADO: Horário BRT em vez de UTC
 **Depois (CORRETO):**
 ```typescript
 const generationDays = new Set([2, 4, 6, 0]) // CORRETO: Ter, Qui, Sáb, Dom
-const generationHourUTC = 16 // CORRETO: 16:00 UTC = 13:00 BRT
+const generationHourUTC = 16 // CORRETO: 12:00 UTC = 9:00 BRT
 ```
 
 **Mudanças:**
 - Usa `getUTCHours()` e `getUTCDay()` para consistência
-- Calcula com horário UTC (16:00) que converte para BRT (13:00)
+- Calcula com horário UTC (12:00) que converte para BRT (13:00)
 - Dias corretos: [2, 4, 6, 0] = Terça, Quinta, Sábado, Domingo
 
 ## 🚀 Como Usar

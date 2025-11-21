@@ -17,13 +17,13 @@ export type PostStatus = typeof POST_STATUS[keyof typeof POST_STATUS]
 // Dias da semana para publicação automática
 export const PUBLICATION_DAYS = new Set([1, 3, 5, 0]) // Segunda, Quarta, Sexta, Domingo
 
-// Horário de publicação (13:00 BRT)
+// Horário de publicação (9:00 BRT)
 export const PUBLICATION_HOUR = 13
 
 // Dias da semana para geração automática
 export const GENERATION_DAYS = new Set([1, 2, 4, 6]) // Segunda, Terça, Quinta, Sábado
 
-// Horário de geração (13:00 BRT)
+// Horário de geração (9:00 BRT)
 export const GENERATION_HOUR = 13
 
 // Configurações de nichos

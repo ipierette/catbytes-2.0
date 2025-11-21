@@ -108,7 +108,7 @@ export const POST_STATUS = {
 } as const
 
 export const PUBLICATION_DAYS = new Set([1, 3, 5, 0]) // Seg, Qua, Sex, Dom
-export const PUBLICATION_HOUR = 13 // 13:00 BRT
+export const PUBLICATION_HOUR = 13 // 9:00 BRT
 export const GENERATION_DAYS = new Set([1, 2, 4, 6]) // Seg, Ter, Qui, Sab
 
 export const REFRESH_INTERVALS = {

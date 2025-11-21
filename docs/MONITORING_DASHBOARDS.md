@@ -112,7 +112,7 @@ GET /api/cron/executions?limit=20&job=blog_generation
       id: "uuid",
       job_name: "blog_generation",
       status: "success",
-      started_at: "2025-11-20T16:00:00Z",
+      started_at: "2025-11-20T12:00:00Z",
       completed_at: "2025-11-20T16:02:30Z",
       duration_ms: 150000,
       result: { blog_post_id: "...", title: "..." },
@@ -132,7 +132,7 @@ GET /api/cron/stats
       failed: 1,
       success_rate_percentage: 95.83,
       avg_duration_ms: 145000,
-      last_execution: "2025-11-20T16:00:00Z"
+      last_execution: "2025-11-20T12:00:00Z"
     }
   ]
 }
@@ -143,8 +143,8 @@ GET /api/cron/next
   next: [
     {
       jobName: "blog_generation",
-      schedule: "Ter/Qui/Sáb/Dom às 13:00 BRT",
-      nextExecution: "2025-11-21T16:00:00Z",
+      schedule: "Ter/Qui/Sáb/Dom às 9:00 BRT",
+      nextExecution: "2025-11-21T12:00:00Z",
       description: "Geração de artigo de blog"
     }
   ]
@@ -195,7 +195,7 @@ await completeCronExecution(executionId, 'failure', null, errorMessage)
 
 ### Jobs Monitorados
 
-- `blog_generation` - Ter/Qui/Sáb/Dom 13:00 BRT
+- `blog_generation` - Ter/Qui/Sáb/Dom 9:00 BRT
 - `newsletter` - Após geração de blog
 - `instagram_posts` - Após newsletter
 - `linkedin_posts` - Após newsletter

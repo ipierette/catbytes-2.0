@@ -90,10 +90,10 @@
 ## 📊 Cronograma de Publicação
 
 ### Schedule Atual (após correção):
-- **Terça-feira (2):** 13:00 BRT - Automação e Negócios
-- **Quinta-feira (4):** 13:00 BRT - Programação e IA
-- **Sábado (6):** 13:00 BRT - Cuidados Felinos
-- **Domingo (0):** 13:00 BRT - Tech Aleatório
+- **Terça-feira (2):** 9:00 BRT - Automação e Negócios
+- **Quinta-feira (4):** 9:00 BRT - Programação e IA
+- **Sábado (6):** 9:00 BRT - Cuidados Felinos
+- **Domingo (0):** 9:00 BRT - Tech Aleatório
 
 ### Próximas Execuções:
 - **Domingo, 17/11/2025** às 13:00 - Tech Aleatório
@@ -107,7 +107,7 @@
    - Criação do `/app/api/manual-cron-trigger/route.ts`
    - Permite execução manual quando necessário
 
-2. **fix: adjust cron schedule from 13:00 UTC to 16:00 UTC (10 AM to 1 PM BRT)**
+2. **fix: adjust cron schedule from 13:00 UTC to 12:00 UTC (10 AM to 1 PM BRT)**
    - Ajuste do horário no `vercel.json`
    - Melhor horário para engajamento
 

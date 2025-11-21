@@ -18,7 +18,7 @@ export function getNicheDisplay(nicho: string): NicheConfig {
 /**
  * Calcula a próxima data de publicação automática
  * Dias: Segunda (1), Quarta (3), Sexta (5), Domingo (0)
- * Horário: 13:00 BRT
+ * Horário: 9:00 BRT
  */
 export function calculateNextPublicationDate(fromDate: Date = new Date()): Date {
   const result = new Date(fromDate)

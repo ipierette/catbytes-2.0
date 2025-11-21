@@ -165,7 +165,7 @@ Após executar o teste, confirmar:
 ## 🚀 Próxima Execução Automática
 
 **Quinta-feira, 20 de novembro de 2025**  
-**Horário: 16:00 UTC = 13:00 BRT**
+**Horário: 12:00 UTC = 9:00 BRT**
 
 O cron `/api/simple-cron` vai executar automaticamente e:
 1. Gerar novo artigo de blog

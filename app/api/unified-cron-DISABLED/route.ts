@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     const results: { [key: string]: any } = {}
 
-    // Schedule: Tuesday (2), Thursday (4), Saturday (6) at 13:00 BRT
+    // Schedule: Tuesday (2), Thursday (4), Saturday (6) at 9:00 BRT
     // Execute blog generation and Instagram batch generation
     if ([2, 4, 6].includes(dayOfWeek) && hour === 13) {
       console.log('[Unified-Cron] Executing blog and Instagram generation...')

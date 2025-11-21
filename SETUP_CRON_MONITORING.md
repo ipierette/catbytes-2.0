@@ -82,7 +82,7 @@ Se ainda não houver execuções, o card mostrará "Nenhuma execução registrad
 ## 📅 Quando os Logs Começarão a Aparecer?
 
 **Geração de Conteúdo:**
-- Próxima execução: Terça, Quinta, Sábado ou Domingo às 13:00 BRT
+- Próxima execução: Terça, Quinta, Sábado ou Domingo às 9:00 BRT
 
 **Verificação de Token:**
 - Próxima execução: Amanhã às 09:00 BRT

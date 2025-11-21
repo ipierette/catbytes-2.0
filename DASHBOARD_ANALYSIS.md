@@ -45,7 +45,7 @@ O dashboard está **100% funcional** com dados **reais do Supabase** atualizados
    - Fonte: Configuração real
 
 4. **Próxima Execução**
-   - Cálculo dinâmico: Ter/Qui/Sáb/Dom às 16:00 UTC (13:00 BRT)
+   - Cálculo dinâmico: Ter/Qui/Sáb/Dom às 12:00 UTC (9:00 BRT)
    - Atualizado a cada refresh
    - Fonte: Algoritmo de cálculo real-time
 

@@ -121,10 +121,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Calcular próxima geração (ter, qui, sáb, dom às 16:00 UTC = 13:00 BRT)
+// Calcular próxima geração (ter, qui, sáb, dom às 12:00 UTC = 9:00 BRT)
 function calculateNextGenerationDate(): Date {
   const generationDays = new Set([2, 4, 6, 0]) // Ter, Qui, Sáb, Dom
-  const generationHourUTC = 16 // 16:00 UTC = 13:00 BRT
+  const generationHourUTC = 16 // 12:00 UTC = 9:00 BRT
   
   // Trabalhar com UTC direto
   const now = new Date()
