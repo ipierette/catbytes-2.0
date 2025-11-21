@@ -543,7 +543,7 @@ export default function TopicsManagementPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {topics.map((topic) => (
+                  {topics && topics.length > 0 ? topics.map((topic) => (
                     <TableRow key={topic.id}>
                       <TableCell className="font-medium max-w-md">
                         {topic.topic}
@@ -601,7 +601,13 @@ export default function TopicsManagementPage() {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )) : (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                        {loading ? 'Carregando tópicos...' : 'Nenhum tópico encontrado'}
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
 
