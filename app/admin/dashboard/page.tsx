@@ -15,7 +15,6 @@ import { APICostAnalyticsCard } from './_components/APICostAnalyticsCard'
 import { ActionRequiredCard } from '@/components/admin/action-required-card'
 import { WeeklyCostAnalyticsCard } from '@/components/admin/weekly-cost-analytics-card'
 import CronMonitor from '@/components/admin/CronMonitor'
-import TopicsMonitor from '@/components/admin/TopicsMonitor'
 import BatchTopicGenerator from '@/components/admin/BatchTopicGenerator'
 
 export default function DashboardPage() {
@@ -95,9 +94,6 @@ export default function DashboardPage() {
             <div className="mb-8">
               <BatchTopicGenerator />
             </div>
-
-            {/* Topics Monitor */}
-            <TopicsMonitor />
           </div>
 
           {/* Cron Monitoring */}

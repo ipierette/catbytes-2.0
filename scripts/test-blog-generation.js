@@ -43,7 +43,7 @@ async function testTopicsAPI() {
         console.log(`   Texto: "${data.topic.text}"`)
         console.log(`   Vezes usado: ${data.topic.times_used}`)
         console.log(`   Prioridade: ${data.topic.priority}`)
-        console.log(`   Tags: ${data.topic.tags.join(', ') || 'nenhuma'}`)
+        console.log(`   Tags: ${data.topic.tags?.join(', ') || 'nenhuma'}`)
       } else {
         console.log(`❌ Erro: ${data.error || 'Resposta inválida'}`)
         if (data.availableCount !== undefined) {
