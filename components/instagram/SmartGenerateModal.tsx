@@ -366,13 +366,19 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">1 post</SelectItem>
+                  <SelectItem value="1">1 post único</SelectItem>
                   <SelectItem value="2">2 posts</SelectItem>
                   <SelectItem value="3">3 posts (recomendado)</SelectItem>
-                  <SelectItem value="5">5 posts</SelectItem>
-                  <SelectItem value="10">10 posts</SelectItem>
+                  <SelectItem value="5">5 posts - lote médio</SelectItem>
+                  <SelectItem value="10">10 posts - lote grande</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-sm text-muted-foreground">
+                {parseInt(quantidade) === 1 
+                  ? '✨ Gera 1 post único e focado' 
+                  : `🚀 Gera ${quantidade} posts variados em lote`
+                }
+              </p>
             </div>
 
             {/* Foco (opcional) */}

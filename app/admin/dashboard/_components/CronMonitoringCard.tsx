@@ -149,27 +149,27 @@ export function CronMonitoringCard() {
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="text-center">
               <div className="text-2xl font-bold">{stats.total}</div>
-              <div className="text-xs text-gray-500">Total</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Total</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{stats.success}</div>
-              <div className="text-xs text-gray-500">Sucesso</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.success}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Sucesso</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
-              <div className="text-xs text-gray-500">Falhas</div>
+              <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.failed}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Falhas</div>
             </div>
           </div>
         )}
 
         {/* Lista de Execuções */}
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             Últimas Execuções
           </h3>
           
           {logs.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <AlertCircle className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p className="text-sm">Nenhuma execução registrada</p>
             </div>
@@ -177,7 +177,7 @@ export function CronMonitoringCard() {
             logs.map((log) => (
               <div 
                 key={log.id}
-                className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+                className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition-colors"
               >
                 {/* Status Icon */}
                 <div className="mt-0.5">
@@ -195,13 +195,13 @@ export function CronMonitoringCard() {
                     </span>
                   </div>
                   
-                  <p className="text-xs text-gray-500 mb-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
                     {CRON_LABELS[log.cron_type]?.description}
                   </p>
 
                   {/* Detalhes */}
                   {log.details && (
-                    <div className="text-xs text-gray-600 space-y-0.5">
+                    <div className="text-xs text-gray-600 dark:text-gray-300 space-y-0.5">
                       {log.details.blog_post_id && (
                         <div>📝 Post ID: {log.details.blog_post_id}</div>
                       )}
@@ -215,7 +215,7 @@ export function CronMonitoringCard() {
                   )}
 
                   {/* Tempo */}
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500">
                     <span>{formatDate(log.executed_at)}</span>
                     {log.duration_ms !== null && (
                       <span>⏱️ {formatDuration(log.duration_ms)}</span>
@@ -228,18 +228,18 @@ export function CronMonitoringCard() {
         </div>
 
         {/* Próximas Execuções */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
             Próximas Execuções Programadas
           </h3>
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Geração de Conteúdo</span>
-              <span className="font-medium">Ter/Qui/Sáb/Dom às 13:00</span>
+              <span className="text-gray-600 dark:text-gray-400">Geração de Conteúdo</span>
+              <span className="font-medium dark:text-gray-200">Ter/Qui/Sáb/Dom às 13:00</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">Verificação de Token</span>
-              <span className="font-medium">Diariamente às 09:00</span>
+              <span className="text-gray-600 dark:text-gray-400">Verificação de Token</span>
+              <span className="font-medium dark:text-gray-200">Diariamente às 09:00</span>
             </div>
           </div>
         </div>
