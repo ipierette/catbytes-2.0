@@ -234,25 +234,38 @@ GERE CONTEÚDO COMPLETO:
 1. **titulo**: Título impactante e específico (máx 60 caracteres)
    Exemplos: "Clínica automatizou agenda: +40% pacientes" | "Dashboard que economiza 6h/dia"
 
-2. **imagePrompt**: Prompt DETALHADO para imagem CORPORATIVA e PROFISSIONAL.
+2. **imagePrompt**: Prompt DETALHADO para imagem CORPORATIVA e PROFISSIONAL adaptada ao tema.
    
    DIRETRIZES OBRIGATÓRIAS:
-   - Foto profissional (não ilustração) de pessoa em ambiente corporativo
-   - Roupa social/executiva (blazer, camisa social)
-   - Ambiente clean e moderno (escritório, consultório, loja)
-   - Tecnologia presente: laptop, tablet, telas
-   - Documentos/planilhas organizados na mesa (demonstra trabalho)
-   - Iluminação natural profissional
-   - Cores corporativas: azul, cinza, branco, verde/roxo tech
-   - Qualidade stock photo empresarial
+   - Foto profissional (não ilustração) relacionada ao nicho ${theme.businessArea}
+   - VARIAR O CENÁRIO conforme o tema:
+     * Saúde: consultório médico, equipamentos médicos, atendimento
+     * Jurídico: escritório de advocacia, livros de direito, reunião com cliente
+     * Varejo: loja moderna, PDV digital, atendimento ao cliente
+     * Alimentação: restaurante, cozinha profissional, sistema de pedidos
+     * Beleza: salão de beleza, agenda digital, cliente satisfeita
+     * Fitness: academia moderna, app de treino, personal trainer
+     * Educação: sala de aula tech, plataforma digital, estudantes
+     * Tecnologia: workspace tech, dashboard de dados, código/desenvolvimento
+   - Roupa apropriada ao contexto (nem sempre blazer - pode ser jaleco, uniforme, casual tech)
+   - Tecnologia presente mas contextualizada: tablet, smartphone, sistema específico
+   - EVITAR REPETIÇÃO: alternar entre: pessoa trabalhando, tela de sistema, resultado do serviço, antes/depois
+   - Iluminação profissional adequada ao ambiente
+   - Cores relacionadas ao nicho (não apenas azul corporativo)
+   - Qualidade stock photo profissional
    
    TEXTO NA IMAGEM:
-   - Frase ultra-curta (máx 15 caracteres)
-   - Exemplos: "Automação 48h" | "+40h economizadas" | "Adeus planilhas"
+   - Frase ultra-curta relacionada ao benefício específico (máx 15 caracteres)
+   - Exemplos: "Automação 48h" | "+40% vendas" | "Zero espera" | "24/7 online"
    - Tipografia moderna e bold
    - Posição destacada (canto superior direito ou centro)
    
-   EXEMPLO: "Foto profissional de executiva concentrada em escritório moderno, vestindo blazer azul marinho, trabalhando com laptop e documentos organizados, iluminação natural, cores azul corporativo e branco, texto 'Automação em 48h' em tipografia bold no canto superior direito, qualidade stock photo, composição clean, formato quadrado 1:1"
+   EXEMPLOS POR NICHO:
+   - Saúde: "Foto profissional de médico usando tablet em consultório moderno, jaleco branco, tela mostrando agenda digital organizada, paciente ao fundo em sala de espera confortável, cores verde saúde e branco, texto 'Zero espera' em bold verde, iluminação clean, formato quadrado 1:1"
+   - Varejo: "Foto profissional de vendedora sorrindo usando tablet em loja moderna, sistema PDV digital na tela, produtos organizados ao fundo, cliente satisfeito, cores vibrantes da loja, texto '+40% vendas' em bold laranja, formato quadrado 1:1"
+   - Fitness: "Foto profissional de personal trainer com aluno, tablet mostrando app de treinos personalizado, academia moderna ao fundo, cores energéticas laranja e preto, texto 'Treino IA' em bold, iluminação dinâmica, formato quadrado 1:1"
+   
+   IMPORTANTE: ADAPTE O PROMPT AO CONTEXTO ESPECÍFICO DO TEMA! Não use sempre "escritório com planilhas".
 
 3. **caption**: Legenda PERSUASIVA focada em vendas (máx 2200 chars)
    

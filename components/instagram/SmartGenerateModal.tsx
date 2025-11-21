@@ -204,21 +204,40 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
 
   // ==================== PROMPT DE IMAGEM ====================
 
-  const copyPrompt = (id: string, prompt: string) => {
-    navigator.clipboard.writeText(prompt)
-    setCopiedIds(new Set([...copiedIds, id]))
-    
-    setTimeout(() => {
-      setCopiedIds(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(id)
-        return newSet
-      })
-    }, 2000)
+  const copyPrompt = async (id: string, prompt: string) => {
+    try {
+      // Tentar usar Clipboard API moderna
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(prompt)
+      } else {
+        // Fallback para navegadores antigos
+        const textArea = document.createElement('textarea')
+        textArea.value = prompt
+        textArea.style.position = 'fixed'
+        textArea.style.left = '-999999px'
+        document.body.appendChild(textArea)
+        textArea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textArea)
+      }
 
-    toast.success('Prompt copiado!', {
-      description: 'Cole em DALL-E, Midjourney ou sua ferramenta preferida'
-    })
+      setCopiedIds(new Set([...copiedIds, id]))
+      
+      setTimeout(() => {
+        setCopiedIds(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(id)
+          return newSet
+        })
+      }, 2000)
+
+      toast.success('Prompt copiado!', {
+        description: 'Cole em DALL-E, Midjourney ou sua ferramenta preferida'
+      })
+    } catch (error) {
+      console.error('Erro ao copiar:', error)
+      toast.error('Erro ao copiar. Tente selecionar e copiar manualmente.')
+    }
   }
 
   // ==================== UPLOAD DE IMAGEM ====================
