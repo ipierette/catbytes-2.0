@@ -35,16 +35,24 @@ export default function BatchTopicGenerator() {
       if (response.ok) {
         const data = await response.json()
         
+        // API retorna { success: true, stats: { general: [...] } }
+        const general = data.stats?.general || []
+        
+        if (general.length === 0) {
+          setStats({ total: 0, available: 0, used: 0, categories: [] })
+          return
+        }
+        
         // Calcular totais
-        const total = data.general.reduce((sum: number, cat: any) => sum + cat.total_topics, 0)
-        const available = data.general.reduce((sum: number, cat: any) => sum + cat.available_topics, 0)
-        const used = data.general.reduce((sum: number, cat: any) => sum + cat.used_topics, 0)
+        const total = general.reduce((sum: number, cat: any) => sum + cat.total_topics, 0)
+        const available = general.reduce((sum: number, cat: any) => sum + cat.available_topics, 0)
+        const used = general.reduce((sum: number, cat: any) => sum + cat.used_topics, 0)
         
         setStats({
           total,
           available,
           used,
-          categories: data.general.map((cat: any) => ({
+          categories: general.map((cat: any) => ({
             category: cat.category,
             available_topics: cat.available_topics
           }))
@@ -52,6 +60,7 @@ export default function BatchTopicGenerator() {
       }
     } catch (error) {
       console.error('Error fetching stats:', error)
+      setStats({ total: 0, available: 0, used: 0, categories: [] })
     } finally {
       setLoading(false)
     }
