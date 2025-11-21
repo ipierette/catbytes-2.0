@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import { Inter, Comfortaa } from 'next/font/google'
 import { ToastProvider } from '@/components/ui/toast'
+import { Toaster } from 'sonner'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import './mobile-performance.css'
@@ -307,6 +308,7 @@ export default async function RootLayout({
         </Script>
         
         <ToastProvider>{children}</ToastProvider>
+        <Toaster position="top-right" richColors />
         <Analytics />
       </body>
     </html>

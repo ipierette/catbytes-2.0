@@ -374,7 +374,7 @@ export function SmartGenerateModal({ open, onOpenChange, onSuccess }: SmartGener
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                {parseInt(quantidade) === 1 
+                {quantidade === '1' 
                   ? '✨ Gera 1 post único e focado' 
                   : `🚀 Gera ${quantidade} posts variados em lote`
                 }
