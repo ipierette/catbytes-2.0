@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { 
   Select,
   SelectContent,
@@ -124,6 +125,11 @@ export default function TopicsManagementPage() {
     tags: '',
     approved: true
   })
+  
+  // Bulk create
+  const [bulkTopics, setBulkTopics] = useState('')
+  const [bulkCategory, setBulkCategory] = useState('Automação e Negócios')
+  const [bulkCreating, setBulkCreating] = useState(false)
 
   // Fetch topics
   const fetchTopics = async () => {
@@ -262,6 +268,64 @@ export default function TopicsManagementPage() {
       approved: topic.approved
     })
     setShowModal(true)
+  }
+
+  // Bulk create topics
+  const handleBulkCreate = async () => {
+    const topicLines = bulkTopics
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean)
+
+    if (topicLines.length === 0) {
+      toast.error('Digite pelo menos um tópico')
+      return
+    }
+
+    setBulkCreating(true)
+    let successCount = 0
+    let errorCount = 0
+
+    try {
+      for (const topicText of topicLines) {
+        try {
+          const response = await fetch('/api/blog/topics', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              topic: topicText,
+              category: bulkCategory,
+              priority: 0,
+              tags: [],
+              approved: true
+            })
+          })
+
+          const data = await response.json()
+          if (data.success) {
+            successCount++
+          } else {
+            errorCount++
+          }
+        } catch {
+          errorCount++
+        }
+      }
+
+      toast.success(`${successCount} tópicos criados com sucesso!`)
+      if (errorCount > 0) {
+        toast.error(`${errorCount} tópicos falharam`)
+      }
+
+      setBulkTopics('')
+      fetchTopics()
+      fetchStats()
+    } catch (error) {
+      console.error('Error in bulk create:', error)
+      toast.error('Erro ao criar tópicos em lote')
+    } finally {
+      setBulkCreating(false)
+    }
   }
 
   return (
@@ -611,13 +675,81 @@ export default function TopicsManagementPage() {
             <CardHeader>
               <CardTitle>Criar Tópicos em Lote</CardTitle>
               <CardDescription>
-                Gere múltiplos tópicos de uma vez com embeddings automáticos
+                Adicione múltiplos tópicos de uma vez (um por linha)
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Em desenvolvimento... Permitirá criar múltiplos tópicos via textarea.
-              </p>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Categoria</label>
+                <Select
+                  value={bulkCategory}
+                  onValueChange={setBulkCategory}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">
+                  Tópicos (um por linha)
+                </label>
+                <Textarea
+                  className="min-h-[300px] font-mono text-sm"
+                  placeholder="Digite um tópico por linha, por exemplo:&#10;Como criar chatbots com IA para automatizar atendimento&#10;Estratégias de SEO local para pequenas empresas&#10;Ferramentas no-code para criar aplicações web"
+                  value={bulkTopics}
+                  onChange={(e) => setBulkTopics(e.target.value)}
+                  disabled={bulkCreating}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {bulkTopics.split('\n').filter(Boolean).length} tópicos prontos para criar
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleBulkCreate}
+                  disabled={bulkCreating || !bulkTopics.trim()}
+                  className="flex-1"
+                >
+                  {bulkCreating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Criando...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Criar {bulkTopics.split('\n').filter(Boolean).length} Tópicos
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setBulkTopics('')}
+                  disabled={bulkCreating}
+                >
+                  Limpar
+                </Button>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                <h4 className="font-medium text-sm mb-2">💡 Dicas:</h4>
+                <ul className="text-xs text-muted-foreground space-y-1">
+                  <li>• Embeddings OpenAI serão gerados automaticamente</li>
+                  <li>• Sistema anti-similaridade ativado (threshold 0.85)</li>
+                  <li>• Tópicos aprovados e prontos para uso imediato</li>
+                  <li>• Prioridade padrão: 0 (pode editar depois)</li>
+                </ul>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
