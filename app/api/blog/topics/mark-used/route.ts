@@ -27,6 +27,13 @@ export async function POST(request: NextRequest) {
     console.log(`   ⏱️  Tempo de geração: ${generationTimeMs || 'N/A'}ms`)
     console.log(`   ${success ? '✅' : '❌'} Sucesso: ${success}`)
 
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Supabase admin client não configurado' },
+        { status: 500 }
+      )
+    }
+
     // Marcar como usado usando função do banco
     const { error } = await supabaseAdmin
       .rpc('mark_topic_as_used', {

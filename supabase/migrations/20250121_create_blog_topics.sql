@@ -109,12 +109,12 @@ CREATE TRIGGER trigger_update_blog_topics_updated_at
   EXECUTE FUNCTION update_blog_topics_updated_at();
 
 -- =====================================================
--- Função para buscar tópico único (não usado recentemente)
+-- Função para buscar tópico único (NUNCA REPETIR)
 -- =====================================================
 CREATE OR REPLACE FUNCTION get_unique_blog_topic(
   p_category TEXT,
   p_similarity_threshold FLOAT DEFAULT 0.85,
-  p_recent_days INTEGER DEFAULT 90
+  p_recent_days INTEGER DEFAULT 90000
 )
 RETURNS TABLE (
   id UUID,
@@ -137,22 +137,17 @@ BEGIN
     AND bt.status = 'available'
     AND bt.deleted_at IS NULL
     AND bt.approved = true
-    AND (
-      bt.last_used_at IS NULL 
-      OR bt.last_used_at < NOW() - INTERVAL '1 day' * p_recent_days
-    )
-    -- Não está bloqueado por similaridade com tópicos usados recentemente
+    -- NUNCA USAR TÓPICOS JÁ USADOS (sem cooldown)
+    AND bt.times_used = 0
+    -- Não está bloqueado por similaridade com tópicos já usados
     AND NOT EXISTS (
       SELECT 1 FROM blog_topic_similarity_blocks bsb
-      JOIN blog_topic_usage_history btuh ON btuh.topic_id = bsb.blocked_topic_id
+      JOIN blog_topics bt_used ON bsb.blocked_topic_id = bt_used.id
       WHERE bsb.topic_id = bt.id
       AND bsb.similarity_score >= p_similarity_threshold
-      AND btuh.created_at > NOW() - INTERVAL '1 day' * p_recent_days
+      AND bt_used.times_used > 0
     )
   ORDER BY 
-    -- Priorizar por: nunca usados > menos usados > prioridade > aleatório
-    CASE WHEN bt.times_used = 0 THEN 0 ELSE 1 END,
-    bt.times_used ASC,
     bt.priority DESC,
     RANDOM()
   LIMIT 1;
@@ -210,10 +205,7 @@ RETURNS INTEGER AS $$
 DECLARE
   v_count INTEGER := 0;
 BEGIN
-  -- Deletar similaridades antigas
-  DELETE FROM blog_topic_similarity_blocks;
-  
-  -- Calcular e inserir novas similaridades
+  -- Calcular e inserir novas similaridades (sem deletar antigas - accumulate)
   INSERT INTO blog_topic_similarity_blocks (topic_id, blocked_topic_id, similarity_score, reason)
   SELECT 
     t1.id as topic_id,

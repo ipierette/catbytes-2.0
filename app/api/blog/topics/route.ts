@@ -32,6 +32,13 @@ async function generateEmbedding(text: string) {
 // GET - Listar tópicos com filtros
 export async function GET(request: NextRequest) {
   try {
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Supabase admin client não configurado' },
+        { status: 500 }
+      )
+    }
+
     const searchParams = request.nextUrl.searchParams
     const category = searchParams.get('category')
     const status = searchParams.get('status')
@@ -86,6 +93,12 @@ export async function GET(request: NextRequest) {
 // POST - Criar novo tópico
 export async function POST(request: NextRequest) {
   try {
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Supabase admin client não configurado' },
+        { status: 500 }
+      )
+    }
     const body = await request.json()
     const { topic, category, priority = 0, tags = [], approved = true } = body
 
@@ -149,6 +162,12 @@ export async function POST(request: NextRequest) {
 // PATCH - Atualizar tópico
 export async function PATCH(request: NextRequest) {
   try {
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Supabase admin client não configurado' },
+        { status: 500 }
+      )
+    }
     const body = await request.json()
     const { id, updates } = body
 
@@ -203,6 +222,12 @@ export async function PATCH(request: NextRequest) {
 // DELETE - Soft delete de tópico
 export async function DELETE(request: NextRequest) {
   try {
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Supabase admin client não configurado' },
+        { status: 500 }
+      )
+    }
     const searchParams = request.nextUrl.searchParams
     const id = searchParams.get('id')
 

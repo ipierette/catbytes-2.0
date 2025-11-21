@@ -80,16 +80,44 @@ export async function POST(request: NextRequest) {
     const blogTheme = theme || getCurrentBlogTheme()
     const scheduleInfo = getBlogScheduleInfo()
     
-    // Select topic using SMART SYSTEM (2-year non-repetition guarantee)
+    // Select topic using NEW DATABASE SYSTEM (anti-similarity with embeddings)
     let selectedTopic: string
+    let topicId: string | null = null
+    
     if (topic) {
       // Tópico manual fornecido
       selectedTopic = topic
       console.log('[Generate] Using manually provided topic:', selectedTopic)
     } else {
-      // Seleção inteligente: evita repetição por 2 anos
-      selectedTopic = await selectSmartTopic(blogTheme)
-      console.log('[Generate] Smart topic selected:', selectedTopic)
+      // Buscar tópico único do banco de dados
+      try {
+        console.log('[Generate] Fetching unique topic from database...')
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+        const topicResponse = await fetch(
+          `${baseUrl}/api/blog/topics/unique?category=${encodeURIComponent(blogTheme)}&similarity_threshold=0.85&recent_days=90`,
+          { method: 'GET', cache: 'no-store' }
+        )
+        
+        if (topicResponse.ok) {
+          const topicData = await topicResponse.json()
+          if (topicData.success && topicData.topic) {
+            selectedTopic = topicData.topic.text
+            topicId = topicData.topic.id
+            console.log('[Generate] ✅ Unique topic from database:', selectedTopic, `(ID: ${topicId})`)
+          } else {
+            throw new Error('No unique topic available')
+          }
+        } else {
+          const errorData = await topicResponse.json()
+          console.warn('[Generate] ⚠️ Failed to fetch topic from database:', errorData.error)
+          throw new Error(errorData.error || 'Database topic fetch failed')
+        }
+      } catch (dbError) {
+        console.error('[Generate] ❌ Error fetching from database, falling back to legacy system:', dbError)
+        // Fallback: usar sistema antigo como backup
+        selectedTopic = await selectSmartTopic(blogTheme)
+        console.log('[Generate] Using legacy topic system (fallback):', selectedTopic)
+      }
     }
     
     const selectedCategory = category || blogTheme
@@ -100,6 +128,7 @@ export async function POST(request: NextRequest) {
 
     console.log('[Generate] Blog theme:', blogTheme)
     console.log('[Generate] Creating post about:', selectedTopic)
+    console.log('[Generate] Topic ID from database:', topicId || 'N/A (manual/fallback)')
     console.log('[Generate] Schedule info:', scheduleInfo)
 
     // ====== VALIDATION: Check if this topic was recently used ======
@@ -500,12 +529,39 @@ Responda APENAS com JSON válido.`
     const createdPost = await db.createPost(postData)
     console.log('[Generate] Post created:', createdPost.id)
 
-    // Record topic usage for 2-year anti-duplication tracking
+    // Mark topic as used in database (if from database system)
+    if (topicId) {
+      try {
+        console.log('[Generate] Marking topic as used in database...')
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+        const markResponse = await fetch(`${baseUrl}/api/blog/topics/mark-used`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topicId,
+            postId: createdPost.id,
+            generationTimeMs: Date.now() - startTime,
+            success: true
+          })
+        })
+        
+        if (markResponse.ok) {
+          console.log('[Generate] ✅ Topic marked as used in database')
+        } else {
+          const errorData = await markResponse.json()
+          console.warn('[Generate] ⚠️ Failed to mark topic as used:', errorData.error)
+        }
+      } catch (markError) {
+        console.error('[Generate] ❌ Error marking topic as used (non-critical):', markError)
+      }
+    }
+
+    // Record topic usage for legacy 2-year anti-duplication tracking (fallback)
     try {
       await recordTopicUsage(blogTheme, selectedTopic, createdPost.id)
-      console.log('[Generate] ✓ Topic usage recorded for 2-year tracking:', selectedTopic)
+      console.log('[Generate] ✓ Topic usage recorded in legacy system (backup):', selectedTopic)
     } catch (topicError) {
-      console.error('[Generate] ⚠️ Failed to record topic usage (non-critical):', topicError)
+      console.error('[Generate] ⚠️ Failed to record topic usage in legacy (non-critical):', topicError)
       // Don't fail the generation if topic tracking fails
     }
 
