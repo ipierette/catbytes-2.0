@@ -94,7 +94,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       path: data.path,
-      publicUrl
+      publicUrl,
+      imageUrl: publicUrl  // ✅ Frontend espera 'imageUrl'
     })
 
   } catch (error: any) {
