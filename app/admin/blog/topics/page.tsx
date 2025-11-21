@@ -34,8 +34,9 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Plus, Trash2, Edit, Search, RefreshCw, BarChart3, Clock, Link2, Zap } from 'lucide-react'
+import { Loader2, Plus, Trash2, Edit, Search, RefreshCw, BarChart3, Clock, Link2, Zap, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
+import Link from 'next/link'
 
 const CATEGORIES = [
   'Automação e Negócios',
@@ -331,6 +332,15 @@ export default function TopicsManagementPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <div className="flex items-center gap-4 mb-4">
+        <Link href="/admin/dashboard">
+          <Button variant="outline" size="sm">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar ao Dashboard
+          </Button>
+        </Link>
+      </div>
+      
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Gerenciamento de Tópicos</h1>
