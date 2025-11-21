@@ -379,7 +379,7 @@ export default function TopicsManagementPage() {
             <div className="flex justify-center p-8">
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-          ) : stats && (
+          ) : stats && stats.general && stats.general.length > 0 ? (
             <>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {stats.general.map((stat) => (
@@ -438,6 +438,10 @@ export default function TopicsManagementPage() {
                 </CardContent>
               </Card>
             </>
+          ) : (
+            <div className="text-center text-muted-foreground py-8">
+              Erro ao carregar estatísticas
+            </div>
           )}
         </TabsContent>
 
