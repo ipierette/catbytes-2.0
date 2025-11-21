@@ -1,45 +1,58 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Loader2, Upload, Sparkles, Send, Video, CheckCircle2, AlertCircle, Film, Wand2 } from 'lucide-react'
+import { Film, Upload, Wand2 } from 'lucide-react'
 import { useToast } from '@/components/ui/toast'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { StudioDashboardEmbedded } from '@/components/studio/studio-dashboard-embedded'
+import { VideoUploader } from '@/components/admin/vlog/video-uploader'
+import { VideoDescriptionEditor } from '@/components/admin/vlog/video-description-editor'
+import { ProcessedVideo } from '@/components/admin/vlog/processed-video'
+import { PlatformSelector } from '@/components/admin/vlog/platform-selector'
+import { useVlogUpload } from '@/hooks/use-vlog-upload'
+import { useVlogPublish } from '@/hooks/use-vlog-publish'
+import { usePlatformSelection } from '@/hooks/use-platform-selection'
 
 export default function VlogAdminPage() {
   const { showToast } = useToast()
   const [activeTab, setActiveTab] = useState('upload')
   
-  // Estado
+  // Estado local
   const [file, setFile] = useState<File | null>(null)
   const [userDescription, setUserDescription] = useState('')
   const [improvedDescription, setImprovedDescription] = useState('')
   const [vlogId, setVlogId] = useState('')
   const [videoUrl, setVideoUrl] = useState('')
   
-  // Plataformas selecionadas
-  const [platforms, setPlatforms] = useState({
-    instagram_feed: false,
-    instagram_reels: false,
-    linkedin: false
+  // Custom hooks
+  const { platforms, togglePlatform, getSelectedPlatforms, hasSelection, reset: resetPlatforms } = usePlatformSelection()
+  
+  const { upload, uploading } = useVlogUpload({
+    onSuccess: (data) => {
+      setVlogId(data.vlogId)
+      setVideoUrl(data.videoUrl)
+      setImprovedDescription(data.improvedDescription)
+      showToast('✅ Upload concluído! Vídeo processado e descrição melhorada pela IA', 'success')
+    },
+    onError: (error) => showToast(error, 'error')
+  })
+  
+  const { publish, publishing } = useVlogPublish({
+    onSuccess: (message) => {
+      showToast(`🎉 ${message}`, 'success')
+      handleReset()
+    },
+    onError: (error) => showToast(error, 'error')
   })
 
-  // Loading states
-  const [uploading, setUploading] = useState(false)
-  const [publishing, setPublishing] = useState(false)
-
-  // Upload do vídeo
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0]
-    
-    if (!selectedFile) return
+  // Validação de arquivo
+  const handleFileSelect = (selectedFile: File | null) => {
+    if (!selectedFile) {
+      setFile(null)
+      return
+    }
 
     // Validar tamanho
     const maxSize = 10 * 1024 * 1024 // 10MB
@@ -60,54 +73,17 @@ export default function VlogAdminPage() {
 
   // Upload e processamento
   const handleUpload = async () => {
-    if (!file) {
-      showToast('Selecione um vídeo para fazer upload', 'error')
+    if (!file || !userDescription.trim()) {
+      showToast('Selecione um vídeo e adicione uma descrição', 'error')
       return
     }
 
-    if (!userDescription.trim()) {
-      showToast('Adicione uma descrição para o vídeo', 'error')
-      return
-    }
-
-    setUploading(true)
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('description', userDescription)
-
-      const response = await fetch('/api/vlog/upload', {
-        method: 'POST',
-        body: formData
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Erro ao fazer upload')
-      }
-
-      const data = await response.json()
-
-      setVlogId(data.vlog.id)
-      setVideoUrl(data.vlog.videoUrl)
-      setImprovedDescription(data.vlog.improvedDescription)
-
-      showToast('✅ Upload concluído! Vídeo processado e descrição melhorada pela IA', 'success')
-    } catch (error) {
-      showToast(
-        error instanceof Error ? error.message : 'Erro no upload',
-        'error'
-      )
-    } finally {
-      setUploading(false)
-    }
+    await upload({ file, description: userDescription })
   }
 
   // Publicar nas plataformas
   const handlePublish = async () => {
-    const selectedPlatforms = Object.entries(platforms)
-      .filter(([_, selected]) => selected)
-      .map(([platform]) => platform)
+    const selectedPlatforms = getSelectedPlatforms()
 
     if (selectedPlatforms.length === 0) {
       showToast('Selecione pelo menos uma plataforma', 'error')
@@ -119,50 +95,24 @@ export default function VlogAdminPage() {
       return
     }
 
-    setPublishing(true)
-    try {
-      const response = await fetch('/api/vlog/publish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          vlogId,
-          platforms: selectedPlatforms,
-          description: improvedDescription
-        })
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Erro ao publicar')
-      }
-
-      const data = await response.json()
-
-      showToast('🎉 Publicado com sucesso! ' + data.message, 'success')
-
-      // Resetar formulário
-      setFile(null)
-      setUserDescription('')
-      setImprovedDescription('')
-      setVlogId('')
-      setVideoUrl('')
-      setPlatforms({
-        instagram_feed: false,
-        instagram_reels: false,
-        linkedin: false
-      })
-
-    } catch (error) {
-      showToast(
-        error instanceof Error ? error.message : 'Erro ao publicar',
-        'error'
-      )
-    } finally {
-      setPublishing(false)
-    }
+    await publish({
+      vlogId,
+      platforms: selectedPlatforms,
+      description: improvedDescription
+    })
   }
 
-  const fileSize = file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : null
+  // Resetar formulário
+  const handleReset = () => {
+    setFile(null)
+    setUserDescription('')
+    setImprovedDescription('')
+    setVlogId('')
+    setVideoUrl('')
+    resetPlatforms()
+  }
+
+  const canUpload = !!file && !!userDescription.trim()
 
   return (
     <AdminGuard>
@@ -191,237 +141,41 @@ export default function VlogAdminPage() {
         </TabsList>
 
         <TabsContent value="upload" className="space-y-6">
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Coluna Esquerda - Upload */}
-        <div className="space-y-6">
-          {/* Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle>1. Upload do Vídeo</CardTitle>
-              <CardDescription>
-                Selecione um vídeo de até 10MB (MP4, MOV, AVI, WEBM)
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                <input
-                  type="file"
-                  accept="video/mp4,video/quicktime,video/x-msvideo,video/webm"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  id="video-upload"
-                />
-                <label
-                  htmlFor="video-upload"
-                  className="cursor-pointer flex flex-col items-center"
-                >
-                  <Upload className="h-12 w-12 text-muted-foreground mb-4" />
-                  {file ? (
-                    <div className="space-y-2">
-                      <p className="font-medium text-green-600">
-                        ✓ {file.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {fileSize}
-                      </p>
-                      <Button variant="outline" size="sm" type="button">
-                        Trocar vídeo
-                      </Button>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="font-medium">Clique para selecionar</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        ou arraste o vídeo aqui
-                      </p>
-                    </>
-                  )}
-                </label>
-              </div>
-
-              {videoUrl && (
-                <div className="border rounded-lg overflow-hidden">
-                  <video
-                    src={videoUrl}
-                    controls
-                    className="w-full h-auto"
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Descrição */}
-          <Card>
-            <CardHeader>
-              <CardTitle>2. Descrição do Vídeo</CardTitle>
-              <CardDescription>
-                Descreva brevemente o assunto do vídeo
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                value={userDescription}
-                onChange={(e) => setUserDescription(e.target.value)}
-                placeholder="Ex: Neste vídeo eu explico os benefícios de usar Next.js para criar aplicações web modernas..."
-                rows={6}
-                className="resize-none"
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Coluna Esquerda - Upload */}
+            <div className="space-y-6">
+              <VideoUploader
+                file={file}
+                onFileSelect={handleFileSelect}
               />
 
-              <Button
-                onClick={handleUpload}
-                disabled={uploading || !file || !userDescription.trim()}
-                className="w-full"
-                size="lg"
-              >
-                {uploading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processando...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Processar e Melhorar com IA
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+              <VideoDescriptionEditor
+                description={userDescription}
+                uploading={uploading}
+                canUpload={canUpload}
+                onChange={setUserDescription}
+                onUpload={handleUpload}
+              />
+            </div>
 
-        {/* Coluna Direita - Publicação */}
-        <div className="space-y-6">
-          {/* Descrição Melhorada */}
-          <Card>
-            <CardHeader>
-              <CardTitle>3. Descrição Profissional</CardTitle>
-              <CardDescription>
-                Gerada automaticamente pela IA
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {improvedDescription ? (
-                <div className="space-y-4">
-                  <Textarea
-                    value={improvedDescription}
-                    onChange={(e) => setImprovedDescription(e.target.value)}
-                    rows={10}
-                    className="resize-none font-sans"
-                  />
-                  <div className="flex items-center gap-2 text-sm text-green-600">
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>Descrição melhorada pela IA</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Sparkles className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>A descrição melhorada aparecerá aqui</p>
-                  <p className="text-sm mt-1">após processar o vídeo</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            {/* Coluna Direita - Publicação */}
+            <div className="space-y-6">
+              <ProcessedVideo
+                videoUrl={videoUrl}
+                improvedDescription={improvedDescription}
+                onDescriptionChange={setImprovedDescription}
+              />
 
-          {/* Plataformas */}
-          <Card>
-            <CardHeader>
-              <CardTitle>4. Selecione as Plataformas</CardTitle>
-              <CardDescription>
-                Onde você quer publicar este vídeo?
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                  <Checkbox
-                    id="instagram_feed"
-                    checked={platforms.instagram_feed}
-                    onCheckedChange={(checked) =>
-                      setPlatforms({ ...platforms, instagram_feed: !!checked })
-                    }
-                  />
-                  <label htmlFor="instagram_feed" className="flex-1 cursor-pointer">
-                    <div className="font-medium">Instagram Feed</div>
-                    <div className="text-xs text-muted-foreground">
-                      Post de vídeo no feed
-                    </div>
-                  </label>
-                  <Badge variant="outline">📸</Badge>
-                </div>
-
-                <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                  <Checkbox
-                    id="instagram_reels"
-                    checked={platforms.instagram_reels}
-                    onCheckedChange={(checked) =>
-                      setPlatforms({ ...platforms, instagram_reels: !!checked })
-                    }
-                  />
-                  <label htmlFor="instagram_reels" className="flex-1 cursor-pointer">
-                    <div className="font-medium">Instagram Reels</div>
-                    <div className="text-xs text-muted-foreground">
-                      Vídeo curto em formato vertical
-                    </div>
-                  </label>
-                  <Badge variant="outline">🎬</Badge>
-                </div>
-
-                <div className="flex items-center space-x-2 p-3 border rounded-lg">
-                  <Checkbox
-                    id="linkedin"
-                    checked={platforms.linkedin}
-                    onCheckedChange={(checked) =>
-                      setPlatforms({ ...platforms, linkedin: !!checked })
-                    }
-                  />
-                  <label htmlFor="linkedin" className="flex-1 cursor-pointer">
-                    <div className="font-medium">LinkedIn</div>
-                    <div className="text-xs text-muted-foreground">
-                      Post profissional com vídeo
-                    </div>
-                  </label>
-                  <Badge variant="outline">💼</Badge>
-                </div>
-              </div>
-
-              <Button
-                onClick={handlePublish}
-                disabled={
-                  publishing ||
-                  !vlogId ||
-                  !Object.values(platforms).some(Boolean)
-                }
-                className="w-full"
-                size="lg"
-              >
-                {publishing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Publicando...
-                  </>
-                ) : (
-                  <>
-                    <Send className="mr-2 h-4 w-4" />
-                    Publicar nas Plataformas
-                  </>
-                )}
-              </Button>
-
-              {!vlogId && (
-                <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950 rounded-lg text-sm">
-                  <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-amber-900 dark:text-amber-100">
-                    Faça o upload e processamento do vídeo antes de publicar
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+              <PlatformSelector
+                platforms={platforms}
+                vlogId={vlogId}
+                publishing={publishing}
+                hasSelection={hasSelection()}
+                onTogglePlatform={togglePlatform}
+                onPublish={handlePublish}
+              />
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="studio">
