@@ -16,6 +16,7 @@ import { ActionRequiredCard } from '@/components/admin/action-required-card'
 import { WeeklyCostAnalyticsCard } from '@/components/admin/weekly-cost-analytics-card'
 import CronMonitor from '@/components/admin/CronMonitor'
 import TopicsMonitor from '@/components/admin/TopicsMonitor'
+import BatchTopicGenerator from '@/components/admin/BatchTopicGenerator'
 
 export default function DashboardPage() {
   const { stats, loading, error, isCached, lastUpdate, reload } = useDashboardStats()
@@ -89,6 +90,13 @@ export default function DashboardPage() {
           {/* Topics Pool Monitor */}
           <div className="border-t pt-8">
             <h2 className="text-2xl font-bold mb-6">📊 Pool de Tópicos</h2>
+            
+            {/* Batch Topic Generator */}
+            <div className="mb-8">
+              <BatchTopicGenerator />
+            </div>
+
+            {/* Topics Monitor */}
             <TopicsMonitor />
           </div>
 

@@ -1,15 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
+import type { InstagramStats } from '@/lib/instagram'
+import { REFRESH_INTERVALS } from '@/lib/instagram'
 
-export interface InstagramStats {
-  total: number
-  published: number
-  pending: number
-  approved: number
-  failed: number
-  byNiche: Record<string, number>
-}
+export type { InstagramStats } from '@/lib/instagram'
 
-export function useInstagramStats(autoRefresh = true, refreshInterval = 60000) {
+export function useInstagramStats(
+  autoRefresh = true, 
+  refreshInterval = REFRESH_INTERVALS.STATS
+) {
   const [stats, setStats] = useState<InstagramStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

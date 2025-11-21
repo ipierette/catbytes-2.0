@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { Instagram, Send, CheckCircle, XCircle, Image as ImageIcon } from 'lucide-react'
-import { InstagramPost } from '../_hooks/useInstagramPosts'
+import type { InstagramPost } from '@/lib/instagram'
+import { getNicheDisplay, formatDate, getStatusEmoji } from '@/lib/instagram'
+import { useState } from 'react'
 
 interface PostPreviewModalProps {
   post: InstagramPost | null
@@ -11,29 +13,6 @@ interface PostPreviewModalProps {
   onPublishNow: () => void
 }
 
-const nicheConfig: Record<string, { name: string; color: string; icon: string }> = {
-  'Escritórios de Advocacia': { name: 'Advocacia', color: 'bg-blue-500 text-white', icon: '⚖️' },
-  'Clínicas Médicas': { name: 'Medicina', color: 'bg-red-500 text-white', icon: '🏥' },
-  'E-commerce': { name: 'E-commerce', color: 'bg-purple-500 text-white', icon: '🛒' },
-  'Restaurantes': { name: 'Gastronomia', color: 'bg-orange-500 text-white', icon: '🍽️' },
-  'Academias': { name: 'Fitness', color: 'bg-green-500 text-white', icon: '💪' },
-  'Salões de Beleza': { name: 'Beleza', color: 'bg-pink-500 text-white', icon: '💇' },
-  'Consultórios Odontológicos': { name: 'Odontologia', color: 'bg-cyan-500 text-white', icon: '🦷' },
-  'Contabilidade': { name: 'Contábil', color: 'bg-yellow-600 text-white', icon: '💰' },
-  'Imobiliárias': { name: 'Imóveis', color: 'bg-indigo-500 text-white', icon: '🏠' },
-  'Oficinas Mecânicas': { name: 'Automotivo', color: 'bg-gray-700 text-white', icon: '🔧' },
-  'advogados': { name: 'Advocacia', color: 'bg-blue-500 text-white', icon: '⚖️' },
-  'medicos': { name: 'Medicina', color: 'bg-red-500 text-white', icon: '🏥' },
-  'terapeutas': { name: 'Terapia', color: 'bg-purple-500 text-white', icon: '🧘' },
-  'nutricionistas': { name: 'Nutrição', color: 'bg-green-500 text-white', icon: '🥗' }
-}
-
-const getNicheDisplay = (nicho: string) => {
-  const config = nicheConfig[nicho]
-  if (config) return config
-  return { name: nicho, color: 'bg-slate-500 text-white', icon: '💼' }
-}
-
 export function PostPreviewModal({
   post,
   isPublishing = false,
@@ -42,7 +21,12 @@ export function PostPreviewModal({
   onReject,
   onPublishNow
 }: PostPreviewModalProps) {
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const [imageError, setImageError] = useState(false)
+
   if (!post) return null
+
+  const nicheDisplay = getNicheDisplay(post.nicho)
 
   return (
     <div
@@ -50,70 +34,94 @@ export function PostPreviewModal({
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-900 rounded-lg max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row"
+        className="bg-white dark:bg-gray-900 rounded-lg max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Imagem */}
-        <div className="md:w-3/5 bg-black flex items-center justify-center">
-          {post.image_url ? (
-            <img
-              src={post.image_url}
-              alt={post.titulo}
-              className="w-full h-auto max-h-[90vh] object-contain"
-              onError={(e) => {
-                console.error('Erro ao carregar imagem:', post.image_url)
-                e.currentTarget.src = '/images/placeholder-instagram.png'
-                e.currentTarget.alt = 'Imagem não disponível'
-              }}
-            />
-          ) : (
+        {/* Imagem com lazy loading e skeleton */}
+        <div className="md:w-3/5 bg-black flex items-center justify-center relative">
+          {!imageLoaded && !imageError && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+            </div>
+          )}
+          
+          {imageError ? (
             <div className="flex flex-col items-center justify-center text-white p-8">
               <ImageIcon className="h-16 w-16 mb-4 opacity-50" />
               <p className="text-sm opacity-75">Imagem não disponível</p>
             </div>
+          ) : (
+            <img
+              src={post.image_url}
+              alt={post.titulo}
+              className={`w-full h-auto max-h-[90vh] object-contain transition-opacity duration-300 ${
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              loading="lazy"
+              onLoad={() => setImageLoaded(true)}
+              onError={(e) => {
+                console.error('Erro ao carregar imagem:', post.image_url)
+                setImageError(true)
+              }}
+            />
           )}
         </div>
 
         {/* Caption e ações */}
         <div className="md:w-2/5 flex flex-col max-h-[90vh]">
-          <div className="p-4 border-b flex items-center justify-between">
+          {/* Header */}
+          <div className="p-4 border-b flex items-center justify-between bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
             <div className="flex items-center gap-2">
-              <Instagram className="h-5 w-5" />
+              <Instagram className="h-5 w-5 text-pink-600" />
               <span className="font-semibold">Preview do Post</span>
             </div>
-            {(() => {
-              const display = getNicheDisplay(post.nicho)
-              return (
-                <span className={`text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg ${display.color} flex items-center gap-1`}>
-                  <span>{display.icon}</span>
-                  <span>{display.name}</span>
-                </span>
-              )
-            })()}
+            <span className={`text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg ${nicheDisplay.color} flex items-center gap-1`}>
+              <span>{nicheDisplay.icon}</span>
+              <span>{nicheDisplay.name}</span>
+            </span>
           </div>
 
+          {/* Conteúdo */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <div>
               <h3 className="font-bold text-lg mb-2">{post.titulo}</h3>
               <p className="text-sm font-semibold text-primary mb-3">{post.texto_imagem}</p>
-              <p className="text-sm whitespace-pre-wrap">{post.caption}</p>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">{post.caption}</p>
             </div>
 
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p>Gerado em: {new Date(post.created_at).toLocaleString('pt-BR')}</p>
+            {/* Metadados */}
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-xs space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Status:</span>
+                <span>{getStatusEmoji(post.status)} {post.status}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">Criado:</span>
+                <span>{formatDate(post.created_at)}</span>
+              </div>
               {post.scheduled_for && (
-                <p>Agendado para: {new Date(post.scheduled_for).toLocaleString('pt-BR')}</p>
+                <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                  <span className="font-semibold">📅 Agendado:</span>
+                  <span>{formatDate(post.scheduled_for)}</span>
+                </div>
               )}
               {post.published_at && (
-                <p>Publicado em: {new Date(post.published_at).toLocaleString('pt-BR')}</p>
+                <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                  <span className="font-semibold">✅ Publicado:</span>
+                  <span>{formatDate(post.published_at)}</span>
+                </div>
               )}
               {post.error_message && (
-                <p className="text-red-600">Erro: {post.error_message}</p>
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                  <span className="font-semibold">⚠️ Erro:</span>
+                  <span className="break-words">{post.error_message}</span>
+                </div>
               )}
             </div>
           </div>
 
-          <div className="p-4 border-t flex flex-wrap gap-3">
+          {/* Ações */}
+          <div className="p-4 border-t flex flex-wrap gap-3 bg-gray-50 dark:bg-gray-800">
             <Button
               variant="secondary"
               className="gap-2 flex-1 min-w-[140px]"
@@ -124,8 +132,9 @@ export function PostPreviewModal({
               {isPublishing ? 'Publicando...' : '🚀 Publicar'}
             </Button>
             <Button
-              className="flex-1 gap-2 min-w-[140px]"
+              className="flex-1 gap-2 min-w-[140px] bg-green-600 hover:bg-green-700"
               onClick={onApprove}
+              disabled={isPublishing}
             >
               <CheckCircle className="h-4 w-4" />
               Aprovar
@@ -134,6 +143,7 @@ export function PostPreviewModal({
               variant="destructive"
               className="gap-2 min-w-[120px]"
               onClick={onReject}
+              disabled={isPublishing}
             >
               <XCircle className="h-4 w-4" />
               Rejeitar

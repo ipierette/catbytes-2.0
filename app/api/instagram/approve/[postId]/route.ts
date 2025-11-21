@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { instagramDB, supabaseAdmin } from '@/lib/instagram-db'
+import { calculateNextPublicationDate, formatDate } from '@/lib/instagram'
 
 export async function POST(
   request: NextRequest,
@@ -74,13 +75,7 @@ export async function POST(
     }
 
     // Formatar mensagem de sucesso
-    const formattedDate = scheduledDate.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+    const formattedDate = formatDate(scheduledDate)
 
     return NextResponse.json({
       success: true,
@@ -95,30 +90,4 @@ export async function POST(
       error: 'Erro interno do servidor'
     }, { status: 500 })
   }
-}
-
-// Calcular próxima data de publicação (seg, qua, sex, dom às 13:00 BRT)
-function calculateNextPublicationDate(fromDate: Date): Date {
-  const publicationDays = new Set([1, 3, 5, 0]) // Segunda, Quarta, Sexta, Domingo
-  const publicationHour = 13 // 13:00 BRT
-  
-  const result = new Date(fromDate)
-  result.setHours(publicationHour, 0, 0, 0)
-  
-  // Se já passou das 13:00 hoje, começar do próximo dia
-  if (fromDate.getHours() >= publicationHour) {
-    result.setDate(result.getDate() + 1)
-  }
-  
-  // Encontrar o próximo dia de publicação
-  let daysChecked = 0
-  while (daysChecked < 7) {
-    if (publicationDays.has(result.getDay())) {
-      return result
-    }
-    result.setDate(result.getDate() + 1)
-    daysChecked++
-  }
-  
-  return result
 }

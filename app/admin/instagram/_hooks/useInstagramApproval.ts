@@ -1,18 +1,7 @@
 import { useState, useCallback } from 'react'
+import type { ApprovalResult, BulkApprovalResult } from '@/lib/instagram'
 
-export interface ApprovalResult {
-  success: boolean
-  message?: string
-  error?: string
-  scheduledFor?: string
-}
-
-export interface BulkApprovalResult {
-  total: number
-  successful: number
-  failed: number
-  errors: string[]
-}
+export type { ApprovalResult, BulkApprovalResult } from '@/lib/instagram'
 
 export function useInstagramApproval() {
   const [approving, setApproving] = useState(false)

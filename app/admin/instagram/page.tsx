@@ -11,14 +11,14 @@ import { InstagramEditModal } from '@/components/instagram/instagram-edit-modal'
 import { DALLEConfigModal } from '@/components/instagram/dalle-config-modal'
 import { TextOnlyModal } from '@/components/instagram/text-only-modal'
 import { ScheduleInstagramModal } from '@/components/instagram/schedule-instagram-modal'
+import type { InstagramPost, PostStatus } from '@/lib/instagram'
 
 // Hooks modulares
 import {
   useInstagramPosts,
   useInstagramStats,
   useInstagramApproval,
-  useInstagramSettings,
-  type InstagramPost
+  useInstagramSettings
 } from './_hooks'
 
 // Componentes modulares
@@ -31,7 +31,7 @@ import {
 
 export default function InstagramAdminPage() {
   // Estados de UI
-  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'published' | 'failed'>('all')
+  const [filterStatus, setFilterStatus] = useState<'all' | PostStatus>('all')
   const [selectedPost, setSelectedPost] = useState<InstagramPost | null>(null)
   const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set())
   const [bulkMode, setBulkMode] = useState(false)

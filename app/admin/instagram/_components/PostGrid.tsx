@@ -1,5 +1,5 @@
 import { Instagram } from 'lucide-react'
-import { InstagramPost } from '../_hooks/useInstagramPosts'
+import type { InstagramPost } from '@/lib/instagram'
 import { PostCard } from './PostCard'
 
 interface PostGridProps {

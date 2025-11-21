@@ -1,29 +1,19 @@
 import { useState, useEffect, useCallback } from 'react'
+import type { 
+  InstagramPost, 
+  UseInstagramPostsOptions,
+  PostUpdateData 
+} from '@/lib/instagram'
+import { REFRESH_INTERVALS } from '@/lib/instagram'
 
-export interface InstagramPost {
-  id: string
-  created_at: string
-  nicho: string
-  titulo: string
-  texto_imagem: string
-  caption: string
-  image_url: string
-  instagram_post_id?: string
-  status: 'pending' | 'approved' | 'rejected' | 'published' | 'failed'
-  error_message?: string
-  scheduled_for?: string
-  approved_at?: string
-  published_at?: string
-}
-
-export interface UseInstagramPostsOptions {
-  status?: 'all' | 'pending' | 'approved' | 'published' | 'failed'
-  autoRefresh?: boolean
-  refreshInterval?: number
-}
+export type { InstagramPost } from '@/lib/instagram'
 
 export function useInstagramPosts(options: UseInstagramPostsOptions = {}) {
-  const { status = 'all', autoRefresh = false, refreshInterval = 30000 } = options
+  const { 
+    status = 'all', 
+    autoRefresh = false, 
+    refreshInterval = REFRESH_INTERVALS.POSTS 
+  } = options
 
   const [posts, setPosts] = useState<InstagramPost[]>([])
   const [loading, setLoading] = useState(true)
@@ -57,7 +47,7 @@ export function useInstagramPosts(options: UseInstagramPostsOptions = {}) {
 
   const updatePost = useCallback(async (
     postId: string, 
-    updates: Partial<InstagramPost>
+    updates: PostUpdateData
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await fetch(`/api/instagram/posts/${postId}`, {

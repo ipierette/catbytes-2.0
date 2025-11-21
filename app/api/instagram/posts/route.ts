@@ -2,12 +2,30 @@ import { NextRequest, NextResponse } from 'next/server'
 import { instagramDB } from '@/lib/instagram-db'
 import { verifyAdminCookie } from '@/lib/api-security'
 import { supabaseAdmin } from '@/lib/supabase'
+import { PAGINATION, POST_STATUS } from '@/lib/instagram'
 
 if (!supabaseAdmin) {
   throw new Error('supabaseAdmin not configured - missing SUPABASE_SERVICE_ROLE_KEY')
 }
 
 const supabase = supabaseAdmin
+
+// Campos essenciais para listagem de posts (otimização de performance)
+const POST_LIST_FIELDS = `
+  id,
+  created_at,
+  nicho,
+  titulo,
+  texto_imagem,
+  caption,
+  image_url,
+  instagram_post_id,
+  status,
+  error_message,
+  scheduled_for,
+  approved_at,
+  published_at
+`
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,15 +35,18 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams
-    const page = parseInt(searchParams.get('page') || '1')
-    const pageSize = parseInt(searchParams.get('pageSize') || '20')
-    const status = searchParams.get('status') // pending, approved, published, etc.
+    const page = parseInt(searchParams.get('page') || String(PAGINATION.DEFAULT_PAGE))
+    const pageSize = Math.min(
+      parseInt(searchParams.get('pageSize') || String(PAGINATION.DEFAULT_PAGE_SIZE)),
+      PAGINATION.MAX_PAGE_SIZE
+    )
+    const status = searchParams.get('status')
 
     // Se filtrar por status específico
     if (status) {
       const { data, error } = await supabase
         .from('instagram_posts')
-        .select('*')
+        .select(POST_LIST_FIELDS)
         .eq('status', status)
         .order('created_at', { ascending: false })
 

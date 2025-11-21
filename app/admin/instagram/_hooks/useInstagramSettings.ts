@@ -1,10 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
+import type { InstagramSettings } from '@/lib/instagram'
+import { REFRESH_INTERVALS } from '@/lib/instagram'
 
-export interface InstagramSettings {
-  autoGenerationEnabled: boolean
-  lastGenerationRun?: string
-  nextScheduledRun?: string
-}
+export type { InstagramSettings } from '@/lib/instagram'
 
 export function useInstagramSettings() {
   const [settings, setSettings] = useState<InstagramSettings | null>(null)

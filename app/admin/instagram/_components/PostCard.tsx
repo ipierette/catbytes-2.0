@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Edit, CheckCircle, XCircle, Calendar } from 'lucide-react'
-import { InstagramPost } from '../_hooks/useInstagramPosts'
+import type { InstagramPost } from '@/lib/instagram'
+import { getNicheDisplay, formatDateCompact } from '@/lib/instagram'
 
 interface PostCardProps {
   post: InstagramPost
@@ -12,30 +13,6 @@ interface PostCardProps {
   onEdit?: () => void
   onApprove?: () => void
   onReject?: () => void
-}
-
-const nicheConfig: Record<string, { name: string; color: string; icon: string }> = {
-  'Escritórios de Advocacia': { name: 'Advocacia', color: 'bg-blue-500 text-white', icon: '⚖️' },
-  'Clínicas Médicas': { name: 'Medicina', color: 'bg-red-500 text-white', icon: '🏥' },
-  'E-commerce': { name: 'E-commerce', color: 'bg-purple-500 text-white', icon: '🛒' },
-  'Restaurantes': { name: 'Gastronomia', color: 'bg-orange-500 text-white', icon: '🍽️' },
-  'Academias': { name: 'Fitness', color: 'bg-green-500 text-white', icon: '💪' },
-  'Salões de Beleza': { name: 'Beleza', color: 'bg-pink-500 text-white', icon: '💇' },
-  'Consultórios Odontológicos': { name: 'Odontologia', color: 'bg-cyan-500 text-white', icon: '🦷' },
-  'Contabilidade': { name: 'Contábil', color: 'bg-yellow-600 text-white', icon: '💰' },
-  'Imobiliárias': { name: 'Imóveis', color: 'bg-indigo-500 text-white', icon: '🏠' },
-  'Oficinas Mecânicas': { name: 'Automotivo', color: 'bg-gray-700 text-white', icon: '🔧' },
-  'advogados': { name: 'Advocacia', color: 'bg-blue-500 text-white', icon: '⚖️' },
-  'medicos': { name: 'Medicina', color: 'bg-red-500 text-white', icon: '🏥' },
-  'terapeutas': { name: 'Terapia', color: 'bg-purple-500 text-white', icon: '🧘' },
-  'nutricionistas': { name: 'Nutrição', color: 'bg-green-500 text-white', icon: '🥗' }
-}
-
-const getNicheDisplay = (nicho: string) => {
-  const config = nicheConfig[nicho]
-  if (config) return config
-  // Fallback para nichos não mapeados
-  return { name: nicho, color: 'bg-slate-500 text-white', icon: '💼' }
 }
 
 export function PostCard({
@@ -107,14 +84,7 @@ export function PostCard({
         {post.scheduled_for && post.status === 'approved' && (
           <div className="mt-2 flex items-center gap-1 text-xs text-blue-600">
             <Calendar className="h-3 w-3" />
-            <span>
-              {new Date(post.scheduled_for).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'short',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-            </span>
+            <span>{formatDateCompact(post.scheduled_for)}</span>
           </div>
         )}
         
@@ -122,14 +92,7 @@ export function PostCard({
         {post.published_at && post.status === 'published' && (
           <div className="mt-2 flex items-center gap-1 text-xs text-green-600">
             <CheckCircle className="h-3 w-3" />
-            <span>
-              Publicado em {new Date(post.published_at).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'short',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-            </span>
+            <span>Publicado em {formatDateCompact(post.published_at)}</span>
           </div>
         )}
 

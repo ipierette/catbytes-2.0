@@ -1,11 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Clock, Calendar, CheckCircle, XCircle, TrendingUp } from 'lucide-react'
-import { InstagramStats } from '../_hooks/useInstagramStats'
+import type { InstagramStats, PostStatus } from '@/lib/instagram'
 
 interface StatsGridProps {
   stats: InstagramStats | null
-  filterStatus?: 'all' | 'pending' | 'approved' | 'published' | 'failed'
-  onFilterChange?: (status: 'all' | 'pending' | 'approved' | 'published' | 'failed') => void
+  filterStatus?: 'all' | PostStatus
+  onFilterChange?: (status: 'all' | PostStatus) => void
 }
 
 export function StatsGrid({ stats, filterStatus = 'all', onFilterChange }: StatsGridProps) {

@@ -53,7 +53,70 @@ export async function needsMoreTopics(
 }
 
 /**
- * Gera novos tópicos usando IA
+ * Calcula similaridade entre duas strings usando múltiplos métodos
+ */
+function calculateSimilarity(str1: string, str2: string): number {
+  // Método 1: Jaccard similarity (palavras)
+  const words1 = new Set(str1.split(/\s+/))
+  const words2 = new Set(str2.split(/\s+/))
+  const intersection = new Set([...words1].filter(x => words2.has(x)))
+  const union = new Set([...words1, ...words2])
+  const jaccardScore = intersection.size / union.size
+
+  // Método 2: Substring comum mais longa
+  const lcs = longestCommonSubstring(str1, str2)
+  const lcsScore = lcs / Math.max(str1.length, str2.length)
+
+  // Método 3: Levenshtein distance normalizada
+  const levenScore = 1 - (levenshteinDistance(str1, str2) / Math.max(str1.length, str2.length))
+
+  // Média ponderada (Jaccard tem mais peso)
+  return (jaccardScore * 0.5) + (lcsScore * 0.25) + (levenScore * 0.25)
+}
+
+function longestCommonSubstring(str1: string, str2: string): number {
+  const m = str1.length
+  const n = str2.length
+  let max = 0
+  const dp: number[][] = Array(m + 1).fill(0).map(() => Array(n + 1).fill(0))
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1] + 1
+        max = Math.max(max, dp[i][j])
+      }
+    }
+  }
+  return max
+}
+
+function levenshteinDistance(str1: string, str2: string): number {
+  const m = str1.length
+  const n = str2.length
+  const dp: number[][] = Array(m + 1).fill(0).map(() => Array(n + 1).fill(0))
+
+  for (let i = 0; i <= m; i++) dp[i][0] = i
+  for (let j = 0; j <= n; j++) dp[0][j] = j
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1]
+      } else {
+        dp[i][j] = 1 + Math.min(
+          dp[i - 1][j],
+          dp[i][j - 1],
+          dp[i - 1][j - 1]
+        )
+      }
+    }
+  }
+  return dp[m][n]
+}
+
+/**
+ * Gera novos tópicos usando IA com validação de similaridade
  */
 export async function generateNewTopics(
   category: BlogTheme,
@@ -61,6 +124,24 @@ export async function generateNewTopics(
 ): Promise<TopicGenerationResult> {
   
   const existingTopics = BLOG_TOPICS[category]
+  
+  // Buscar tópicos já usados no banco (para validação adicional)
+  let usedTopicsFromDB: string[] = []
+  if (supabaseAdmin) {
+    try {
+      const { data: usedTopics } = await supabaseAdmin
+        .from('topic_usage_history')
+        .select('topic_text')
+        .eq('category', category)
+      
+      usedTopicsFromDB = usedTopics?.map(t => t.topic_text) || []
+    } catch (error) {
+      console.warn('[Topic Generator] Aviso: não foi possível buscar tópicos usados do DB:', error)
+    }
+  }
+
+  // Combinar tópicos existentes do código + usados do DB
+  const allExistingTopics = Array.from(new Set([...existingTopics, ...usedTopicsFromDB]))
   
   const categoryDescriptions: Record<BlogTheme, string> = {
     'Automação e Negócios': 'automação empresarial, produtividade, ferramentas no-code/low-code, chatbots, sistemas de gestão, marketing automation, vendas online',
@@ -73,12 +154,12 @@ export async function generateNewTopics(
 
 CONTEXTO:
 - Categoria: "${category}"
-- Tópicos já existentes: ${existingTopics.length}
+- Tópicos já existentes: ${allExistingTopics.length}
 - Público: empreendedores, profissionais de tech, entusiastas de tecnologia e negócios
 
-TÓPICOS EXISTENTES (NÃO REPETIR):
-${existingTopics.slice(0, 50).join('\n')}
-...e mais ${existingTopics.length - 50} tópicos
+TÓPICOS EXISTENTES (NÃO REPETIR nem criar similares):
+${allExistingTopics.slice(0, 100).join('\n')}
+${allExistingTopics.length > 100 ? `...e mais ${allExistingTopics.length - 100} tópicos` : ''}
 
 TAREFA:
 Gere ${count} NOVOS tópicos de artigos que:
@@ -128,11 +209,62 @@ NÃO inclua numeração, NÃO inclua explicações, APENAS o array JSON.`
 
     const generatedTopics: string[] = JSON.parse(jsonMatch[0])
     
-    console.log(`[Topic Generator] ✓ ${generatedTopics.length} tópicos gerados com sucesso`)
+    console.log(`[Topic Generator] ✓ ${generatedTopics.length} tópicos gerados pela IA`)
+
+    // VALIDAÇÃO DE SIMILARIDADE
+    const validatedTopics: string[] = []
+    const duplicates: string[] = []
+    const similar: Array<{ new: string; existing: string; similarity: number }> = []
+    const threshold = 0.75 // 75% de similaridade
+
+    for (const newTopic of generatedTopics) {
+      const newTopicLower = newTopic.toLowerCase().trim()
+
+      // Verificar duplicata exata
+      if (allExistingTopics.some(existing => 
+        existing.toLowerCase().trim() === newTopicLower
+      )) {
+        duplicates.push(newTopic)
+        continue
+      }
+
+      // Verificar similaridade
+      let isSimilar = false
+      for (const existing of allExistingTopics) {
+        const similarity = calculateSimilarity(newTopicLower, existing.toLowerCase())
+        if (similarity > threshold) {
+          isSimilar = true
+          similar.push({ new: newTopic, existing, similarity })
+          break
+        }
+      }
+
+      if (!isSimilar) {
+        validatedTopics.push(newTopic)
+        // Adicionar à lista de existentes para validar próximos
+        allExistingTopics.push(newTopic)
+      }
+    }
+
+    console.log(`[Topic Generator] 📊 Validação:`)
+    console.log(`  - Gerados: ${generatedTopics.length}`)
+    console.log(`  - ✅ Validados: ${validatedTopics.length}`)
+    console.log(`  - 🔴 Duplicatas: ${duplicates.length}`)
+    console.log(`  - 🟡 Similares: ${similar.length}`)
+
+    if (duplicates.length > 0) {
+      console.log(`[Topic Generator] Duplicatas filtradas:`, duplicates.slice(0, 3))
+    }
+    if (similar.length > 0) {
+      console.log(`[Topic Generator] Similares filtrados (primeiros 3):`)
+      similar.slice(0, 3).forEach(s => {
+        console.log(`  - "${s.new}" similar a "${s.existing}" (${Math.round(s.similarity * 100)}%)`)
+      })
+    }
 
     return {
-      generated: generatedTopics,
-      total: generatedTopics.length,
+      generated: validatedTopics,
+      total: validatedTopics.length,
       category
     }
 
