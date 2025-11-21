@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { AlertCircle, CheckCircle } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { AlertCircle, CheckCircle, BarChart3, Zap, Clock, FileText } from 'lucide-react'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { useDashboardStats } from './_hooks/useDashboardStats'
@@ -18,6 +20,7 @@ import CronMonitor from '@/components/admin/CronMonitor'
 import BatchTopicGenerator from '@/components/admin/BatchTopicGenerator'
 
 export default function DashboardPage() {
+  const [activeTab, setActiveTab] = useState('overview')
   const { stats, loading, error, isCached, lastUpdate, reload } = useDashboardStats()
   const { sendReport, sendingReport, message } = useReports()
 
@@ -53,7 +56,7 @@ export default function DashboardPage() {
   return (
     <AdminGuard>
       <AdminLayoutWrapper title="Dashboard Principal" description="Painel de controle da mega automação">
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Header */}
           <DashboardHeader
             isCached={isCached}
@@ -74,36 +77,60 @@ export default function DashboardPage() {
             </Alert>
           )}
 
-          {/* Main Stats Cards */}
-          <StatsCards stats={stats} formatNextExecution={formatNextExecution} />
+          {/* Tabs Navigation */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+              <TabsTrigger value="overview" className="gap-2">
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden sm:inline">Visão Geral</span>
+              </TabsTrigger>
+              <TabsTrigger value="automation" className="gap-2">
+                <Zap className="h-4 w-4" />
+                <span className="hidden sm:inline">Automação</span>
+              </TabsTrigger>
+              <TabsTrigger value="monitoring" className="gap-2">
+                <Clock className="h-4 w-4" />
+                <span className="hidden sm:inline">Monitoramento</span>
+              </TabsTrigger>
+              <TabsTrigger value="reports" className="gap-2">
+                <FileText className="h-4 w-4" />
+                <span className="hidden sm:inline">Relatórios</span>
+              </TabsTrigger>
+            </TabsList>
 
-          {/* System Overview - Ação Necessária e Analytics */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <ActionRequiredCard />
-            <WeeklyCostAnalyticsCard />
-          </div>
+            {/* Tab: Visão Geral */}
+            <TabsContent value="overview" className="space-y-6">
+              <StatsCards stats={stats} formatNextExecution={formatNextExecution} />
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ActionRequiredCard />
+                <WeeklyCostAnalyticsCard />
+              </div>
+            </TabsContent>
 
-          {/* Automation Status */}
-          <AutomationStatusCard stats={stats.automation} />
+            {/* Tab: Automação */}
+            <TabsContent value="automation" className="space-y-6">
+              <AutomationStatusCard stats={stats.automation} />
+              
+              <div>
+                <h2 className="text-2xl font-bold mb-4">📊 Pool de Tópicos</h2>
+                <BatchTopicGenerator />
+              </div>
+            </TabsContent>
 
-          {/* Topics Pool Monitor */}
-          <div className="border-t pt-8">
-            <h2 className="text-2xl font-bold mb-6">📊 Pool de Tópicos</h2>
-            
-            {/* Batch Topic Generator */}
-            <div className="mb-8">
-              <BatchTopicGenerator />
-            </div>
-          </div>
+            {/* Tab: Monitoramento */}
+            <TabsContent value="monitoring" className="space-y-6">
+              <div>
+                <h2 className="text-2xl font-bold mb-4">⏰ Cron Jobs</h2>
+                <CronMonitor />
+              </div>
+            </TabsContent>
 
-          {/* Cron Monitoring */}
-          <div className="border-t pt-8">
-            <h2 className="text-2xl font-bold mb-6">⏰ Monitoramento de Cron Jobs</h2>
-            <CronMonitor />
-          </div>
-
-          {/* Reports */}
-          <ReportsCard onSendReport={sendReport} sendingReport={sendingReport} />
+            {/* Tab: Relatórios */}
+            <TabsContent value="reports" className="space-y-6">
+              <ReportsCard onSendReport={sendReport} sendingReport={sendingReport} />
+            </TabsContent>
+          </Tabs>
         </div>
       </AdminLayoutWrapper>
     </AdminGuard>

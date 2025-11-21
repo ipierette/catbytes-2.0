@@ -546,7 +546,7 @@ export default function TopicsManagementPage() {
                     <TableRow key={topic.id}>
                       <TableCell className="font-medium max-w-md">
                         {topic.topic}
-                        {topic.tags.length > 0 && (
+                        {topic.tags && topic.tags.length > 0 && (
                           <div className="flex gap-1 mt-1">
                             {topic.tags.slice(0, 3).map((tag) => (
                               <Badge key={tag} variant="outline" className="text-xs">
