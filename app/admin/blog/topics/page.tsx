@@ -26,8 +26,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Plus, Trash2, Edit, Search, RefreshCw, BarChart3 } from 'lucide-react'
+import { Loader2, Plus, Trash2, Edit, Search, RefreshCw, BarChart3, Clock, Link2, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 
 const CATEGORIES = [
@@ -273,73 +279,106 @@ export default function TopicsManagementPage() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      {loadingStats ? (
-        <div className="flex justify-center p-8">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      ) : stats && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.general.map((stat) => (
-            <Card key={stat.category}>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {stat.category}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-1">
-                  <div className="text-2xl font-bold">{stat.total_topics}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {stat.available_topics} disponíveis • {stat.never_used} nunca usados
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Média de usos: {stat.avg_times_used.toFixed(1)}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      <Tabs defaultValue="dashboard" className="w-full">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="dashboard">
+            <BarChart3 className="mr-2 h-4 w-4" />
+            Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="manage">
+            <Edit className="mr-2 h-4 w-4" />
+            Gerenciar
+          </TabsTrigger>
+          <TabsTrigger value="history">
+            <Clock className="mr-2 h-4 w-4" />
+            Histórico
+          </TabsTrigger>
+          <TabsTrigger value="similarity">
+            <Link2 className="mr-2 h-4 w-4" />
+            Similaridades
+          </TabsTrigger>
+          <TabsTrigger value="bulk">
+            <Plus className="mr-2 h-4 w-4" />
+            Criar Lote
+          </TabsTrigger>
+          <TabsTrigger value="cron">
+            <Zap className="mr-2 h-4 w-4" />
+            CronJobs
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Recent Usage Stats */}
-      {stats && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Estatísticas de Uso (últimos 30 dias)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-4">
-              <div>
-                <div className="text-sm font-medium text-muted-foreground">Total Gerado</div>
-                <div className="text-2xl font-bold">{stats.recentUsage.total}</div>
-              </div>
-              <div>
-                <div className="text-sm font-medium text-muted-foreground">Taxa de Sucesso</div>
-                <div className="text-2xl font-bold text-green-600">
-                  {stats.recentUsage.successRate}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm font-medium text-muted-foreground">Tempo Médio</div>
-                <div className="text-2xl font-bold">
-                  {(stats.recentUsage.avgGenerationTimeMs / 1000).toFixed(1)}s
-                </div>
-              </div>
-              <div>
-                <div className="text-sm font-medium text-muted-foreground">Bloqueios Ativos</div>
-                <div className="text-2xl font-bold">{stats.similarityBlocks}</div>
-              </div>
+        {/* Dashboard Tab */}
+        <TabsContent value="dashboard" className="space-y-4">
+              {/* Stats Cards */}
+          {loadingStats ? (
+            <div className="flex justify-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin" />
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : stats && (
+            <>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {stats.general.map((stat) => (
+                  <Card key={stat.category}>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        {stat.category}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-1">
+                        <div className="text-2xl font-bold">{stat.total_topics}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {stat.available_topics} disponíveis • {stat.never_used} nunca usados
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Média de usos: {stat.avg_times_used.toFixed(1)}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
 
-      {/* Filters */}
+              {/* Recent Usage Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Estatísticas de Uso (últimos 30 dias)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-4 md:grid-cols-4">
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground">Total Gerado</div>
+                      <div className="text-2xl font-bold">{stats.recentUsage.total}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground">Taxa de Sucesso</div>
+                      <div className="text-2xl font-bold text-green-600">
+                        {stats.recentUsage.successRate}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground">Tempo Médio</div>
+                      <div className="text-2xl font-bold">
+                        {(stats.recentUsage.avgGenerationTimeMs / 1000).toFixed(1)}s
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground">Bloqueios Ativos</div>
+                      <div className="text-2xl font-bold">{stats.similarityBlocks}</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
+
+        {/* Manage Tab */}
+        <TabsContent value="manage" className="space-y-4">
+          {/* Filters */}
       <Card>
         <CardHeader>
           <CardTitle>Filtros</CardTitle>
@@ -527,6 +566,79 @@ export default function TopicsManagementPage() {
           )}
         </CardContent>
       </Card>
+        </TabsContent>
+
+        {/* History Tab */}
+        <TabsContent value="history" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Histórico de Uso (últimos 30 dias)</CardTitle>
+              <CardDescription>
+                Tópicos utilizados recentemente com status de geração
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Em desenvolvimento... Mostrará histórico detalhado de uso dos tópicos.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Similarity Tab */}
+        <TabsContent value="similarity" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Bloqueios de Similaridade</CardTitle>
+              <CardDescription>
+                Pares de tópicos similares (threshold {'>'}= 0.85)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Total de bloqueios ativos: {stats?.similarityBlocks || 0}
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Em desenvolvimento... Mostrará lista de tópicos bloqueados por similaridade.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Bulk Create Tab */}
+        <TabsContent value="bulk" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Criar Tópicos em Lote</CardTitle>
+              <CardDescription>
+                Gere múltiplos tópicos de uma vez com embeddings automáticos
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Em desenvolvimento... Permitirá criar múltiplos tópicos via textarea.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* CronJobs Tab */}
+        <TabsContent value="cron" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>CronJobs e Custos de API</CardTitle>
+              <CardDescription>
+                Execuções automáticas e custos de embeddings OpenAI
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Em desenvolvimento... Mostrará schedule de execução e custos de API.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Modal */}
       {showModal && (
