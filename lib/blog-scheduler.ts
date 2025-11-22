@@ -6,6 +6,77 @@
 import type { BlogTheme } from '@/types/blog'
 
 /**
+ * Gera prompt variado para imagens de Cuidados Felinos
+ * Inclui diferentes raças, poses, atmosferas e estilos
+ */
+function generateFelineCarePrompt(): string {
+  // Raças variadas (com peso maior para raças mais populares)
+  const breeds = [
+    'vira-lata rajado', 'vira-lata laranja', 'vira-lata pretinho', 'vira-lata tricolor',
+    'gato siamês', 'gato persa fofo', 'maine coon majestoso', 'gato british shorthair',
+    'gato ragdoll', 'gato scottish fold', 'gato bengal', 'gato munchkin',
+    'vários gatinhos sphynx', 'grupo de gatinhos sphynx brincando', '3-4 gatinhos sphynx fofos juntos', // Sphynx sempre em quantidade
+  ]
+  
+  // Situações e poses
+  const situations = [
+    // Engraçadas e fofas
+    'com o rosto colado na câmera como se estivesse espiando curiosamente',
+    'fazendo cara de "peguei você no flagra" com olhos arregalados',
+    'com expressão de surpresa enquanto segura um brinquedinho',
+    'dormindo em posição super engraçada e desajeitada',
+    'tentando alcançar um petisco com a patinha esticada',
+    'encolhido dentro de uma caixinha minúscula demais',
+    'fazendo aquela pose clássica de esticadão no sol',
+    'correndo atrás de um laser pointer com olhos focados',
+    'olhando para cima com olhos grandes e cara de inocente',
+    
+    // Atmosferas e cenários temáticos
+    'brincando com brinquedos seguros em ambiente enriquecido',
+    'sendo escovado delicadamente por mãos humanas',
+    'em consulta veterinária sendo examinado com carinho',
+    'tomando banho com cara de poucos amigos (mas seguro)',
+    'explorando arranhador vertical novo',
+    'relaxando em caminha aquecida super confortável',
+    'comendo petisco saudável com expressão feliz',
+    
+    // Close-ups artísticos
+    'close-up extremo das patinhas fofas e almofadinhas',
+    'close-up dos bigodes e focinho adorável',
+    'close-up dos olhos grandes e expressivos',
+    'vista de cima (bird\'s eye view) olhando para a câmera',
+  ]
+  
+  // Atmosferas e iluminação
+  const atmospheres = [
+    'iluminação natural suave e calorosa',
+    'luz dourada da tarde entrando pela janela',
+    'ambiente aconchegante com luz difusa',
+    'cenário super felpudo e fofinho',
+    'atmosfera pacífica e reconfortante',
+  ]
+  
+  // Estilos visuais
+  const visualStyles = [
+    'fotografia ultra-realista profissional',
+    'estilo pet photography de alta qualidade',
+    'composição fofa e cativante',
+    'estética heartwarming e adorável',
+  ]
+  
+  // Seleciona aleatoriamente
+  const breed = breeds[Math.floor(Math.random() * breeds.length)]
+  const situation = situations[Math.floor(Math.random() * situations.length)]
+  const atmosphere = atmospheres[Math.floor(Math.random() * atmospheres.length)]
+  const visualStyle = visualStyles[Math.floor(Math.random() * visualStyles.length)]
+  
+  // Cores sempre consistentes
+  const colors = 'Cores: Tons quentes, pastéis suaves, iluminação natural dourada'
+  
+  return `${breed} ${situation}. Ambiente seguro e confortável para gatos, ${atmosphere}. ${visualStyle}. ${colors}. Estilo: Super fofo, realista, pet-friendly, cativante. IMPORTANTE: Máxima fofura e realismo, perfeito para artigo sobre cuidados felinos.`
+}
+
+/**
  * Determina o tema do blog baseado no dia atual
  */
 export function getCurrentBlogTheme(): BlogTheme {
@@ -46,7 +117,7 @@ export function generateImagePromptForTheme(theme: BlogTheme, title: string): st
     
     'Programação e IA': `Cena amigável e acessível de programação perfeita para iniciantes. Laptop moderno mostrando editor de código colorido com HTML/CSS/JavaScript, ícones úteis e ilustrações ao redor (como lâmpadas, marcações, elementos amigáveis para iniciantes). Espaço de trabalho convidativo com plantas, caneca de café e materiais de aprendizado. Cores: Vibrantes mas não excessivas - acentos azul, verde, roxo. Estilo: Acolhedor, educacional, moderno, acessível. Sem pessoas na imagem.`,
     
-    'Cuidados Felinos': `Cena aconchegante e calorosa com gatinhos adoráveis em ambiente seguro e confortável. Iluminação natural suave, plantas, móveis confortáveis para gatos, brinquedos. Atmosfera pacífica e reconfortante. Um ou dois gatinhos fofos (raças diferentes) em foco, mostrando-os felizes e saudáveis. Cores: Tons quentes, pastéis, iluminação natural. Estilo: Reconfortante, acolhedor, estética pet-friendly.`,
+    'Cuidados Felinos': generateFelineCarePrompt(),
     
     'Tech Aleatório': `Espaço de trabalho tech moderno e versátil. Múltiplos monitores exibindo código, dashboards de SEO, ferramentas de marketing digital, tutoriais e tendências tech mais recentes. Setup profissional com iluminação LED ambiente (cores vibrantes). Gadgets tech, frameworks modernos, interfaces de ferramentas populares visíveis. Cores: Azul, verde, roxo, laranja, estética tech diversificada. Estilo: Contemporâneo, educacional, inovador, dinâmico. Sem pessoas na imagem.`
   }
