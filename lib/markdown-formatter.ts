@@ -5,7 +5,17 @@
 
 export function formatMarkdown(markdown: string): string {
   // ========== PROCESS SHORTCODES FIRST ==========
-  // [MANIFESTO] -> Card bonito com link para o manifesto
+  // [MANIFESTO:Texto customizado] -> Botão inline customizado
+  markdown = markdown.replace(/\[MANIFESTO:([^\]]+)\]/gi, (match, text) => {
+    return `<a href="/pt-BR/manifesto-ia" class="inline-flex items-center gap-1.5 mx-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 text-sm" target="_blank">🤖 ${text.trim()}</a>`
+  })
+
+  // [NEWSLETTER:Texto customizado] -> Botão inline customizado
+  markdown = markdown.replace(/\[NEWSLETTER:([^\]]+)\]/gi, (match, text) => {
+    return `<a href="/pt-BR/newsletter-inscricao" class="inline-flex items-center gap-1.5 mx-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-105 text-sm" target="_blank">📧 ${text.trim()}</a>`
+  })
+
+  // [MANIFESTO] -> Card bonito com link para o manifesto (versão sem texto customizado)
   markdown = markdown.replace(/\[MANIFESTO\]/gi, `
 <div class="my-8 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-2 border-purple-500/30 rounded-xl">
   <div class="flex items-start gap-4">
@@ -24,7 +34,7 @@ export function formatMarkdown(markdown: string): string {
 </div>
 `)
 
-  // [NEWSLETTER] -> Card bonito com link para newsletter
+  // [NEWSLETTER] -> Card bonito com link para newsletter (versão sem texto customizado)
   markdown = markdown.replace(/\[NEWSLETTER\]/gi, `
 <div class="my-8 p-6 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-2 border-blue-500/30 rounded-xl">
   <div class="flex items-start gap-4">
@@ -146,8 +156,8 @@ export function formatMarkdown(markdown: string): string {
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-catbytes-purple dark:text-catbytes-pink hover:text-catbytes-blue dark:hover:text-catbytes-purple underline font-medium">$1</a>')
     
     // Lists com melhor estilo
-    .replace(/^\* (.*$)/gim, '<li class="text-gray-700 dark:text-gray-300 mb-2">$1</li>')
-    .replace(/^- (.*$)/gim, '<li class="text-gray-700 dark:text-gray-300 mb-2">$1</li>')
+    .replace(/^\* (.*$)/gim, '<li class="text-gray-700 dark:text-gray-300 mb-1">$1</li>')
+    .replace(/^- (.*$)/gim, '<li class="text-gray-700 dark:text-gray-300 mb-1">$1</li>')
     
     // Quebras de parágrafo
     .replace(/\n\n/g, '</p><p class="text-gray-700 dark:text-gray-300 mb-6">')
@@ -156,7 +166,7 @@ export function formatMarkdown(markdown: string): string {
     .replace(/\n/g, '<br>')
 
   // Wrap lists with styled containers
-  html = html.replace(/(<li[^>]*>[\s\S]*?<\/li>)/g, '<ul class="list-disc pl-6 mb-6 space-y-2">$1</ul>')
+  html = html.replace(/(<li[^>]*>[\s\S]*?<\/li>)/g, '<ul class="list-disc pl-6 mb-6 space-y-1">$1</ul>')
 
   // Wrap em parágrafos se não começar com header ou lista
   if (!html.startsWith('<h') && !html.startsWith('<ul') && !html.startsWith('<div')) {

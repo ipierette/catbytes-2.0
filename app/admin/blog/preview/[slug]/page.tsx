@@ -25,6 +25,7 @@ export default function AdminBlogPreviewPage() {
   const [editedExcerpt, setEditedExcerpt] = useState('')
   const [editedContent, setEditedContent] = useState('')
   const [editedHighlight, setEditedHighlight] = useState('')
+  const [editedFaq, setEditedFaq] = useState('')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -51,8 +52,17 @@ export default function AdminBlogPreviewPage() {
         // Initialize edit fields
         setEditedTitle(data.title || '')
         setEditedExcerpt(data.excerpt || '')
-        setEditedContent(data.content || '')
         setEditedHighlight(data.highlight || '')
+        
+        // Separate FAQ from main content
+        const faqMatch = data.content?.match(/## Perguntas Frequentes[\s\S]*$/i)
+        if (faqMatch) {
+          setEditedFaq(faqMatch[0])
+          setEditedContent(data.content.replace(/## Perguntas Frequentes[\s\S]*$/i, '').trim())
+        } else {
+          setEditedContent(data.content || '')
+          setEditedFaq('')
+        }
       } catch (err) {
         console.error('Error fetching preview:', err)
         setError('Erro ao carregar preview do post')
@@ -80,7 +90,7 @@ export default function AdminBlogPreviewPage() {
         body: JSON.stringify({
           title: editedTitle,
           excerpt: editedExcerpt,
-          content: editedContent,
+          content: editedFaq ? `${editedContent}\n\n${editedFaq}` : editedContent,
           highlight: editedHighlight,
           coverImageUrl: post.cover_image_url,
           tags: post.tags,
@@ -112,8 +122,17 @@ export default function AdminBlogPreviewPage() {
     if (!post) return
     setEditedTitle(post.title)
     setEditedExcerpt(post.excerpt || '')
-    setEditedContent(post.content)
     setEditedHighlight(post.highlight || '')
+    
+    // Separate FAQ from main content
+    const faqMatch = post.content?.match(/## Perguntas Frequentes[\s\S]*$/i)
+    if (faqMatch) {
+      setEditedFaq(faqMatch[0])
+      setEditedContent(post.content.replace(/## Perguntas Frequentes[\s\S]*$/i, '').trim())
+    } else {
+      setEditedContent(post.content)
+      setEditedFaq('')
+    }
     setIsEditing(false)
   }
 
@@ -149,7 +168,8 @@ export default function AdminBlogPreviewPage() {
 
   const locale = post.locale === 'en-US' ? enUS : ptBR
   const formattedDate = format(new Date(post.created_at), 'dd MMMM yyyy', { locale })
-  const formattedContent = formatMarkdownContent(isEditing ? editedContent : post.content)
+  const fullContent = isEditing ? (editedFaq ? `${editedContent}\n\n${editedFaq}` : editedContent) : post.content
+  const formattedContent = formatMarkdownContent(fullContent)
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -306,7 +326,7 @@ export default function AdminBlogPreviewPage() {
                 Conteúdo (Markdown)
               </div>
               <div className="text-xs text-slate-500">
-                💡 Use <code className="bg-slate-800 px-2 py-1 rounded">[MANIFESTO]</code> ou <code className="bg-slate-800 px-2 py-1 rounded">[NEWSLETTER]</code> para inserir links destacados
+                💡 Use <code className="bg-slate-800 px-2 py-1 rounded">[MANIFESTO:texto]</code> ou <code className="bg-slate-800 px-2 py-1 rounded">[NEWSLETTER:texto]</code> para botões inline
               </div>
             </div>
             <textarea
@@ -317,14 +337,43 @@ export default function AdminBlogPreviewPage() {
               placeholder="Escreva o conteúdo em Markdown...
 
 Dica: Use os códigos especiais para criar CTAs bonitos:
-- [MANIFESTO] - Cria um card com link para o Manifesto da IA
-- [NEWSLETTER] - Cria um card com link para inscrição na Newsletter"
+- [NEWSLETTER:Cadastre-se aqui] - Botão inline para newsletter
+- [MANIFESTO:Conheça nossa visão] - Botão inline para manifesto
+- [NEWSLETTER] - Card completo de newsletter
+- [MANIFESTO] - Card completo do manifesto"
             />
             <p className="text-xs text-slate-500 mt-2">
-              Preview do conteúdo formatado abaixo ↓
+              FAQ editado separadamente abaixo ↓
             </p>
           </div>
         ) : null}
+
+        {/* FAQ Editor */}
+        {isEditing && (
+          <div className="mb-8">
+            <div className="text-sm font-medium text-slate-300 mb-2">
+              FAQ (Perguntas Frequentes) - Opcional
+            </div>
+            <textarea
+              value={editedFaq}
+              onChange={(e) => setEditedFaq(e.target.value)}
+              rows={10}
+              className="w-full bg-slate-900 text-slate-300 border border-slate-700 rounded-lg px-4 py-3 font-mono text-sm focus:outline-none focus:border-blue-500 resize-y"
+              placeholder="## Perguntas Frequentes
+
+### 1. Pergunta aqui?
+
+Resposta aqui.
+
+### 2. Outra pergunta?
+
+Outra resposta."
+            />
+            <p className="text-xs text-slate-500 mt-2">
+              Preview completo (conteúdo + FAQ) abaixo ↓
+            </p>
+          </div>
+        )}
         
         <div 
           className="prose prose-invert prose-slate max-w-none
