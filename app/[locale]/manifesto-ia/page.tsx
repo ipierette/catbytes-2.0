@@ -7,8 +7,9 @@ export const metadata: Metadata = {
   description: 'Nossa visão sobre o uso ético e responsável da inteligência artificial para transformar negócios e empoderar pessoas.',
 }
 
-export default function AIManifestoPage({ params }: { params: { locale: string } }) {
-  const isEnglish = params.locale === 'en-US'
+export default async function AIManifestoPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  const isEnglish = locale === 'en-US'
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
@@ -16,7 +17,7 @@ export default function AIManifestoPage({ params }: { params: { locale: string }
       <header className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <Link 
-            href={`/${params.locale}`}
+            href={`/${locale}`}
             className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -190,13 +191,13 @@ export default function AIManifestoPage({ params }: { params: { locale: string }
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href={`/${params.locale}/newsletter-inscricao`}
+                href={`/${locale}/newsletter-inscricao`}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
                 {isEnglish ? 'Subscribe to Newsletter' : 'Inscrever na Newsletter'}
               </Link>
               <Link
-                href={`/${params.locale}/contato`}
+                href={`/${locale}/contato`}
                 className="px-6 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors font-medium"
               >
                 {isEnglish ? 'Get in Touch' : 'Entre em Contato'}

@@ -9,8 +9,9 @@ export const metadata: Metadata = {
   description: 'Receba artigos exclusivos sobre IA, automação e tecnologia direto no seu email.',
 }
 
-export default function NewsletterSignupPage({ params }: { params: { locale: string } }) {
-  const isEnglish = params.locale === 'en-US'
+export default async function NewsletterSignupPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  const isEnglish = locale === 'en-US'
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
@@ -18,7 +19,7 @@ export default function NewsletterSignupPage({ params }: { params: { locale: str
       <header className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <Link 
-            href={`/${params.locale}`}
+            href={`/${locale}`}
             className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -93,7 +94,7 @@ export default function NewsletterSignupPage({ params }: { params: { locale: str
             </div>
 
             {/* Newsletter Form */}
-            <NewsletterSignup locale={params.locale} />
+            <NewsletterSignup locale={locale} />
           </div>
         </div>
 
