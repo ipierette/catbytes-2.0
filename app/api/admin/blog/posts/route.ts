@@ -49,8 +49,17 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Map status field from 'published' boolean to status string
+    // Map status field - use database status if available, otherwise calculate from published/scheduled_at
     const postsWithStatus = posts.map(post => {
+      // Se já tem status no banco, use ele (prioritário)
+      if (post.status && ['draft', 'published', 'scheduled', 'archived'].includes(post.status)) {
+        return {
+          ...post,
+          status: post.status
+        }
+      }
+      
+      // Fallback: calcular status baseado em campos antigos (para compatibilidade)
       let status = 'draft'
       if (post.published) {
         status = 'published'
