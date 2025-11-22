@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Plus, FileText, ChevronDown, Sparkles, Clock, CheckCircle, Calendar, Eye, TrendingUp, Trash2, CalendarX } from 'lucide-react'
+import { Plus, FileText, ChevronDown, Sparkles, Clock, CheckCircle, Calendar, Eye, TrendingUp, Trash2, CalendarX, Edit } from 'lucide-react'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { StructuredPostEditor } from '@/components/blog/structured-post-editor'
