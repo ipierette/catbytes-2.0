@@ -29,24 +29,9 @@ export default async function NewsletterSignupPage({ params }: { params: Promise
       </header>
 
       {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 py-16">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Left: Newsletter Image */}
-          <div className="relative">
-            <div className="relative w-full aspect-square rounded-2xl overflow-hidden shadow-2xl">
-              <Image
-                src="/newsletter.webp"
-                alt={isEnglish ? 'Newsletter Subscription' : 'Inscrição Newsletter'}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl" />
-            <div className="absolute -top-6 -left-6 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl" />
-          </div>
-
-          {/* Right: Form */}
+      <main className="max-w-2xl mx-auto px-4 py-16">
+        <div className="space-y-8">
+          {/* Header */}
           <div>
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-4">
@@ -98,16 +83,17 @@ export default async function NewsletterSignupPage({ params }: { params: Promise
           </div>
         </div>
 
-        {/* Additional Info */}
-        <div className="mt-16 p-6 bg-slate-800/50 border border-slate-700 rounded-xl">
-          <h2 className="text-xl font-bold text-white mb-3">
-            {isEnglish ? 'What to expect?' : 'O que esperar?'}
-          </h2>
-          <p className="text-slate-400 leading-relaxed">
-            {isEnglish 
-              ? 'Each week, we share carefully curated content covering the latest in artificial intelligence, business automation, web development, and digital innovation. Our goal is to help you stay ahead in the tech world with practical, actionable insights.'
-              : 'Toda semana, compartilhamos conteúdo cuidadosamente selecionado sobre as últimas novidades em inteligência artificial, automação de negócios, desenvolvimento web e inovação digital. Nosso objetivo é ajudá-lo a se manter à frente no mundo tech com insights práticos e acionáveis.'}
-          </p>
+          {/* Additional Info */}
+          <div className="p-6 bg-slate-800/50 border border-slate-700 rounded-xl">
+            <h2 className="text-xl font-bold text-white mb-3">
+              {isEnglish ? 'What to expect?' : 'O que esperar?'}
+            </h2>
+            <p className="text-slate-400 leading-relaxed">
+              {isEnglish 
+                ? 'Each week, we share carefully curated content covering the latest in artificial intelligence, business automation, web development, and digital innovation. Our goal is to help you stay ahead in the tech world with practical, actionable insights.'
+                : 'Toda semana, compartilhamos conteúdo cuidadosamente selecionado sobre as últimas novidades em inteligência artificial, automação de negócios, desenvolvimento web e inovação digital. Nosso objetivo é ajudá-lo a se manter à frente no mundo tech com insights práticos e acionáveis.'}
+            </p>
+          </div>
         </div>
       </main>
 
