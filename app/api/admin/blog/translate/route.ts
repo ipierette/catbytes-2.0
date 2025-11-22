@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db, generateSlug, supabaseAdmin } from '@/lib/supabase'
 import { translatePostToEnglish } from '@/lib/translation-service'
+import { verifyAdminCookie } from '@/lib/api-security'
 import type { BlogPostInsert } from '@/types/blog'
 
 export const runtime = 'nodejs'
@@ -12,15 +13,10 @@ export const maxDuration = 300 // 5 minutes for translation
  */
 export async function POST(request: NextRequest) {
   try {
-    // Verify admin access
-    const adminKey = request.headers.get('x-admin-key')
-    const isAdmin = adminKey === process.env.NEXT_PUBLIC_ADMIN_API_KEY
-    
-    if (!isAdmin) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized - Admin access required' },
-        { status: 401 }
-      )
+    // Verify admin access using cookie (same as other admin endpoints)
+    const authCheck = await verifyAdminCookie(request)
+    if (!authCheck.valid) {
+      return authCheck.error!
     }
 
     const { postId } = await request.json()

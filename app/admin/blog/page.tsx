@@ -155,7 +155,6 @@ export default function BlogAdminPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
         },
         body: JSON.stringify({ postId })
       })
