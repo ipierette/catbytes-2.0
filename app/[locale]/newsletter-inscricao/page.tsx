@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, Mail, CheckCircle2 } from 'lucide-react'
-import { NewsletterForm } from '@/components/newsletter/newsletter-form'
+import { NewsletterSignup } from '@/components/newsletter/newsletter-signup'
 
 export const metadata: Metadata = {
   title: 'Inscreva-se na Newsletter | CatBytes',
@@ -93,7 +93,7 @@ export default function NewsletterSignupPage({ params }: { params: { locale: str
             </div>
 
             {/* Newsletter Form */}
-            <NewsletterForm locale={params.locale} />
+            <NewsletterSignup locale={params.locale} />
           </div>
         </div>
 
