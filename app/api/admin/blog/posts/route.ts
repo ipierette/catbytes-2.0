@@ -170,7 +170,18 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, excerpt, content, tags, coverImageUrl, contentImages, highlight } = body
+    const { 
+      title, 
+      excerpt, 
+      content, 
+      tags, 
+      coverImageUrl, 
+      contentImages, 
+      highlight,
+      scheduleForLater,
+      scheduledDate,
+      scheduledTime
+    } = body
 
     console.log('[Manual Post] Request body:', JSON.stringify(body, null, 2))
     console.log('[Manual Post] Extracted fields:', { 
@@ -213,6 +224,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Determinar status e data de agendamento
+    let status: 'draft' | 'published' | 'scheduled' = 'published'
+    let scheduledAt: string | null = null
+    let published = true
+
+    if (scheduleForLater && scheduledDate && scheduledTime) {
+      status = 'scheduled'
+      scheduledAt = `${scheduledDate}T${scheduledTime}:00Z`
+      published = false
+      console.log('[Manual Post] Scheduling for:', scheduledAt)
+    }
+
     // Create post data
     const postData = {
       title,
@@ -226,7 +249,9 @@ export async function POST(request: NextRequest) {
       category: 'Manual',
       author: 'Izadora Cury Pierette',
       locale: 'pt-BR',
-      published: true,
+      published,
+      status,
+      scheduled_at: scheduledAt,
       ai_model: 'manual',
       generation_prompt: 'Manual post created by admin',
       seo_title: title,
@@ -252,6 +277,16 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[Manual Post] Post created successfully:', post.id)
+
+    // Se estiver agendado, apenas retornar sucesso
+    if (status === 'scheduled') {
+      console.log('[Manual Post] ✅ Post agendado para:', scheduledAt)
+      return NextResponse.json({ 
+        success: true, 
+        post,
+        message: `Post agendado para ${scheduledDate} às ${scheduledTime}. Newsletter e posts sociais serão enviados automaticamente no horário agendado.`
+      })
+    }
 
     // ====== ENVIAR NEWSLETTER ======
     if (resend && post.published) {

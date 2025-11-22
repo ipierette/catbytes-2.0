@@ -1,23 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { FileText, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Plus, Edit, Trash2, Eye, Clock, ChevronDown, Sparkles, CalendarX } from 'lucide-react'
-import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
-import { AdminGuard } from '@/components/admin/admin-guard'
-import { toast } from 'sonner'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   Dialog,
   DialogContent,
@@ -26,293 +12,121 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Label } from '@/components/ui/label'
+import { Plus, FileText, ChevronDown, Edit, Sparkles, Clock, CheckCircle, Calendar, Eye, TrendingUp, Trash2 } from 'lucide-react'
+import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
+import { AdminGuard } from '@/components/admin/admin-guard'
 import { StructuredPostEditor } from '@/components/blog/structured-post-editor'
-import type { BlogPost as BlogPostType } from '@/types/blog'
+import { BlogPost } from '@/types/blog'
 
-interface BlogPost {
-  id: string
-  created_at: string
-  title: string
-  slug: string
-  excerpt: string
-  content: string
-  status: 'draft' | 'published' | 'scheduled'
-  published_at?: string
-  scheduled_for?: string
-  author: string
-  tags: string[]
-  image_url?: string
-}
+// Components
+import { BlogStats } from '@/components/admin/blog/BlogStats'
+import { BlogFilters } from '@/components/admin/blog/BlogFilters'
+import { ThemeSystemCard } from '@/components/admin/blog/ThemeSystemCard'
+import { PostList } from '@/components/admin/blog/PostList'
+import { GenerateMenu } from '@/components/admin/blog/GenerateMenu'
+import { CustomThemeDialog } from '@/components/admin/blog/CustomThemeDialog'
 
-interface Stats {
-  total: number
-  published: number
-  drafts: number
-  scheduled: number
-}
+// Hooks
+import { useBlogPosts } from '@/hooks/use-blog-posts'
+import { useBlogFilters } from '@/hooks/use-blog-filters'
+import { useBlogGeneration } from '@/hooks/use-blog-generation'
+import { toast } from 'sonner'
 
 export default function BlogAdminPage() {
-  const [posts, setPosts] = useState<BlogPost[]>([])
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [generating, setGenerating] = useState(false)
-  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null)
   const [selectedPosts, setSelectedPosts] = useState<string[]>([])
-  const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft' | 'scheduled'>('all')
-  const [filterPeriod, setFilterPeriod] = useState<string>('')
-  // Removed message state - using toast instead
-  const [previewModalOpen, setPreviewModalOpen] = useState(false)
-  const [previewTheme, setPreviewTheme] = useState('')
-  const [generatedPost, setGeneratedPost] = useState<any>(null)
-  const [textOnlyMode, setTextOnlyMode] = useState(false)
   const [customThemeDialogOpen, setCustomThemeDialogOpen] = useState(false)
-  const [customTheme, setCustomTheme] = useState('')
   const [structuredEditorOpen, setStructuredEditorOpen] = useState(false)
-  const [skippingToday, setSkippingToday] = useState(false)
-  const [todaySkipped, setTodaySkipped] = useState(false)
-  // Removed message state - using toast instead
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null)
 
-  // Filtrar posts baseado no status e período selecionados
-  const filteredPosts = posts.filter(p => {
-    // Filtro de status
-    if (filterStatus !== 'all' && p.status !== filterStatus) {
-      return false
-    }
-    
-    // Filtro de período
-    if (filterPeriod) {
-      const postDate = new Date(p.created_at)
-      const now = new Date()
-      let dateFrom = new Date()
-      
-      switch (filterPeriod) {
-        case 'last7days':
-          dateFrom.setDate(now.getDate() - 7)
-          break
-        case 'last30days':
-          dateFrom.setDate(now.getDate() - 30)
-          break
-        case 'last3months':
-          dateFrom.setMonth(now.getMonth() - 3)
-          break
-        case 'last6months':
-          dateFrom.setMonth(now.getMonth() - 6)
-          break
-        case 'lastyear':
-          dateFrom.setFullYear(now.getFullYear() - 1)
-          break
-      }
-      
-      if (postDate < dateFrom) {
-        return false
-      }
-    }
-    
-    return true
-  })
+  // Custom hooks
+  const {
+    posts,
+    stats,
+    isLoading,
+    loadPosts,
+    deletePost,
+    bulkDelete,
+    duplicatePost,
+    togglePublish,
+  } = useBlogPosts()
 
+  const { statusFilter, periodFilter, filteredPosts, setStatusFilter, setPeriodFilter } =
+    useBlogFilters(posts)
+
+  const { isGenerating, generatePost, translatePost } = useBlogGeneration()
+
+  // Load posts on mount
   useEffect(() => {
-    loadData()
-  }, [])
+    loadPosts()
+  }, [loadPosts])
 
-  const loadData = async () => {
-    try {
-      setLoading(true)
-      
-      // Busca todos os posts do blog (incluindo não publicados)
-      // Precisa incluir credentials para passar o cookie de admin
-      const postsRes = await fetch('/api/admin/blog/posts', {
-        credentials: 'include'
-      })
-      
-      if (postsRes.ok) {
-        const data = await postsRes.json()
-        setPosts(data.posts || [])
-        
-        // Calcula estatísticas
-        const allPosts = data.posts || []
-        const stats = {
-          total: allPosts.length,
-          published: allPosts.filter((p: BlogPost) => p.status === 'published').length,
-          drafts: allPosts.filter((p: BlogPost) => p.status === 'draft').length,
-          scheduled: allPosts.filter((p: BlogPost) => p.status === 'scheduled').length
-        }
-        setStats(stats)
-      } else {
-        toast.error('Erro ao carregar posts. Verifique se está autenticado.')
-      }
-    } catch (error) {
-      console.error('Error loading blog data:', error)
-      toast.error('Erro ao carregar posts do blog')
-    } finally {
-      setLoading(false)
+  // Post selection handlers
+  const togglePostSelection = (id: string) => {
+    setSelectedPosts((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+    )
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedPosts.length === filteredPosts.length) {
+      setSelectedPosts([])
+    } else {
+      setSelectedPosts(filteredPosts.map((p) => p.id))
     }
   }
 
-  const handleGeneratePost = async (theme?: string) => {
-    if (generating) {
-      console.log('[Generate] Already generating, skipping duplicate call')
-      return
-    }
-
-    try {
-      setGenerating(true)
-      const modeText = textOnlyMode ? ' (Texto + Prompt)' : ''
-      const themeText = theme ? ` (${theme})` : ''
-      toast.loading(`Gerando e publicando artigo${themeText}${modeText}...`, { id: 'generate' })
-      
-      const response = await fetch('/api/blog/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          theme, 
-          textOnly: textOnlyMode,
-          // Removido generateOnly - agora publica direto
-        })
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        toast.success(`✅ Artigo "${data.post?.title}" publicado com sucesso!`, { id: 'generate' })
-        await loadData()
-      } else {
-        toast.error(data.error || 'Erro ao gerar artigo', { id: 'generate' })
-      }
-    } catch (error) {
-      console.error('[Generate] Error:', error)
-      toast.error('Erro ao gerar artigo', { id: 'generate' })
-    } finally {
-      setGenerating(false)
-    }
+  // Generation handlers
+  const handleGenerateByTheme = async (theme: string) => {
+    await generatePost(theme, loadPosts)
   }
 
-  const handleGenerateWithCustomTheme = async () => {
-    if (!customTheme.trim()) {
-      toast.error('Digite um tema para o artigo')
-      return
-    }
-    setCustomThemeDialogOpen(false)
-    await handleGeneratePost(customTheme)
-    setCustomTheme('')
+  const handleGenerateCustom = () => {
+    setCustomThemeDialogOpen(true)
   }
 
-  const handleSaveFromPreview = async (postData: any) => {
-    try {
-      toast.loading('Salvando artigo personalizado...', { id: 'save' })
-      
-      const response = await fetch('/api/blog/save-custom', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(postData)
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        toast.success(`Artigo "${data.post?.title}" salvo com sucesso!`, { id: 'save' })
-        setPreviewModalOpen(false)
-        await loadData()
-      } else {
-        toast.error(data.error || 'Erro ao salvar artigo', { id: 'save' })
-      }
-    } catch (error) {
-      toast.error('Erro ao salvar artigo', { id: 'save' })
-    }
+  const handleCustomThemeGenerate = async (theme: string) => {
+    await generatePost(theme, loadPosts)
   }
 
-  const handleTranslatePost = async (postId: string, title: string) => {
-    if (!confirm(`Traduzir "${title}" para inglês? Esta ação criará uma versão em inglês do post.`)) return
-
-    try {
-      toast.loading(`Traduzindo "${title}"...`, { id: 'translate' })
-
-      const response = await fetch('/api/blog/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId })
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        const slug = data.post?.slug || 'unknown'
-        toast.success(`✅ Post traduzido! Versão em inglês: /en-US/blog/${slug}`, { id: 'translate' })
-        await loadData() // Recarrega lista para mostrar nova tradução
-      } else {
-        toast.error(data.error || 'Erro ao traduzir post', { id: 'translate' })
-      }
-    } catch (error) {
-      console.error('Translation error:', error)
-      toast.error('Erro ao conectar com o servidor de tradução', { id: 'translate' })
-    }
+  const handleGenerateWithCustomTheme = () => {
+    setCustomThemeDialogOpen(true)
   }
 
-  const handleDeletePost = async (postId: string) => {
-    if (!confirm('Deseja realmente excluir este post?')) return
+  // Post action handlers
+  const handleEdit = (post: BlogPost) => {
+    setEditingPost(post)
+    setStructuredEditorOpen(true)
+  }
 
-    try {
-      const response = await fetch(`/api/admin/posts/${postId}`, {
-        method: 'DELETE'
-      })
-
-      if (response.ok) {
-        toast.success('Post excluído com sucesso')
-        await loadData()
-      } else {
-        toast.error('Erro ao excluir post')
-      }
-    } catch (error) {
-      toast.error('Erro ao excluir post')
+  const handleDelete = async (id: string) => {
+    if (confirm('Deseja realmente excluir este post?')) {
+      await deletePost(id)
     }
   }
 
   const handleBulkDelete = async () => {
     if (selectedPosts.length === 0) {
-      toast.error('Selecione pelo menos um post para deletar')
+      toast.error('Selecione pelo menos um post')
       return
     }
-
-    if (!confirm(`Tem certeza que deseja deletar ${selectedPosts.length} post(s)?`)) return
-
-    try {
-      setLoading(true)
-      toast.loading('Deletando posts...', { id: 'bulk-delete' })
-      
-      const deletePromises = selectedPosts.map(postId =>
-        fetch('/api/admin/blog/posts', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ id: postId })
-        })
-      )
-
-      await Promise.all(deletePromises)
-      
-      toast.success(`${selectedPosts.length} post(s) deletado(s) com sucesso!`, { id: 'bulk-delete' })
+    if (confirm(`Deseja excluir ${selectedPosts.length} post(s)?`)) {
+      await bulkDelete(selectedPosts)
       setSelectedPosts([])
-      await loadData()
-    } catch (error) {
-      toast.error('Erro ao deletar posts', { id: 'bulk-delete' })
-    } finally {
-      setLoading(false)
     }
   }
 
-  const togglePostSelection = (postId: string) => {
-    setSelectedPosts(prev => 
-      prev.includes(postId) 
-        ? prev.filter(id => id !== postId)
-        : [...prev, postId]
-    )
-  }
-
-  const toggleSelectAll = () => {
-    if (selectedPosts.length === posts.length) {
-      setSelectedPosts([])
-    } else {
-      setSelectedPosts(posts.map(p => p.id))
+  const handleTranslate = async (post: BlogPost) => {
+    if (confirm(`Traduzir "${post.title}" para outro idioma?`)) {
+      await translatePost(post.id, loadPosts)
     }
   }
 
@@ -342,59 +156,7 @@ export default function BlogAdminPage() {
     }
   }
 
-  const handleSkipToday = async () => {
-    try {
-      setSkippingToday(true)
-      const response = await fetch('/api/blog/skip-today', {
-        method: 'POST',
-        headers: {
-          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
-        }
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        setTodaySkipped(true)
-        toast.success(data.message)
-      } else {
-        toast.error(data.error || 'Erro ao pular geração de hoje')
-      }
-    } catch (error) {
-      console.error('Error skipping today:', error)
-      toast.error('Erro ao pular geração de hoje')
-    } finally {
-      setSkippingToday(false)
-    }
-  }
-
-  const handleCancelSkip = async () => {
-    try {
-      setSkippingToday(true)
-      const response = await fetch('/api/blog/skip-today', {
-        method: 'DELETE',
-        headers: {
-          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
-        }
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        setTodaySkipped(false)
-        toast.success(data.message)
-      } else {
-        toast.error(data.error || 'Erro ao cancelar skip')
-      }
-    } catch (error) {
-      console.error('Error canceling skip:', error)
-      toast.error('Erro ao cancelar skip')
-    } finally {
-      setSkippingToday(false)
-    }
-  }
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container mx-auto p-8">
         <div className="flex items-center justify-center min-h-[400px]">
@@ -424,23 +186,12 @@ export default function BlogAdminPage() {
           </div>
           <div className="flex flex-wrap gap-3 w-full md:w-auto">
             <Button
-              variant={todaySkipped ? "outline" : "destructive"}
-              size="lg"
-              className="gap-2 flex-1 md:flex-initial"
-              onClick={todaySkipped ? handleCancelSkip : handleSkipToday}
-              disabled={skippingToday}
-            >
-              <CalendarX className="h-4 w-4" />
-              {todaySkipped ? '🔄 Reativar Hoje' : '⏭️ Pular Hoje'}
-            </Button>
-            
-            <Button
               variant="default"
               size="lg"
               className="gap-2 flex-1 md:flex-initial bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               onClick={() => setStructuredEditorOpen(true)}
             >
-              ✨ Editor Manualrado (Recomendado)
+            Editor Manual
             </Button>
             
             <DropdownMenu>
@@ -456,7 +207,7 @@ export default function BlogAdminPage() {
                 <DropdownMenuSeparator />
                 
                 <DropdownMenuItem 
-                  onClick={() => handleGeneratePost('Automação e Negócios')}
+                  onClick={() => handleGenerateByTheme('Automação e Negócios')}
                   className="cursor-pointer"
                 >
                   <div className="flex flex-col">
@@ -466,7 +217,7 @@ export default function BlogAdminPage() {
                 </DropdownMenuItem>
                 
                 <DropdownMenuItem 
-                  onClick={() => handleGeneratePost('Programação e IA')}
+                  onClick={() => handleGenerateByTheme('Programação e IA')}
                   className="cursor-pointer"
                 >
                   <div className="flex flex-col">
@@ -476,7 +227,7 @@ export default function BlogAdminPage() {
                 </DropdownMenuItem>
                 
                 <DropdownMenuItem 
-                  onClick={() => handleGeneratePost('Cuidados Felinos')}
+                  onClick={() => handleGenerateByTheme('Cuidados Felinos')}
                   className="cursor-pointer"
                 >
                   <div className="flex flex-col">
@@ -486,7 +237,7 @@ export default function BlogAdminPage() {
                 </DropdownMenuItem>
                 
                 <DropdownMenuItem 
-                  onClick={() => handleGeneratePost('Tech Aleatório')}
+                  onClick={() => handleGenerateByTheme('Tech Aleatório')}
                   className="cursor-pointer"
                 >
                   <div className="flex flex-col">
@@ -510,7 +261,7 @@ export default function BlogAdminPage() {
                 <DropdownMenuSeparator />
                 
                 <DropdownMenuItem 
-                  onClick={() => handleGeneratePost()}
+                  onClick={() => handleGenerateByTheme('')}
                   className="cursor-pointer"
                 >
                   <div className="flex flex-col">
@@ -662,9 +413,9 @@ export default function BlogAdminPage() {
               {/* Status Filter */}
               <div className="flex gap-2 flex-wrap">
                 <button
-                  onClick={() => setFilterStatus('all')}
+                  onClick={() => setStatusFilter('all')}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    filterStatus === 'all'
+                    statusFilter === 'all'
                       ? 'bg-slate-600 text-white'
                       : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
                   }`}
@@ -672,9 +423,9 @@ export default function BlogAdminPage() {
                   Todos ({posts.length})
                 </button>
                 <button
-                  onClick={() => setFilterStatus('published')}
+                  onClick={() => setStatusFilter('published')}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    filterStatus === 'published'
+                    statusFilter === 'published'
                       ? 'bg-green-600 text-white'
                       : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
                   }`}
@@ -682,9 +433,9 @@ export default function BlogAdminPage() {
                   Publicados ({stats?.published || 0})
                 </button>
                 <button
-                  onClick={() => setFilterStatus('draft')}
+                  onClick={() => setStatusFilter('draft')}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    filterStatus === 'draft'
+                    statusFilter === 'draft'
                       ? 'bg-yellow-600 text-white'
                       : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
                   }`}
@@ -692,9 +443,9 @@ export default function BlogAdminPage() {
                   Rascunhos ({stats?.drafts || 0})
                 </button>
                 <button
-                  onClick={() => setFilterStatus('scheduled')}
+                  onClick={() => setStatusFilter('scheduled')}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    filterStatus === 'scheduled'
+                    statusFilter === 'scheduled'
                       ? 'bg-blue-600 text-white'
                       : 'bg-slate-700/50 text-slate-300 hover:bg-slate-700'
                   }`}
@@ -709,8 +460,8 @@ export default function BlogAdminPage() {
                   Filtrar por Período
                 </label>
                 <select
-                  value={filterPeriod}
-                  onChange={(e) => setFilterPeriod(e.target.value)}
+                  value={periodFilter}
+                  onChange={(e) => setPeriodFilter(e.target.value)}
                   className="px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-200 focus:border-blue-500 outline-none transition-colors"
                 >
                   <option value="">Todos os períodos</option>
@@ -723,13 +474,13 @@ export default function BlogAdminPage() {
               </div>
 
               {/* Filter Summary */}
-              {(filterStatus !== 'all' || filterPeriod) && (
+              {(statusFilter !== 'all' || periodFilter) && (
                 <div className="flex items-center gap-2 text-sm text-slate-400">
                   <span>Mostrando {filteredPosts.length} de {posts.length} posts</span>
                   <button
                     onClick={() => {
-                      setFilterStatus('all')
-                      setFilterPeriod('')
+                      setStatusFilter('all')
+                      setPeriodFilter('')
                     }}
                     className="text-blue-400 hover:text-blue-300 underline"
                   >
@@ -742,7 +493,7 @@ export default function BlogAdminPage() {
           <CardContent>
             {filteredPosts.length === 0 ? (
               <p className="text-slate-400 text-center py-8">
-                {filterStatus === 'all' && !filterPeriod
+                {statusFilter === 'all' && !periodFilter
                   ? 'Nenhum post encontrado. Gere o primeiro post!'
                   : `Nenhum post encontrado com os filtros selecionados.`
                 }
@@ -791,10 +542,10 @@ export default function BlogAdminPage() {
                               <span className="whitespace-nowrap">Por: {post.author}</span>
                               <span className="hidden md:inline">•</span>
                               <span className="whitespace-nowrap">Criado: {new Date(post.created_at).toLocaleDateString('pt-BR')}</span>
-                              {post.published_at && (
+                              {post.published && (
                                 <>
                                   <span className="hidden md:inline">•</span>
-                                  <span className="whitespace-nowrap">Publicado: {new Date(post.published_at).toLocaleDateString('pt-BR')}</span>
+                                  <span className="whitespace-nowrap">Atualizado: {new Date(post.updated_at).toLocaleDateString('pt-BR')}</span>
                                 </>
                               )}
                               <span className="hidden md:inline">•</span>

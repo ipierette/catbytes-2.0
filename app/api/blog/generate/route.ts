@@ -58,6 +58,45 @@ export async function POST(request: NextRequest) {
 
     console.log('[Generate] Environment validated successfully')
 
+    // Verificar se hoje está marcado para skip
+    const today = new Date().toISOString().split('T')[0]
+    const { data: skipData } = await supabaseAdmin
+      .from('blog_generation_skips')
+      .select('*')
+      .eq('skip_date', today)
+      .single()
+
+    if (skipData) {
+      console.log('[Generate] ⏭️ Today is marked for skip. Reason:', skipData.reason)
+      return NextResponse.json({
+        success: false,
+        skipped: true,
+        message: 'Geração automática pulada para hoje. Artigo manual deve ser criado.',
+        reason: skipData.reason
+      })
+    }
+
+    // Verificar se já existe post agendado para hoje
+    const todayStart = `${today}T00:00:00Z`
+    const todayEnd = `${today}T23:59:59Z`
+    const { data: scheduledPosts } = await supabaseAdmin
+      .from('blog_posts')
+      .select('id, title, scheduled_at')
+      .eq('status', 'scheduled')
+      .gte('scheduled_at', todayStart)
+      .lte('scheduled_at', todayEnd)
+      .is('deleted_at', null)
+
+    if (scheduledPosts && scheduledPosts.length > 0) {
+      console.log('[Generate] ⏰ Found scheduled post for today:', scheduledPosts[0].title)
+      return NextResponse.json({
+        success: false,
+        skipped: true,
+        message: `Já existe artigo agendado para hoje: "${scheduledPosts[0].title}". Geração automática interrompida.`,
+        scheduledPost: scheduledPosts[0]
+      })
+    }
+
     // Get request body (optional parameters)
     let body: any = {}
     try {

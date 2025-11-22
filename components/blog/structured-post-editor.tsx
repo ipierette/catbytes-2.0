@@ -40,6 +40,11 @@ export function StructuredPostEditor({ isOpen, onClose, onSave }: StructuredPost
   const [image2Url, setImage2Url] = useState('')
   const [image2Preview, setImage2Preview] = useState('')
   
+  // Agendamento
+  const [scheduleForLater, setScheduleForLater] = useState(false)
+  const [scheduledDate, setScheduledDate] = useState('')
+  const [scheduledTime, setScheduledTime] = useState('')
+  
   const [saving, setSaving] = useState(false)
 
   const addFaqItem = () => {
@@ -192,6 +197,9 @@ ${finalContent.trim()}${faqMarkdown}`
         coverImageUrl: coverImageUrl,
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
         highlight: highlight.trim(),
+        scheduleForLater,
+        scheduledDate: scheduleForLater ? scheduledDate : null,
+        scheduledTime: scheduleForLater ? scheduledTime : null,
       }
 
       console.log('[Structured Post Editor] Sending postData:', JSON.stringify(postData, null, 2))
@@ -226,6 +234,9 @@ ${finalContent.trim()}${faqMarkdown}`
       setImage1Preview('')
       setImage2Url('')
       setImage2Preview('')
+      setScheduleForLater(false)
+      setScheduledDate('')
+      setScheduledTime('')
       
       onSave()
       onClose()
@@ -243,7 +254,7 @@ ${finalContent.trim()}${faqMarkdown}`
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-500" />
-            Editor Estruturado de Artigos
+            Editor Manualrado de Artigos
           </DialogTitle>
           <DialogDescription>
             Preencha cada seção do template. O layout será aplicado automaticamente.
@@ -636,6 +647,60 @@ Resumo final e call-to-action..."
               </div>
             )}
           </div>
+
+          {/* SEÇÃO 8: Agendamento */}
+          <div className="border-l-4 border-orange-500 pl-4 space-y-4">
+            <h3 className="text-lg font-bold flex items-center gap-2">
+              📅 8. Agendamento de Publicação
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="scheduleForLater"
+                  checked={scheduleForLater}
+                  onChange={(e) => setScheduleForLater(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300"
+                />
+                <Label htmlFor="scheduleForLater" className="cursor-pointer">
+                  Agendar publicação para data e hora específicas
+                </Label>
+              </div>
+
+              {scheduleForLater && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="scheduledDate">Data de Publicação</Label>
+                    <Input
+                      type="date"
+                      id="scheduledDate"
+                      value={scheduledDate}
+                      onChange={(e) => setScheduledDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="scheduledTime">Horário de Publicação</Label>
+                    <Input
+                      type="time"
+                      id="scheduledTime"
+                      value={scheduledTime}
+                      onChange={(e) => setScheduledTime(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="col-span-2 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <p className="text-sm text-blue-800 dark:text-blue-300">
+                      ℹ️ Se a data coincidir com uma geração automática, o cron job será interrompido automaticamente.
+                      Newsletter e posts sociais serão enviados no horário agendado.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <DialogFooter className="border-t pt-4">
@@ -648,7 +713,7 @@ Resumo final e call-to-action..."
                 Cancelar
               </Button>
               <Button onClick={handleSave} disabled={saving} className="gap-2">
-                {saving ? 'Salvando...' : '✨ Publicar Artigo Estruturado'}
+                {saving ? 'Salvando...' : scheduleForLater ? '📅 Agendar Artigo' : '✨ Publicar Artigo Estruturado'}
               </Button>
             </div>
           </div>
