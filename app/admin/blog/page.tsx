@@ -763,7 +763,7 @@ export default function BlogAdminPage() {
                                 <>
                                   <span className="hidden md:inline">•</span>
                                   <span className="whitespace-nowrap text-blue-400 font-medium">
-                                    📅 Agendado: {new Date(post.scheduled_at).toLocaleDateString('pt-BR')} às {new Date(post.scheduled_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                    📅 Agendado: {new Date(post.scheduled_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })} às {new Date(post.scheduled_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' })}
                                   </span>
                                 </>
                               )}

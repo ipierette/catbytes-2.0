@@ -227,9 +227,10 @@ export async function PUT(request: NextRequest) {
       console.log('[Update Post] Updating as draft')
     } else if (scheduleForLater && scheduledDate && scheduledTime) {
       status = 'scheduled'
-      scheduledAt = `${scheduledDate}T${scheduledTime}:00Z`
+      // Salvar no horário de Brasília (UTC-3) sem conversão
+      scheduledAt = `${scheduledDate}T${scheduledTime}:00-03:00`
       published = false
-      console.log('[Update Post] Scheduling for:', scheduledAt)
+      console.log('[Update Post] Scheduling for (Brazil time):', scheduledAt)
     } else {
       status = 'published'
       published = true
@@ -385,9 +386,10 @@ export async function POST(request: NextRequest) {
     } else if (scheduleForLater && scheduledDate && scheduledTime) {
       // Agendar para data futura
       status = 'scheduled'
-      scheduledAt = `${scheduledDate}T${scheduledTime}:00Z`
+      // Salvar no horário de Brasília (UTC-3) sem conversão
+      scheduledAt = `${scheduledDate}T${scheduledTime}:00-03:00`
       published = false
-      console.log('[Manual Post] Scheduling for:', scheduledAt)
+      console.log('[Manual Post] Scheduling for (Brazil time):', scheduledAt)
     } else {
       // Publicar imediatamente
       status = 'published'

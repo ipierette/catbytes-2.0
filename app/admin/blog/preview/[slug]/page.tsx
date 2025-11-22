@@ -97,8 +97,8 @@ export default function AdminBlogPreviewPage() {
           category: post.category,
           saveAsDraft: post.status === 'draft',
           scheduleForLater: post.status === 'scheduled',
-          scheduledDate: post.scheduled_at ? new Date(post.scheduled_at).toISOString().split('T')[0] : null,
-          scheduledTime: post.scheduled_at ? new Date(post.scheduled_at).toTimeString().slice(0, 5) : null,
+          scheduledDate: post.scheduled_at ? post.scheduled_at.split('T')[0] : null,
+          scheduledTime: post.scheduled_at ? post.scheduled_at.split('T')[1]?.slice(0, 5) : null,
         }),
       })
 
