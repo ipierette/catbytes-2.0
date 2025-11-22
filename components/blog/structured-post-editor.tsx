@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,14 +9,16 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { Upload, X, Image as ImageIcon, Info, Sparkles, Plus, Minus, HelpCircle } from 'lucide-react'
 import Image from 'next/image'
+import type { BlogPost } from '@/types/blog'
 
 interface StructuredPostEditorProps {
   isOpen: boolean
   onClose: () => void
   onSave: () => void
+  editingPost?: BlogPost | null
 }
 
-export function StructuredPostEditor({ isOpen, onClose, onSave }: StructuredPostEditorProps) {
+export function StructuredPostEditor({ isOpen, onClose, onSave, editingPost }: StructuredPostEditorProps) {
   // Dados básicos
   const [title, setTitle] = useState('')
   const [excerpt, setExcerpt] = useState('')
@@ -49,6 +51,69 @@ export function StructuredPostEditor({ isOpen, onClose, onSave }: StructuredPost
   const [saveAsDraft, setSaveAsDraft] = useState(false)
   
   const [saving, setSaving] = useState(false)
+
+  // Preenche os campos quando estiver editando um post
+  useEffect(() => {
+    if (editingPost) {
+      setTitle(editingPost.title || '')
+      setExcerpt(editingPost.excerpt || '')
+      setCategory(editingPost.category || 'Desenvolvimento')
+      setTags(editingPost.tags?.join(', ') || '')
+      setHighlight(editingPost.highlight || '')
+      setCoverImageUrl(editingPost.cover_image_url || '')
+      setCoverImagePreview(editingPost.cover_image_url || '')
+      
+      // Parse do conteúdo em seções
+      const content = editingPost.content || ''
+      const sections = content.split(/\n## /)
+      
+      if (sections.length > 0) {
+        setIntroduction(sections[0].replace(/^## /, ''))
+      }
+      if (sections.length > 1) {
+        setMiddleContent(sections[1].replace(/^## /, ''))
+      }
+      if (sections.length > 2) {
+        setFinalContent(sections[2].replace(/^## /, ''))
+      }
+      
+      // Se tiver scheduled_at, preenche os campos de agendamento
+      if (editingPost.scheduled_at) {
+        const scheduledDate = new Date(editingPost.scheduled_at)
+        setScheduleForLater(true)
+        setScheduledDate(scheduledDate.toISOString().split('T')[0])
+        setScheduledTime(scheduledDate.toTimeString().slice(0, 5))
+      }
+      
+      // Define status baseado no post
+      setSaveAsDraft(editingPost.status === 'draft')
+    } else {
+      // Limpa os campos ao fechar/abrir novo
+      resetForm()
+    }
+  }, [editingPost, isOpen])
+
+  const resetForm = () => {
+    setTitle('')
+    setExcerpt('')
+    setCategory('Desenvolvimento')
+    setTags('')
+    setHighlight('')
+    setIntroduction('')
+    setMiddleContent('')
+    setFinalContent('')
+    setFaqItems([])
+    setCoverImageUrl('')
+    setCoverImagePreview('')
+    setImage1Url('')
+    setImage1Preview('')
+    setImage2Url('')
+    setImage2Preview('')
+    setScheduleForLater(false)
+    setScheduledDate('')
+    setScheduledTime('')
+    setSaveAsDraft(false)
+  }
 
   const addFaqItem = () => {
     setFaqItems(prev => [...prev, { question: '', answer: '' }])
@@ -208,8 +273,14 @@ ${finalContent.trim()}${faqMarkdown}`
 
       console.log('[Structured Post Editor] Sending postData:', JSON.stringify(postData, null, 2))
 
-      const saveRes = await fetch('/api/admin/blog/posts', {
-        method: 'POST',
+      // Se está editando, usa PUT, senão POST
+      const isEditing = !!editingPost
+      const url = isEditing 
+        ? `/api/admin/blog/posts?id=${editingPost.id}`
+        : '/api/admin/blog/posts'
+      
+      const saveRes = await fetch(url, {
+        method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(postData),
@@ -221,7 +292,9 @@ ${finalContent.trim()}${faqMarkdown}`
       }
 
       toast.success(
-        saveAsDraft 
+        isEditing
+          ? '✅ Artigo atualizado com sucesso!'
+          : saveAsDraft 
           ? '✅ Rascunho salvo! Você pode visualizá-lo e publicá-lo depois.' 
           : scheduleForLater
           ? '✅ Artigo agendado com sucesso!'
@@ -230,24 +303,7 @@ ${finalContent.trim()}${faqMarkdown}`
       )
       
       // Limpar formulário
-      setTitle('')
-      setExcerpt('')
-      setCategory('Desenvolvimento')
-      setTags('')
-      setHighlight('')
-      setIntroduction('')
-      setMiddleContent('')
-      setFinalContent('')
-      setFaqItems([])
-      setCoverImageUrl('')
-      setCoverImagePreview('')
-      setImage1Url('')
-      setImage1Preview('')
-      setImage2Url('')
-      setImage2Preview('')
-      setScheduleForLater(false)
-      setScheduledDate('')
-      setScheduledTime('')
+      resetForm()
       
       onSave()
       onClose()
@@ -265,10 +321,12 @@ ${finalContent.trim()}${faqMarkdown}`
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-500" />
-            Editor Manual de Artigos
+            {editingPost ? 'Editar Artigo' : 'Editor Manual de Artigos'}
           </DialogTitle>
           <DialogDescription>
-            Preencha cada seção do template. O layout será aplicado automaticamente.
+            {editingPost 
+              ? 'Faça as alterações necessárias no artigo.' 
+              : 'Preencha cada seção do template. O layout será aplicado automaticamente.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -783,7 +841,15 @@ Resumo final e call-to-action..."
                 Cancelar
               </Button>
               <Button onClick={handleSave} disabled={saving} className="gap-2">
-                {saving ? 'Salvando...' : saveAsDraft ? '💾 Salvar Rascunho' : scheduleForLater ? '📅 Agendar Artigo' : '✨ Publicar Agora'}
+                {saving 
+                  ? 'Salvando...' 
+                  : editingPost 
+                  ? '💾 Atualizar Artigo'
+                  : saveAsDraft 
+                  ? '💾 Salvar Rascunho' 
+                  : scheduleForLater 
+                  ? '📅 Agendar Artigo' 
+                  : '✨ Publicar Agora'}
               </Button>
             </div>
           </div>

@@ -159,6 +159,139 @@ export async function DELETE(request: NextRequest) {
 }
 
 // =====================================================
+// PUT /api/admin/blog/posts
+// Update an existing blog post - Admin only
+// =====================================================
+
+export async function PUT(request: NextRequest) {
+  try {
+    // Verify admin authentication
+    const adminVerification = await verifyAdminCookie(request)
+    if (!adminVerification.valid) {
+      return adminVerification.error || NextResponse.json(
+        { error: 'Unauthorized', message: 'Admin authentication required' },
+        { status: 401 }
+      )
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
+    // Get ID from query params
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Post ID required' },
+        { status: 400 }
+      )
+    }
+
+    const body = await request.json()
+    const { 
+      title, 
+      excerpt, 
+      content, 
+      tags, 
+      coverImageUrl, 
+      highlight,
+      category,
+      saveAsDraft,
+      scheduleForLater,
+      scheduledDate,
+      scheduledTime
+    } = body
+
+    console.log('[Update Post] Request body:', JSON.stringify(body, null, 2))
+
+    if (!title || !content || !coverImageUrl) {
+      return NextResponse.json(
+        { error: 'Title, content, and cover image are required' },
+        { status: 400 }
+      )
+    }
+
+    // Determinar status e data de agendamento
+    let status: 'draft' | 'published' | 'scheduled' = 'published'
+    let scheduledAt: string | null = null
+    let published = true
+
+    if (saveAsDraft) {
+      status = 'draft'
+      published = false
+      console.log('[Update Post] Updating as draft')
+    } else if (scheduleForLater && scheduledDate && scheduledTime) {
+      status = 'scheduled'
+      scheduledAt = `${scheduledDate}T${scheduledTime}:00Z`
+      published = false
+      console.log('[Update Post] Scheduling for:', scheduledAt)
+    } else {
+      status = 'published'
+      published = true
+      console.log('[Update Post] Publishing immediately')
+    }
+
+    // Update post data
+    const updateData = {
+      title,
+      excerpt: excerpt || content.substring(0, 200),
+      content,
+      cover_image_url: coverImageUrl,
+      highlight: highlight || null,
+      tags: tags || [],
+      category: category || 'Manual',
+      published,
+      status,
+      scheduled_at: scheduledAt,
+      updated_at: new Date().toISOString(),
+      seo_title: title,
+      seo_description: excerpt || content.substring(0, 160),
+      keywords: tags || [],
+    }
+
+    console.log('[Update Post] Updating post with data:', JSON.stringify(updateData, null, 2))
+
+    // Update post
+    const { data: post, error } = await supabaseAdmin
+      .from('blog_posts')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('[Update Post] Error updating post:', error)
+      return NextResponse.json(
+        { error: 'Failed to update post', details: error.message },
+        { status: 500 }
+      )
+    }
+
+    console.log('[Update Post] Post updated successfully:', post.id)
+
+    return NextResponse.json({ 
+      success: true, 
+      post,
+      message: 'Post atualizado com sucesso!'
+    })
+  } catch (error) {
+    console.error('[Update Post] Error:', error)
+    return NextResponse.json(
+      { 
+        error: 'Internal server error', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      },
+      { status: 500 }
+    )
+  }
+}
+
+// =====================================================
 // POST /api/admin/blog/posts
 // Create a new blog post manually - Admin only
 // =====================================================

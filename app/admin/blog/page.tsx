@@ -759,6 +759,14 @@ export default function BlogAdminPage() {
                                   <span className="whitespace-nowrap">Atualizado: {new Date(post.updated_at).toLocaleDateString('pt-BR')}</span>
                                 </>
                               )}
+                              {post.status === 'scheduled' && post.scheduled_at && (
+                                <>
+                                  <span className="hidden md:inline">•</span>
+                                  <span className="whitespace-nowrap text-blue-400 font-medium">
+                                    📅 Agendado: {new Date(post.scheduled_at).toLocaleDateString('pt-BR')} às {new Date(post.scheduled_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </>
+                              )}
                               <span className="hidden md:inline">•</span>
                               <span className="text-emerald-400 break-all">/{post.slug}</span>
                             </div>
@@ -778,6 +786,18 @@ export default function BlogAdminPage() {
                           </div>
                           
                           <div className="flex gap-2 w-full md:w-auto md:ml-4 flex-wrap">
+                            {(post.status === 'draft' || post.status === 'scheduled') && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="gap-1 flex-1 md:flex-initial border-blue-500 text-blue-400 hover:bg-blue-500/10"
+                                onClick={() => handleEdit(post)}
+                              >
+                                <Edit className="h-3 w-3" />
+                                <span className="hidden sm:inline">Editar</span>
+                              </Button>
+                            )}
+                            
                             <Button
                               size="sm"
                               variant="outline"
@@ -876,11 +896,15 @@ export default function BlogAdminPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Editor Manualrado de Posts */}
+      {/* Editor Estruturado de Posts */}
       <StructuredPostEditor
         isOpen={structuredEditorOpen}
-        onClose={() => setStructuredEditorOpen(false)}
+        onClose={() => {
+          setStructuredEditorOpen(false)
+          setEditingPost(null)
+        }}
         onSave={loadData}
+        editingPost={editingPost}
       />
     </AdminLayoutWrapper>
     </AdminGuard>
