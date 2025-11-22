@@ -45,11 +45,12 @@ export async function POST(request: NextRequest) {
       const { data, error: dbError } = await supabaseAdmin
         .from('linkedin_posts')
         .insert({
-          content: text,
+          text: text,
           image_url: image_url || null,
           status: publish_now ? 'approved' : 'pending',
           scheduled_for: publish_now ? new Date().toISOString() : null,
-          post_type: blog_category ? `blog-${blog_category}` : 'blog-promotion'
+          post_type: blog_category ? `blog-${blog_category}` : 'blog-promotion',
+          as_organization: false
         })
         .select()
         .single()

@@ -6,7 +6,7 @@ import { runProactiveAlerts } from '@/lib/proactive-alerts'
 import { startCronExecution, completeCronExecution } from '@/lib/cron-execution-logger'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60 // Reduzido para teste
+export const maxDuration = 300 // 5 minutes for blog generation + social promotion
 
 /**
  * Simple unified endpoint - teste simples
