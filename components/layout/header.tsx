@@ -50,7 +50,7 @@ export function Header() {
       if (success) {
         setShowAdminModal(false)
         setPassword('')
-        router.push('/admin/dashboard')
+        window.open('/admin/dashboard', '_blank', 'noopener,noreferrer')
       } else {
         setError('Senha incorreta')
       }

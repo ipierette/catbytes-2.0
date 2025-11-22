@@ -773,7 +773,7 @@ export default function BlogAdminPage() {
                               size="sm"
                               variant="outline"
                               className="gap-1 flex-1 md:flex-initial"
-                              onClick={() => window.open(`/pt-BR/blog/${post.slug}`, '_blank')}
+                              onClick={() => window.open(`/pt-BR/blog/${post.slug}`, '_blank', 'noopener,noreferrer')}
                             >
                               <Eye className="h-3 w-3" />
                               <span className="hidden sm:inline">Ver</span>

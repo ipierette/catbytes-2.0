@@ -11,13 +11,15 @@ export const maxDuration = 60
 
 export async function POST(request: NextRequest) {
   try {
-    // Verifica autenticação (aceita CRON_SECRET)
+    // Verifica autenticação (aceita CRON_SECRET ou admin key)
     const authHeader = request.headers.get('authorization')
+    const adminKey = request.headers.get('x-admin-key')
     const isCronJob = authHeader === `Bearer ${process.env.CRON_SECRET}`
+    const isAdmin = adminKey === process.env.NEXT_PUBLIC_ADMIN_API_KEY
     
-    if (!isCronJob) {
+    if (!isCronJob && !isAdmin) {
       return NextResponse.json(
-        { error: 'Unauthorized - Only cron jobs can use this endpoint' },
+        { error: 'Unauthorized - Only cron jobs or admins can use this endpoint' },
         { status: 401 }
       )
     }
