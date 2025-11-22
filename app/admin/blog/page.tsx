@@ -297,6 +297,16 @@ export default function BlogAdminPage() {
     setStructuredEditorOpen(true)
   }
 
+  // Get preview URL based on post status
+  const getPreviewUrl = (post: BlogPost) => {
+    // Se o post não está publicado (rascunho ou agendado), usa rota de preview admin
+    if (post.status === 'draft' || post.status === 'scheduled' || !post.published) {
+      return `/admin/blog/preview/${post.slug}`
+    }
+    // Se está publicado, usa URL pública normal
+    return `/${post.locale || 'pt-BR'}/blog/${post.slug}`
+  }
+
   const handleDelete = async (id: string) => {
     if (confirm('Deseja realmente excluir este post?')) {
       await deletePost(id)
@@ -772,7 +782,7 @@ export default function BlogAdminPage() {
                               size="sm"
                               variant="outline"
                               className="gap-1 flex-1 md:flex-initial"
-                              onClick={() => window.open(`/pt-BR/blog/${post.slug}`, '_blank', 'noopener,noreferrer')}
+                              onClick={() => window.open(getPreviewUrl(post), '_blank', 'noopener,noreferrer')}
                             >
                               <Eye className="h-3 w-3" />
                               <span className="hidden sm:inline">Ver</span>
