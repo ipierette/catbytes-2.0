@@ -122,6 +122,108 @@ export async function POST(request: NextRequest) {
 
     console.log('[Translate] Translation successful:', translatedPost.id)
 
+    // ========================================
+    // SEND NEWSLETTER TO EN-US SUBSCRIBERS
+    // ========================================
+    try {
+      console.log('[Translate] 📧 Checking EN-US newsletter subscribers...')
+      
+      // Get EN-US subscribers
+      const { data: subscribers, error: fetchError } = await supabaseAdmin
+        .from('newsletter_subscribers')
+        .select('id, email, name, verified, subscribed')
+        .eq('verified', true)
+        .eq('subscribed', true)
+        .eq('locale', 'en-US')
+
+      if (fetchError) {
+        console.error('[Translate] ❌ Error fetching EN-US subscribers:', fetchError)
+      } else {
+        console.log('[Translate] 📊 Found EN-US subscribers:', subscribers?.length || 0)
+        
+        if (!subscribers || subscribers.length === 0) {
+          console.log('[Translate] ⚠️ No EN-US subscribers - newsletter skipped')
+        } else {
+          console.log('[Translate] ✅ Sending newsletter to', subscribers.length, 'EN-US subscribers')
+          
+          // Configure Resend
+          if (!process.env.RESEND_API_KEY) {
+            console.error('[Translate] ❌ RESEND_API_KEY not configured')
+            throw new Error('RESEND_API_KEY not configured')
+          }
+
+          const { Resend } = await import('resend')
+          const resend = new Resend(process.env.RESEND_API_KEY)
+
+          // Import email template
+          const { getNewPostEmailHTML } = await import('@/lib/email-templates')
+
+          const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://catbytes.site'
+          const postUrl = `${baseUrl}/en-US/blog/${translatedPost.slug}`
+
+          // Send emails individually to each subscriber
+          let totalSent = 0
+          const errors: string[] = []
+          
+          for (const subscriber of subscribers) {
+            try {
+              const htmlContent = getNewPostEmailHTML(
+                subscriber.name || 'Reader',
+                translatedPost.title,
+                translatedPost.excerpt,
+                translatedPost.cover_image_url,
+                postUrl,
+                'en-US',
+                baseUrl
+              )
+
+              const emailResult = await resend.emails.send({
+                from: process.env.RESEND_FROM_EMAIL || 'CatBytes <contato@catbytes.site>',
+                to: subscriber.email,
+                subject: `🐱 New Post: ${translatedPost.title}`,
+                html: htmlContent,
+              })
+              
+              console.log(`[Translate] ✅ Email sent to ${subscriber.email}:`, emailResult.data?.id)
+              totalSent++
+              
+              // Update last_email_sent_at timestamp
+              await supabaseAdmin
+                .from('newsletter_subscribers')
+                .update({ last_email_sent_at: new Date().toISOString() })
+                .eq('id', subscriber.id)
+              
+            } catch (emailError) {
+              console.error(`[Translate] ❌ Failed to send to ${subscriber.email}:`, emailError)
+              errors.push(`${subscriber.email}: ${emailError}`)
+            }
+          }
+
+          console.log(`[Translate] 📧 Newsletter complete: ${totalSent}/${subscribers.length} sent`)
+          
+          return NextResponse.json({
+            success: true,
+            message: `Post translated and newsletter sent to ${totalSent} EN-US subscribers`,
+            translatedPost: {
+              id: translatedPost.id,
+              title: translatedPost.title,
+              slug: translatedPost.slug,
+              locale: translatedPost.locale,
+            },
+            newsletter: {
+              sent: true,
+              totalSubscribers: subscribers.length,
+              successfullySent: totalSent,
+              errors: errors.length > 0 ? errors : undefined
+            }
+          })
+        }
+      }
+    } catch (emailError) {
+      console.error('[Translate] ❌ Newsletter error:', emailError)
+      // Don't fail translation if newsletter fails
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Post translated successfully',
