@@ -181,6 +181,7 @@ export async function POST(request: NextRequest) {
       coverImageUrl, 
       contentImages, 
       highlight,
+      saveAsDraft,
       scheduleForLater,
       scheduledDate,
       scheduledTime
@@ -195,7 +196,9 @@ export async function POST(request: NextRequest) {
       coverImageUrl,
       hasTags: !!tags,
       hasContentImages: !!contentImages,
-      hasHighlight: !!highlight
+      hasHighlight: !!highlight,
+      saveAsDraft,
+      scheduleForLater
     })
 
     if (!title || !content || !coverImageUrl) {
@@ -232,11 +235,22 @@ export async function POST(request: NextRequest) {
     let scheduledAt: string | null = null
     let published = true
 
-    if (scheduleForLater && scheduledDate && scheduledTime) {
+    if (saveAsDraft) {
+      // Salvar como rascunho - não publicado
+      status = 'draft'
+      published = false
+      console.log('[Manual Post] Saving as draft (not published)')
+    } else if (scheduleForLater && scheduledDate && scheduledTime) {
+      // Agendar para data futura
       status = 'scheduled'
       scheduledAt = `${scheduledDate}T${scheduledTime}:00Z`
       published = false
       console.log('[Manual Post] Scheduling for:', scheduledAt)
+    } else {
+      // Publicar imediatamente
+      status = 'published'
+      published = true
+      console.log('[Manual Post] Publishing immediately')
     }
 
     // Create post data
@@ -280,6 +294,16 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[Manual Post] Post created successfully:', post.id)
+
+    // Se for rascunho, apenas retornar sucesso sem enviar newsletter
+    if (status === 'draft') {
+      console.log('[Manual Post] ✅ Post salvo como rascunho')
+      return NextResponse.json({ 
+        success: true, 
+        post,
+        message: 'Post salvo como rascunho. Você pode visualizá-lo e publicá-lo depois.'
+      })
+    }
 
     // Se estiver agendado, apenas retornar sucesso
     if (status === 'scheduled') {

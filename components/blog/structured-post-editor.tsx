@@ -45,6 +45,9 @@ export function StructuredPostEditor({ isOpen, onClose, onSave }: StructuredPost
   const [scheduledDate, setScheduledDate] = useState('')
   const [scheduledTime, setScheduledTime] = useState('')
   
+  // Modo de salvamento
+  const [saveAsDraft, setSaveAsDraft] = useState(false)
+  
   const [saving, setSaving] = useState(false)
 
   const addFaqItem = () => {
@@ -197,9 +200,10 @@ ${finalContent.trim()}${faqMarkdown}`
         coverImageUrl: coverImageUrl,
         tags: tags.split(',').map(t => t.trim()).filter(Boolean),
         highlight: highlight.trim(),
-        scheduleForLater,
-        scheduledDate: scheduleForLater ? scheduledDate : null,
-        scheduledTime: scheduleForLater ? scheduledTime : null,
+        saveAsDraft,
+        scheduleForLater: saveAsDraft ? false : scheduleForLater, // Se é rascunho, não pode ser agendado
+        scheduledDate: scheduleForLater && !saveAsDraft ? scheduledDate : null,
+        scheduledTime: scheduleForLater && !saveAsDraft ? scheduledTime : null,
       }
 
       console.log('[Structured Post Editor] Sending postData:', JSON.stringify(postData, null, 2))
@@ -216,7 +220,14 @@ ${finalContent.trim()}${faqMarkdown}`
         throw new Error(errorData.error || 'Falha ao salvar post')
       }
 
-      toast.success('✅ Artigo publicado com sucesso!', { id: 'save-structured' })
+      toast.success(
+        saveAsDraft 
+          ? '✅ Rascunho salvo! Você pode visualizá-lo e publicá-lo depois.' 
+          : scheduleForLater
+          ? '✅ Artigo agendado com sucesso!'
+          : '✅ Artigo publicado com sucesso!', 
+        { id: 'save-structured' }
+      )
       
       // Limpar formulário
       setTitle('')
@@ -648,28 +659,88 @@ Resumo final e call-to-action..."
             )}
           </div>
 
-          {/* SEÇÃO 8: Agendamento */}
-          <div className="border-l-4 border-orange-500 pl-4 space-y-4">
+          {/* SEÇÃO 8: Opções de Publicação */}
+          <div className="border-l-4 border-purple-500 pl-4 space-y-4">
             <h3 className="text-lg font-bold flex items-center gap-2">
-              📅 8. Agendamento de Publicação
+              🚀 8. Opções de Publicação
             </h3>
             
             <div className="space-y-4">
-              <div className="flex items-center space-x-2">
+              {/* Opção: Salvar como Rascunho */}
+              <div className="flex items-start space-x-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
                 <input
-                  type="checkbox"
-                  id="scheduleForLater"
-                  checked={scheduleForLater}
-                  onChange={(e) => setScheduleForLater(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300"
+                  type="radio"
+                  id="saveAsDraft"
+                  name="publishOption"
+                  checked={saveAsDraft}
+                  onChange={(e) => {
+                    setSaveAsDraft(e.target.checked)
+                    if (e.target.checked) setScheduleForLater(false)
+                  }}
+                  className="mt-1 w-4 h-4"
                 />
-                <Label htmlFor="scheduleForLater" className="cursor-pointer">
-                  Agendar publicação para data e hora específicas
-                </Label>
+                <div className="flex-1">
+                  <Label htmlFor="saveAsDraft" className="cursor-pointer font-semibold">
+                    💾 Salvar como Rascunho
+                  </Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    O artigo será salvo mas <strong>não será publicado</strong>. Você poderá visualizá-lo e publicá-lo depois. 
+                    Não envia newsletter nem cria posts sociais.
+                  </p>
+                </div>
               </div>
 
-              {scheduleForLater && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
+              {/* Opção: Agendar Publicação */}
+              <div className="flex items-start space-x-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+                <input
+                  type="radio"
+                  id="scheduleForLater"
+                  name="publishOption"
+                  checked={scheduleForLater && !saveAsDraft}
+                  onChange={(e) => {
+                    setScheduleForLater(e.target.checked)
+                    if (e.target.checked) setSaveAsDraft(false)
+                  }}
+                  className="mt-1 w-4 h-4"
+                />
+                <div className="flex-1">
+                  <Label htmlFor="scheduleForLater" className="cursor-pointer font-semibold">
+                    📅 Agendar Publicação
+                  </Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Escolha data e hora para publicação automática. Newsletter e posts sociais serão criados no horário agendado.
+                  </p>
+                </div>
+              </div>
+
+              {/* Opção: Publicar Agora */}
+              <div className="flex items-start space-x-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+                <input
+                  type="radio"
+                  id="publishNow"
+                  name="publishOption"
+                  checked={!saveAsDraft && !scheduleForLater}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSaveAsDraft(false)
+                      setScheduleForLater(false)
+                    }
+                  }}
+                  className="mt-1 w-4 h-4"
+                />
+                <div className="flex-1">
+                  <Label htmlFor="publishNow" className="cursor-pointer font-semibold">
+                    ✨ Publicar Imediatamente
+                  </Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    O artigo será publicado agora. Newsletter será enviada e posts sociais serão criados automaticamente.
+                  </p>
+                </div>
+              </div>
+
+              {/* Campos de Agendamento (aparecem apenas se agendar estiver selecionado) */}
+              {scheduleForLater && !saveAsDraft && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6 pt-2">
                   <div className="space-y-2">
                     <Label htmlFor="scheduledDate">Data de Publicação</Label>
                     <Input
@@ -694,7 +765,6 @@ Resumo final e call-to-action..."
                   <div className="col-span-2 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
                     <p className="text-sm text-blue-800 dark:text-blue-300">
                       ℹ️ Se a data coincidir com uma geração automática, o cron job será interrompido automaticamente.
-                      Newsletter e posts sociais serão enviados no horário agendado.
                     </p>
                   </div>
                 </div>
@@ -713,7 +783,7 @@ Resumo final e call-to-action..."
                 Cancelar
               </Button>
               <Button onClick={handleSave} disabled={saving} className="gap-2">
-                {saving ? 'Salvando...' : scheduleForLater ? '📅 Agendar Artigo' : '✨ Publicar Artigo Estruturado'}
+                {saving ? 'Salvando...' : saveAsDraft ? '💾 Salvar Rascunho' : scheduleForLater ? '📅 Agendar Artigo' : '✨ Publicar Agora'}
               </Button>
             </div>
           </div>
