@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Calendar, Eye, Tag, ArrowLeft, AlertCircle } from 'lucide-react'
+import { Calendar, Eye, Tag, ArrowLeft, AlertCircle, Edit, Save, X } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR, enUS } from 'date-fns/locale'
 import type { BlogPost } from '@/types/blog'
 import { formatMarkdown as formatMarkdownContent } from '@/lib/markdown-formatter'
+import { toast } from 'sonner'
 
 export default function AdminBlogPreviewPage() {
   const params = useParams()
@@ -17,6 +18,14 @@ export default function AdminBlogPreviewPage() {
   const [post, setPost] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // Editor state
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedTitle, setEditedTitle] = useState('')
+  const [editedExcerpt, setEditedExcerpt] = useState('')
+  const [editedContent, setEditedContent] = useState('')
+  const [editedHighlight, setEditedHighlight] = useState('')
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     async function fetchPost() {
@@ -39,6 +48,11 @@ export default function AdminBlogPreviewPage() {
 
         const data = await response.json()
         setPost(data)
+        // Initialize edit fields
+        setEditedTitle(data.title || '')
+        setEditedExcerpt(data.excerpt || '')
+        setEditedContent(data.content || '')
+        setEditedHighlight(data.highlight || '')
       } catch (err) {
         console.error('Error fetching preview:', err)
         setError('Erro ao carregar preview do post')
@@ -51,6 +65,57 @@ export default function AdminBlogPreviewPage() {
       fetchPost()
     }
   }, [slug])
+
+  const handleSave = async () => {
+    if (!post) return
+    
+    setSaving(true)
+    toast.loading('Salvando alterações...', { id: 'save-preview' })
+    
+    try {
+      const response = await fetch(`/api/admin/blog/posts?id=${post.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          title: editedTitle,
+          excerpt: editedExcerpt,
+          content: editedContent,
+          highlight: editedHighlight,
+          coverImageUrl: post.cover_image_url,
+          tags: post.tags,
+          category: post.category,
+          saveAsDraft: post.status === 'draft',
+          scheduleForLater: post.status === 'scheduled',
+          scheduledDate: post.scheduled_at ? new Date(post.scheduled_at).toISOString().split('T')[0] : null,
+          scheduledTime: post.scheduled_at ? new Date(post.scheduled_at).toTimeString().slice(0, 5) : null,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao salvar')
+      }
+
+      const data = await response.json()
+      setPost(data.post)
+      setIsEditing(false)
+      toast.success('✅ Alterações salvas com sucesso!', { id: 'save-preview' })
+    } catch (err) {
+      console.error('Error saving:', err)
+      toast.error('❌ Erro ao salvar alterações', { id: 'save-preview' })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    if (!post) return
+    setEditedTitle(post.title)
+    setEditedExcerpt(post.excerpt || '')
+    setEditedContent(post.content)
+    setEditedHighlight(post.highlight || '')
+    setIsEditing(false)
+  }
 
   if (loading) {
     return (
@@ -84,7 +149,7 @@ export default function AdminBlogPreviewPage() {
 
   const locale = post.locale === 'en-US' ? enUS : ptBR
   const formattedDate = format(new Date(post.created_at), 'dd MMMM yyyy', { locale })
-  const formattedContent = formatMarkdownContent(post.content)
+  const formattedContent = formatMarkdownContent(isEditing ? editedContent : post.content)
 
   return (
     <div className="min-h-screen bg-slate-950">
@@ -99,13 +164,45 @@ export default function AdminBlogPreviewPage() {
               {post.status === 'scheduled' && ` Agendado para ${post.scheduled_at ? format(new Date(post.scheduled_at), 'dd/MM/yyyy HH:mm') : 'data indefinida'}`}
             </span>
           </div>
-          <button
-            onClick={() => router.push('/admin/blog')}
-            className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Voltar ao Admin
-          </button>
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleCancel}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-3 py-1.5 text-slate-300 hover:text-white border border-slate-600 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  <X className="h-4 w-4" />
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  <Save className="h-4 w-4" />
+                  {saving ? 'Salvando...' : 'Salvar'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Edit className="h-4 w-4" />
+                  Editar
+                </button>
+                <button
+                  onClick={() => router.push('/admin/blog')}
+                  className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Voltar ao Admin
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -121,14 +218,34 @@ export default function AdminBlogPreviewPage() {
             Voltar ao Admin
           </Link>
 
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-100 mb-4">
-            {post.title}
-          </h1>
+          {isEditing ? (
+            <input
+              type="text"
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              className="w-full text-4xl md:text-5xl font-bold bg-slate-900 text-slate-100 border border-slate-700 rounded-lg px-4 py-3 mb-4 focus:outline-none focus:border-blue-500"
+              placeholder="Título do artigo"
+            />
+          ) : (
+            <h1 className="text-4xl md:text-5xl font-bold text-slate-100 mb-4">
+              {post.title}
+            </h1>
+          )}
 
-          {post.excerpt && (
-            <p className="text-xl text-slate-400 mb-6">
-              {post.excerpt}
-            </p>
+          {isEditing ? (
+            <textarea
+              value={editedExcerpt}
+              onChange={(e) => setEditedExcerpt(e.target.value)}
+              rows={2}
+              className="w-full text-xl bg-slate-900 text-slate-400 border border-slate-700 rounded-lg px-4 py-3 mb-6 focus:outline-none focus:border-blue-500 resize-none"
+              placeholder="Resumo do artigo"
+            />
+          ) : (
+            post.excerpt && (
+              <p className="text-xl text-slate-400 mb-6">
+                {post.excerpt}
+              </p>
+            )
           )}
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
@@ -165,13 +282,41 @@ export default function AdminBlogPreviewPage() {
         )}
 
         {/* Highlight */}
-        {post.highlight && (
+        {(isEditing || post.highlight) && (
           <div className="bg-blue-500/10 border-l-4 border-blue-500 p-4 mb-8 rounded-r-lg">
-            <p className="text-slate-200 font-medium">{post.highlight}</p>
+            {isEditing ? (
+              <textarea
+                value={editedHighlight}
+                onChange={(e) => setEditedHighlight(e.target.value)}
+                rows={2}
+                className="w-full bg-slate-900 text-slate-200 font-medium border border-slate-700 rounded px-3 py-2 focus:outline-none focus:border-blue-500 resize-none"
+                placeholder="Texto em destaque (opcional)"
+              />
+            ) : (
+              <p className="text-slate-200 font-medium">{post.highlight}</p>
+            )}
           </div>
         )}
 
         {/* Content */}
+        {isEditing ? (
+          <div className="mb-8">
+            <div className="text-sm font-medium text-slate-300 mb-2">
+              Conteúdo (Markdown)
+            </div>
+            <textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              rows={20}
+              className="w-full bg-slate-900 text-slate-300 border border-slate-700 rounded-lg px-4 py-3 font-mono text-sm focus:outline-none focus:border-blue-500 resize-y"
+              placeholder="Escreva o conteúdo em Markdown..."
+            />
+            <p className="text-xs text-slate-500 mt-2">
+              Preview do conteúdo formatado abaixo ↓
+            </p>
+          </div>
+        ) : null}
+        
         <div 
           className="prose prose-invert prose-slate max-w-none
             prose-headings:text-slate-100 prose-headings:font-bold
