@@ -254,7 +254,7 @@ ${finalContent.trim()}${faqMarkdown}`
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-500" />
-            Editor Manualrado de Artigos
+            Editor Manual de Artigos
           </DialogTitle>
           <DialogDescription>
             Preencha cada seção do template. O layout será aplicado automaticamente.
