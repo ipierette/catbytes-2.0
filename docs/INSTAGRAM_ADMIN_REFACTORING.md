@@ -273,7 +273,7 @@ export default function InstagramError({ error, reset }) {
 import { calculateNextPublicationDate, formatDate } from '../utils'
 
 describe('calculateNextPublicationDate', () => {
-  it('should calculate next Monday 13:00 if today is Sunday', () => {
+  it('should calculate next Monday 9:00 if today is Sunday', () => {
     const sunday = new Date('2024-11-17T10:00:00')
     const result = calculateNextPublicationDate(sunday)
     expect(result.getDay()).toBe(1) // Monday

@@ -134,13 +134,7 @@ export async function GET(request: NextRequest) {
         if (post.cover_image_url) {
           try {
             console.log('[Publish Scheduled] Promoting on social media...')
-            await promoteArticle({
-              title: post.title,
-              excerpt: post.excerpt,
-              slug: post.slug,
-              cover_image_url: post.cover_image_url,
-              locale: post.locale || 'pt-BR'
-            })
+            await promoteArticle(post)
             console.log('[Publish Scheduled] Social media promotion completed')
           } catch (socialError) {
             console.error('[Publish Scheduled] Social media error:', socialError)

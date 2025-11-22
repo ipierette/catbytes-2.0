@@ -82,7 +82,7 @@ app/admin/dashboard/
 **Status:** ✅ Criado  
 **Funções:**
 - `formatRelativeTime()` - Formata datas passadas ("2h atrás", "Ontem")
-- `formatNextExecution()` - Formata datas futuras ("Hoje às 13:00", "Amanhã às 10:00")
+- `formatNextExecution()` - Formata datas futuras ("Hoje às 9:00", "Amanhã às 10:00")
 
 ### 4. `StatsCards` Component
 **Status:** ✅ Criado  

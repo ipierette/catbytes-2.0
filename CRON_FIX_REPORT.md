@@ -19,12 +19,12 @@
    ```json
    {
      "path": "/api/simple-cron",
-     "schedule": "0 13 * * 2,4,6,0"  // 13:00 UTC = 10:00 AM BRT
+     "schedule": "0 13 * * 2,4,6,0"  // 9:00 UTC = 10:00 AM BRT
    }
    ```
 
 2. **Horários:**
-   - Cron configurado para: **13:00 UTC**
+   - Cron configurado para: **9:00 UTC**
    - Equivalente no Brasil: **10:00 AM** (UTC-3)
    - Hora da investigação: **12:03 PM BRT** (15:03 UTC)
    - **Conclusão:** O cron já havia tentado executar às 10 AM, mas falhou silenciosamente
@@ -96,10 +96,10 @@
 - **Domingo (0):** 9:00 BRT - Tech Aleatório
 
 ### Próximas Execuções:
-- **Domingo, 17/11/2025** às 13:00 - Tech Aleatório
-- **Terça-feira, 19/11/2025** às 13:00 - Automação e Negócios
-- **Quinta-feira, 21/11/2025** às 13:00 - Programação e IA
-- **Sábado, 23/11/2025** às 13:00 - Cuidados Felinos
+- **Domingo, 17/11/2025** às 9:00 - Tech Aleatório
+- **Terça-feira, 19/11/2025** às 9:00 - Automação e Negócios
+- **Quinta-feira, 21/11/2025** às 9:00 - Programação e IA
+- **Sábado, 23/11/2025** às 9:00 - Cuidados Felinos
 
 ## 🔧 Commits Realizados
 
@@ -107,7 +107,7 @@
    - Criação do `/app/api/manual-cron-trigger/route.ts`
    - Permite execução manual quando necessário
 
-2. **fix: adjust cron schedule from 13:00 UTC to 12:00 UTC (10 AM to 1 PM BRT)**
+2. **fix: adjust cron schedule from 9:00 UTC to 12:00 UTC (10 AM to 1 PM BRT)**
    - Ajuste do horário no `vercel.json`
    - Melhor horário para engajamento
 
@@ -141,7 +141,7 @@
 - [x] Artigo de hoje (15/11/2025) gerado manualmente
 - [x] Posts sociais criados
 - [x] Código commitado e pushed
-- [ ] Aguardar próxima execução automática (17/11/2025 às 13:00)
+- [ ] Aguardar próxima execução automática (17/11/2025 às 9:00)
 - [ ] Implementar melhorias de monitoramento (futuro)
 
 ---

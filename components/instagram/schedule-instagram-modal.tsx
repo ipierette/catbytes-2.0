@@ -276,7 +276,7 @@ export function ScheduleInstagramModal({
                   Aprovar para Sistema Automático
                 </h4>
                 <p className="text-sm text-muted-foreground">
-                  Será publicado automaticamente no próximo horário agendado (Segunda, Quarta, Sexta, Domingo às 13:00)
+                  Será publicado automaticamente no próximo horário agendado (Segunda, Quarta, Sexta, Domingo às 9:00)
                 </p>
               </div>
               <Button

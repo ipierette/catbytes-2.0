@@ -250,8 +250,8 @@ function calculateNextPublicationDate(): Date {
 **Horários Corretos:**
 | Evento | UTC | BRT (Dashboard) | Vercel Cron |
 |--------|-----|-----------------|-------------|
-| Geração Blog | 12:00 | 13:00 ✅ | Ter/Qui/Sáb/Dom |
-| Publicação Posts | 13:00 | 10:00 ✅ | Diário |
+| Geração Blog | 12:00 | 9:00 ✅ | Ter/Qui/Sáb/Dom |
+| Publicação Posts | 9:00 | 10:00 ✅ | Diário |
 
 **Antes vs Depois:**
 ```
@@ -264,7 +264,7 @@ Dashboard ANTES:
 Dashboard DEPOIS:
 ┌─────────────────────────┐
 │ Próxima Geração:        │
-│ 🕐 Terça-feira às 13:00│ ✅ CORRETO (BRT)
+│ 🕐 Terça-feira às 9:00│ ✅ CORRETO (BRT)
 └─────────────────────────┘
 ```
 

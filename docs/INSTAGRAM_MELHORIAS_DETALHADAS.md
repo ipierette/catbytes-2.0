@@ -510,7 +510,7 @@ const handleBulkApprove = async () => {
 // Dialog para escolher data/hora
 const BulkScheduleDialog = () => {
   const [scheduleDate, setScheduleDate] = useState<Date>(new Date())
-  const [scheduleTime, setScheduleTime] = useState('13:00')
+  const [scheduleTime, setScheduleTime] = useState('9:00')
 
   const handleSchedule = async () => {
     const scheduledFor = new Date(scheduleDate)

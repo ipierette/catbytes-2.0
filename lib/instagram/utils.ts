@@ -24,7 +24,7 @@ export function calculateNextPublicationDate(fromDate: Date = new Date()): Date 
   const result = new Date(fromDate)
   result.setHours(PUBLICATION_HOUR, 0, 0, 0)
   
-  // Se já passou das 13:00 hoje, começar do próximo dia
+  // Se já passou das 9:00 hoje, começar do próximo dia
   if (fromDate.getHours() >= PUBLICATION_HOUR) {
     result.setDate(result.getDate() + 1)
   }

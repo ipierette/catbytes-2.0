@@ -384,7 +384,7 @@ export default function InstagramAdminPage() {
                     • Você pode editar manualmente depois<br/>
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    <strong>Automático:</strong> Cron jobs geram posts automaticamente (segunda, terça, quinta e sábado às 13:00)<br/>
+                    <strong>Automático:</strong> Cron jobs geram posts automaticamente (segunda, terça, quinta e sábado às 9:00)<br/>
                     <strong>Manual:</strong> Use os botões de geração a qualquer momento
                   </p>
                 </div>

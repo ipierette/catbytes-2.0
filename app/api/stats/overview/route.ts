@@ -151,9 +151,9 @@ function calculateNextGenerationDate(): Date {
   return new Date(result.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
 }
 
-// Calcular próxima publicação (todos os dias às 13:00 UTC = 10:00 BRT)
+// Calcular próxima publicação (todos os dias às 9:00 UTC = 10:00 BRT)
 function calculateNextPublicationDate(): Date {
-  const publicationHourUTC = 13 // 13:00 UTC = 10:00 BRT
+  const publicationHourUTC = 13 // 9:00 UTC = 10:00 BRT
   
   const now = new Date()
   const result = new Date(now)

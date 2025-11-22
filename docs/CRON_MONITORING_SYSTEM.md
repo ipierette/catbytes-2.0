@@ -172,7 +172,7 @@ const generationHourUTC = 16 // CORRETO: 12:00 UTC = 9:00 BRT
 
 **Mudanças:**
 - Usa `getUTCHours()` e `getUTCDay()` para consistência
-- Calcula com horário UTC (12:00) que converte para BRT (13:00)
+- Calcula com horário UTC (12:00) que converte para BRT (9:00)
 - Dias corretos: [2, 4, 6, 0] = Terça, Quinta, Sábado, Domingo
 
 ## 🚀 Como Usar

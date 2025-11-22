@@ -235,7 +235,7 @@ export function CronMonitoringCard() {
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-gray-600 dark:text-gray-400">Geração de Conteúdo</span>
-              <span className="font-medium dark:text-gray-200">Ter/Qui/Sáb/Dom às 13:00</span>
+              <span className="font-medium dark:text-gray-200">Ter/Qui/Sáb/Dom às 9:00</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-gray-600 dark:text-gray-400">Verificação de Token</span>
