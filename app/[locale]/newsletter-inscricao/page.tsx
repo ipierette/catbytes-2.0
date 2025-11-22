@@ -94,7 +94,7 @@ export default async function NewsletterSignupPage({ params }: { params: Promise
             </div>
 
             {/* Newsletter Form */}
-            <NewsletterSignup locale={locale} />
+            <NewsletterSignup variant="blog" />
           </div>
         </div>
 
