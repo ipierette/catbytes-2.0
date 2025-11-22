@@ -81,7 +81,6 @@ export default async function NewsletterSignupPage({ params }: { params: Promise
             {/* Newsletter Form */}
             <NewsletterSignup variant="blog" />
           </div>
-        </div>
 
           {/* Additional Info */}
           <div className="p-6 bg-slate-800/50 border border-slate-700 rounded-xl">
