@@ -14,7 +14,7 @@ const resend = process.env.RESEND_API_KEY
 // Get ALL blog posts (including drafts and unpublished) - Admin only
 // =====================================================
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 
 export async function GET(request: NextRequest) {
   try {
@@ -66,6 +66,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(
       { 
+        success: true,
         posts: postsWithStatus,
         total: postsWithStatus.length 
       },
@@ -110,7 +111,9 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const { id } = await request.json()
+    // Get ID from query params
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
 
     if (!id) {
       return NextResponse.json(
