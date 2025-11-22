@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Plus, FileText, ChevronDown, Edit, Sparkles, Clock, CheckCircle, Calendar, Eye, TrendingUp, Trash2, CalendarX } from 'lucide-react'
+import { Plus, FileText, ChevronDown, Sparkles, Clock, CheckCircle, Calendar, Eye, TrendingUp, Trash2, CalendarX } from 'lucide-react'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { StructuredPostEditor } from '@/components/blog/structured-post-editor'
@@ -786,18 +786,6 @@ export default function BlogAdminPage() {
                           </div>
                           
                           <div className="flex gap-2 w-full md:w-auto md:ml-4 flex-wrap">
-                            {(post.status === 'draft' || post.status === 'scheduled') && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="gap-1 flex-1 md:flex-initial border-blue-500 text-blue-400 hover:bg-blue-500/10"
-                                onClick={() => handleEdit(post)}
-                              >
-                                <Edit className="h-3 w-3" />
-                                <span className="hidden sm:inline">Editar</span>
-                              </Button>
-                            )}
-                            
                             <Button
                               size="sm"
                               variant="outline"

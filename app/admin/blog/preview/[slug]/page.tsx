@@ -301,15 +301,24 @@ export default function AdminBlogPreviewPage() {
         {/* Content */}
         {isEditing ? (
           <div className="mb-8">
-            <div className="text-sm font-medium text-slate-300 mb-2">
-              Conteúdo (Markdown)
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-medium text-slate-300">
+                Conteúdo (Markdown)
+              </div>
+              <div className="text-xs text-slate-500">
+                💡 Use <code className="bg-slate-800 px-2 py-1 rounded">[MANIFESTO]</code> ou <code className="bg-slate-800 px-2 py-1 rounded">[NEWSLETTER]</code> para inserir links destacados
+              </div>
             </div>
             <textarea
               value={editedContent}
               onChange={(e) => setEditedContent(e.target.value)}
               rows={20}
               className="w-full bg-slate-900 text-slate-300 border border-slate-700 rounded-lg px-4 py-3 font-mono text-sm focus:outline-none focus:border-blue-500 resize-y"
-              placeholder="Escreva o conteúdo em Markdown..."
+              placeholder="Escreva o conteúdo em Markdown...
+
+Dica: Use os códigos especiais para criar CTAs bonitos:
+- [MANIFESTO] - Cria um card com link para o Manifesto da IA
+- [NEWSLETTER] - Cria um card com link para inscrição na Newsletter"
             />
             <p className="text-xs text-slate-500 mt-2">
               Preview do conteúdo formatado abaixo ↓

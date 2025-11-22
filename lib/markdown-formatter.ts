@@ -4,6 +4,45 @@
  */
 
 export function formatMarkdown(markdown: string): string {
+  // ========== PROCESS SHORTCODES FIRST ==========
+  // [MANIFESTO] -> Card bonito com link para o manifesto
+  markdown = markdown.replace(/\[MANIFESTO\]/gi, `
+<div class="my-8 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-2 border-purple-500/30 rounded-xl">
+  <div class="flex items-start gap-4">
+    <div class="flex-shrink-0 w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center text-2xl">
+      🤖
+    </div>
+    <div class="flex-1">
+      <h3 class="text-xl font-bold text-purple-600 dark:text-purple-400 mb-2">Manifesto da CatBytes IA</h3>
+      <p class="text-gray-700 dark:text-gray-300 mb-4">Conheça nossa visão sobre inteligência artificial ética, acessível e focada em resultados reais para pequenas empresas.</p>
+      <a href="/pt-BR/manifesto-ia" class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors">
+        📜 Ler o Manifesto Completo
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+      </a>
+    </div>
+  </div>
+</div>
+`)
+
+  // [NEWSLETTER] -> Card bonito com link para newsletter
+  markdown = markdown.replace(/\[NEWSLETTER\]/gi, `
+<div class="my-8 p-6 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-2 border-blue-500/30 rounded-xl">
+  <div class="flex items-start gap-4">
+    <div class="flex-shrink-0 w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center text-2xl">
+      📧
+    </div>
+    <div class="flex-1">
+      <h3 class="text-xl font-bold text-blue-600 dark:text-blue-400 mb-2">Newsletter CatBytes</h3>
+      <p class="text-gray-700 dark:text-gray-300 mb-4">Receba dicas exclusivas sobre IA, automação e tecnologia direto no seu email. Conteúdo semanal sem spam!</p>
+      <a href="/pt-BR/newsletter-inscricao" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+        ✉️ Inscrever-se Grátis
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+      </a>
+    </div>
+  </div>
+</div>
+`)
+
   // ========== DETECT FAQ SECTION FIRST (before converting to HTML) ==========
   const faqPatternsMd = [
     /^## Perguntas Frequentes$/im,
