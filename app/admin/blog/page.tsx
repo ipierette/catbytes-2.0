@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { FileText, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Plus, Edit, Trash2, Eye, Clock, ChevronDown, Sparkles } from 'lucide-react'
+import { FileText, Calendar, TrendingUp, AlertCircle, CheckCircle, XCircle, Plus, Edit, Trash2, Eye, Clock, ChevronDown, Sparkles, CalendarX } from 'lucide-react'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { toast } from 'sonner'
@@ -68,6 +68,8 @@ export default function BlogAdminPage() {
   const [customThemeDialogOpen, setCustomThemeDialogOpen] = useState(false)
   const [customTheme, setCustomTheme] = useState('')
   const [structuredEditorOpen, setStructuredEditorOpen] = useState(false)
+  const [skippingToday, setSkippingToday] = useState(false)
+  const [todaySkipped, setTodaySkipped] = useState(false)
   // Removed message state - using toast instead
 
   // Filtrar posts baseado no status e período selecionados
@@ -340,6 +342,58 @@ export default function BlogAdminPage() {
     }
   }
 
+  const handleSkipToday = async () => {
+    try {
+      setSkippingToday(true)
+      const response = await fetch('/api/blog/skip-today', {
+        method: 'POST',
+        headers: {
+          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
+        }
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setTodaySkipped(true)
+        toast.success(data.message)
+      } else {
+        toast.error(data.error || 'Erro ao pular geração de hoje')
+      }
+    } catch (error) {
+      console.error('Error skipping today:', error)
+      toast.error('Erro ao pular geração de hoje')
+    } finally {
+      setSkippingToday(false)
+    }
+  }
+
+  const handleCancelSkip = async () => {
+    try {
+      setSkippingToday(true)
+      const response = await fetch('/api/blog/skip-today', {
+        method: 'DELETE',
+        headers: {
+          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
+        }
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setTodaySkipped(false)
+        toast.success(data.message)
+      } else {
+        toast.error(data.error || 'Erro ao cancelar skip')
+      }
+    } catch (error) {
+      console.error('Error canceling skip:', error)
+      toast.error('Erro ao cancelar skip')
+    } finally {
+      setSkippingToday(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="container mx-auto p-8">
@@ -369,6 +423,17 @@ export default function BlogAdminPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3 w-full md:w-auto">
+            <Button
+              variant={todaySkipped ? "outline" : "destructive"}
+              size="lg"
+              className="gap-2 flex-1 md:flex-initial"
+              onClick={todaySkipped ? handleCancelSkip : handleSkipToday}
+              disabled={skippingToday}
+            >
+              <CalendarX className="h-4 w-4" />
+              {todaySkipped ? '🔄 Reativar Hoje' : '⏭️ Pular Hoje'}
+            </Button>
+            
             <Button
               variant="default"
               size="lg"

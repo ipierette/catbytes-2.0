@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Instagram, Calendar, Power, PowerOff, RefreshCw } from 'lucide-react'
+import { Instagram, Calendar, RefreshCw } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
@@ -17,8 +17,7 @@ import type { InstagramPost, PostStatus } from '@/lib/instagram'
 import {
   useInstagramPosts,
   useInstagramStats,
-  useInstagramApproval,
-  useInstagramSettings
+  useInstagramApproval
 } from './_hooks'
 
 // Componentes modulares
@@ -60,26 +59,9 @@ export default function InstagramAdminPage() {
     publishNow
   } = useInstagramApproval()
 
-  const {
-    settings,
-    loading: settingsLoading,
-    toggleAutoGeneration
-  } = useInstagramSettings()
-
-  const loading = postsLoading || statsLoading || settingsLoading
+  const loading = postsLoading || statsLoading
 
   // Handlers
-  const handleToggleAutoGen = async () => {
-    const success = await toggleAutoGeneration()
-    if (success) {
-      setMessage({ 
-        type: 'success', 
-        text: `Geração automática ${settings?.autoGenerationEnabled ? 'PAUSADA' : 'ATIVADA'}` 
-      })
-    } else {
-      setMessage({ type: 'error', text: 'Erro ao alterar configuração' })
-    }
-  }
 
   const handleDALLEGenerate = async (config: {
     nicho: string
@@ -325,15 +307,6 @@ export default function InstagramAdminPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <Button 
-                onClick={handleToggleAutoGen}
-                variant={settings?.autoGenerationEnabled ? 'default' : 'outline'}
-                size="lg"
-                className="gap-2"
-              >
-                {settings?.autoGenerationEnabled ? <Power className="h-4 w-4" /> : <PowerOff className="h-4 w-4" />}
-                {settings?.autoGenerationEnabled ? 'Geração Ativa' : 'Geração Pausada'}
-              </Button>
-              <Button 
                 onClick={() => setShowDALLEModal(true)}
                 variant="default"
                 size="lg" 
@@ -412,10 +385,7 @@ export default function InstagramAdminPage() {
                   </p>
                   <p className="text-sm text-muted-foreground">
                     <strong>Automático:</strong> Cron jobs geram posts automaticamente (segunda, terça, quinta e sábado às 13:00)<br/>
-                    <strong>Manual:</strong> Use os botões de geração a qualquer momento<br/>
-                    <strong>Status:</strong> <span className={settings?.autoGenerationEnabled ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
-                      {settings?.autoGenerationEnabled ? 'ATIVA' : 'PAUSADA'}
-                    </span>
+                    <strong>Manual:</strong> Use os botões de geração a qualquer momento
                   </p>
                 </div>
                 <div>
