@@ -27,19 +27,6 @@ import { AdminLayoutWrapper } from '@/components/admin/admin-navigation'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { StructuredPostEditor } from '@/components/blog/structured-post-editor'
 import { BlogPost } from '@/types/blog'
-
-// Components
-import { BlogStats } from '@/components/admin/blog/BlogStats'
-import { BlogFilters } from '@/components/admin/blog/BlogFilters'
-import { ThemeSystemCard } from '@/components/admin/blog/ThemeSystemCard'
-import { PostList } from '@/components/admin/blog/PostList'
-import { GenerateMenu } from '@/components/admin/blog/GenerateMenu'
-import { CustomThemeDialog } from '@/components/admin/blog/CustomThemeDialog'
-
-// Hooks
-import { useBlogPosts } from '@/hooks/use-blog-posts'
-import { useBlogFilters } from '@/hooks/use-blog-filters'
-import { useBlogGeneration } from '@/hooks/use-blog-generation'
 import { toast } from 'sonner'
 
 export default function BlogAdminPage() {
@@ -50,28 +37,73 @@ export default function BlogAdminPage() {
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null)
   const [skippingToday, setSkippingToday] = useState(false)
   const [todaySkipped, setTodaySkipped] = useState(false)
+  const [posts, setPosts] = useState<BlogPost[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft' | 'scheduled'>('all')
+  const [periodFilter, setPeriodFilter] = useState('')
 
-  // Custom hooks
-  const {
-    posts,
-    stats,
-    isLoading,
-    loadPosts,
-    deletePost,
-    bulkDelete,
-    duplicatePost,
-    togglePublish,
-  } = useBlogPosts()
+  // Stats calculation
+  const stats = {
+    total: posts.length,
+    published: posts.filter(p => p.status === 'published').length,
+    drafts: posts.filter(p => p.status === 'draft').length,
+    scheduled: posts.filter(p => p.status === 'scheduled').length,
+  }
 
-  const { statusFilter, periodFilter, filteredPosts, setStatusFilter, setPeriodFilter } =
-    useBlogFilters(posts)
+  // Filtered posts
+  const filteredPosts = posts.filter(post => {
+    if (statusFilter !== 'all' && post.status !== statusFilter) return false
+    if (periodFilter) {
+      const createdAt = new Date(post.created_at)
+      const now = new Date()
+      const diffDays = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24))
+      
+      switch (periodFilter) {
+        case 'last7days':
+          if (diffDays > 7) return false
+          break
+        case 'last30days':
+          if (diffDays > 30) return false
+          break
+        case 'last3months':
+          if (diffDays > 90) return false
+          break
+        case 'last6months':
+          if (diffDays > 180) return false
+          break
+        case 'lastyear':
+          if (diffDays > 365) return false
+          break
+      }
+    }
+    return true
+  })
 
-  const { isGenerating, generatePost, translatePost } = useBlogGeneration()
+  // Load posts
+  const loadPosts = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch('/api/admin/blog/posts', {
+        headers: {
+          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
+        }
+      })
+      const data = await response.json()
+      if (data.success) {
+        setPosts(data.posts || [])
+      }
+    } catch (error) {
+      console.error('Error loading posts:', error)
+      toast.error('Erro ao carregar posts')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-  // Load posts on mount
   useEffect(() => {
     loadPosts()
-  }, [loadPosts])
+  }, [])
 
   // Post selection handlers
   const togglePostSelection = (id: string) => {
@@ -84,21 +116,113 @@ export default function BlogAdminPage() {
     if (selectedPosts.length === filteredPosts.length) {
       setSelectedPosts([])
     } else {
-      setSelectedPosts(filteredPosts.map((p) => p.id))
+      setSelectedPosts(filteredPosts.map((p: BlogPost) => p.id))
+    }
+  }
+
+  // Generate post
+  const generatePost = async (theme: string) => {
+    try {
+      setIsGenerating(true)
+      const response = await fetch('/api/blog/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
+        },
+        body: JSON.stringify({ customTheme: theme || undefined })
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast.success('Artigo gerado com sucesso!')
+        await loadPosts()
+      } else {
+        toast.error(data.error || 'Erro ao gerar artigo')
+      }
+    } catch (error) {
+      console.error('Error generating post:', error)
+      toast.error('Erro ao gerar artigo')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  // Translate post
+  const translatePost = async (postId: string) => {
+    try {
+      setIsGenerating(true)
+      const response = await fetch('/api/admin/blog/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
+        },
+        body: JSON.stringify({ postId })
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast.success('Post traduzido com sucesso!')
+        await loadPosts()
+      } else {
+        toast.error(data.error || 'Erro ao traduzir post')
+      }
+    } catch (error) {
+      console.error('Error translating post:', error)
+      toast.error('Erro ao traduzir post')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  // Delete post
+  const deletePost = async (id: string) => {
+    try {
+      const response = await fetch(`/api/admin/blog/posts?id=${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
+        }
+      })
+      const data = await response.json()
+      if (data.success) {
+        toast.success('Post deletado com sucesso!')
+        await loadPosts()
+      } else {
+        toast.error(data.error || 'Erro ao deletar post')
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error)
+      toast.error('Erro ao deletar post')
+    }
+  }
+
+  // Bulk delete
+  const bulkDelete = async (ids: string[]) => {
+    try {
+      const deletePromises = ids.map(id => 
+        fetch(`/api/admin/blog/posts?id=${id}`, {
+          method: 'DELETE',
+          headers: {
+            'x-admin-key': process.env.NEXT_PUBLIC_ADMIN_API_KEY || 'C@T-BYt3s1460071--admin-api-2024'
+          }
+        })
+      )
+      await Promise.all(deletePromises)
+      toast.success(`${ids.length} post(s) deletado(s) com sucesso!`)
+      await loadPosts()
+    } catch (error) {
+      console.error('Error bulk deleting posts:', error)
+      toast.error('Erro ao deletar posts')
     }
   }
 
   // Generation handlers
   const handleGenerateByTheme = async (theme: string) => {
-    await generatePost(theme, loadPosts)
+    await generatePost(theme)
   }
 
   const handleGenerateCustom = () => {
     setCustomThemeDialogOpen(true)
-  }
-
-  const handleCustomThemeGenerate = async (theme: string) => {
-    await generatePost(theme, loadPosts)
   }
 
   const handleGenerateWithCustomTheme = async () => {
@@ -107,7 +231,7 @@ export default function BlogAdminPage() {
       return
     }
     setCustomThemeDialogOpen(false)
-    await generatePost(customTheme, loadPosts)
+    await generatePost(customTheme)
     setCustomTheme('')
   }
 
@@ -193,7 +317,7 @@ export default function BlogAdminPage() {
 
   const handleTranslate = async (post: BlogPost) => {
     if (confirm(`Traduzir "${post.title}" para outro idioma?`)) {
-      await translatePost(post.id, loadPosts)
+      await translatePost(post.id)
     }
   }
 
@@ -590,7 +714,7 @@ export default function BlogAdminPage() {
                   </Label>
                 </div>
 
-                {filteredPosts.map(post => (
+                {filteredPosts.map((post: BlogPost) => (
                   <div
                     key={post.id}
                     className="border border-slate-700 rounded-lg p-3 md:p-4 hover:bg-slate-700/30 transition-colors bg-slate-800/50"
@@ -632,7 +756,7 @@ export default function BlogAdminPage() {
                             
                             {post.tags && post.tags.length > 0 && (
                               <div className="flex gap-1 mt-2 flex-wrap">
-                                {post.tags.slice(0, 3).map((tag, index) => (
+                                {post.tags.slice(0, 3).map((tag: string, index: number) => (
                                   <span key={index} className="text-xs bg-emerald-900/40 text-emerald-300 border border-emerald-700/50 px-2 py-1 rounded whitespace-nowrap">
                                     #{tag}
                                   </span>
