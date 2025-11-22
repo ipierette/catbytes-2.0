@@ -42,10 +42,6 @@
     {
       "path": "/api/cron/check-instagram-token",
       "schedule": "0 12 * * *"
-    },
-    {
-      "path": "/api/cron/publish-scheduled-blog",
-      "schedule": "0 * * * *"
     }
   ]
 }
